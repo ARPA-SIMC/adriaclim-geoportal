@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Authentication</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css">
+        <style>
+          .asteriskField{
+              display:none;
+          }
+          input {max-width: 15em};
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <h1>User administration panel</h1>
+        <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Homepage</a></li>
+            <li class="breadcrumb-item"><a href="/administration">Administration</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add User</li>
+        </ol>
+        </nav>
+        <hr>
+        <h3>Add User</h3>
+        {% load crispy_forms_tags %}
+        {% block content%}
+        <form method='POST' action="">
+        {% csrf_token %}
+        <p>
+         {{form_user|crispy}}
+         </p>
+         {% if messages %}
+        {% for message in messages %}
+        {% if message.tags %} {% endif %}
+        <script>
+         alert("{{message}}")
+        </script>
+        {% endfor %}
+        {% endif %}
+         <button type="submit" class="btn btn-primary"/>
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+        <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+        <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+        </svg>
+        Add the User
+         </button>
+        </form>
+        {% endblock %}
+        <br>
+</html>

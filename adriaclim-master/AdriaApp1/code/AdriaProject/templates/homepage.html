@@ -1,0 +1,3339 @@
+{% load static %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+
+<html>
+ 
+    <head>
+        <meta charset="utf-8">
+        <meta charset="UTF-8" name="referrer" content="no-referrer">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Geoportal</title>
+         
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://npmcdn.com/@turf/turf@6.3.0/turf.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+       
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+       <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"> </script>
+       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+       <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.4"></script>
+       <script data-require="d3@3.5.3" data-semver="3.5.3" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>
+        <script src="{% static 'assets/js/GeoJsonAjax.js' %}"></script>
+ 
+       <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
+       
+     
+      
+  </body>
+        <style>
+
+          .chart{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+          }
+
+          .form-check{
+            display:flex;
+            padding-left:0px;
+          }
+          .form-check button{
+            min-height:24px;
+            min-width:24px;
+            max-width:24px;
+            max-height:24px;
+            padding:0px;
+            margin:2px;
+            
+            float:right;
+          }
+           #admin_div{
+               flex:1;
+               text-align:right;
+           }
+
+            #divButton{
+              pointer-events: auto;
+              display: flex;
+              flex-direction: column-reverse;
+            }
+           
+           #graphModal{
+             position: absolute;
+            float: left;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+           }
+
+           .modal-lg{
+             max-width:75% !important;
+           }
+
+           #pills-table{
+             overflow-y:scroll;
+             max-height:350px;
+           }
+               
+              #cardDiv{
+                pointer-events:auto;
+                background-color:white;
+               height: 120px;
+              }
+            
+                rop.show {
+                    z-index: 1;
+                  }
+              
+              label{
+                font-size:15px;
+              }
+
+              #scroll_full_list{
+                overflow-y: scroll;
+                 max-height: 120px;
+              }
+
+              .scrollable{
+                overflow-y: scroll;
+                 max-height: 120px;
+              }
+             
+              .panel scrollable{
+                overflow-y:scroll;
+                max-height:120px;
+              }
+              .accordion {
+                  background-color: white;
+                  color: #444;
+                  cursor: pointer;
+                  padding: 0px;
+                  width: 100%;
+                  border: none;
+                  text-align: left;
+                  font-weight:bold;
+                  outline: none;
+                  font-size: 15px;
+                  transition: 0.4s;
+                }
+
+                 .accordion:hover {
+                  background-color: #ccc;
+                }
+
+                .accordion:after {
+                  content: '\002B';
+                  color: #777;
+                  font-weight: bold;
+                  float: right;
+                  margin-left: 0px;
+                }
+
+                .active:after {
+                  content: "\2212";
+                }
+
+                .panel{
+                  padding: 0 0px;
+                  background-color: white;
+                  max-height: 0px;
+                  overflow: hidden;
+                  transition: max-height 0.2s ease-out;
+                }
+                #paramTime{
+                  display:none;
+                }
+
+                #parameters{
+                  font-size:15px;
+                  font-weight:bold;
+                  padding:5px;
+                  display:none;
+                }
+                #layer_opacity{
+                  display:none;
+                }
+                
+                .scrollable_modal{
+                overflow-y: scroll;
+                 max-height: 300px;
+              }
+
+              #param_unknown{
+                display:none;
+              }
+
+              img{
+                width:300px;
+              }
+              #filterLayers {
+                    background-image: url('https://www.w3schools.com/css/searchicon.png');
+                    background-size:15px;
+                    background-position: 10px 10px;
+                    background-repeat: no-repeat;
+                    width: 100%;
+                    font-size: 12px;
+                    padding: 7px 10px 5px 30px;
+                    border: 1px solid #ddd;
+                    margin-bottom: 12px;
+                  }
+
+                [button_remove="removeLayer"]{
+                  display:none;
+                }
+
+                [buttonindex="changeIndex"]{
+                  display:none;
+                }
+
+                #createImage{
+                  display:flex;
+                  flex-direction:column;
+                }
+                
+
+              .nav-link{
+                font-family:'Roboto', sans-serif;
+                font-weight:bold;
+                font-size:15px;
+                
+              }
+              
+              .nav-link:after{
+                content:none;
+              }
+              .tab-pane:after{
+                content:none;
+              }
+
+            #grabHand{
+              display: flex;
+              position: absolute;
+              top: 90px;
+              left:10px;
+              padding: 10px;
+              z-index: 500;
+              background-color:white;
+              border-color:white;
+            }
+
+          #grabHand:hover{
+              background-color:#04AA6D;
+              cursor: pointer;
+          }
+
+          #locationHand{
+             display: flex;
+              position: absolute;
+              top: 130px;
+              left:10px;
+              padding: 10px;
+              z-index: 500;
+              background-color:white;
+              border-color:white;
+          }
+           #locationHand:hover{
+              background-color:#04AA6D;
+              cursor: pointer;
+          }
+
+          .loaderText{
+            font-family:'Roboto',sans-serif;
+
+          }
+          #loadingTable{
+            display:flex;
+            justify-content:center;
+          }
+          #loadingGraph{
+            display:flex;
+            justify-content:center;
+          }
+          .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 60px;
+            height: 60px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+          }
+          
+          /* Safari */
+          @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          #labelType{
+            font-weight: bold;
+            font-family:'Roboto',sans-serif;
+          }
+          #extraRangeStart{
+            font-weight: bold;
+            font-family:'Roboto',sans-serif;
+          }
+          #extraRangeStop{
+            font-weight: bold;
+            font-family:'Roboto',sans-serif;
+          }
+
+          
+
+    
+      
+          #selectType {
+            width: 100%;
+            height: 50px;
+            font-size: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 0;
+            background-color: #007bff;
+            border: none;
+            border-bottom: 2px solid #007bff;
+            color: white;
+            appearance: none;
+            padding: 10px;
+            padding-right: 38px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: color 0.3s ease, background-color 0.3s ease, border-bottom-color 0.3s ease;
+          }
+          #selectType option{
+            font-family:'Roboto',sans-serif;
+            font-weight:bold;
+          }
+      
+          /* For IE <= 11 */
+          #selectType::-ms-expand {
+            display: none; 
+          }
+      
+          .select-icon {
+            position: absolute;
+            top:62%;
+            right:30px;
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+            border: 2px solid white;
+            padding-left: 5px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+          }
+          .select-icon svg.icon {
+            transition: fill 0.3s ease;
+            fill: white;
+          }
+
+          #selectContainer:hover 
+          svg.icon{
+              fill: #007bff;        
+             }
+
+            #selectContainer:focus svg.icon{
+              fill:#007bff;
+            }
+
+            #selectContainer:hover .select-icon{
+              border-color:#007bff;
+            }
+            #selectContainer:focus .select-icon{
+              border-color:#007bff;
+            }
+         
+
+      
+          #selectType:hover,
+          #selectType:focus {
+            color: #007bff;
+            background-color: white;
+            border-bottom-color: #DCDCDC;
+          }
+
+          #submitType:hover{
+            background-color:white;
+            color:#007bff;
+          }
+
+          #submitType{
+            color:white;
+          }
+
+          #paragraphRange{
+             display:none;
+          }
+
+          #slider-Range{
+            display:none;
+          }
+
+          #buttonsDate{
+            margin-left:36px;
+          }
+
+          #scroll_full_list .open-modal{
+            margin-left:auto;
+          }
+
+          #cardParameters{
+            display:none;
+          }
+          #admin_butt{
+            display:none;
+          }
+          #layers_active .open-modal{
+            margin-left:auto;
+          }
+          .modal-backdrop{
+            z-index:998;
+          }
+          
+          .myLegendDiv{
+          
+            background-color:	rgb(255,255,230);
+            border: 1px solid black;
+            width:420px;
+            height:90px;
+            font-family:'Roboto',sans-serif;
+            font-weight:bold;
+          }
+          .myLegendDiv p{
+            margin-left: 80px;
+            margin-top: 11px;
+          }
+
+          .colorValue{
+            display:inline-block;
+          }
+
+          .minColorSpan{
+            margin-right:50px;
+          }
+
+          .midColorSpan{
+            margin-right:58px;
+          }
+
+          .maxColorSpan{
+            margin-right:50px;
+          }
+          
+          
+         
+          
+
+          
+
+        </style>
+    </head>
+    <body>
+           
+        <div id="map" class="leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" tabindex="0">
+          <div class="leaflet-top leaflet-right" id="cardDiv">
+           <div class="card" id="cardFather" style="width: 22rem;">
+              <div class="card-body">
+                <h5 class="card-title d-flex justify-content-center">Layers</h5>
+                 <div class="card" id="cardLayersActive">
+                      <div class="card-body">
+                        <button class="card-title accordion">Active Layers</button>
+                        <div class="panel scrollable" id="layers_active" >
+                           
+                        </div>
+                      </div>
+                    </div>
+                     <div class="card"  id="cardFullList">
+                      <div class="card-body">
+                        <button class="card-title accordion">Full List</button>
+                        <div class="panel">
+                        <input type="text" id="filterLayers" placeholder="Search for layers..." title="Type in a name">
+                          <div id="scroll_full_list">
+                           
+                          {% for i in datasets %}
+                          <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.id}}" griddap_url="{{i.griddap_url}}" 
+                             wms="{{i.wms}}" metadata_url="{{i.metadata_url}}" institution="{{i.institution}}" name_layer="" date_start="" date_end="" 
+                             num_param="" range_value="">
+                              <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
+                            
+                              <button class="btn btn-primary btn-sm open-modal" title="Information on the layer" data-bs-toggle="modal" onclick="openModal(this)" data-bs-target="#exampleModal">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                              <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                            </svg>
+                              </button>
+                              <button class="btn btn-danger btn-sm" button_remove="removeLayer">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                              </svg>
+                              </button>
+                            
+                              
+                             
+                          </div>
+    
+                    <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true" >
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body " id="modal-body">
+                            <h5>Url</h5>
+                            <h7 id="url_dataset"></h7>
+                            <hr>
+                            <h5>Dataset Id</h5>
+                            <h7 id="dataset_id"></h7>
+                            <hr>
+                            <h5>Metadata</h5>
+                            <div class="scrollable_modal" id="metadata_modal">
+                        
+                           </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                 {% endfor %}
+                 </div>
+                 </div>
+                 </div>
+                 </div>
+                
+                 <div class="card  " id="cardParameters" >
+                    <div class="card-body">
+                      <h6 class="card-title" id="parameters">Parameters</h6>
+                      <div id="paramTime">
+                        <form name="f1" id="dataForm" action="javascript:void(0);">
+                              <label for="myDate">Date:
+                              <input type="date" required id="myDate" name="time">
+                            </label>
+                            <br>
+                            <div id="buttonsDate">
+                                <button class="btn btn-primary btn-sm"  title="Select the first date" onclick="firstDate()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-skip-start-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM9.71 5.093 7 7.028V5.5a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0V8.972l2.71 1.935a.5.5 0 0 0 .79-.407v-5a.5.5 0 0 0-.79-.407z"/>
+                              </svg>
+                                </button>
+                                <button class="btn btn-primary btn-sm" title="Select the previous date" onclick="previousDate()">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
+                                  </svg>
+                                </button>
+                                <button class="btn btn-primary btn-sm" title="Select the next date" onclick="nextDate()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                                      </svg>
+                                </button>
+                                <button class="btn btn-primary btn-sm" title="Select the last date" onclick="lastDate()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-skip-end-circle-fill" viewBox="0 0 16 16">
+                                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407L9.5 8.972V10.5a.5.5 0 0 0 1 0v-5a.5.5 0 0 0-1 0v1.528L6.79 5.093z"/>
+                                </svg>
+                                </button>
+                          </div>
+                       </div>
+                          <div id="param_unknown">
+                            <br>
+                            <div class="d-flex justify-content my-4" id="other_param" >
+                              <div class="w-75">
+                                <label for="otherParam" id="label_other_param"></label>
+                                <input type="range" name="other" id="otherParam" min="12.0" max="48.0" step="12.0">
+                              </div>
+                              <span class="font-weight-bold text-primary ml-2 valueSpan2"></span>
+                            </div>
+                            </div>
+                            </form>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal -->
+        <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header d-block">
+                            <div class="d-flex">
+                                <h3 class="modal-title" id="exampleModalLabel">Data</h3>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <h5 class="modal-title" id="subtitle"></h5>
+              </div>
+                      <div class="modal-body">
+                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="pills-graphic-tab" data-toggle="pill" href="#pills-graphic" role="tab" aria-controls="pills-graphic" aria-selected="true">Graphic</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-table-tab" data-toggle="pill" href="#pills-table" role="tab" aria-controls="pills-table" aria-selected="false">Table</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-export-tab" data-toggle="pill" href="#pills-export" role="tab" aria-controls="pills-export" aria-selected="false">Export</a>
+                    </li>
+                    
+                  </ul>
+                  <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade active show" id="pills-graphic" role="tabpanel" aria-labelledby="pills-graphic-tab">
+                      <div class="chart">
+                        <div id="loadingGraph">
+                          <div class="loader" id="loaderGraph">
+                        </div>
+                        <h5 class="loaderText"> &nbsp;Please wait for the loading of the graphic</h5>
+                      </div>
+                         <canvas id="myChart"> 
+                        </canvas>
+                      </div>
+                    
+                    </div>
+                    <div class="tab-pane fade" id="pills-table" role="tabpanel" aria-labelledby="pills-table-tab">
+                      <div id="tableAdd">
+                      </div>
+                      <div id="loadingTable">
+                        <div class="loader" id="loaderTable">
+                        </div>
+                        <h5 class="loaderText"> &nbsp;Please wait for the loading of the table</h5>
+                      </div>
+                   </div>
+                   <div class="tab-pane fade" id="pills-export" role="tabpanel" aria-labelledby="pills-export-tab">
+                     <div class="export">
+                      
+                         <div id="slider-6"></div>
+                         <p>
+                           <label for="start" style="font-weight:bold; font-family:'Roboto',sans-serif;">Start:</label>
+                           <input type = "text" id = "start" required
+                              style = "border:0; color:#b9cd6d; font-weight:bold; font-size:16px;">
+                         </p>
+                        
+                         <p>
+                           <label for="stop" style="font-weight:bold; font-family:'Roboto',sans-serif;">Stop:</label>
+                           <input type = "text" id = "stop" required 
+                                  style = "border:0; color:#b9cd6d; font-weight:bold; font-size:16px;">
+                         </p>
+
+                         <div id="slider-Range"></div>
+                         <div id="paragraphRange">
+                           <p>
+                           <label for="rangeStart" id="extraRangeStart" style="font-weight:bold; font-family:'Roboto',sans-serif;">Start:</label>
+                           <input type = "text" id = "rangeStart" required
+                              style = "border:0; color:#b9cd6d; font-weight:bold; font-size:16px;">
+                           </p>
+                           <p>  
+                              <label for="rangeStop" id="extraRangeStop" style="font-weight:bold; font-family:'Roboto',sans-serif;">Stop:</label>
+                              <input type = "text" id = "rangeStop" required
+                                 style = "border:0; color:#b9cd6d; font-weight:bold; font-size:16px;">      
+                           </p> 
+                          </div> 
+    
+                           <div id="selectContainer">
+                            <label for="selectType" id="labelType">File Type:</label>
+                            <select id="selectType" title="Select the type of file you want to download">
+                              <option value="csv" selected="selected">.csv - Download a ISO-8859-1 comma-separated text table (line 1: names; line 2: units; ISO 8601 times).</option>
+                              <option value="json">.json - View a table-like UTF-8 JSON file (missing value = &#39;null&#39;; times are ISO 8601 strings).</option>
+                              <option value="mat">.mat - Download a MATLAB binary file.</option>
+                              <option value="smallPng">.smallPng - View a small .png image file with a graph or map.</option>
+                              <option value="png">.png - View a standard, medium-sized .png image file with a graph or map.</option>
+                              <option value="largePng">.largePng - View a large .png image file with a graph or map.</option>
+                              <option value="transparentPng">.transparentPng - View a .png image file (just the data, without axes, landmask, or legend).</option>
+                              <option value="das">.das - View the dataset&#39;s metadata via an ISO-8859-1 OPeNDAP Dataset Attribute Structure (DAS).</option>
+                              <option value="dds">.dds - View the dataset&#39;s structure via an ISO-8859-1 OPeNDAP Dataset Descriptor Structure (DDS).</option>
+                            </select>
+                            <div class="select-icon">
+                              <svg focusable="false" viewBox="0 0 104 128" width="18" height="25" class="icon">
+                                <path d="m2e1 95a9 9 0 0 1 -9 9 9 9 0 0 1 -9 -9 9 9 0 0 1 9 -9 9 9 0 0 1 9 9zm0-3e1a9 9 0 0 1 -9 9 9 9 0 0 1 -9 -9 9 9 0 0 1 9 -9 9 9 0 0 1 9 9zm0-3e1a9 9 0 0 1 -9 9 9 9 0 0 1 -9 -9 9 9 0 0 1 9 -9 9 9 0 0 1 9 9zm14 55h68v1e1h-68zm0-3e1h68v1e1h-68zm0-3e1h68v1e1h-68z"></path>
+                              </svg>
+                            </div>
+                          </div>
+                          <br>
+                          <p>
+                          <a class="btn btn-primary" href="" value="Submit" download id="submitType">Submit</a>
+                          </p>
+                       
+                      </div>
+                   </div>
+                  </div>
+                </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="grabHand" data-bs-toggle="tooltip" data-bs-placement="top" title="Click here to grab the map everywhere you want.">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb-fill" viewBox="0 0 16 16">
+        <path d="M8.5 1.75v2.716l.047-.002c.312-.012.742-.016 1.051.046.28.056.543.18.738.288.273.152.456.385.56.642l.132-.012c.312-.024.794-.038 1.158.108.37.148.689.487.88.716.075.09.141.175.195.248h.582a2 2 0 0 1 1.99 2.199l-.272 2.715a3.5 3.5 0 0 1-.444 1.389l-1.395 2.441A1.5 1.5 0 0 1 12.42 16H6.118a1.5 1.5 0 0 1-1.342-.83l-1.215-2.43L1.07 8.589a1.517 1.517 0 0 1 2.373-1.852L5 8.293V1.75a1.75 1.75 0 0 1 3.5 0z"/>
+      </svg>
+        </button>
+        <button type="button" id="locationHand" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Click here to click on the map and show the data of the layer of that point.">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+      </svg>
+        </button>
+    
+                
+          
+              
+          
+           <div class="leaflet-bottom leaflet-left" id="divButton">
+                <div class="modal fade" id="panelLegend" tabindex="-1" aria-labelledby="panelLegendLabel" aria-modal="true" role="dialog">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                    
+                        <div class="modal-header d-block">
+                            <div class="d-flex">
+                                <h3 class="modal-title" id="panelLegendLabel">Panel Gradient</h3>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                          <h5 class="modal-title" id="legendTitle"></h5>
+                    </div>
+
+                      <div class="modal-body" id="modalLegendBody">
+                       <span class="minColorSpan">
+                        <label for="minColor" class="colorValue">Minimum value's color:</label>
+                        <input type="color" class="colorsLegend" id="minColor" value="#0000ff">
+                      </span>
+                      <span>
+                        <label for="minValue" class="colorValue">Minimum value:</label>
+                        <input type="number" class="valuesLegend" id="minValue"/> 
+                      </span>
+                        <br>
+                      <span class="midColorSpan">
+                        <label for="mediumColor">Medium value's color:</label>
+                        <input type="color" class="colorsLegend" id="mediumColor" value="#ffff00">
+                      </span>
+                      <span>  
+                        <label for="midValue" class="colorValue">Medium value:</label>
+                        <input type="number" class="valuesLegend" id="midValue"/> 
+                      </span>
+                        <br>
+                      <span class="maxColorSpan">
+                        <label for="maxColor">Maximum value's color:</label>
+                        <input type="color" class="colorsLegend" id="maxColor" value="#ff0000">
+                      </span>
+                      <span>
+                        <label for="maxValue" class="colorValue">Maximum value:</label>
+                        <input type="number" class="valuesLegend" id="maxValue"/>
+                      </span> 
+                        <br>
+                        <button type="button" class="btn btn-primary" onclick="changeColor(this)">Change Colors</button>
+                        <button type="button" class="btn btn-danger" onclick="restoreDefault(this)">Restore Default</button>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+             <div id="createImage">
+
+             </div>
+              
+   	
+           <a class="btn btn-primary" style="color: white" id="admin_butt" href="/administration">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-badge-fill" viewBox="0 0 16 16">
+              <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm4.5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5 2.755C12.146 12.825 10.623 12 8 12s-4.146.826-5 1.755V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-.245z"/>
+              </svg>
+             Site Administration
+            </a>
+           			
+
+
+           </div>
+        
+  
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js" integrity="sha512-GMGzUEevhWh8Tc/njS0bDpwgxdCJLQBWG3Z2Ct+JGOpVnEmjvNx6ts4v6A2XJf1HOrtOsfhv3hBKpK9kE5z8AQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+       
+         
+        <script type="text/javascript">
+          /*
+ jQuery paging plugin v1.8.0 06/21/2010
+ http://www.xarg.org/project/jquery-color-plugin-xcolor/
+
+ Copyright (c) 2010, Robert Eisele (robert@xarg.org)
+ Dual licensed under the MIT or GPL Version 2 licenses.
+ USED FOR MIXING COLOR IN LEGENDS
+*/
+(function(h,k){function e(a){function d(a,b){var d;k!==a&&(a=parseFloat(a));if(k===b)d=b=255;else if(1===b){if(k===a||1===a)return 1;b=100;d=1}else d=b;return isNaN(a)||0>=a?0:b<a?d:1>a||1===b?1===d?a:a*d|0:a*d/b}function b(a,b,c){function e(a,b,d){d=++d%1;return 1>6*d?a+6*(b-a)*d:1>2*d?b:2>3*d?a+(b-a)*(4-6*d):a}a=d(a,360)/360;b=d(b,1);c=d(c,1);if(0===b)return c=Math.round(255*c),[c,c,c];b=0.5>c?c+c*b:c+b-c*b;c=c+c-b;return[Math.round(255*e(c,b,a+1/3)),Math.round(255*e(c,b,a)),Math.round(255*e(c,
+  b,a-1/3))]}function c(a,b,c){a=d(a,360)/60;b=d(b,1);c=d(c,1);var e=a|0,n=a-e;a=Math.round(255*c*(1-b));var l=Math.round(255*c*(1-b*n));b=Math.round(255*c*(1-b*(1-n)));c=Math.round(255*c);switch(e){case 1:return[l,c,a];case 2:return[a,c,b];case 3:return[a,l,c];case 4:return[b,a,c];case 5:return[c,a,l]}return[c,b,a]}this.setColor=function(a){this.c=!0;if("number"===typeof a)this.a=(a>>24&255)/255,this.r=a>>16&255,this.g=a>>8&255,this.b=a&255;else{for(;"object"===typeof a;){if(0 in a&&1 in a&&2 in a){this.a=
+  d(a[3],1);this.r=d(a[0]);this.g=d(a[1]);this.b=d(a[2]);return}if("r"in a&&"g"in a&&"b"in a){this.a=d(a.a,1);this.r=d(a.r);this.g=d(a.g);this.b=d(a.b);return}if("h"in a&&"s"in a){var f;if("l"in a)f=b(a.h,a.s,a.l);else if("v"in a)f=c(a.h,a.s,a.v);else if("b"in a)f=c(a.h,a.s,a.b);else break;this.a=d(a.a,1);this.r=f[0];this.g=f[1];this.b=f[2];return}break}if("string"===typeof a){a=a.toLowerCase().replace(/[^a-z0-9,.()#%]/g,"");if("transparent"===a){this.a=this.r=this.g=this.b=0;return}if("rand"===a){a=
+  16777215*Math.random()|0;this.a=1;this.r=a>>16&255;this.g=a>>8&255;this.b=a&255;return}k!==q[a]&&(a="#"+q[a]);if(f=/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/.exec(a)){this.a=1;this.r=parseInt(f[1],16);this.g=parseInt(f[2],16);this.b=parseInt(f[3],16);return}if(f=/^#?([0-9a-f])([0-9a-f])([0-9a-f])$/.exec(a)){this.a=1;this.r=parseInt(f[1]+f[1],16);this.g=parseInt(f[2]+f[2],16);this.b=parseInt(f[3]+f[3],16);return}if(f=/^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3})(,([0-9.]+))?\)$/.exec(a)){this.a=d(f[5],
+  1);this.r=d(f[1]);this.g=d(f[2]);this.b=d(f[3]);return}if(f=/^rgba?\(([0-9.]+\%),([0-9.]+\%),([0-9.]+\%)(,([0-9.]+)\%?)?\)$/.exec(a)){this.a=d(f[5],1);this.r=Math.round(2.55*d(f[1],100));this.g=Math.round(2.55*d(f[2],100));this.b=Math.round(2.55*d(f[3],100));return}if(f=/^hs([bvl])a?\((\d{1,3}),(\d{1,3}),(\d{1,3})(,([0-9.]+))?\)$/.exec(a)){a=("l"===f[1]?b:c)(parseInt(f[2],10),parseInt(f[3],10),parseInt(f[4],10));this.a=d(f[6],1);this.r=a[0];this.g=a[1];this.b=a[2];return}if(f=/^(\d{1,3}),(\d{1,3}),(\d{1,3})(,([0-9.]+))?$/.exec(a)){this.a=
+  d(f[5],1);this.r=d(f[1]);this.g=d(f[2]);this.b=d(f[3]);return}}this.c=!1}};this.getColor=function(a){if(k!==a)switch(a.toLowerCase()){case "rgb":return this.getRGB();case "hsv":case "hsb":return this.getHSV();case "hsl":return this.getHSL();case "int":return this.getInt();case "array":return this.getArray();case "fraction":return this.getFraction();case "css":case "style":return this.getCSS();case "name":return this.getName()}return this.getHex()};this.getRGB=function(){return this.c?{r:this.r,g:this.g,
+  b:this.b,a:this.a}:null};this.getCSS=function(){return this.c?0===this.a?"transparent":1===this.a?"rgb("+this.r+","+this.g+","+this.b+")":r(this.r,this.g,this.b,this.a):null};this.getArray=function(){return this.c?[this.r,this.g,this.b,100*this.a|0]:null};this.getName=function(){if(this.c){var a=null,b,d=q,c=this.getHSL(),n;for(n in d){var l=(new e(d[n])).getHSL(),l=Math.sqrt(0.5*(c.h-l.h)*(c.h-l.h)+0.5*(c.s-l.s)*(c.s-l.s)+(c.l-l.l)*(c.l-l.l));if(null===a||l<a)a=l,b=n}return b}return null};this.getFraction=
+  function(){return this.c?{r:this.r/255,g:this.g/255,b:this.b/255,a:this.a}:null};this.getHSL=function(){if(this.c){var a=this.r/255,b=this.g/255,d=this.b/255,c=Math.min(a,b,d),e=Math.max(a,b,d),l=e-c,h=(e+c)/2;0===l?c=a=0:(a=a===e?(b-d)/l:b===e?2+(d-a)/l:4+(a-b)/l,c=l/(0.5>h?e+c:2-e-c));return{h:Math.round((6+a)%6*60),s:Math.round(100*c),l:Math.round(100*h),a:this.a}}return null};this.getHSV=function(){if(this.c){var a=this.r/255,b=this.g/255,c=this.b/255,d=Math.min(a,b,c),e=Math.max(a,b,c),d=e-d;
+  return{h:Math.round((6+(0===d?0:a===e?(b-c)/d:b===e?2+(c-a)/d:4+(a-b)/d))%6*60),s:Math.round(100*(0===e?0:d/e)),v:Math.round(100*e),a:this.a}}return null};this.getHex=function(){return this.c?"#"+"0123456789abcdef".charAt(this.r>>4)+"0123456789abcdef".charAt(this.r&15)+"0123456789abcdef".charAt(this.g>>4)+"0123456789abcdef".charAt(this.g&15)+"0123456789abcdef".charAt(this.b>>4)+"0123456789abcdef".charAt(this.b&15):null};this.getInt=function(a){return this.c?k!==a?(100*this.a|0)<<24^this.r<<16^this.g<<
+  8^this.b:(this.r<<16^this.g<<8^this.b)&16777215:null};this.toString=function(){return this.getHex()};this.setColor(a)}function s(a,d){var b="";do if(b=h.css(a,d),""!==b&&"transparent"!==b&&"rgba(0, 0, 0, 0)"!==b||h.nodeName(a,"body"))break;while(a=a.parentNode);""===b&&(b=h.support.rgba?"transparent":"backgroundColor"===d?"white":"black");return new e(b)}var q={aliceblue:"f0f8ff",antiquewhite:"faebd7",aqua:"0ff",aquamarine:"7fffd4",azure:"f0ffff",beige:"f5f5dc",bisque:"ffe4c4",black:"000",blanchedalmond:"ffebcd",
+  blue:"00f",blueviolet:"8a2be2",brown:"a52a2a",burlywood:"deb887",burntsienna:"ea7e5d",cadetblue:"5f9ea0",chartreuse:"7fff00",chocolate:"d2691e",coral:"ff7f50",cornflowerblue:"6495ed",cornsilk:"fff8dc",crimson:"dc143c",cyan:"0ff",darkblue:"00008b",darkcyan:"008b8b",darkgoldenrod:"b8860b",darkgray:"a9a9a9",darkgreen:"006400",darkgrey:"a9a9a9",darkkhaki:"bdb76b",darkmagenta:"8b008b",darkolivegreen:"556b2f",darkorange:"ff8c00",darkorchid:"9932cc",darkred:"8b0000",darksalmon:"e9967a",darkseagreen:"8fbc8f",
+  darkslateblue:"483d8b",darkslategray:"2f4f4f",darkslategrey:"2f4f4f",darkturquoise:"00ced1",darkviolet:"9400d3",deeppink:"ff1493",deepskyblue:"00bfff",dimgray:"696969",dimgrey:"696969",dodgerblue:"1e90ff",firebrick:"b22222",floralwhite:"fffaf0",forestgreen:"228b22",fuchsia:"f0f",gainsboro:"dcdcdc",ghostwhite:"f8f8ff",gold:"ffd700",goldenrod:"daa520",gray:"808080",green:"008000",greenyellow:"adff2f",grey:"808080",honeydew:"f0fff0",hotpink:"ff69b4",indianred:"cd5c5c",indigo:"4b0082",ivory:"fffff0",
+  khaki:"f0e68c",lavender:"e6e6fa",lavenderblush:"fff0f5",lawngreen:"7cfc00",lemonchiffon:"fffacd",lightblue:"add8e6",lightcoral:"f08080",lightcyan:"e0ffff",lightgoldenrodyellow:"fafad2",lightgray:"d3d3d3",lightgreen:"90ee90",lightgrey:"d3d3d3",lightpink:"ffb6c1",lightsalmon:"ffa07a",lightseagreen:"20b2aa",lightskyblue:"87cefa",lightslategray:"789",lightslategrey:"789",lightsteelblue:"b0c4de",lightyellow:"ffffe0",lime:"0f0",limegreen:"32cd32",linen:"faf0e6",magenta:"f0f",maroon:"800000",mediumaquamarine:"66cdaa",
+  mediumblue:"0000cd",mediumorchid:"ba55d3",mediumpurple:"9370db",mediumseagreen:"3cb371",mediumslateblue:"7b68ee",mediumspringgreen:"00fa9a",mediumturquoise:"48d1cc",mediumvioletred:"c71585",midnightblue:"191970",mintcream:"f5fffa",mistyrose:"ffe4e1",moccasin:"ffe4b5",navajowhite:"ffdead",navy:"000080",oldlace:"fdf5e6",olive:"808000",olivedrab:"6b8e23",orange:"ffa500",orangered:"ff4500",orchid:"da70d6",palegoldenrod:"eee8aa",palegreen:"98fb98",paleturquoise:"afeeee",palevioletred:"db7093",papayawhip:"ffefd5",
+  peachpuff:"ffdab9",peru:"cd853f",pink:"ffc0cb",plum:"dda0dd",powderblue:"b0e0e6",purple:"800080",red:"f00",rosybrown:"bc8f8f",royalblue:"4169e1",saddlebrown:"8b4513",salmon:"fa8072",sandybrown:"f4a460",seagreen:"2e8b57",seashell:"fff5ee",sienna:"a0522d",silver:"c0c0c0",skyblue:"87ceeb",slateblue:"6a5acd",slategray:"708090",slategrey:"708090",snow:"fffafa",springgreen:"00ff7f",steelblue:"4682b4",tan:"d2b48c",teal:"008080",thistle:"d8bfd8",tomato:"ff6347",turquoise:"40e0d0",violet:"ee82ee",wheat:"f5deb3",
+  white:"fff",whitesmoke:"f5f5f5",yellow:"ff0",yellowgreen:"9acd32"},r;h.each("color backgroundColor borderColor borderTopColor borderBottomColor borderLeftColor borderRightColor outlineColor".split(" "),function(a,d){h.cssHooks[d]={set:function(a,c){a.style[d]=(new e(c)).getCSS()}};h.fx.step[d]=function(a){if(k===a.xinit){if("string"===typeof a.end&&-1!==a.end.indexOf(";")){var c,g=a.end.split(";");if(2<g.length){for(c in g)g[c]=-1===g[c].indexOf("native")?new e(g[c]):s(a.elem,d);a.start=null;a.end=
+  g}else a.start=new e(g[0]),a.end=new e(g[1])}else a.start=s(a.elem,d),a.end=new e(a.end);a.xinit=1}c=a.start;var g=a.end,f=a.pos;if(null===c){var h=f*(g.length-1),f=1>f?h|0:g.length-2;c=g[f];g=g[f+1];f=h-f}a.elem.style[d]=r(c.r+f*(g.r-c.r)|0,c.g+f*(g.g-c.g)|0,c.b+f*(g.b-c.b)|0,c.a+f*(g.a-c.a))}});h(function(){var a=document.createElement("div").style;r=function(a,b,c,e){return"rgba("+a+","+b+","+c+","+e+")"};a.cssText="background-color:rgba(1,1,1,.5)";(h.support.rgba=-1<a.backgroundColor.indexOf("rgba"))||
+  (r=function(a,b,c){return"rgb("+a+","+b+","+c+")"})});h.xcolor=new function(){this.test=function(a){a=new e(a);return a.c?a:null};this.red=function(a){a=new e(a);return a.c?(a.g=255,a.b=255,a):null};this.blue=function(a){a=new e(a);return a.c?(a.r=255,a.g=255,a):null};this.green=function(a){a=new e(a);return a.c?(a.r=255,a.b=255,a):null};this.sepia=function(a){a=new e(a);if(a.c){var d=a.r,b=a.g,c=a.b;a.r=Math.round(0.393*d+0.769*b+0.189*c);a.g=Math.round(0.349*d+0.686*b+0.168*c);a.b=Math.round(0.272*
+  d+0.534*b+0.131*c);return a}return null};this.random=function(){return new e([255*Math.random()|0,255*Math.random()|0,255*Math.random()|0])};this.inverse=function(a){a=new e(a);return a.c?(a.r^=255,a.g^=255,a.b^=255,a):null};this.opacity=function(a,d,b){a=new e(a);d=new e(d);return a.c&d.c?(1<b&&(b/=100),b=Math.max(b-1+d.a,0),a.r=Math.round((d.r-a.r)*b+a.r),a.g=Math.round((d.g-a.g)*b+a.g),a.b=Math.round((d.b-a.b)*b+a.b),a):null};this.greyfilter=function(a,d){var b,c=new e(a);if(c.c){switch(d){case 1:b=
+  0.35+13*(c.r+c.g+c.b)/60;break;case 2:b=(13*(c.r+c.g+c.b)+5355)/60;break;default:b=0.3*c.r+0.59*c.g+0.11*c.b}c.r=c.g=c.b=Math.min(b|0,255);return c}return null};this.webround=function(a){a=new e(a);return a.c?(255<(a.r+=51-a.r%51)&&(a.r=255),255<(a.g+=51-a.g%51)&&(a.g=255),255<(a.b+=51-a.b%51)&&(a.b=255),a):null};this.distance=function(a,d){var b=new e(a),c=new e(d);return b.c&c.c?Math.sqrt(3*(c.r-b.r)*(c.r-b.r)+4*(c.g-b.g)*(c.g-b.g)+2*(c.b-b.b)*(c.b-b.b)):null};this.readable=function(a,d,b){d=new e(d);
+  a=new e(a);b=b||10;return d.c&a.c?(a=0.299*a.r+0.587*a.g+0.114*a.b-0.299*d.r-0.587*d.g-0.114*d.b,!(a<1.5+141.162*Math.pow(0.975,b)&&a>-0.5-154.709*Math.pow(0.99,b))):null};this.combine=function(a,d){var b=new e(a),c=new e(d);return b.c&c.c?(b.r^=c.r,b.g^=c.g,b.b^=c.b,b):null};this.breed=function(a,d){var b=new e(a),c=new e(d),g=0,f=6;if(b.c&c.c){for(;f--;)0.5>Math.random()&&(g|=15<<(f<<2));b.r=b.r&g>>16&255|c.r&(g>>16&255^255);b.g=b.g&g>>8&255|c.g&(g>>8&255^255);b.b=b.b&g>>0&255|c.b&(g>>0&255^255);
+  return b}return null};this.additive=function(a,d){var b=new e(a),c=new e(d);return b.c&c.c?(255<(b.r+=c.r)&&(b.r=255),255<(b.g+=c.g)&&(b.g=255),255<(b.b+=c.b)&&(b.b=255),b):null};this.subtractive=function(a,d){var b=new e(a),c=new e(d);return b.c&c.c?(0>(b.r+=c.r-255)&&(b.r=0),0>(b.g+=c.g-255)&&(b.g=0),0>(b.b+=c.b-255)&&(b.b=0),b):null};this.subtract=function(a,d){var b=new e(a),c=new e(d);return b.c&c.c?(0>(b.r-=c.r)&&(b.r=0),0>(b.g-=c.g)&&(b.g=0),0>(b.b-=c.b)&&(b.b=0),b):null};this.multiply=function(a,
+  d){var b=new e(a),c=new e(d);return b.c&c.c?(b.r=b.r/255*c.r|0,b.g=b.g/255*c.g|0,b.b=b.b/255*c.b|0,b):null};this.average=function(a,d){var b=new e(a),c=new e(d);return b.c&c.c?(b.r=b.r+c.r>>1,b.g=b.g+c.g>>1,b.b=b.b+c.b>>1,b):null};this.triad=function(a){a=new e(a);return a.c?[a,new e([a.b,a.r,a.g]),new e([a.g,a.b,a.r])]:null};this.tetrad=function(a){a=new e(a);return a.c?[a,new e([a.b,a.r,a.b]),new e([a.b,a.g,a.r]),new e([a.r,a.b,a.r])]:null};this.gradientlevel=function(a,d,b,c){k===c&&(c=1);if(b>
+  c)return null;a=new e(a);d=new e(d);return a.c&d.c?(a.r=a.r+(d.r-a.r)/c*b|0,a.g=a.g+(d.g-a.g)/c*b|0,a.b=a.b+(d.b-a.b)/c*b|0,a):null};this.gradientarray=function(a,d,b){if(d>b||!a.length)return null;if(1==a.length)return new e(a[0]);var c=d*(a.length-1)/(b+1)|0;b=b/(a.length-1);return h.xcolor.gradientlevel(a[c],a[c+1],d-c*b,b)};this.nearestname=function(a){a=new e(a);return a.c?a.getName():null};this.darken=function(a,d,b){if(k===d)d=1;else if(0>d)return this.lighten(a,-d,b);k===b&&(b=32);a=new e(a);
+  return a.c?(0>(a.r-=b*d)&&(a.r=0),0>(a.g-=b*d)&&(a.g=0),0>(a.b-=b*d)&&(a.b=0),a):null};this.lighten=function(a,d,b){if(k===d)d=1;else if(0>d)return this.darken(a,-d,b);k===b&&(b=32);a=new e(a);return a.c?(255<(a.r+=b*d)&&(a.r=255),255<(a.g+=b*d)&&(a.g=255),255<(a.b+=b*d)&&(a.b=255),a):null};this.analogous=function(a,d,b){k===d&&(d=8);k===b&&(b=30);var c=new e(a);if(c.c){a=c.getHSV();b=360/b;c=[c];for(a.h=(a.h-(b*d>>1)+720)%360;--d;)a.h+=b,a.h%=360,c.push(new e(a));return c}return null};this.complementary=
+  function(a){a=new e(a);return a.c?(a=a.getHSL(),a.h=(a.h+180)%360,new e(a)):null};this.splitcomplement=function(a){var d=new e(a);return d.c?(a=d.getHSV(),d=[d],a.h+=72,a.h%=360,d.push(new e(a)),a.h+=144,a.h%=360,d.push(new e(a)),d):null};this.monochromatic=function(a,d){k===d&&(d=6);var b=new e(a);if(b.c){for(var c=b.getHSV(),b=[b];--d;)c.v+=20,c.v%=100,b.push(new e(c));return b}return null}};h.fn.readable=function(){var a=this[0],d="",b="";do if(""!==d||"transparent"!==(d=h.css(a,"color"))&&"rgba(0, 0, 0, 0)"!==
+  d||(d=""),""!==b||"transparent"!==(b=h.css(a,"backgroundColor"))&&"rgba(0, 0, 0, 0)"!==b||(b=""),""!==d&&""!==b||h.nodeName(a,"body"))break;while(a=a.parentNode);""===d&&(d="black");""===b&&(b="white");return h.xcolor.readable(b,d)};h.fn.colorize=function(a,d,b){var c={gradient:function(a,b){return a/b},flip:function(a,b,c,d){return" "===d?c:!c},pillow:function(a,b){a*=2;return a<=b?a/b:2-a/b}};if("function"!==typeof b){if(void 0===c[b])return;b=c[b]}a=new e(a);d=new e(d);this.each(function(){var c=
+  this.childNodes,e=0,h=0;if(a.c&d.c){for(var k=c.length;k--;e+=c[k].textContent.length);(function l(c){var g=0,k;if(3===c.nodeType){var m=a,t=d,q=e,u,v,p=0,w,s=b;k=c.nodeValue.length;v=document.createElement("span");for(g=0;g<k;++g)u=document.createElement("span"),w=c.nodeValue.charAt(g),p=s(h,q,p,w),u.style.color=r(m.r+p*(t.r-m.r)|0,m.g+p*(t.g-m.g)|0,m.b+p*(t.b-m.b)|0,m.a+p*(t.a-m.a)),u.appendChild(document.createTextNode(w)),v.appendChild(u),++h;c.parentNode.replaceChild(v,c)}else for(k=c.childNodes.length;g<
+  k;++g)l(c.childNodes[g])})(this)}})}})(jQuery);
+  
+
+          
+           /*
+          function allowDrop(ev) {
+            ev.preventDefault();
+          }
+          
+          function drag(ev) {
+           if(ev.target.getAttribute('changeIndex')==="notChange"){
+             ev.target.setAttribute('draggable','false');
+           }else{
+            ev.target.setAttribute('draggable','true');
+
+            ev.dataTransfer.setData("text", ev.target.getAttribute('dataset_id'));
+           }
+          }
+          
+          function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var divData=document.querySelector("[dataset_id="+data+"]");
+            var divNode=document.createElement('div');
+            divNode.innerHTML=divData.innerHTML;
+            ev.target.appendChild(divNode);
+          }
+
+          */
+          Array.prototype.insert = function ( index, item ) {
+            this.splice( index, 0, item );
+        };
+
+          Date.prototype.addDays = function(days) {
+            var date = new Date(this.valueOf());    
+            date.setDate(date.getDate() + days);
+            return date;
+        }
+
+        Date.prototype.subtractDays = function(days) {
+          var date = new Date(this.valueOf());    
+          date.setDate(date.getDate() -days);
+          return date;
+      }
+        function nextDate(){
+          var changeValue=document.getElementById("myDate");
+          var dateValue=new Date(changeValue.value);
+          dateValue.setDate(dateValue.getDate()+1);
+          changeValue.value=formatDateInput(dateValue);
+          var event=new Event("change");
+          changeValue.dispatchEvent(event);
+        }
+
+        function previousDate(){
+          var changeValue=document.getElementById("myDate");
+          var dateValue=new Date(changeValue.value);
+          dateValue.setDate(dateValue.getDate()-1);
+          changeValue.value=formatDateInput(dateValue);
+          var event=new Event("change");
+          changeValue.dispatchEvent(event);
+        }
+
+        function firstDate(){
+          var changeValue=document.getElementById("myDate");
+          changeValue.value=changeValue.min;
+          var event=new Event("change");
+          changeValue.dispatchEvent(event);
+        }
+
+        function lastDate(){
+          var changeValue=document.getElementById("myDate");
+          changeValue.value=changeValue.max;
+          var event=new Event("change");
+          changeValue.dispatchEvent(event);
+        }
+        
+        
+
+
+        $(document).ready(function(){
+              $('[data-bs-toggle="tooltip"]').tooltip({ trigger: "hover" });   
+          });
+
+        var pointerLocation=false;
+        var isGrabbedHand=false;
+
+        $("#grabHand").on("click",function(){
+           pointerLocation=false;
+           if(!isGrabbedHand){
+              $("#grabHand").css("background-color","#04AA6D");
+              $("#map").css("cursor","grab");
+              $("#cardDiv").css("cursor","default");
+              $("#locationHand").css("background-color","white");
+              isGrabbedHand=true;
+           }else{
+              $("#map").css("cursor","grab");
+              $("#grabHand").css("background-color","white");
+              isGrabbedHand=false;
+           }
+          
+        });
+
+        $("#locationHand").on('click',(e)=>{
+          e.stopPropagation();
+          if($("input:checkbox:checked").length==0){
+            alert("Please choose a layer to see its data");
+            $("#grabHand").css("background-color","white");
+            $("#locationHand").css("background-color","white");
+            pointerLocation=false;
+          }else{
+            if(!pointerLocation){
+            pointerLocation=true;
+            $("#map").css("cursor","pointer");
+            $("#cardDiv").css("cursor","default");
+            $("#grabHand").css("background-color","white");
+            $("#locationHand").css("background-color","#04AA6D");
+            }else{
+              $("#map").css("cursor","grab");
+              $("#locationHand").css("background-color","white");
+              pointerLocation=false;
+            }
+        }
+        });
+
+        
+
+        
+        $('#filterLayers').keyup(function(){
+             
+                  var valThis = $(this).val().toLowerCase();
+                    $('input[name=layers]').each(function(){
+                      var divLayer=$(this).closest('div');
+                      var institution=$(divLayer).attr("institution").toLowerCase();
+                        var text = $(this).val().toLowerCase();
+                        (text.indexOf(valThis) !== -1 || institution.indexOf(valThis)!==-1)  ? $(this).parent().show() : $(this).parent().hide();
+                  });
+                });
+        
+        
+        var acc = document.getElementsByClassName("accordion");
+          var i;
+          var buttonRemoveVisible=false;
+
+          for (i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+              this.classList.toggle("active");
+              var panel = this.nextElementSibling;
+              if (panel.style.maxHeight) {
+                panel.style.maxHeight = null;
+              } else if(panel.getAttribute("id")==="layers_active"){
+                panel.style.maxHeight="80px";
+              }else{
+                panel.style.maxHeight = panel.scrollHeight + "px";
+              } 
+            });
+          }
+          
+   
+            $(document).ready(function() {
+
+                    const $valueSpan = $('.valueSpan2');
+                    const $value = $('#otherParam');
+                    $valueSpan.html($value.val());
+                    $value.on('input.range change', () => {
+
+                      $valueSpan.html($value.val());
+                    });
+                  });
+            var mouseOver=false;
+
+          $("#graphModal").mouseover(function(){
+              map.dragging.disable();
+              map.scrollWheelZoom.disable();
+              map.doubleClickZoom.disable();
+              mouseOver=true;
+            });
+
+            $("#graphModal").mouseout(function(){
+              map.dragging.enable();
+              map.scrollWheelZoom.enable();
+              map.doubleClickZoom.enable();
+              mouseOver=false;
+            });
+             
+
+            $("#cardDiv").mouseover(function(){
+              map.dragging.disable();
+              map.scrollWheelZoom.disable();
+              $('.scrollable').css('overflow-y','scroll');
+              map.doubleClickZoom.disable();
+              mouseOver=true;
+            });
+            
+
+            $("#cardDiv").mouseout(function(){
+              map.dragging.enable();
+              map.scrollWheelZoom.enable();
+              $('.scrollable').css('overflow-y','scroll');
+              map.doubleClickZoom.enable();
+              mouseOver=false;
+            });
+
+            
+            function findLayerDataset(datasetId){
+              var lastLayer;
+              var activeLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+              for(var i=0;i<activeLayers.length;i++){
+                
+                if(activeLayers[i].getAttribute("dataset_id")===datasetId){
+                  lastLayer=activeLayers[i];
+                  break;
+                }
+              }
+              return lastLayer;
+            }
+
+            //function to find first layer active (the last that was attached)
+            function lastLayerFind(){
+              var lastLayer;
+              var activeLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+              for(var i=0;i<activeLayers.length;i++){
+                if(activeLayers[i].children[0].checked){
+                  lastLayer=activeLayers[i];
+                  break;
+                }
+              }
+              return lastLayer;
+            }
+            
+
+            
+
+            
+            var map = L.map('map', {
+                attributionControl: false,
+                center: [42.31895914499354, 13.030587093609325],
+                zoom: 6.5
+            });
+            var layerBase=L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            //MultiPolygon GeoJson
+            var geojsonLayer = new L.GeoJSON.AJAX("{% static 'assets/geojson/GeoJSONFile.geojson' %}");       
+            geojsonLayer.addTo(map);
+            
+
+            function toScientific(number){
+              var decimalPoints=number.split(".");
+                var result=number;
+                if(decimalPoints[1]===undefined){
+                  result=number;
+                }else if(decimalPoints[1].length>0 && (result>=0 && result<1) ){
+                  result=decimalPoints[1][decimalPoints[1].length-1]+"x10^-"+decimalPoints[1].length;
+                }
+                return result;
+            }
+           
+          var layer_name;
+          var num_parameters;
+          var range_param;
+          var myChart;
+          var date_start;
+          var date_end;
+          var min_value;
+          var max_value;
+          var average_other_param;
+          var counter=0;
+          var sliderObjects={};
+          var isOpenModal=false;
+
+        
+
+           map.on('click', function(ev){
+            var latlng = map.mouseEventToLatLng(ev.originalEvent);
+            
+            if(!mouseOver && $("input:checkbox:checked").length>0 && pointerLocation){
+             
+              var lastLayer=lastLayerFind();
+              var subtitle=lastLayer.querySelector(".radio_layer").value;
+              var layerLastName=lastLayer.getAttribute("name_layer");
+              $("#loadingGraph").show();
+              $("#loadingTable").show();
+              counter+=1;
+              if(counter>1){
+                $("#myChart").hide();
+                $("#tableData").hide();
+                $("#loadingTable").show();
+              }
+              $("#subtitle").html(subtitle);
+
+              var dataset_id_modal=lastLayer.getAttribute("dataset_id");
+              
+              var time_start=lastLayer.getAttribute("date_start");
+              var time_finish=lastLayer.getAttribute("date_end");
+              var isDay=false;
+              var isHour=false;
+              var isMonth=false;
+              var datesLayer=[];
+              
+              var date_to_start =new Date(time_start);
+                var timeFinish=new Date(time_finish);
+                while (date_to_start <= timeFinish) {
+                    datesLayer.push(formatDate(new Date (date_to_start)));
+                    date_to_start=date_to_start.addDays(30);
+                }
+              for(var key in sliderObjects){
+                delete sliderObjects[key];
+              }
+              for(var i=0;i<datesLayer.length;i++){
+                sliderObjects[i]={[i]:datesLayer[i]};
+              }
+              
+              var size=Object.keys(sliderObjects).length;
+              var startInput=document.getElementById("start");
+              startInput.value=sliderObjects[0][0];
+              var stopInput=document.getElementById("stop");
+              stopInput.value=sliderObjects[size-1][size-1];
+             
+
+              
+              $( "#slider-6" ).slider({
+                range:true,
+                min:0,
+                max: size-1,
+                values: [0,size-1],
+               change:function(event,ui){
+                 
+                 startInput.value=sliderObjects[ui.values[0]][ui.values[0]];
+                 stopInput.value=sliderObjects[ui.values[1]][ui.values[1]];
+               },
+               slide: function(event, ui) {
+                $("#start").val(sliderObjects[ui.values[0]][ui.values[0]]);
+                $("#stop").val(sliderObjects[ui.values[1]][ui.values[1]]);
+            }
+              });
+              if(num_parameters.length>3){
+                $("#slider-Range").slider({
+                  range:true,
+                  min:parseInt(min_value),
+                  max:parseInt(max_value),
+                  values: [parseInt(min_value),parseInt(max_value)],
+                  change:function(event,ui){
+                    $("#rangeStart").val(ui.values[0]);
+                    $("#rangeStop").val(ui.values[1]);
+                  },
+                  slide: function(event, ui) {
+                   $("#rangeStart").val(ui.values[0]);
+                   $("#rangeStop").val(ui.values[1]);
+               }
+                });
+                $("#slider-Range").show();
+                $("#paragraphRange").show();
+                $(".select-icon").css("top","71%");
+                $("#submitType").on("click",function(){
+                  var selectedType=$("#selectType").val();
+                  var timeStartChosen=$("#start").val();
+                  var timeStopChosen=$("#stop").val();
+                  var extraRangeStartChosen=$("#rangeStart").val();
+                  var extraRangeStopChosen=$("#rangeStop").val();
+                  var urlCall1="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                  $("#submitType").attr("href",urlCall1);
+                });
+              }else{
+
+              
+              $("#submitType").on("click",function(){
+                var selectedType=$("#selectType").val();
+                var timeStartChosen=$("#start").val();
+                var timeStopChosen=$("#stop").val();
+                var urlCall="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                $("#submitType").attr("href",urlCall);
+              });
+            }
+              /*
+              if(subtitle.indexOf("day")!==-1){
+                isDay=true;
+              }
+              else if(subtitle.indexOf("mon")!==-1){
+                isMonth=true;
+              }
+              else if(subtitle.indexOf("3hr")!==-1){
+                isHour=true;
+              }
+              if(isHour){
+                var date_to_start =new Date(time_start);
+                var timeFinish=date_to_start.addDays(125);
+                while (date_to_start <= timeFinish) {
+                    datesLayer.push(new Date (date_to_start));
+                    date_to_start=date_to_start.addDays(1);
+                }
+                
+              }
+              timeFinish=formatDate(timeFinish);
+              */
+              var latitude=latlng.lat;
+              var longitude=latlng.lng;
+                        $.ajax({
+                            type:'GET',
+                            url:'getDataTable/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude+"/"+longitude+"/"+num_parameters.length+"/"+range_param.value,
+                            contentType:"text/html",
+                            success:function(data){
+                              $("#loadingTable").hide();
+                              var table_data=data;
+                              $("#tableAdd").html(table_data);
+                                  
+                            }
+                      });
+
+                      $.ajax({
+                    type:'GET',
+                    url:'getDataGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude+"/"+longitude+"/"+num_parameters.length+"/"+range_param.value,
+                    contentType:'application/json',
+                    success:function(result){
+                       $("#loadingGraph").fadeOut("slow");
+                      
+                      const ctx=document.getElementById("myChart").getContext("2d");
+                      if(myChart!==undefined){
+                        myChart.destroy();
+                        $("#myChart").hide();
+                        $("#loadingGraph").show();
+                      }
+                      //Gradient fill
+                      let gradient=ctx.createLinearGradient(0,0,0,400);
+                      gradient.addColorStop(0,'rgba(58,123,213,1)');
+                      gradient.addColorStop(1,'rgba(0,210,255,0.3)');
+                      let delayed;
+                      var dates=result["allData"][1];
+                      var allData=result["allData"][0];
+                      var unit=result["allData"][2];
+                      const labels=dates  //years
+                      const data={
+                        labels,
+                        datasets:[{  
+                          data:allData, //actual points
+                          label: layer_name, // legend of the data
+                          borderColor:gradient,
+                          pointRadius: function(context) {      
+                            if (context.dataIndex == context.dataset.data.length-1) { 
+                              return 5; // the border radius you want for your lastpoint     
+                              } else {
+                                return 0;     
+                              } 
+                          },
+                          pointBackgroundColor:gradient,
+                        },
+                        ],
+                      };
+
+                      const config={
+                        type:'line',
+                        data: data,
+                        options: {
+                          radius:0,
+                          hitRadius:30,
+                          hoverRadius:0,
+                          responsive:true,
+                          /*
+                          animation:{
+                            onComplete:() =>{
+                              delayed=true;
+                            },
+                            delay:(context)=>{
+                              let delay=0;
+                              if(context.type==="data" && context.mode==="default" && !delayed){
+                                delay=context.dataIndex* 3 + context.datasetIndex*10;
+                              }
+                              return delay;
+                            },
+                          },
+                          */
+                          scales:{
+                            y:{
+                              ticks:{
+                                callback: function(value){
+                                  return toScientific(value.toString())+" "+unit; //to add the unit
+                                }
+                              }
+                            }
+                          }
+                        },
+                      };
+                      
+                      
+                      myChart=new Chart(ctx,config);
+                      $("#loadingGraph").fadeOut("slow");
+                     $("#myChart").show();
+                      }
+                   });
+              $("#graphModal").modal('show');
+            }
+          });
+
+            function formatDate(date) {
+                  var d = new Date(date),
+                      month = '' + (d.getMonth() + 1),
+                      day = '' + d.getDate(),
+                      year = d.getFullYear();
+
+                  if (month.length < 2) 
+                      month = '0' + month;
+                  if (day.length < 2) 
+                      day = '0' + day;
+
+                  var first_part=[year, month, day].join('-');
+                  var second_part="T00:00:00Z";
+                  return first_part+second_part;
+              }
+
+            function formatDateInput(date){
+              var d = new Date(date),
+              month = '' + (d.getMonth() + 1),
+              day = '' + d.getDate(),
+              year = d.getFullYear();
+
+          if (month.length < 2) 
+              month = '0' + month;
+          if (day.length < 2) 
+              day = '0' + day;
+
+          var first_part=[year, month, day].join('-');
+          return first_part;
+            }
+            
+           
+
+            function capitalizeFirstLetter(string) {
+              return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            var overlays = {
+                                Land: L.tileLayer.wms(
+                                'AdriaApp/WMS/overlays/atm_regional_76a1_c4ac_038a/request?', {
+                                bgcolor: '0x808080',
+                                crs: L.CRS.EPSG4326,
+                                format: 'image/png',
+                                layers: 'Land',
+                                styles: '',
+                                transparent: true,
+                                version: '1.3.0'}),
+                              Coastlines: L.tileLayer.wms(
+                                'AdriaApp/WMS/overlays/atm_regional_76a1_c4ac_038a/request?', {
+                                bgcolor: '0x808080',
+                                crs: L.CRS.EPSG4326,
+                                format: 'image/png',
+                                layers: 'Coastlines',
+                                styles: '',
+                                transparent: true,
+                                version: '1.3.0'}),
+                              LakesAndRivers: L.tileLayer.wms(
+                                 'AdriaApp/WMS/overlays/atm_regional_76a1_c4ac_038a/request?', {
+                                bgcolor: '0x808080',
+                                crs: L.CRS.EPSG4326,
+                                format: 'image/png',
+                                layers: 'LakesAndRivers',
+                                styles: '',
+                                transparent: true,
+                                version: '1.3.0'}),
+                              Nations: L.tileLayer.wms(
+                                 'AdriaApp/WMS/overlays/atm_regional_76a1_c4ac_038a/request?', {
+                                bgcolor: '0x808080',
+                                crs: L.CRS.EPSG4326,
+                                format: 'image/png',
+                                layers: 'Nations',
+                                styles: '',
+                                transparent: true,
+                                version: '1.3.0'}),
+                              States: L.tileLayer.wms(
+                                'AdriaApp/WMS/overlays/atm_regional_76a1_c4ac_038a/request?', {
+                                bgcolor: '0x808080',
+                                crs: L.CRS.EPSG4326,
+                                format: 'image/png',
+                                layers: 'States',
+                                styles: '',
+                                transparent: true,
+                                version: '1.3.0'})
+                            };
+                        var control_layers=L.control.layers().addTo(map);
+                        control_layers.addOverlay(overlays.Land,"Land");
+                        control_layers.addOverlay(overlays.Coastlines,"Coastlines");
+                        control_layers.addOverlay(overlays.States,"States");
+                        control_layers.addOverlay(overlays.Nations,"Nations");
+                        control_layers.addOverlay(overlays.LakesAndRivers,"LakesAndRivers");
+            
+            
+
+             var countHistorical=0;
+             var countProjections=0;
+             var historical_Date=new Array();
+             var projections_Date=new Array();
+             var extraParamArray=new Array();
+             var minValues=new Array();
+             var maxValues=new Array();
+             var stepValues=new Array();
+             var dates_checkbox=[];
+             var datasets_id_checkbox=[];
+             var checkboxes_clicked_values=[];
+             var legendCheckbox=[];
+             var vectorialCheckbox=[];
+             var checkboxes_clicked=[checkboxes_clicked_values,datasets_id_checkbox,dates_checkbox,legendCheckbox,vectorialCheckbox];
+             var layers_attached=[];
+             var allActiveLayers;
+
+             //ordine alfabetico
+             var sortByText = function (a, b) {
+              if($(a).find("input").val() > $(b).find("input").val()){
+                return 1;
+              }else if($(a).find("input").val() < $(b).find("input").val()){
+                return -1;
+              }else{
+                return 0;
+              }
+          }
+
+          function orderAlphabetically(){
+            $(document).ready(function () {
+              var sorted = $('#scroll_full_list>div.form-check').sort(sortByText);
+              $('#scroll_full_list').append(sorted);
+
+          });
+          }
+          function getColorsLegend(datasetID){
+            var colors=[];
+            var allLegends=document.getElementsByClassName("myLegendDiv");
+            for(var i=0;i<allLegends.length;i++){
+              if(allLegends[i].getAttribute("dataset_id")===datasetID){
+                var colorMin=allLegends[i].getAttribute("colorMin");
+                colors.insert(0,colorMin);
+                var colorMinMid=allLegends[i].getAttribute("colorMinMid");
+                colors.insert(1,colorMinMid);
+                var colorMid=allLegends[i].getAttribute("colorMid");
+                colors.insert(2,colorMid);
+                var colorMidMax=allLegends[i].getAttribute("colorMidMax");
+                colors.insert(3,colorMidMax);
+                var colorMax=allLegends[i].getAttribute("colorMax");
+                colors.insert(4,colorMax);
+              }
+            }
+            return colors;
+          }
+
+          function changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,newData){
+            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+            var range_value;
+            var dataset_id;
+            var name_layer;
+            var num_param;
+            for(var i=0;i<allActiveLayers.length;i++){
+              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
+                dataset_id=allActiveLayers[i].getAttribute("dataset_id");
+                name_layer=allActiveLayers[i].getAttribute("name_layer");
+                range_value=allActiveLayers[i].getAttribute("range_value");
+                num_param=allActiveLayers[i].getAttribute("num_param");
+                break;
+              }
+            }
+            var colors=getColorsLegend(dataset_id);
+            deletePointVect(dataset_id);
+            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false);
+          }
+
+
+
+          function changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,newRangeValue){
+            var date_start;
+            var dataset_id;
+            var name_layer;
+            var num_param;
+            for(var i=0;i<allActiveLayers.length;i++){
+              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
+                dataset_id=allActiveLayers[i].getAttribute("dataset_id");
+                name_layer=allActiveLayers[i].getAttribute("name_layer");
+                date_start=allActiveLayers[i].getAttribute("date_start");
+                num_param=allActiveLayers[i].getAttribute("num_param");
+                break;
+              }
+            }
+            var colors=getColorsLegend(dataset_id);
+            deletePointVect(dataset_id);
+            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false);
+          
+          }
+    
+                 
+            function arrayRemove(arr, value) { 
+            
+                return arr.filter(function(ele){ 
+                    return ele != value; 
+                });
+            }
+
+            const swap = function (nodeA, nodeB) {
+              const parentA = nodeA.parentNode;
+              const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+          
+              // Move `nodeA` to before the `nodeB`
+              nodeB.parentNode.insertBefore(nodeA, nodeB);
+          
+              // Move `nodeB` to before the sibling of `nodeA`
+              parentA.insertBefore(nodeB, siblingA);
+          };
+
+          var bounds;
+          var rectangle;
+          var rectangles=[];
+          var dataset_ids=[];
+          var colorCanal;
+          var varColor;
+          var colorMin=0;
+          var colorMax=255;
+          //function to fill the color of the rectangles of vectorial layer
+          function fillRectangleColor(r,g,b){
+            return "rgb("+r+","+g+","+b+")";
+          }
+          function hexToRgb(hex) {
+            // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+            var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+              return r + r + g + g + b + b;
+            });
+          
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+              r: parseInt(result[1], 16),
+              g: parseInt(result[2], 16),
+              b: parseInt(result[3], 16)
+            } : null;
+          }
+          
+
+          function getColor(v, min, max,colorMin,colorMid,colorMax) {
+
+            function getC(f, l, r) {
+                return {
+                    r: Math.floor((1 - f) * l.r + f * r.r),
+                    g: Math.floor((1 - f) * l.g + f * r.g),
+                    b: Math.floor((1 - f) * l.b + f * r.b),
+                };
+            }
+            if(colorMin===""){
+              var left = { r: 0, g: 0, b: 255 },
+                  middle = { r: 255, g: 255, b: 0 },
+                  right = { r: 255, g: 0, b: 0 },
+                  mid = (max - min) / 2;
+            }else{
+                var left = { r: hexToRgb(colorMin).r, g: hexToRgb(colorMin).g, b: hexToRgb(colorMin).b },
+                middle = { r: hexToRgb(colorMid).r, g: hexToRgb(colorMid).g, b: hexToRgb(colorMid).b },
+                right = { r: hexToRgb(colorMax).r, g: hexToRgb(colorMax).g, b: hexToRgb(colorMax).b },
+                mid = (max - min) / 2;
+            }
+            return v < min + mid ?
+                getC((v - min) / mid, left, middle) :
+                getC((v - min - mid) / mid, middle, right);
+        }
+        
+        var value_min;
+        var value_max;
+        var value_mid;
+        var isLegendAlreadyPresent=false;
+        var data;
+
+        function createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMidMax,colorMax,isColorChanged,value_max,value_min,value_mid){
+          var myLegendDiv=document.createElement("div");
+          var divBottom=document.getElementById("createImage");
+          myLegendDiv.classList.add("myLegendDiv");
+          var legendModal=document.getElementById("modalLegendBody");
+          
+          legendModal.setAttribute("dataset_id",dataset_id);
+          legendModal.setAttribute("layer_name",layer_name);
+          legendModal.setAttribute("date_start",formatDate(date_start));
+          legendModal.setAttribute("latitude_start",latitude_start);
+          legendModal.setAttribute("latitude_end",latitude_end);
+          legendModal.setAttribute("longitude_start",longitude_start);
+          legendModal.setAttribute("longitude_end",longitude_end);
+          legendModal.setAttribute("num_param",num_param);
+          legendModal.setAttribute("range_value",range_value);
+
+          myLegendDiv.setAttribute("colorMin",colorMin);
+          myLegendDiv.setAttribute("colorMinMid",colorMinMid);
+          myLegendDiv.setAttribute("colorMid",colorMid);
+          myLegendDiv.setAttribute("colorMidMax",colorMidMax);
+          myLegendDiv.setAttribute("colorMax",colorMax);
+          myLegendDiv.setAttribute("value_min",Math.ceil(value_min));
+          myLegendDiv.setAttribute("value_mid",Math.ceil(value_mid));
+          myLegendDiv.setAttribute("value_max",Math.ceil(value_max));
+          myLegendDiv.setAttribute("date_start",formatDate(date_start));
+          myLegendDiv.setAttribute("num_param",num_param);
+          myLegendDiv.setAttribute("range_value",range_value);
+
+          
+          var minValueModal=document.getElementById("minValue");
+          var midValueModal=document.getElementById("midValue");
+          var maxValueModal=document.getElementById("maxValue");
+          minValueModal.value=Math.ceil(value_min);
+          midValueModal.value=Math.ceil(value_mid);
+          maxValueModal.value=Math.ceil(value_max);
+
+          myLegendDiv.classList.add("legends");
+        
+          /*
+          var ulLegend=document.createElement("ul");
+          ulLegend.classList.add("myLegend");
+          myLegendDiv.appendChild("ulLegend");
+          */
+          if(isLegendAlreadyPresent){
+            isLegendAlreadyPresent=false;
+          }
+          var customLegends=document.getElementsByClassName("myLegendDiv");
+          for(var i=0;i<customLegends.length;i++){
+             
+            if(customLegends[i].getAttribute("dataset_id")===dataset_id){
+              isLegendAlreadyPresent=true;
+            }
+          }
+          data=[];
+          var minColorModal=document.getElementById("minColor");
+          var mediumColorModal=document.getElementById("mediumColor");
+          var maxColorModal=document.getElementById("maxColor");
+          
+          if(!isLegendAlreadyPresent){
+          if(colorMin===""){
+            data = [{
+              color: '#0000ff',
+              label: Math.ceil(parseFloat(value_min))
+            }, {
+              color: '#add8e6',
+              label: parseFloat(value_min)<0 ? Math.ceil((parseFloat(value_mid)+parseFloat(value_min))/2) :  Math.ceil((parseFloat(value_mid)-parseFloat(value_min))/2) 
+            },  
+            {
+              color: '#ffff00',
+              label: value_mid
+            }, {
+              color: '#ffa500',
+              label: parseFloat(value_mid)<0 ? Math.ceil((parseFloat(value_max)+parseFloat(value_mid))/2) :  Math.ceil((parseFloat(value_max)-parseFloat(value_mid))/2) 
+            }, {
+              color: '#ff0000',
+              label: Math.ceil(parseFloat(value_max))
+            }];
+            minColorModal.value="#0000ff";
+            mediumColorModal.value="#ffff00";
+            maxColorModal.value="#ff0000";
+
+        }else{
+         data = [{
+            color: colorMin,
+            label: Math.ceil(parseFloat(value_min))
+          }, {
+            color: colorMinMid,
+            label: parseFloat(value_min)<0 ? Math.ceil((parseFloat(value_mid)+parseFloat(value_min))/2) :  Math.ceil((parseFloat(value_mid)-parseFloat(value_min))/2) 
+          },  
+          {
+            color: colorMid,
+            label: value_mid
+          }, {
+            color: colorMidMax,
+            label: parseFloat(value_mid)<0 ? Math.ceil((parseFloat(value_max)+parseFloat(value_mid))/2) :  Math.ceil((parseFloat(value_max)-parseFloat(value_mid))/2) 
+          }, {
+            color: colorMax,
+            label: Math.ceil(parseFloat(value_max))
+          }];
+
+          minColorModal.value=colorMin;
+            mediumColorModal.value=colorMid;
+            maxColorModal.value=colorMax;
+
+        }
+        
+        
+          var width = 400,
+            height = 50;
+      
+          var svg = d3.select(myLegendDiv)
+            .append('svg')
+            .attr('width', 400)
+            .attr('height', height);
+      
+          var grad = svg.append('defs')
+            .append('linearGradient')
+            .attr('id', dataset_id)
+            .attr('x1', '0%')
+            .attr('x2', '100%')
+            .attr('y1', '0%')
+            .attr('y2', '0%');
+      
+          grad.selectAll('stop')
+            .data(data)
+            .enter()
+            .append('stop')
+            .attr('offset', function(d, i) {
+              return (i / data.length) * 100 + '%';
+            })
+            .style('stop-color', function(d) {
+              return d.color;
+            })
+            .style('stop-opacity', 0.9);
+      
+          svg.append('rect')
+            .data(data)
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 400)
+            .attr('height', height / 2)
+            .attr('fill', 'url(#'+dataset_id+')');
+            
+          var g = svg.append('g')
+            .selectAll('.label')  
+            .data(data)
+            .enter();
+          
+          g.append('line')
+            .style('stroke', function(d) {
+              return d.color;
+            })
+            .style('stroke-width', 2)
+            .attr('x1',function(d,i){
+              return xPos(i)
+            })
+            .attr('x2',function(d,i){
+              return xPos(i)
+            })
+            .attr('y1',function(d,i){
+              return height / 2;
+            })
+             .attr('y2',function(d,i){
+              return height
+            });
+            
+           
+          g.append('text')
+            .text(function(d){
+              return d.label;
+            })
+            .attr('transform',function(d,i){
+              return 'translate(' + (xPos(i) + 2) + ',' + ((height) - 7) + ')';
+            })
+            
+          function xPos(i){
+            return (width / data.length) * i;
+          }
+
+          }
+          
+          
+          allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+          
+          var lastLayer=findLayerDataset(dataset_id);
+          var textLegend=lastLayer.querySelector(".radio_layer").value;
+          var textToAdd='<p>'+textLegend+'</p>';
+          myLegendDiv.innerHTML+=textToAdd;
+          legendDivAttributes(myLegendDiv,textLegend,isColorChanged,dataset_id);
+          myLegendDiv.addEventListener("mouseover",mouseOverLegend,false);
+          myLegendDiv.addEventListener("mouseout",mouseOutLegend,false);
+          myLegendDiv.addEventListener("click",function(event){
+            var titleLegend=event.delegateTarget.getAttribute("name_layer");
+            $("#modalLegendBody").attr("dataset_id",event.delegateTarget.getAttribute("dataset_id"));
+            $("#panelLegend").modal();
+            $("#legendTitle").text("Here you can change the colors of the legend of the layer "+titleLegend);
+            colorMin=event.delegateTarget.getAttribute("colorMin");
+            if(colorMin===""){
+              $("#minColor").val("#0000ff");
+              $("#mediumColor").val("#FFFF00");
+              $("#maxColor").val("#ff0000");
+            }else{
+               $("#minColor").val(colorMin);
+              $("#mediumColor").val(event.delegateTarget.getAttribute("colorMid"));
+              $("#maxColor").val(event.delegateTarget.getAttribute("colorMax"));
+            }
+            $("#modalLegendBody").attr("date_start",event.delegateTarget.getAttribute("date_start"));
+            $("#modalLegendBody").attr("num_param",event.delegateTarget.getAttribute("num_param"));
+            $("#modalLegendBody").attr("range_value",event.delegateTarget.getAttribute("range_value"));
+            $("#minValue").val(event.delegateTarget.getAttribute("value_min"));
+            $("#midValue").val(event.delegateTarget.getAttribute("value_mid"));
+            $("#maxValue").val(event.delegateTarget.getAttribute("value_max"));
+          });
+          $(myLegendDiv).prependTo("#createImage");
+          if(isColorChanged){
+            swapCheckboxes();
+          }
+         
+
+        }
+
+        function legendDivAttributes(myLegendDiv,textLegend,isColorChanged,dataset_idOld){
+          myLegendDiv.setAttribute("data-bs-toggle","modal");
+          myLegendDiv.setAttribute("data-bs-target","#panelLegend");
+          myLegendDiv.setAttribute("name_layer",textLegend);
+          if(isColorChanged){
+            myLegendDiv.setAttribute("dataset_id",dataset_idOld);
+          }else{
+            myLegendDiv.setAttribute("dataset_id",dataset_id);
+          }
+          
+        }
+
+        $("#panelLegend").mouseover(function(){
+          map.dragging.disable();
+              map.scrollWheelZoom.disable();
+              map.doubleClickZoom.disable();
+              mouseOver=true;
+        });
+        $("#panelLegend").mouseout(function(){
+          map.dragging.enable();
+          map.scrollWheelZoom.enable();
+          map.doubleClickZoom.enable();
+          mouseOver=false;
+        });
+
+        function mouseOverLegend(){
+          map.dragging.disable();
+              map.scrollWheelZoom.disable();
+              map.doubleClickZoom.disable();
+              mouseOver=true;
+        }
+
+        function mouseOutLegend(){
+          map.dragging.enable();
+          map.scrollWheelZoom.enable();
+          map.doubleClickZoom.enable();
+          mouseOver=false;
+        }
+
+        function getMix(minColor,maxColor) {
+          var additiveColor = ($.xcolor.average(minColor, maxColor).getHex());
+          return additiveColor;
+        }
+
+        function restoreDefault(defaultButton){
+          var modalDiv=defaultButton.parentNode;
+          var datasetIdChange=modalDiv.getAttribute("dataset_id");
+          var allLegends=document.getElementsByClassName("myLegendDiv");
+          localStorage.removeItem(datasetIdChange);
+           for(var i=0;i<allLegends.length;i++){
+             if(allLegends[i].getAttribute("dataset_id")===datasetIdChange){
+               allLegends[i].remove();
+             }
+           }
+           //2. Rimuovere layer vettoriale precedente
+           deletePointVect(datasetIdChange);
+           var isColorChanged=true;
+           //3. Ricrearlo con i nuovi colori
+           var nameLayer=modalDiv.getAttribute("layer_name");
+           var latStart=modalDiv.getAttribute("latitude_start");
+           var dateStart=modalDiv.getAttribute("date_start");
+           var latEnd=modalDiv.getAttribute("latitude_end");
+           var longStart=modalDiv.getAttribute("longitude_start");
+           var longEnd=modalDiv.getAttribute("longitude_end");
+           var numParam=modalDiv.getAttribute("num_param");
+           var rangeValue=modalDiv.getAttribute("range_value");
+           createPointVectorial(datasetIdChange,nameLayer,dateStart,latStart,latEnd,longStart,longEnd,numParam,rangeValue,"","","","","",true,true);
+        }
+
+       
+
+      
+
+        function changeColor(colorButton){
+              //rimuovere legenda precedente e layer vettoriale precedente e ricrearlo con i colori nuovi e vedere se tutto funziona!! Tutto domani o stasera se non esci....
+           
+            //1.Rimuovere legenda precedente
+           var modalDiv=colorButton.parentNode;
+           var datasetIdChange=modalDiv.getAttribute("dataset_id");
+           
+           var allLegends=document.getElementsByClassName("myLegendDiv");
+           for(var i=0;i<allLegends.length;i++){
+             if(allLegends[i].getAttribute("dataset_id")===datasetIdChange){
+               allLegends[i].remove();
+             }
+           }
+           //2. Rimuovere layer vettoriale precedente
+           deletePointVect(datasetIdChange);
+           var isColorChanged=true;
+           //3. Ricrearlo con i nuovi colori
+           var nameLayer=modalDiv.getAttribute("layer_name");
+           var latStart=modalDiv.getAttribute("latitude_start");
+           var dateStart=modalDiv.getAttribute("date_start");
+           var latEnd=modalDiv.getAttribute("latitude_end");
+           var longStart=modalDiv.getAttribute("longitude_start");
+           var longEnd=modalDiv.getAttribute("longitude_end");
+           var numParam=modalDiv.getAttribute("num_param");
+           var rangeValue=modalDiv.getAttribute("range_value");
+           var colors = $('.colorsLegend');
+           var minColor = $(colors[0]).val();
+           var midColor = $(colors[1]).val();
+           var maxColor=$(colors[2]).val();
+           var values=$(".valuesLegend");
+           var valueMinLegend=$(values[0]).val();
+           var valueMidLegend=$(values[1]).val();
+           var valueMaxLegend=$(values[2]).val();
+           var minMidColor=getMix(minColor,midColor);
+           var maxMidColor=getMix(midColor,maxColor);
+           var value=[minColor,minMidColor,midColor,maxMidColor,maxColor,valueMinLegend,valueMidLegend,valueMaxLegend]
+           localStorage.setItem(datasetIdChange,JSON.stringify(value));
+           createPointVectorial(datasetIdChange,nameLayer,dateStart,latStart,latEnd,longStart,longEnd,numParam,rangeValue,minColor,minMidColor,midColor,maxMidColor,maxColor,true,isColorChanged);
+          
+        }
+        
+
+         var firstpolylineBlack;
+         var firstpolylineWhite;
+         var polylinesBlack=[];
+         var polylinesWhite=[];
+         var arrowHeadsBlack=[];
+         var arrowHeadsWhite=[];
+
+          function createArrowsWind(datasetId1,datasetId2,layer_name1,date_start1,num_param1,range_value1,layer_name2,date_start2,latitude_start,latitude_end,longitude_start,longitude_end,num_param2,range_value2){
+            $.ajax({
+               type:'GET',
+               url:'getWindArrows/'+datasetId1+'/'+datasetId2+'/'+layer_name1+'/'+formatDate(date_start1)+'/'+num_param1+'/'+range_value1+'/'+layer_name2+'/'+formatDate(date_start2)+'/'+latitude_start+'/'+latitude_end+'/'+longitude_start+'/'+longitude_end+'/'+num_param2+'/'+range_value2,
+               contentType:"application/json",
+               success:function(data){
+                 var dataArrows=data['windArrows'];
+                 allLatCoordinates=dataArrows[0];
+                 allLongCoordinates=dataArrows[1];
+                 valuesData1=dataArrows[2];
+                 valuesData2=dataArrows[5];
+                 var pointList=[];
+
+                 for(var i=0;i<allLatCoordinates.length;i++){
+                   var pointA=new L.LatLng(allLatCoordinates[i],allLongCoordinates[i]);
+                   var pointB=new L.LatLng(parseFloat(allLatCoordinates[i])+parseFloat(valuesData1[i])*0.02,parseFloat(allLongCoordinates[i])+parseFloat(valuesData2[i])*0.02);
+                   pointList=[pointA,pointB];
+                   
+                     firstpolylineWhite = new L.Polyline(pointList, {
+                        color: 'white',
+                        weight: 3,
+                        smoothFactor: 1
+                    }).addTo(map);
+                   
+                   firstpolylineBlack = new L.Polyline(pointList, {
+                        color: 'black',
+                        weight: 2,
+                        smoothFactor: 1
+                    }).addTo(map);
+
+                   
+                  
+                  var arrowHeadWhite=L.polylineDecorator(firstpolylineWhite, {
+                        patterns: [{
+                          offset: '100%',
+                          repeat: 0,
+                          symbol: L.Symbol.arrowHead({
+                            pixelSize: 15,
+                            polygon: false,
+                            pathOptions: {
+                              color:'white',
+                              stroke:true,
+                              weight:3,
+                            }
+                          })
+                        }]
+                      }).addTo(map);
+
+                        var arrowHeadBlack = L.polylineDecorator(firstpolylineBlack, {
+                        patterns: [{
+                          offset: '100%',
+                          repeat: 0,
+                          symbol: L.Symbol.arrowHead({
+                            pixelSize: 15,
+                            polygon: false,
+                            pathOptions: {
+                              color:'black',
+                              stroke: true,
+                              weight:2,
+                            }
+                          })
+                        }]
+                      }).addTo(map);
+
+                    
+                  arrowHeadsBlack.push(arrowHeadBlack);
+                  arrowHeadsWhite.push(arrowHeadWhite);
+                  polylinesBlack.push(firstpolylineBlack);
+                  polylinesWhite.push(firstpolylineWhite);
+                 }
+               }
+            });
+          }
+
+          function removeArrowsWind(){
+           
+            polylinesBlack.forEach(function(item){
+              map.removeLayer(item);
+            })
+
+            polylinesWhite.forEach(function(item){
+              map.removeLayer(item);
+            })
+
+           arrowHeadsBlack.forEach(function(item){
+             map.removeLayer(item);
+           })
+
+           arrowHeadsWhite.forEach(function(item){
+             map.removeLayer(item);
+           })
+          }
+      
+
+        
+          isArrowsWind=false;
+
+          function createPointVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isCreateLegend,isColorChanged){
+             $.ajax({
+               type:'GET',
+               url:'getDataVectorial/'+dataset_id+'/'+layer_name+'/'+formatDate(date_start)+'/'+latitude_start+'/'+latitude_end+'/'+longitude_start+'/'+longitude_end+'/'+num_param+'/'+range_value,
+               contentType:"application/json",
+               success:function(data){
+                 var allData=data['dataVect'];
+                 var allLatCoordinates=allData[1];
+                 var allLongCoordinates=allData[2];
+                 var allValues=allData[0];
+                 value_min=allData[3];
+                 value_max=allData[4];
+                
+                 if(parseFloat(value_min)<0){
+                  value_mid=Math.ceil((parseFloat(value_max)+parseFloat(value_min))/2);
+                 }else{
+                 value_mid=Math.ceil((parseFloat(value_max)-parseFloat(value_min))/2);
+                 }
+
+                 var colorsValuesStored=JSON.parse(localStorage.getItem(dataset_id));
+                  if(colorsValuesStored!==null){ 
+                    colorMin=colorsValuesStored[0];
+                    colorMinMid=colorsValuesStored[1];
+                    colorMid=colorsValuesStored[2];
+                    colorMaxMid=colorsValuesStored[3];
+                    colorMax=colorsValuesStored[4];
+                    value_min=colorsValuesStored[5];
+                    value_mid=colorsValuesStored[6];
+                    value_max=colorsValuesStored[7];
+                  }
+
+                 for(var i=0;i<allLatCoordinates.length;i++){
+                    
+                    
+                    bounds=[[parseFloat(allLatCoordinates[i])-0.150002,parseFloat(allLongCoordinates[i])-0.1730774],[parseFloat(allLatCoordinates[i])+0.150002,parseFloat(allLongCoordinates[i])+0.1730774]];
+                   /*
+                    if(parseFloat(allValues[i])===value_min){
+                           
+                      rectangle=L.rectangle(bounds, {fill:true,stroke:false,color: fillRectangleColor(colorMin,colorMin,colorMax), weight: 1}).bindTooltip(allValues[i]).addTo(map);
+                      rectangles.push(rectangle); 
+                    }
+                    else if(parseFloat(allValues[i])===value_max){
+                    
+                      rectangle=L.rectangle(bounds, {fill:true,stroke:false,color:fillRectangleColor(colorMax,colorMin,colorMin), weight: 1}).bindTooltip(allValues[i]).addTo(map);
+                      rectangles.push(rectangle); 
+                    }else{
+                      
+                      colorCanal=colorMin*varColor+colorMax*(1-varColor);
+                      rectangle=L.rectangle(bounds, {stroke:false,fill:true,fillColor: fillRectangleColor(colorCanal,colorCanal,colorCanal),color: fillRectangleColor(colorCanal,colorCanal,colorCanal), weight: 1}).bindTooltip(allValues[i]).addTo(map);
+                      rectangles.push(rectangle); 
+                    }
+                    */
+                    varColor=getColor(allValues[i],value_min,value_max,colorMin,colorMid,colorMax);
+                    rectangle=L.rectangle(bounds, {fillOpacity:0.7,fill:true,stroke:false,color: fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 3}).bindTooltip(allValues[i]).addTo(map);
+                    rectangles.push(rectangle); 
+                    dataset_ids.push(dataset_id);
+                 }
+
+                 
+                 allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                 if(allActiveLayers.length>=2){
+                    if(allActiveLayers[0].children[0].value.indexOf("wind")!==-1 && allActiveLayers[1].children[0].value.indexOf("wind")!==-1){
+                      isArrowsWind=true;
+                      datasetId1=allActiveLayers[0].getAttribute("dataset_id");
+                      layer_name1=allActiveLayers[0].getAttribute("name_layer");
+                      date_start1=allActiveLayers[0].getAttribute("date_start");
+                      range_value1=allActiveLayers[0].getAttribute("range_value");
+                      num_param1=allActiveLayers[0].getAttribute("num_param");
+                      datasetId2=allActiveLayers[1].getAttribute("dataset_id");
+                      layer_name2=allActiveLayers[1].getAttribute("name_layer");
+                      date_start2=allActiveLayers[1].getAttribute("date_start");
+                      range_value2=allActiveLayers[1].getAttribute("range_value");
+                      num_param2=allActiveLayers[1].getAttribute("num_param");
+                      createArrowsWind(datasetId1,datasetId2,layer_name1,date_start1,num_param1,range_value1,layer_name2,date_start2,latitude_start,latitude_end,longitude_start,longitude_end,num_param2,range_value2);
+                    }
+                 }
+
+                
+
+                 //attach the custom legend created for vectorial layers
+                
+                 if(isCreateLegend){
+                 createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isColorChanged,value_max,value_min,value_mid);
+                 }
+                  // zoom the map to the rectangle bounds
+                  //map.fitBounds(bounds);
+               }
+             });
+          }
+
+         
+
+          
+            var isLayerVectorial=false;
+
+            function deletePointVect(dataset_id){
+              if(vectorialCheckbox.length>0){
+              for(var i=0;i<dataset_ids.length;i++){
+                if(dataset_ids[i]===dataset_id){
+                      map.removeLayer(rectangles[i]);
+                    }
+                  }
+              }
+            }
+            /*
+            function attachVectRemaining(lat_start,lat_end,long_start,long_end){
+            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+            if(allActiveLayers.length>0){
+              for(var i=0;i<allActiveLayers.length;i++){
+                if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
+                  createPointVectorial(allActiveLayers[i].getAttribute("dataset_id"),allActiveLayers[i].getAttribute("name_layer"),
+                  allActiveLayers[i].getAttribute("date_start"),lat_start,lat_end,long_start,long_end,allActiveLayers[i].getAttribute("num_param"),
+                  allActiveLayers[i].getAttribute("range_value"));
+                }
+              }
+            }
+          }
+          */
+
+          
+        
+         
+          function swapTwoLayers(){
+            var allLayersActive=document.getElementById("layers_active").querySelectorAll(".form-check");
+            var allImages=document.getElementsByClassName("legends");
+            for(var i=0;i<allLayersActive.length;i++){
+              for(var j=0;j<allImages.length;j++){
+                 if(allLayersActive[i].getAttribute("dataset_id")===allImages[j].getAttribute("dataset_id") && i!==j){  
+          
+                  swap(allImages[j],allImages[i]);
+                }
+              }
+           }
+          }
+
+          function swapCheckboxes(){
+            var legends=document.getElementById("createImage").querySelectorAll(".legends");
+            var layersActive=document.getElementById("layers_active").getElementsByClassName("form-check");
+            for(var i=0;i<legends.length;i++){
+                for(var j=0;j<layersActive.length;j++){
+                  if(layersActive[j].getAttribute("dataset_id")===legends[i].getAttribute("dataset_id") && i!==j){
+                    swap(layersActive[j],layersActive[i]);
+                  }
+                }
+            }
+        }
+          
+            function handleCheck(checkbox_clicked){
+              var div_checkbox=$(checkbox_clicked).closest('div');
+              dataset_id=div_checkbox.attr("dataset_id");
+              if(!div_checkbox.attr("wms")){
+                isLayerVectorial=true;
+              }else{
+                isLayerVectorial=false;
+              }
+              $.ajax({
+                    type:'GET',
+                    url:'myFunctions/getMetadata/'+dataset_id,
+                    //dataType:'json',
+                    contentType:"application/json",
+                    success:function(data){
+                        var metadata=data["metadata"];
+                        num_parameters=metadata[1].split(", ");
+                        var label_other_param=document.getElementById("label_other_param");
+                        range_param=document.getElementById("otherParam");
+                        var other_param=document.getElementById("param_unknown");
+                        var extra_param;
+                        var min_max_value;
+                        var positiveNegative=metadata[7];
+                        var lat_start="47";
+                        var lat_end="35";
+                        var long_start="5";
+                        var long_end="35";
+                        if(num_parameters.length==3 && extraParamArray.length==0 && checkbox_clicked.checked){
+                          other_param.style.display="none";
+                        }
+                        if(num_parameters.length>3 && checkbox_clicked.checked){
+                          extra_param=capitalizeFirstLetter(num_parameters[1]);
+                          label_other_param.innerHTML=extra_param;
+                          extraParamArray.push(extra_param);
+                          min_max_value=metadata[0].split(",");
+                          min_value=min_max_value[0];
+                          max_value=min_max_value[1];
+                          average_other_param=metadata[5].split("=")[1];
+                          minValues.push(Math.ceil(min_value));
+                          maxValues.push(Math.ceil(max_value));
+                          if(average_other_param<0){
+                            average_other_param=100.0;
+                          }
+                          stepValues.push(Math.ceil(average_other_param));
+                          minValues=minValues.sort((a,b)=> a-b);  //ordine crescente
+                          maxValues=maxValues.sort((a,b)=>b-a); //ordine decrescente
+                          stepValues=stepValues.sort((a,b)=>a-b); //ordine crescente
+                          range_param.min=minValues[0];
+                          range_param.max=maxValues[0];
+                          range_param.step=stepValues[0];
+                          
+
+                        }else if(num_parameters.length>3 && !checkbox_clicked.checked){
+                          extra_param=capitalizeFirstLetter(num_parameters[1]);
+                          var indexRemove=extraParamArray.indexOf(extra_param);
+                          extraParamArray.splice(indexRemove,1);
+                          min_max_value=metadata[0].split(",");
+                          min_value=min_max_value[0];
+                          max_value=min_max_value[1];
+                          average_other_param=metadata[5].split("=")[1];
+                          var minRemove=minValues.indexOf(Math.ceil(min_value));
+                          minValues.splice(minRemove,1);
+                          var maxRemove=maxValues.indexOf(Math.ceil(max_value));
+                          maxValues.splice(maxRemove,1);
+                          var stepRemove=stepValues.indexOf(Math.ceil(average_other_param));
+                          stepValues.splice(stepRemove,1);
+                          if(extraParamArray.length>0){
+                            label_other_param.innerHTML=extraParamArray[extraParamArray.length-1];
+                            range_param.min=minValues[0];
+                            range_param.max=maxValues[0];
+                            range_param.step=stepValues[0];
+                            range_param.value=range_param.min;
+                           
+                          }else{
+                            other_param.style.display="none";
+                          }
+                        }
+                                          
+                                          var seconds_epoch=metadata[2].split(",");
+                                          var seconds_epoch_start=seconds_epoch[0];
+                                       
+                                          var seconds_epoch_end=seconds_epoch[1];
+                                        
+                                         if (checkbox_clicked.checked && checkbox_clicked.value.indexOf("historical") !== -1){
+                                           countHistorical+=1;
+                                         }
+                                         else if(checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections") !== -1){
+                                           countProjections+=1;
+                                         }
+                                         else if(!checkbox_clicked.checked && checkbox_clicked.value.indexOf("historical") !== -1){
+                                            countHistorical-=1;
+                                            if(countHistorical===0){
+                                              historical_Date=[];
+                                            }
+                                         }
+                                         else if(!checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections") !== -1){
+                                           countProjections-=1;
+                                           if(countProjections===0){
+                                             projections_Date=[];
+                                           }
+                                         }
+                                          date_start=new Date(0);
+                                          date_start.setUTCSeconds(seconds_epoch_start);
+                                          date_end=new Date(0);
+                                          date_end.setUTCSeconds(seconds_epoch_end.trim());
+                                         
+                                          var dateArray=new Array();
+                                          var cardParam=document.getElementById("cardParameters");
+                                          
+                                          if((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1)  && checkbox_clicked.checked){
+                                              historical_Date.length=0;
+                                              var currentDate =date_start
+                                                while (currentDate <= date_end) {
+                                                    historical_Date.push(new Date (currentDate));
+                                                    currentDate = currentDate.addDays(1);
+                                                }
+                                          }else if(checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections") !== -1)
+                                          {
+                                                var currentDate =date_start
+                                                projections_Date.length=0;
+                                                while (currentDate <= date_end) {
+                                                    projections_Date.push(new Date (currentDate));
+                                                    currentDate = currentDate.addDays(1);
+                                                }
+                                          }
+                                        
+                                          dateArray.length=0;
+                                          dateArray=historical_Date.concat(projections_Date);
+                                          
+                                          
+                                          var input_time=document.getElementById("myDate");
+                                          input_time.min=formatDateInput(dateArray[0]);
+                                          input_time.max=formatDateInput(dateArray[dateArray.length-1]);
+                                          input_time.value=input_time.min;
+                                          layer_name=metadata[4];
+                                          var label_other_param=document.getElementById("label_other_param");
+                                          
+                                          var layer_to_attach;
+                                          var cardParamTime=document.getElementById("paramTime");
+                                          var legendLayer_src;
+                                          cardParam.style.display="block";
+                                          var timeValue;
+                                         
+                                          if ((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
+                                          
+                                           var firstDate=input_time.min;
+                                           
+                                           input_time.value=firstDate;
+                                            timeValue=formatDate(firstDate);
+                                          }else if(checkbox_clicked.value.indexOf("projections")!==-1 && checkbox_clicked.checked) 
+                                          {
+
+                                            var lastDate=input_time.max;
+                                            input_time.value=lastDate;
+                                            timeValue=formatDate(lastDate);
+                                           
+                                            
+                                          }
+                                          var cardDiv=document.getElementById("cardDiv");
+                                          if(num_parameters.length===3){
+                                            
+                                            cardParam.style.height="8rem";
+                                            if(extraParamArray.length===0){
+                                              other_param.style.display="none"
+                                              cardParam.style.height="8rem";
+                                            }
+                                            else{
+                                              cardParam.style.height="11rem";
+                                            }
+                                            cardParamTime.style.display="block";
+                                            
+                                            legendLayer_src="http://erddap.cmcc-opa.eu/erddap/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B%5D%5B%5D&.legend=Only";
+                                           
+                                            if(!isLayerVectorial){
+                                             for(var i=0;i<checkboxes_clicked[0].length;i++){
+                                               if(checkboxes_clicked[4][i]){
+                                                 deletePointVect(checkboxes_clicked[1][i]);
+                                               }
+                                             }
+                                            layer_to_attach={
+                                                layer_name: L.tileLayer.wms( 
+                                                'AdriaApp/WMS/request?',{
+                                                attribution: metadata[6],
+                                                bgcolor: '0x808080',
+                                                crs: L.CRS.EPSG4326,
+                                                format: 'image/png',
+                                                layers: dataset_id+':'+layer_name,
+                                                styles: '',
+                                                time: timeValue,
+                                                transparent: true,
+                                                version: '1.3.0',
+                                                opacity:0.7,
+                                                })
+                                            };
+                                          }else{
+                                           
+                                            if(checkbox_clicked.checked){
+                                            createPointVectorial(dataset_id,layer_name,date_start,lat_start,lat_end,long_start,long_end,num_parameters.length,range_param.value,"","","","","",true,false);
+                                            }
+                                          }
+
+                                          }else{
+                                            
+                                            cardDiv.style.height="370px";
+                                            
+                                            cardParam.style.height="11rem";
+                                            cardParamTime.style.display="block";
+                                            other_param.style.display="block";
+                                            var name_extra_param;
+                                            var negative_value;
+                                            var isNegative=false;
+                                            if(extra_param==="Depth"){
+                                              name_extra_param="elevation";
+                                               negative_value=-range_param.value;
+                                               isNegative=true;
+                                            }else{
+                                             name_extra_param='dim_'.concat(extra_param);
+                                             negative_value=range_param.value;
+                                             isNegative=false;
+                                            }
+                                            legendLayer_src="http://erddap.cmcc-opa.eu/erddap/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B("+Math.ceil(min_value)+")%5D%5B%5D%5B%5D&.legend=Only";
+                                            
+                                              if(!isLayerVectorial){
+                                                /*
+                                                if(vectorialCheckbox.length>0 && !checkbox_clicked.checked){
+                                                  deletePointVect();
+                                                }
+                                                */
+                                                for(var i=0;i<checkboxes_clicked[0].length;i++){
+                                                  if(checkboxes_clicked[4][i]){
+                                                    deletePointVect(checkboxes_clicked[1][i]);
+                                                  }
+                                                }
+                                            layer_to_attach={
+                                                layer_name: L.tileLayer.wms(
+                                              'AdriaApp/WMS/3D/'+name_extra_param+'/request?',{
+                                                attribution: metadata[6],
+                                                bgcolor: '0x808080',
+                                                crs: L.CRS.EPSG4326,
+                                                format: 'image/png',
+                                                layers: dataset_id+':'+layer_name,
+                                                styles: '',
+                                                time: timeValue,
+                                                [name_extra_param]: negative_value,
+                                                transparent: true,
+                                                version: '1.3.0',
+                                                opacity:0.7,
+                                                })
+                                            };
+                                          }else{
+                                            
+                                            if(checkbox_clicked.checked){
+                                              createPointVectorial(dataset_id,layer_name,date_start,lat_start,lat_end,long_start,long_end,num_parameters.length,range_param.value,"","","","","",true,false);
+                                            }
+                                          }
+                                          }
+                                          
+                                          
+                                      legendLayer='<img class="legends" src='+legendLayer_src+' dataset_id='+dataset_id+'>';
+                                      
+                                         
+                                          if(checkbox_clicked.checked){
+                                            
+                                                checkboxes_clicked_values.push(checkbox_clicked.value);
+                                                dates_checkbox.push(formatDate(date_start)+","+formatDate(date_end));
+                                                datasets_id_checkbox.push(dataset_id);
+                                                legendCheckbox.push(legendLayer_src);
+                                                vectorialCheckbox.push(isLayerVectorial);
+                                                
+                                                div_checkbox.prependTo("#layers_active");
+                                                allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                                var lastLayer=allActiveLayers[0];
+                                                lastLayer.setAttribute("name_layer",layer_name);
+                                                lastLayer.setAttribute("date_start",formatDate(date_start));
+                                                lastLayer.setAttribute("date_end",formatDate(date_end));
+                                                lastLayer.setAttribute("num_param",num_parameters.length);
+                                                lastLayer.setAttribute("range_value",range_param.value);
+
+                                               var movement;
+                                               $("#layers_active").sortable({
+                                                 containment:$("#layers_active"),
+                                                  axis:"y",
+                                                  cursor:"grabbing",
+                                                  opacity:0.5,
+                                                  tolerance:"pointer",
+                                                  change: function(event, ui) {
+                                                    movement = ui.position.top - ui.originalPosition.top > 0 ? "down" : "up";
+                                                },
+                                                 
+                                                  stop:function(event,ui) {
+                                                    if(movement==="up"){
+                                                      var uiItemPrev=ui.item.next();
+      
+                                                      if(uiItemPrev[0].children[0].value.indexOf("projections")!==-1 && (ui.item[0].children[0].value.indexOf("historical")!==-1 || ui.item[0].children[0].value.indexOf("from")!==-1 )){
+                                                        input_time.value=input_time.min;
+                                                      }else if((uiItemPrev[0].children[0].value.indexOf("historical")!==-1 || uiItemPrev[0].children[0].value.indexOf("from")!==-1 )  && ui.item[0].children[0].value.indexOf("projections")!==-1){
+                                                        input_time.value=input_time.max;
+                                                      }
+                                                          //precedente vettoriale, nuovo non vettoriale
+                                                          
+                                                      allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                                     if(uiItemPrev[0].attributes[4].value=="" && ui.item[0].attributes[4].value!=""){
+                                                       //deletePointVect();
+                                                        for(var i=0;i<allActiveLayers.length;i++){
+                                                          if(allActiveLayers[i].getAttribute("wms")==="" && allActiveLayers[0].getAttribute("dataset_id")===ui.item[0].attributes[2].value){
+                                                               checkboxes_clicked[4].splice(i,1);
+                                                              deletePointVect(allActiveLayers[i].getAttribute("dataset_id"));
+                                                          }
+                                                        }
+
+                                                        swapTwoLayers();
+                                                        
+                                                     }
+                                                     //precedente non vettoriale, nuovo vettoriale
+                                                     else if(ui.item[0].attributes[4].value==""  && uiItemPrev[0].attributes[4].value!=""){
+                                                     // deletePointVect();
+                                                     swapTwoLayers();
+                                                     var notCreateLegend=false;
+                                                     if(allActiveLayers[0].getAttribute("dataset_id")===ui.item[0].attributes[2].value){
+                                                         var colors=getColorsLegend(allActiveLayers[0].getAttribute("dataset_id"));
+                                                        createPointVectorial(ui.item[0].attributes[2].value,ui.item[0].attributes[7].value,ui.item[0].attributes[8].value,lat_start,lat_end,long_start,long_end,ui.item[0].attributes[10].value,ui.item[0].attributes[11].value,colors[0],colors[1],colors[2],colors[3],colors[4],notCreateLegend,false);
+                                                     }
+                                                     }
+                                                     //precedente vettoriale, nuovo vettoriale
+                                                     
+                                                     else if(ui.item[0].attributes[4].value=="" && uiItemPrev[0].attributes[4].value==""){ 
+
+                                                      swapTwoLayers();
+                                              
+                                                      if( allActiveLayers[0].getAttribute("dataset_id")===ui.item[0].attributes[2].value){
+                                                        deletePointVect(uiItemPrev[0].attributes[2].value);
+                                                        var colors=getColorsLegend(allActiveLayers[0].getAttribute("dataset_id"));
+                                                        createPointVectorial(ui.item[0].attributes[2].value,ui.item[0].attributes[7].value,ui.item[0].attributes[8].value,lat_start,lat_end,long_start,long_end,ui.item[0].attributes[10].value,ui.item[0].attributes[11].value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false);
+                                                     }
+                                                     
+                                                    }else{
+                                                      //precedente non vettoriale, nuovo non vettoriale
+                                                      swapTwoLayers();
+                                                    }
+                                                    
+                                                    map.eachLayer(function(layer){
+                                                      if(layer.options.layers!==undefined){
+                                                        
+                                                       for(var i=0;i<allActiveLayers.length;i++){
+                                                         if(layer.options.layers==="Coastlines" || layer.options.layers==="Land" || layer.options.layers=="LakesAndRivers" || layer.options.layers==="States" || layer.options.layers==="Nations"){
+                                                           layer.setZIndex(allActiveLayers.length*1000);
+                                                         }
+                                                         if(layer.options.layers.split(":")[0]===allActiveLayers[i].getAttribute("dataset_id") && allActiveLayers[i].getAttribute("wms")!=""){
+                                                           layer.setZIndex(allActiveLayers.length-i);
+                                                         }
+                                                       }
+                                                    }
+
+                                                    });
+                                                    
+                                                    
+                                                    var indexNewDate;
+                                                    var temp;
+                                                    var indexOldDate;
+                                                    for(var i=0;i<checkboxes_clicked[1].length;i++){
+                                                        if(ui.item[0].attributes[2].value===checkboxes_clicked[1][i]){
+                                                          indexNewDate=i;
+                                                        }else if(checkboxes_clicked[1][i]===uiItemPrev[0].attributes[2].value){
+                                                          indexOldDate=i;
+                                                        }
+                                                    }
+                                                    
+                                                    temp=checkboxes_clicked[2][indexOldDate];
+                                                    checkboxes_clicked[2][indexOldDate]=checkboxes_clicked[2][indexNewDate];
+                                                    checkboxes_clicked[2][indexNewDate]=temp;
+                                                    
+                                                  }else{
+                                                    var newIndex = $(this).find('.ui-sortable').index(ui.item);
+                                                    $(this).sortable('cancel');  // revert changes
+                                                    var oldIndex = $(this).find('.ui-sortable').index(ui.item);
+                                                  }
+                                                  }
+                                               });
+                                              
+                                                
+                                              
+                                                buttonRemoveVisible=true;
+                                                var button_remove=$(div_checkbox).children()[2];
+                                               
+                                                
+                                                $(button_remove).on("click",function(){
+                                                        var item=$(this).closest('div');
+                                                        buttonRemoveVisible=false;
+                                                        if(!buttonRemoveVisible){
+                                                          $(button_remove).hide();
+                                                          
+                                                        }
+                                                       
+                                                        $("#scroll_full_list").append(item);
+                                                       orderAlphabetically();
+
+                                                       
+                                                       for(var i=0;i<checkboxes_clicked[0].length;i++){
+                                                          if(checkboxes_clicked[0][i]===$(item[0]).attr("dataset_id") && $(item[0]).attr("wms")==""){
+                                                                checkboxes_clicked[4].splice(i,1);                     
+                                                          }
+                                                       }
+                                                        
+                                                        if(!isLayerVectorial){
+                                                        var images=document.getElementsByClassName("legends");
+                                                        for(var i=0;i<images.length;i++){
+                                                          if(images[i].src.split("%")[0]===legendLayer_src.split("%")[0]){
+                                                            images[i].parentNode.removeChild(images[i]);
+                                                          }
+                                                        }
+                                                      }else{
+                                                        var customLegends=document.getElementsByClassName("myLegendDiv");
+                                                        for(var i=0;i<customLegends.length;i++){
+                                                          if($(item[0]).attr("dataset_id")===customLegends[i].getAttribute("dataset_id")){
+                                                            customLegends[i].remove();
+                                                          }
+                                                        }
+                                                      }
+                                                        if(num_parameters.length>3 && checkbox_clicked.checked){
+                                                          extra_param=capitalizeFirstLetter(num_parameters[1]);
+                                                          min_max_value=metadata[0].split(",");
+                                                          min_value=min_max_value[0];
+                                                          max_value=min_max_value[1];
+                                                          average_other_param=metadata[5].split("=")[1];
+                                                          var minButtonRemove=minValues.indexOf(Math.ceil(min_value));
+                                                          minValues.splice(minButtonRemove,1);
+                                                          var maxButtonRemove=maxValues.indexOf(Math.ceil(maxRemove));
+                                                          maxValues.splice(maxButtonRemove,1);
+                                                          var stepButtonRemove=stepValues.indexOf(Math.ceil(average_other_param));
+                                                          stepValues.splice(stepButtonRemove,1);
+                                                          var extraParamButtonRemove=extraParamArray.indexOf(extra_param);
+                                                          extraParamArray.splice(extraParamButtonRemove,1);
+                                                          if(extraParamArray.length>0){
+                                                            label_other_param.innerHTML=extraParamArray[extraParamArray.length-1];
+                                                            range_param.min=minValues[0];
+                                                            range_param.max=maxValues[0];
+                                                            range_param.step=stepValues[0];
+                                                            range_param.value=range_param.min;
+                                                          }else{
+                                                            other_param.style.display="none";
+                                                          }
+                                                        }
+                                                        if((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
+                                                          countHistorical-=1;
+                                                        
+                                                          if(countHistorical===0){
+                                                            dateArray=dateArray.filter((el)=> !historical_Date.indexOf(el)<0);
+                                                              historical_Date=[];
+                                                              dateArray.length=0;
+                                                              dateArray=historical_Date.concat(projections_Date);
+                                                            
+                                                              input_time.min=formatDateInput(dateArray[0]);
+                                                              input_time.max=formatDateInput(dateArray[dateArray.length-1]);
+                                                              input_time.value=input_time.max;
+                                                          }
+                                                        }else if(checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections")!==-1)
+                                                        {
+                                                          countProjections-=1;
+                                                          
+                                                          if(countProjections===0){
+                                                              dateArray=dateArray.filter((el)=> !projections_Date.indexOf(el)<0);
+                                                              projections_Date=[];
+                                                               dateArray.length=0;
+                                                              dateArray=historical_Date.concat(projections_Date);
+                                                              
+                                                              input_time.min=formatDateInput(dateArray[0]);
+                                                              input_time.max=formatDateInput(dateArray[dateArray.length-1]);
+                                                              input_time.value=input_time.min;
+
+                                                          }
+                                                        }else if((checkbox_clicked.value.indexOf("historical")|| checkbox_clicked.value.indexOf("from"))){
+                                                            if(countHistorical===0){
+                                                            dateArray=dateArray.filter((el)=> !historical_Date.indexOf(el)<0);
+                                                              historical_Date=[];
+                                                              dateArray.length=0;
+                                                              dateArray=historical_Date.concat(projections_Date);
+                                                              
+                                                          input_time.min=formatDateInput(dateArray[0]);
+                                                          input_time.max=formatDateInput(dateArray[dateArray.length-1]);
+                                                          input_time.value=input_time.min;
+                                                          }
+                                                        }else{
+                                                          if(countProjections===0){
+                                                              dateArray=dateArray.filter((el)=> !projections_Date.indexOf(el)<0);
+                                                              projections_Date=[];
+                                                               dateArray.length=0;
+                                                              dateArray=historical_Date.concat(projections_Date);
+                                                            
+                                                          input_time.min=formatDateInput(dateArray[0]);
+                                                          input_time.max=formatDateInput(dateArray[dateArray.length-1]);
+                                                          input_time.value=input_time.max;
+                                                          }
+                                                        }
+                                                       
+                                                        if($(item[0]).attr("wms")!=""){
+                                                            map.removeLayer(layer_to_attach.layer_name);
+                                                            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                                            if(allActiveLayers.length>0 && allActiveLayers[0].getAttribute("wms")===""){
+                                                              createPointVectorial(allActiveLayers[0].getAttribute("dataset_id"),allActiveLayers[0].getAttribute("name_layer"),allActiveLayers[0].getAttribute("date_start"),lat_start,lat_end,long_start,long_end,allActiveLayers[0].getAttribute("num_param"),allActiveLayers[0].getAttribute("range_value"),"","","","","",false,false);
+                                                            }
+                                                        }else{
+                                                         deletePointVect($(item[0]).attr("dataset_id"));
+                                                         allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                                         if(isArrowsWind){
+                                                               
+                                                                removeArrowsWind();
+                                                         }
+                                                        }
+                                                        $(this).hide();
+                                                        checkbox_clicked.checked=false;
+                                                        
+                                                     
+
+                                                        if($.trim($("#layers_active").html())==''){
+                                                          $("input[type=date]").val("");
+                                                          
+                                                          
+                                                           // legendLayer.style.display="none";
+                                                           cardDiv.style.height="120px";
+                                                            $("#cardParameters").hide();
+                                                          }
+                                                          if($("input:checkbox:checked").length==0){
+                                                            $("input[type=date]").val("");
+                                                            // legendLayer.style.display="none";
+                                                            
+                                                            cardDiv.style.height="120px";
+                                                             $("#cardParameters").hide();
+                                                          }
+                                                    });
+                                                  if(buttonRemoveVisible){
+                                                    $(button_remove).show();
+              
+                                                  }
+                                                  if(!isLayerVectorial){
+                                                  var image=$(legendLayer);
+                                                  image.prependTo("#createImage");
+                                                  }
+                                               if(!isLayerVectorial){
+                                                layer_to_attach.layer_name.addTo(map);
+                                               }
+                                              //cambio wms al cambio del tempo 
+                                              document.getElementById('myDate').addEventListener('change', function() {
+                                               
+                                               allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                               changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,this.value);
+                                               
+                                              for(key in layer_to_attach){
+                                                  layer_to_attach[key].setParams({time:formatDate(this.value)});
+                                                }
+                                              });
+                                              //cambio wms al cambio dello slider 
+                                              document.getElementById("otherParam").addEventListener('change',function(){
+                                                allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                                  if(isNegative){
+                                                    changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,-(this.value));
+                                                  }else{
+                                                    changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,(this.value));
+                                                  }
+                                                  for (key in layer_to_attach){
+                                                      if(isNegative){
+                                                        layer_to_attach[key].setParams({[name_extra_param]:-(this.value)});
+                                                      }else{
+                                                        layer_to_attach[key].setParams({[name_extra_param]:this.value});
+                                                      }
+                                                }
+                                              });
+                                              
+                                                 
+                                            
+                                          }else{
+                                            //unchecked
+                                            buttonRemoveVisible=true;
+                                          var checkboxRemove=checkboxes_clicked[0].indexOf(checkbox_clicked.value);
+                                          checkboxes_clicked[0].splice(checkboxRemove,1);
+                                          checkboxes_clicked[1].splice(checkboxRemove,1);
+                                          checkboxes_clicked[2].splice(checkboxRemove,1);
+                                          checkboxes_clicked[3].splice(checkboxRemove,1);
+                                          checkboxes_clicked[4].splice(checkboxRemove,1);
+                                           var images=document.getElementsByClassName("legends");
+                                           if(!isLayerVectorial){
+                                           for(var i=0;i<images.length;i++){
+                                             if(images[i].src.split("%")[0]===legendLayer_src.split("%")[0]){
+                                               images[i].parentNode.removeChild(images[i]);
+                                             }
+                                           }
+                                          }else{
+                                           var legendsVectorial=document.getElementsByClassName("myLegendDiv");
+                                           for(var i=0;i<legendsVectorial.length;i++){
+                                             if(dataset_id===legendsVectorial[i].getAttribute("dataset_id")){
+                                               legendsVectorial[i].remove();
+                                             }
+                                           }
+                                          }
+                                           if(!isLayerVectorial){
+                                            map.eachLayer(function(layer){
+                                                if(layer.options.layers===layer_to_attach.layer_name.options.layers){
+                                                  map.removeLayer(layer);
+                                                }
+                                            });
+
+                                          }else{
+                                            deletePointVect(dataset_id);
+                                          }
+                                          
+
+                                          
+                                            if ($("input:checkbox:checked").length==0){
+                                              buttonRemoveVisible=false;
+                                              $("input[type=date]").val("");
+                                                 map.eachLayer(function(layer){
+                                                   if(layer!=layerBase){
+                                                     map.removeLayer(layer);
+                                                   }
+                                                   cardDiv.style.height="120px";
+                                                   $("#cardParameters").hide();
+                                                  
+                                                 });
+                                                }
+                                              }            
+                         }
+                    });
+                  
+                  
+            }
+
+            
+               
+
+              
+            function allTheFunctions(checkbox_clicked){
+                handleCheck(checkbox_clicked);
+
+            }
+
+               
+                  function openModal(elem){
+                    
+                    var parent=elem.parentNode;
+                    var title=parent.querySelector('input[type=checkbox]');
+                    var title_value=title.value;
+                    var div_parent=$(title).closest('div');
+                    var griddap_url=div_parent.attr("griddap_url");
+                    var dataset_id=div_parent.attr("dataset_id");
+                    
+                    $.ajax({
+                      type:'GET',
+                      url:'getMetadata/'+dataset_id,
+                      contentType:'text/html',
+                      success:function(data){
+                        var metadata_modal=data;
+                        $("#metadata_modal").html(metadata_modal);
+                      }
+                    });
+                    $(".leaflet-bottom").css("z-index","130");
+                    
+                    $("#exampleModalLabel").html(title_value);
+                    $("#url_dataset").html(griddap_url);
+                    $("#dataset_id").html(dataset_id);
+                    $('#modal').modal('show');
+                  }
+
+                  $("#exampleModal").on('hide.bs.modal',function(){
+                    $(".leaflet-bottom").css("z-index","1000");
+                  })
+                                          
+
+            $(window).on("resize", function() {
+                $("#map").height($(window).height()).width($(window).width());
+                map.invalidateSize();
+            }).trigger("resize");
+
+
+        
+          $.ajax({
+                  type:'GET',
+                  url:'myFunctions/getTitle',
+                  //dataType:'json',
+                  contentType:"application/json"
+                  
+              });
+        $(document).ready(function(){
+          var allLayers=document.getElementsByClassName("form-check");
+          for(var i=0;i<allLayers.length;i++){
+            var div_wms=$(allLayers[i]).closest('div');
+            
+            var wms=div_wms.attr("wms");
+           
+              if(wms=="nan" || wms=="wms"){
+                if(div_wms.is(':visible')){
+                    div_wms.hide();
+                }
+              }
+            
+          } 
+        });
+
+        (function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('leaflet')) :
+	typeof define === 'function' && define.amd ? define(['leaflet'], factory) :
+	(factory(global.L));
+}(this, (function (L$1) { 'use strict';
+
+L$1 = L$1 && L$1.hasOwnProperty('default') ? L$1['default'] : L$1;
+
+// functional re-impl of L.Point.distanceTo,
+// with no dependency on Leaflet for easier testing
+function pointDistance(ptA, ptB) {
+    var x = ptB.x - ptA.x;
+    var y = ptB.y - ptA.y;
+    return Math.sqrt(x * x + y * y);
+}
+
+var computeSegmentHeading = function computeSegmentHeading(a, b) {
+    return (Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI + 90 + 360) % 360;
+};
+
+var asRatioToPathLength = function asRatioToPathLength(_ref, totalPathLength) {
+    var value = _ref.value,
+        isInPixels = _ref.isInPixels;
+    return isInPixels ? value / totalPathLength : value;
+};
+
+function parseRelativeOrAbsoluteValue(value) {
+    if (typeof value === 'string' && value.indexOf('%') !== -1) {
+        return {
+            value: parseFloat(value) / 100,
+            isInPixels: false
+        };
+    }
+    var parsedValue = value ? parseFloat(value) : 0;
+    return {
+        value: parsedValue,
+        isInPixels: parsedValue > 0
+    };
+}
+
+var pointsEqual = function pointsEqual(a, b) {
+    return a.x === b.x && a.y === b.y;
+};
+
+function pointsToSegments(pts) {
+    return pts.reduce(function (segments, b, idx, points) {
+        // this test skips same adjacent points
+        if (idx > 0 && !pointsEqual(b, points[idx - 1])) {
+            var a = points[idx - 1];
+            var distA = segments.length > 0 ? segments[segments.length - 1].distB : 0;
+            var distAB = pointDistance(a, b);
+            segments.push({
+                a: a,
+                b: b,
+                distA: distA,
+                distB: distA + distAB,
+                heading: computeSegmentHeading(a, b)
+            });
+        }
+        return segments;
+    }, []);
+}
+
+function projectPatternOnPointPath(pts, pattern) {
+    // 1. split the path into segment infos
+    var segments = pointsToSegments(pts);
+    var nbSegments = segments.length;
+    if (nbSegments === 0) {
+        return [];
+    }
+
+    var totalPathLength = segments[nbSegments - 1].distB;
+
+    var offset = asRatioToPathLength(pattern.offset, totalPathLength);
+    var endOffset = asRatioToPathLength(pattern.endOffset, totalPathLength);
+    var repeat = asRatioToPathLength(pattern.repeat, totalPathLength);
+
+    var repeatIntervalPixels = totalPathLength * repeat;
+    var startOffsetPixels = offset > 0 ? totalPathLength * offset : 0;
+    var endOffsetPixels = endOffset > 0 ? totalPathLength * endOffset : 0;
+
+    // 2. generate the positions of the pattern as offsets from the path start
+    var positionOffsets = [];
+    var positionOffset = startOffsetPixels;
+    do {
+        positionOffsets.push(positionOffset);
+        positionOffset += repeatIntervalPixels;
+    } while (repeatIntervalPixels > 0 && positionOffset < totalPathLength - endOffsetPixels);
+
+    // 3. projects offsets to segments
+    var segmentIndex = 0;
+    var segment = segments[0];
+    return positionOffsets.map(function (positionOffset) {
+        // find the segment matching the offset,
+        // starting from the previous one as offsets are ordered
+        while (positionOffset > segment.distB && segmentIndex < nbSegments - 1) {
+            segmentIndex++;
+            segment = segments[segmentIndex];
+        }
+
+        var segmentRatio = (positionOffset - segment.distA) / (segment.distB - segment.distA);
+        return {
+            pt: interpolateBetweenPoints(segment.a, segment.b, segmentRatio),
+            heading: segment.heading
+        };
+    });
+}
+
+/**
+* Finds the point which lies on the segment defined by points A and B,
+* at the given ratio of the distance from A to B, by linear interpolation.
+*/
+function interpolateBetweenPoints(ptA, ptB, ratio) {
+    if (ptB.x !== ptA.x) {
+        return {
+            x: ptA.x + ratio * (ptB.x - ptA.x),
+            y: ptA.y + ratio * (ptB.y - ptA.y)
+        };
+    }
+    // special case where points lie on the same vertical axis
+    return {
+        x: ptA.x,
+        y: ptA.y + (ptB.y - ptA.y) * ratio
+    };
+}
+
+(function() {
+    // save these original methods before they are overwritten
+    var proto_initIcon = L.Marker.prototype._initIcon;
+    var proto_setPos = L.Marker.prototype._setPos;
+
+    var oldIE = (L.DomUtil.TRANSFORM === 'msTransform');
+
+    L.Marker.addInitHook(function () {
+        var iconOptions = this.options.icon && this.options.icon.options;
+        var iconAnchor = iconOptions && this.options.icon.options.iconAnchor;
+        if (iconAnchor) {
+            iconAnchor = (iconAnchor[0] + 'px ' + iconAnchor[1] + 'px');
+        }
+        this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom' ;
+        this.options.rotationAngle = this.options.rotationAngle || 0;
+
+        // Ensure marker keeps rotated during dragging
+        this.on('drag', function(e) { e.target._applyRotation(); });
+    });
+
+    L.Marker.include({
+        _initIcon: function() {
+            proto_initIcon.call(this);
+        },
+
+        _setPos: function (pos) {
+            proto_setPos.call(this, pos);
+            this._applyRotation();
+        },
+
+        _applyRotation: function () {
+            if(this.options.rotationAngle) {
+                this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
+
+                if(oldIE) {
+                    // for IE 9, use the 2D rotation
+                    this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
+                } else {
+                    // for modern browsers, prefer the 3D accelerated version
+                    this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
+                }
+            }
+        },
+
+        setRotationAngle: function(angle) {
+            this.options.rotationAngle = angle;
+            this.update();
+            return this;
+        },
+
+        setRotationOrigin: function(origin) {
+            this.options.rotationOrigin = origin;
+            this.update();
+            return this;
+        }
+    });
+})();
+
+L$1.Symbol = L$1.Symbol || {};
+
+/**
+* A simple dash symbol, drawn as a Polyline.
+* Can also be used for dots, if 'pixelSize' option is given the 0 value.
+*/
+L$1.Symbol.Dash = L$1.Class.extend({
+    options: {
+        pixelSize: 10,
+        pathOptions: {}
+    },
+
+    initialize: function initialize(options) {
+        L$1.Util.setOptions(this, options);
+        this.options.pathOptions.clickable = false;
+    },
+
+    buildSymbol: function buildSymbol(dirPoint, latLngs, map, index, total) {
+        var opts = this.options;
+        var d2r = Math.PI / 180;
+
+        // for a dot, nothing more to compute
+        if (opts.pixelSize <= 1) {
+            return L$1.polyline([dirPoint.latLng, dirPoint.latLng], opts.pathOptions);
+        }
+
+        var midPoint = map.project(dirPoint.latLng);
+        var angle = -(dirPoint.heading - 90) * d2r;
+        var a = L$1.point(midPoint.x + opts.pixelSize * Math.cos(angle + Math.PI) / 2, midPoint.y + opts.pixelSize * Math.sin(angle) / 2);
+        // compute second point by central symmetry to avoid unecessary cos/sin
+        var b = midPoint.add(midPoint.subtract(a));
+        return L$1.polyline([map.unproject(a), map.unproject(b)], opts.pathOptions);
+    }
+});
+
+L$1.Symbol.dash = function (options) {
+    return new L$1.Symbol.Dash(options);
+};
+
+L$1.Symbol.ArrowHead = L$1.Class.extend({
+    options: {
+        polygon: true,
+        pixelSize: 10,
+        headAngle: 60,
+        pathOptions: {
+            stroke: false,
+            weight: 2
+        }
+    },
+
+    initialize: function initialize(options) {
+        L$1.Util.setOptions(this, options);
+        this.options.pathOptions.clickable = false;
+    },
+
+    buildSymbol: function buildSymbol(dirPoint, latLngs, map, index, total) {
+        return this.options.polygon ? L$1.polygon(this._buildArrowPath(dirPoint, map), this.options.pathOptions) : L$1.polyline(this._buildArrowPath(dirPoint, map), this.options.pathOptions);
+    },
+
+    _buildArrowPath: function _buildArrowPath(dirPoint, map) {
+        var d2r = Math.PI / 180;
+        var tipPoint = map.project(dirPoint.latLng);
+        var direction = -(dirPoint.heading - 90) * d2r;
+        var radianArrowAngle = this.options.headAngle / 2 * d2r;
+
+        var headAngle1 = direction + radianArrowAngle;
+        var headAngle2 = direction - radianArrowAngle;
+        var arrowHead1 = L$1.point(tipPoint.x - this.options.pixelSize * Math.cos(headAngle1), tipPoint.y + this.options.pixelSize * Math.sin(headAngle1));
+        var arrowHead2 = L$1.point(tipPoint.x - this.options.pixelSize * Math.cos(headAngle2), tipPoint.y + this.options.pixelSize * Math.sin(headAngle2));
+
+        return [map.unproject(arrowHead1), dirPoint.latLng, map.unproject(arrowHead2)];
+    }
+});
+
+L$1.Symbol.arrowHead = function (options) {
+    return new L$1.Symbol.ArrowHead(options);
+};
+
+L$1.Symbol.Marker = L$1.Class.extend({
+    options: {
+        markerOptions: {},
+        rotate: false
+    },
+
+    initialize: function initialize(options) {
+        L$1.Util.setOptions(this, options);
+        this.options.markerOptions.clickable = false;
+        this.options.markerOptions.draggable = false;
+    },
+
+    buildSymbol: function buildSymbol(directionPoint, latLngs, map, index, total) {
+        if (this.options.rotate) {
+            this.options.markerOptions.rotationAngle = directionPoint.heading + (this.options.angleCorrection || 0);
+        }
+        return L$1.marker(directionPoint.latLng, this.options.markerOptions);
+    }
+});
+
+L$1.Symbol.marker = function (options) {
+    return new L$1.Symbol.Marker(options);
+};
+
+var isCoord = function isCoord(c) {
+    return c instanceof L$1.LatLng || Array.isArray(c) && c.length === 2 && typeof c[0] === 'number';
+};
+
+var isCoordArray = function isCoordArray(ll) {
+    return Array.isArray(ll) && isCoord(ll[0]);
+};
+
+L$1.PolylineDecorator = L$1.FeatureGroup.extend({
+    options: {
+        patterns: []
+    },
+
+    initialize: function initialize(paths, options) {
+        L$1.FeatureGroup.prototype.initialize.call(this);
+        L$1.Util.setOptions(this, options);
+        this._map = null;
+        this._paths = this._initPaths(paths);
+        this._bounds = this._initBounds();
+        this._patterns = this._initPatterns(this.options.patterns);
+    },
+
+    /**
+    * Deals with all the different cases. input can be one of these types:
+    * array of LatLng, array of 2-number arrays, Polyline, Polygon,
+    * array of one of the previous.
+    */
+    _initPaths: function _initPaths(input, isPolygon) {
+        var _this = this;
+
+        if (isCoordArray(input)) {
+            // Leaflet Polygons don't need the first point to be repeated, but we do
+            var coords = isPolygon ? input.concat([input[0]]) : input;
+            return [coords];
+        }
+        if (input instanceof L$1.Polyline) {
+            // we need some recursivity to support multi-poly*
+            return this._initPaths(input.getLatLngs(), input instanceof L$1.Polygon);
+        }
+        if (Array.isArray(input)) {
+            // flatten everything, we just need coordinate lists to apply patterns
+            return input.reduce(function (flatArray, p) {
+                return flatArray.concat(_this._initPaths(p, isPolygon));
+            }, []);
+        }
+        return [];
+    },
+
+    // parse pattern definitions and precompute some values
+    _initPatterns: function _initPatterns(patternDefs) {
+        return patternDefs.map(this._parsePatternDef);
+    },
+
+    /**
+    * Changes the patterns used by this decorator
+    * and redraws the new one.
+    */
+    setPatterns: function setPatterns(patterns) {
+        this.options.patterns = patterns;
+        this._patterns = this._initPatterns(this.options.patterns);
+        this.redraw();
+    },
+
+    /**
+    * Changes the patterns used by this decorator
+    * and redraws the new one.
+    */
+    setPaths: function setPaths(paths) {
+        this._paths = this._initPaths(paths);
+        this._bounds = this._initBounds();
+        this.redraw();
+    },
+
+    /**
+    * Parse the pattern definition
+    */
+    _parsePatternDef: function _parsePatternDef(patternDef, latLngs) {
+        return {
+            symbolFactory: patternDef.symbol,
+            // Parse offset and repeat values, managing the two cases:
+            // absolute (in pixels) or relative (in percentage of the polyline length)
+            offset: parseRelativeOrAbsoluteValue(patternDef.offset),
+            endOffset: parseRelativeOrAbsoluteValue(patternDef.endOffset),
+            repeat: parseRelativeOrAbsoluteValue(patternDef.repeat)
+        };
+    },
+
+    onAdd: function onAdd(map) {
+        this._map = map;
+        this._draw();
+        this._map.on('moveend', this.redraw, this);
+    },
+
+    onRemove: function onRemove(map) {
+        this._map.off('moveend', this.redraw, this);
+        this._map = null;
+        L$1.FeatureGroup.prototype.onRemove.call(this, map);
+    },
+
+    /**
+    * As real pattern bounds depends on map zoom and bounds,
+    * we just compute the total bounds of all paths decorated by this instance.
+    */
+    _initBounds: function _initBounds() {
+        var allPathCoords = this._paths.reduce(function (acc, path) {
+            return acc.concat(path);
+        }, []);
+        return L$1.latLngBounds(allPathCoords);
+    },
+
+    getBounds: function getBounds() {
+        return this._bounds;
+    },
+
+    /**
+    * Returns an array of ILayers object
+    */
+    _buildSymbols: function _buildSymbols(latLngs, symbolFactory, directionPoints) {
+        var _this2 = this;
+
+        return directionPoints.map(function (directionPoint, i) {
+            return symbolFactory.buildSymbol(directionPoint, latLngs, _this2._map, i, directionPoints.length);
+        });
+    },
+
+    /**
+    * Compute pairs of LatLng and heading angle,
+    * that define positions and directions of the symbols on the path
+    */
+    _getDirectionPoints: function _getDirectionPoints(latLngs, pattern) {
+        var _this3 = this;
+
+        if (latLngs.length < 2) {
+            return [];
+        }
+        var pathAsPoints = latLngs.map(function (latLng) {
+            return _this3._map.project(latLng);
+        });
+        return projectPatternOnPointPath(pathAsPoints, pattern).map(function (point) {
+            return {
+                latLng: _this3._map.unproject(L$1.point(point.pt)),
+                heading: point.heading
+            };
+        });
+    },
+
+    redraw: function redraw() {
+        if (!this._map) {
+            return;
+        }
+        this.clearLayers();
+        this._draw();
+    },
+
+    /**
+    * Returns all symbols for a given pattern as an array of FeatureGroup
+    */
+    _getPatternLayers: function _getPatternLayers(pattern) {
+        var _this4 = this;
+
+        var mapBounds = this._map.getBounds().pad(0.1);
+        return this._paths.map(function (path) {
+            var directionPoints = _this4._getDirectionPoints(path, pattern)
+            // filter out invisible points
+            .filter(function (point) {
+                return mapBounds.contains(point.latLng);
+            });
+            return L$1.featureGroup(_this4._buildSymbols(path, pattern.symbolFactory, directionPoints));
+        });
+    },
+
+    /**
+    * Draw all patterns
+    */
+    _draw: function _draw() {
+        var _this5 = this;
+
+        this._patterns.map(function (pattern) {
+            return _this5._getPatternLayers(pattern);
+        }).forEach(function (layers) {
+            _this5.addLayer(L$1.featureGroup(layers));
+        });
+    }
+});
+/*
+ * Allows compact syntax to be used
+ */
+L$1.polylineDecorator = function (paths, options) {
+    return new L$1.PolylineDecorator(paths, options);
+};
+
+})));
+         
+          
+        </script>
+    </body>
+</html>
+

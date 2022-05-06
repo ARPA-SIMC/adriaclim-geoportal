@@ -1,0 +1,51 @@
+"""AdriaProject URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/3.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.conf.urls import handler404, handler500
+from django.contrib import admin
+from django.urls import path
+from Dataset import views as data_views
+from Metadata import views as metadata_views
+from Utente import views as utente_views
+
+
+urlpatterns = [
+    path("AdriaApp/WMS/request",data_views.layers2D),
+    path("AdriaApp/WMS/3D/<str:parameter>/request",data_views.layers3D),
+    path("AdriaApp/WMS/overlays/<str:dataset_id>/request",data_views.overlays),
+    path("administration",utente_views.index),
+    path("administration/modify",utente_views.modify),
+    path('admin/adminPage', admin.site.urls),
+    path('',data_views.index,name="homepage"),
+    path('getDataExport/<str:dataset_id>/<str:selectedType>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
+    '<str:longitude>',data_views.getDataExport),
+    path('getDataVectorial/<str:dataset_id>/<str:layer_name>/<str:date_start>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param>/<int:range_value>',data_views.getDataVectorial),
+    path('getWindArrows/<str:datasetId1>/<str:datasetId2>/<str:layer_name1>/<str:date_start1>/<int:num_param1>/<int:range_value1>/<str:layer_name2>/<str:date_start2>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param2>/<int:range_value2>',data_views.getWindArrows),
+    path('allDatasets',data_views.allDatasets),
+    path('getMetadata/<str:dataset_id>',metadata_views.getMetadataUrl),
+    path('getDataTable/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
+    '<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataTable),
+    path('getDataGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
+    '<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataGraphic),
+    path('myFunctions/getMetadata/<str:title>',data_views.getMetadata),
+    path("myFunctions/getWMS",data_views.getWMS),
+    path("myFunctions/getTitle",data_views.getTitle),
+    path("<str:dataset_id>",metadata_views.getMetadataForm),
+  
+]
+
+
+
+#handler500="Dataset.views.dataset_id_wrong"

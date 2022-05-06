@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./code:/code
+    command: >
+      sh -c "python AdriaProject/manage.py migrate && python AdriaProject/manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=adriaclim
+      - DB_USER=postgres
+      - DB_PASS=db_adriaclim
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    ports:
+      - "5433:5433"
+    environment:
+      - POSTGRES_DB=adriaclim
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=db_adriaclim
+    volumes:
+    - postgres-volume:/var/lib/postgresql/data
+
+volumes:
+  postgres-volume:
