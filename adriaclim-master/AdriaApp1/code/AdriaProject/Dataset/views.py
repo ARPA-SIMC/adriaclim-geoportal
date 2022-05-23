@@ -12,7 +12,7 @@ from .models import Node
 def index(request):
     form=DatasetForm()
     datasets=Node.objects.all()
-    response=render(request,"homepage.html",{'form':form,'datasets':datasets})
+    response=render(request,"homepage.html",{'ERDDAP_URL': settings.ERDDAP_URL, 'form':form,'datasets':datasets})
     return response
 
 def overlays(request,dataset_id):

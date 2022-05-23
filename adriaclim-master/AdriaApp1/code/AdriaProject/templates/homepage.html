@@ -1170,7 +1170,7 @@
                   var timeStopChosen=$("#stop").val();
                   var extraRangeStartChosen=$("#rangeStart").val();
                   var extraRangeStopChosen=$("#rangeStop").val();
-                  var urlCall1="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                  var urlCall1="{{ ERDDAP_URL }}/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
                   $("#submitType").attr("href",urlCall1);
                 });
               }else{
@@ -1180,7 +1180,7 @@
                 var selectedType=$("#selectType").val();
                 var timeStartChosen=$("#start").val();
                 var timeStopChosen=$("#stop").val();
-                var urlCall="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                var urlCall="{{ ERDDAP_URL }}/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
                 $("#submitType").attr("href",urlCall);
               });
             }
