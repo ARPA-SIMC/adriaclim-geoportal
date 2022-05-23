@@ -331,7 +331,7 @@ def getWMS():
   return wmsList
 
 def getMetadataTime1(dataset_id):
-    url_datasets = "{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"
+    url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"
     df = pd.read_csv(url_datasets, header=None, sep=",", names=["griddap", "subset", "tabledap", "Make A Graph",
                                                                 "wms", "files", "Title", "Summary", "FGDC",
                                                                 "ISO 19115",
