@@ -8,7 +8,7 @@ import urllib
 from Utente.models import Utente
 import numpy as np 
 import os
-from io import StringIO
+import io
 from django.contrib import messages
 from AdriaProject.settings import ERDDAP_URL
  
@@ -427,8 +427,11 @@ def getMetadata(dataset_id):
 
 
 def listAllDatasets():
-   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=1000000000"
-   df=pd.read_csv(url_datasets,header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
+  url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=1000000000"
+  url_open = urllib.request.urlopen(url_datasets)
+  csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',')  
+  return csvfile
+  """  df=pd.read_csv(url_datasets,header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
                                                            "Dataset ID"],
@@ -443,7 +446,7 @@ def listAllDatasets():
    with open("AdriaProject/templates/allDatasets.html","w") as file_to_write:
        file_to_write.write(htmlGetAllDatasets+file)
    
-   file_to_write.close()
+   file_to_write.close() """
 
 def getMetadataOfASpecificDataset(dataset_id):
     x=Node.objects.get(id=dataset_id)
@@ -463,14 +466,9 @@ def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude
     else:
        url=ERDDAP_URL+"/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
     #https://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
-    df=pd.read_csv(url,dtype='unicode')
-    df.to_html("AdriaProject/templates/getData.html",index=False)
-    with open("AdriaProject/templates/getData.html") as file_to_return:
-      file_to_return=file_to_return.read()
-    
-    file_to_return=file_to_return.replace("<table","<table id='tableData' style='width:100%'")
-    
-    return file_to_return
+    url_open = urllib.request.urlopen(url_datasets)
+    csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',')  
+    return csvfile
 
 def getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     if (num_parameters > 3):

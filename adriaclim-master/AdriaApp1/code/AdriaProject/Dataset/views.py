@@ -95,8 +95,10 @@ def layers3D(request,parameter):
 
 
 def allDatasets(request):
-        allFunctions.listAllDatasets()
-        return render(request,"allDatasets.html")
+        allData=allFunctions.listAllDatasets()
+        headers=[col for col in allData.fieldnames]
+        out=[[row[h] for h in headers] for row in allData]
+        return render(request,"allDatasets.html",{"data":out,"headers":headers})
 
 def getHighTemp(request):
     result=allFunctions.getHighTemperature()
@@ -119,7 +121,9 @@ def dataset_id_wrong(request):
 
 def getDataTable(request,dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     data=allFunctions.getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
-    return HttpResponse(data)
+    headers=[col for col in data.fieldnames]
+    out=[[row[h] for h in headers] for row in data]
+    return render(request,"getData.html",{"data":out,"headers":headers})
 
 def getDataGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     allData=allFunctions.getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
