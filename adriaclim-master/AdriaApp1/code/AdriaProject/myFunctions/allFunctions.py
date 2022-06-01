@@ -1,11 +1,16 @@
+from pydoc import resolve
 from termios import VLNEXT
 from django.db import models
 from Dataset.models import Node
 import pandas as pd
+import csv
+import urllib
 from Utente.models import Utente
 import numpy as np 
 import os
+from io import StringIO
 from django.contrib import messages
+from AdriaProject.settings import ERDDAP_URL
  
 htmlGetMetadata = """<style>
 @import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
@@ -289,7 +294,8 @@ h1 {
   }
 </script>"""
 def getTitle():
-  url_datasets="http://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv?page=1&itemsPerPage=100000"
+  url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
+  print(url_datasets)
   df=pd.read_csv(url_datasets,header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
@@ -311,7 +317,7 @@ def getTitle():
  
 
 def getWMS():
-  url_datasets="http://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv?page=1&itemsPerPage=1000000000"
+  url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=1000000000"
   df=pd.read_csv(url_datasets,header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
@@ -326,7 +332,7 @@ def getWMS():
   return wmsList
 
 def getMetadataTime1(dataset_id):
-    url_datasets = "http://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv?page=1&itemsPerPage=1000000000"
+    url_datasets = ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=1000000000"
     df = pd.read_csv(url_datasets, header=None, sep=",", names=["griddap", "subset", "tabledap", "Make A Graph",
                                                                 "wms", "files", "Title", "Summary", "FGDC",
                                                                 "ISO 19115",
@@ -421,13 +427,13 @@ def getMetadata(dataset_id):
 
 
 def listAllDatasets():
-   url_datasets="http://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv?page=1&itemsPerPage=1000000000"
+   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=1000000000"
    df=pd.read_csv(url_datasets,header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
                                                            "Dataset ID"],
                   na_values="Value not available")
-   print(df["Title"])
+  
    df1=df.replace(np.nan,"Value not available",regex=True)
    df1.to_html("AdriaProject/templates/allDatasets.html",index=False)
    with open("AdriaProject/templates/allDatasets.html") as file:
@@ -453,10 +459,10 @@ def getMetadataOfASpecificDataset(dataset_id):
 
 def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     if(num_parameters>3):
-      url="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
+      url=ERDDAP_URL+"/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
     else:
-       url="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
-    #http://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
+       url=ERDDAP_URL+"/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
+    #https://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
     df=pd.read_csv(url,dtype='unicode')
     df.to_html("AdriaProject/templates/getData.html",index=False)
     with open("AdriaProject/templates/getData.html") as file_to_return:
@@ -468,9 +474,9 @@ def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude
 
 def getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     if (num_parameters > 3):
-        url = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
     else:
-        url = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
     df = pd.read_csv(url, dtype='unicode')
     allData=[]
     values=[]
@@ -489,9 +495,9 @@ def getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude,longitu
 
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
  if (num_param > 3):
-        url = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + date_start + "):1:(" + date_start + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + date_start + "):1:(" + date_start + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
  else:
-        url = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + date_start + "):1:(" + date_start+ ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + date_start + "):1:(" + date_start+ ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
  df = pd.read_csv(url, dtype='unicode')
  allData=[]
  values=[]
@@ -535,14 +541,14 @@ def createArrow(datasetId1,datasetId2,layer_name1,date_start1,num_param1,range_v
 
 
   if (num_param1>3):
-    url1 = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + datasetId1 + ".csv?" + layer_name1 + "%5B(" + date_start1 + "):1:(" + date_start1 + ")%5D%5B(" + str(range_value1) + "):1:(" + str(range_value1) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
+    url1 = ERDDAP_URL+"/griddap/" + datasetId1 + ".csv?" + layer_name1 + "%5B(" + date_start1 + "):1:(" + date_start1 + ")%5D%5B(" + str(range_value1) + "):1:(" + str(range_value1) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
   else:
-    url1 = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + datasetId1 + ".csv?" + layer_name1 + "%5B(" + date_start1 + "):1:(" + date_start1+ ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
+    url1 = ERDDAP_URL+"/griddap/" + datasetId1 + ".csv?" + layer_name1 + "%5B(" + date_start1 + "):1:(" + date_start1+ ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
 
   if (num_param2 > 3):
-    url2 = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + datasetId2 + ".csv?" + layer_name2 + "%5B(" + date_start2 + "):1:(" + date_start2 + ")%5D%5B(" + str(range_value2) + "):1:(" + str(range_value2) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
+    url2 = ERDDAP_URL+"/griddap/" + datasetId2 + ".csv?" + layer_name2 + "%5B(" + date_start2 + "):1:(" + date_start2 + ")%5D%5B(" + str(range_value2) + "):1:(" + str(range_value2) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
   else:
-    url2 = "http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + datasetId2 + ".csv?" + layer_name2 + "%5B(" + date_start2 + "):1:(" + date_start2 + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
+    url2 = ERDDAP_URL+"/griddap/" + datasetId2 + ".csv?" + layer_name2 + "%5B(" + date_start2 + "):1:(" + date_start2 + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"
   
   print(url1)
   print(url2)

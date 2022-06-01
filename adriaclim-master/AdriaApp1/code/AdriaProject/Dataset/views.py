@@ -7,6 +7,7 @@ from .forms import DatasetForm
 import requests
 import os
 from .models import Node
+from AdriaProject.settings import ERDDAP_URL
 
 # Create your views here.
 def index(request):
@@ -28,7 +29,7 @@ def overlays(request,dataset_id):
     crs=request.GET['crs']
     bbox=request.GET['bbox']
     bgcolor=request.GET['bgcolor']
-    url="http://erddap.cmcc-opa.eu/erddap/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
+    url=ERDDAP_URL+"/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
     print(url)
     requests_response = requests.get(url)
     django_response = HttpResponse(
@@ -54,7 +55,7 @@ def layers2D(request):
     time=request.GET['time']
     bgcolor=request.GET['bgcolor']
     dataset_id=layers.partition(":")[0]
-    url="http://erddap.cmcc-opa.eu/erddap/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
+    url=ERDDAP_URL+"/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
     print(url)
     requests_response = requests.get(url)
     django_response = HttpResponse(
@@ -80,7 +81,7 @@ def layers3D(request,parameter):
     bgcolor=request.GET['bgcolor']
     value_param=request.GET[parameter]
     dataset_id=layers.partition(":")[0]
-    url="http://erddap.cmcc-opa.eu/erddap/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&"+parameter+"="+value_param+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
+    url=ERDDAP_URL+"/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&"+parameter+"="+value_param+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
     print(url)
     requests_response = requests.get(url)
     django_response = HttpResponse(
@@ -133,7 +134,7 @@ def getWindArrows(request,datasetId1,datasetId2,layer_name1,date_start1,num_para
     return JsonResponse({'windArrows':windArrows})
 
 def getDataExport(request,dataset_id,selectedType,layer_name,time_start,time_finish,latitude,longitude):
-    urlCall="http://erddap.cmcc-opa.eu/erddap/griddap/"+dataset_id+"."+selectedType+"?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
+    urlCall=ERDDAP_URL+"griddap/"+dataset_id+"."+selectedType+"?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
     print(urlCall)
     nameOfTheFile=dataset_id+"."+selectedType
     file_path = os.path.join(settings.MEDIA_ROOT, urlCall)

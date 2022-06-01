@@ -18,7 +18,7 @@
         <script src="https://npmcdn.com/@turf/turf@6.3.0/turf.min.js"></script>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
        
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
        <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,15 +26,13 @@
       <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"> </script>
        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-       <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.2.4"></script>
+       <script type="text/javascript" src="https://maps.stamen.com/js/tile.stamen.js?v1.2.4"></script>
        <script data-require="d3@3.5.3" data-semver="3.5.3" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>
         <script src="{% static 'assets/js/GeoJsonAjax.js' %}"></script>
  
        <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
        
      
-      
-  </body>
         <style>
 
           .chart{
@@ -226,6 +224,28 @@
               background-color:white;
               border-color:white;
             }
+
+            #flagHand{
+              display: flex;
+              position: absolute;
+              top:170px;
+              left:10px;
+              padding: 10px;
+              z-index:500;
+              background-color: white;
+              border-color:white;
+            }
+
+            #flagHand:hover{
+              background-color: #04AA6D;
+              cursor:pointer;
+
+            }
+
+            .flagImageOn{
+              cursor: url("https://icons.getbootstrap.com/assets/icons/flag-fill.svg") 16 16, pointer;
+            }
+            
 
           #grabHand:hover{
               background-color:#04AA6D;
@@ -471,13 +491,13 @@
                               <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
                             
                               <button class="btn btn-primary btn-sm open-modal" title="Information on the layer" data-bs-toggle="modal" onclick="openModal(this)" data-bs-target="#exampleModal">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                              <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
                               <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                               <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                             </svg>
                               </button>
                               <button class="btn btn-danger btn-sm" button_remove="removeLayer">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                              <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                 <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                               </svg>
@@ -531,22 +551,22 @@
                             <br>
                             <div id="buttonsDate">
                                 <button class="btn btn-primary btn-sm"  title="Select the first date" onclick="firstDate()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-skip-start-circle-fill" viewBox="0 0 16 16">
+                                <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-skip-start-circle-fill" viewBox="0 0 16 16">
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM9.71 5.093 7 7.028V5.5a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0V8.972l2.71 1.935a.5.5 0 0 0 .79-.407v-5a.5.5 0 0 0-.79-.407z"/>
                               </svg>
                                 </button>
                                 <button class="btn btn-primary btn-sm" title="Select the previous date" onclick="previousDate()">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+                                  <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
                                   </svg>
                                 </button>
                                 <button class="btn btn-primary btn-sm" title="Select the next date" onclick="nextDate()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                                <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                                       </svg>
                                 </button>
                                 <button class="btn btn-primary btn-sm" title="Select the last date" onclick="lastDate()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-skip-end-circle-fill" viewBox="0 0 16 16">
+                                <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-skip-end-circle-fill" viewBox="0 0 16 16">
                                   <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407L9.5 8.972V10.5a.5.5 0 0 0 1 0v-5a.5.5 0 0 0-1 0v1.528L6.79 5.093z"/>
                                 </svg>
                                 </button>
@@ -684,15 +704,41 @@
         </div>
 
         <button type="button" id="grabHand" data-bs-toggle="tooltip" data-bs-placement="top" title="Click here to grab the map everywhere you want.">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb-fill" viewBox="0 0 16 16">
+        <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb-fill" viewBox="0 0 16 16">
         <path d="M8.5 1.75v2.716l.047-.002c.312-.012.742-.016 1.051.046.28.056.543.18.738.288.273.152.456.385.56.642l.132-.012c.312-.024.794-.038 1.158.108.37.148.689.487.88.716.075.09.141.175.195.248h.582a2 2 0 0 1 1.99 2.199l-.272 2.715a3.5 3.5 0 0 1-.444 1.389l-1.395 2.441A1.5 1.5 0 0 1 12.42 16H6.118a1.5 1.5 0 0 1-1.342-.83l-1.215-2.43L1.07 8.589a1.517 1.517 0 0 1 2.373-1.852L5 8.293V1.75a1.75 1.75 0 0 1 3.5 0z"/>
       </svg>
         </button>
         <button type="button" id="locationHand" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Click here to click on the map and show the data of the layer of that point.">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+        <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
         <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
       </svg>
         </button>
+        <button type="button"  id="flagHand" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Click here to place a flag on the map so you can see all the datasets available on that point.">
+
+          <svg xmlns="https://www.w3.org/2000/svg" id="flagHandIcon" width="16" height="16" fill="currentColor" class="bi bi-flag-fill" viewBox="0 0 16 16">
+            <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+          </svg>
+        </button>
+
+         <!-- Modal -->
+        <div class="leaflet-bottom">
+          <div class="modal fade" id="modalFlag" tabindex="-1"  aria-labelledby="modalFlagLabel" aria-hidden="true" >
+            <div class="modal-dialog modal-dialog-centered modal-lg" style="align-items:flex-end;">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalFlagLabel"></h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body " id="modalFlagBody">
+              
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
     
                 
           
@@ -757,7 +803,7 @@
               
    	
            <a class="btn btn-primary" style="color: white" id="admin_butt" href="/administration">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-badge-fill" viewBox="0 0 16 16">
+              <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-badge-fill" viewBox="0 0 16 16">
               <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm4.5 0a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm5 2.755C12.146 12.825 10.623 12 8 12s-4.146.826-5 1.755V14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-.245z"/>
               </svg>
              Site Administration
@@ -776,7 +822,7 @@
         <script type="text/javascript">
           /*
  jQuery paging plugin v1.8.0 06/21/2010
- http://www.xarg.org/project/jquery-color-plugin-xcolor/
+ https://www.xarg.org/project/jquery-color-plugin-xcolor/
 
  Copyright (c) 2010, Robert Eisele (robert@xarg.org)
  Dual licensed under the MIT or GPL Version 2 licenses.
@@ -839,6 +885,45 @@
           }
 
           */
+
+          var map = L.map('map', {
+                attributionControl: false,
+                center: [42.31895914499354, 13.030587093609325],
+                zoom: 6.5
+            });
+            var layerBase=L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png',{
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            
+
+            $.getJSON("{% static 'assets/geojson/GeoJSONFile.geojson' %}",function(data){
+// L.geoJson function is used to parse geojson file and load on to map
+            var geojsonLayer=L.geoJson(data).addTo(map);
+            geojsonLayer.eachLayer(function(layer){
+              var popupName=layer.feature.properties.popupContent;
+              if(popupName!=""){
+                  layer.bindPopup(popupName);
+              }
+              layer.on("click",function(){
+                if(isFlagIcon){
+                    //apro il pannello in basso
+                    $("#modalFlagLabel").html(layer.feature.properties.popupContent);
+                    $("#modalFlag").modal('show');
+                    $("#modalFlag").css("cursor","default");
+                    //devo mostrare nel pannello aperto tutti i layers specifici di quelle zone e quelli che non lo sono anche
+                    
+                }
+              });
+            })
+
+            });
+                      
+
+
+
+            
+            
           Array.prototype.insert = function ( index, item ) {
             this.splice( index, 0, item );
         };
@@ -895,6 +980,31 @@
 
         var pointerLocation=false;
         var isGrabbedHand=false;
+        var isFlagIcon=false;
+       
+        
+          
+        $("#flagHand").on("click",function(){
+          if(!isFlagIcon){
+            $("#flagHand").css("background-color","#04AA6D");
+            $("#locationHand").css("background-color","white");
+            $("#grabHand").css("background-color","white");
+            $("#map").addClass("flagImageOn");
+            $(".leaflet-interactive").addClass("flagImageOn");
+            $("#cardDiv").css("cursor","default");
+            isFlagIcon=true;
+          }else{
+            $("#flagHand").css("background-color","white");
+            $("#map").removeClass("flagImageOn");
+            $(".leaflet-interactive").removeClass("flagImageOn");
+            isFlagIcon=false;
+          }
+        });
+        
+
+
+
+
 
         $("#grabHand").on("click",function(){
            pointerLocation=false;
@@ -903,6 +1013,7 @@
               $("#map").css("cursor","grab");
               $("#cardDiv").css("cursor","default");
               $("#locationHand").css("background-color","white");
+              $("#flagHand").css("background-color","white");
               isGrabbedHand=true;
            }else{
               $("#map").css("cursor","grab");
@@ -912,11 +1023,14 @@
           
         });
 
+        
+
         $("#locationHand").on('click',(e)=>{
           e.stopPropagation();
           if($("input:checkbox:checked").length==0){
             alert("Please choose a layer to see its data");
             $("#grabHand").css("background-color","white");
+            $("#flagHand").css("background-color","white");
             $("#locationHand").css("background-color","white");
             pointerLocation=false;
           }else{
@@ -925,6 +1039,7 @@
             $("#map").css("cursor","pointer");
             $("#cardDiv").css("cursor","default");
             $("#grabHand").css("background-color","white");
+            $("#flagHand").css("background-color","white");
             $("#locationHand").css("background-color","#04AA6D");
             }else{
               $("#map").css("cursor","grab");
@@ -933,6 +1048,8 @@
             }
         }
         });
+
+
 
         
 
@@ -1043,18 +1160,7 @@
             
 
             
-            var map = L.map('map', {
-                attributionControl: false,
-                center: [42.31895914499354, 13.030587093609325],
-                zoom: 6.5
-            });
-            var layerBase=L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
-
-            //MultiPolygon GeoJson
-            var geojsonLayer = new L.GeoJSON.AJAX("{% static 'assets/geojson/GeoJSONFile.geojson' %}");       
-            geojsonLayer.addTo(map);
+            
             
 
             function toScientific(number){
@@ -1170,7 +1276,7 @@
                   var timeStopChosen=$("#stop").val();
                   var extraRangeStartChosen=$("#rangeStart").val();
                   var extraRangeStopChosen=$("#rangeStop").val();
-                  var urlCall1="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                  var urlCall1='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
                   $("#submitType").attr("href",urlCall1);
                 });
               }else{
@@ -1180,7 +1286,7 @@
                 var selectedType=$("#selectType").val();
                 var timeStartChosen=$("#start").val();
                 var timeStopChosen=$("#stop").val();
-                var urlCall="http://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                var urlCall='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
                 $("#submitType").attr("href",urlCall);
               });
             }
@@ -2328,7 +2434,7 @@
                                             }
                                             cardParamTime.style.display="block";
                                             
-                                            legendLayer_src="http://erddap.cmcc-opa.eu/erddap/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B%5D%5B%5D&.legend=Only";
+                                            legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B%5D%5B%5D&.legend=Only";
                                            
                                             if(!isLayerVectorial){
                                              for(var i=0;i<checkboxes_clicked[0].length;i++){
@@ -2377,7 +2483,7 @@
                                              negative_value=range_param.value;
                                              isNegative=false;
                                             }
-                                            legendLayer_src="http://erddap.cmcc-opa.eu/erddap/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B("+Math.ceil(min_value)+")%5D%5B%5D%5B%5D&.legend=Only";
+                                            legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B("+Math.ceil(min_value)+")%5D%5B%5D%5B%5D&.legend=Only";
                                             
                                               if(!isLayerVectorial){
                                                 /*
