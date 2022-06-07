@@ -2081,6 +2081,7 @@
 
           function changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,newData){
             allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+            console.log(allActiveLayers);
             var range_value;
             var dataset_id;
             var name_layer;
@@ -2094,6 +2095,7 @@
                 break;
               }
             }
+            
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
             createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
@@ -2271,6 +2273,11 @@
                 }
             }
         }
+
+        var lat_start="47";
+        var lat_end="35";
+        var long_start="5";
+        var long_end="35";
           
             function handleCheck(checkbox_clicked){
               var div_checkbox=$(checkbox_clicked).closest('div');
@@ -2294,10 +2301,6 @@
                         var extra_param;
                         var min_max_value;
                         var positiveNegative=metadata[7];
-                        var lat_start="47";
-                        var lat_end="35";
-                        var long_start="5";
-                        var long_end="35";
                         if(num_parameters.length==3 && extraParamArray.length==0 && checkbox_clicked.checked){
                           other_param.style.display="none";
                         }
@@ -2812,7 +2815,71 @@
                                                 layer_to_attach.layer_name.addTo(map);
                                                }
 
-                                              //cambio wms al cambio del tempo 
+                                              
+                                              
+                                                 
+                                            
+                                          }else{
+                                            //unchecked
+                                            buttonRemoveVisible=true;
+                                          var checkboxRemove=checkboxes_clicked[0].indexOf(checkbox_clicked.value);
+                                          checkboxes_clicked[0].splice(checkboxRemove,1);
+                                          checkboxes_clicked[1].splice(checkboxRemove,1);
+                                          checkboxes_clicked[2].splice(checkboxRemove,1);
+                                          checkboxes_clicked[3].splice(checkboxRemove,1);
+                                          checkboxes_clicked[4].splice(checkboxRemove,1);
+                                           var images=document.getElementsByClassName("legends");
+                                           if(!isLayerVectorial){
+                                           for(var i=0;i<images.length;i++){
+                                             if(images[i].src.split("%")[0]===legendLayer_src.split("%")[0]){
+                                               images[i].parentNode.removeChild(images[i]);
+                                             }
+                                           }
+                                          }else{
+                                           var legendsVectorial=document.getElementsByClassName("myLegendDiv");
+                                           for(var i=0;i<legendsVectorial.length;i++){
+                                             if(dataset_id===legendsVectorial[i].getAttribute("dataset_id")){
+                                               legendsVectorial[i].remove();
+                                             }
+                                           }
+                                          }
+                                           if(!isLayerVectorial){
+                                            map.eachLayer(function(layer){                                      
+                                                if(layer.options.layers===layer_to_attach.layer_name.options.layers){
+                                                    map.removeLayer(layer);
+                                                  
+                                                }
+                                            });
+                                            createPolygons();
+
+                                          }else{
+                                            deletePointVect(dataset_id);
+                                          }
+                                          
+
+                                          
+                                            if ($("input:checkbox:checked").length==0){
+                                              buttonRemoveVisible=false;
+                                              $("input[type=date]").val("");
+                                                 map.eachLayer(function(layer){
+                                                   if(layer!=layerBase){
+                                                        map.removeLayer(layer);
+                                                   }
+                                                   cardDiv.style.height="120px";
+                                                   $("#cardParameters").hide();
+                                                  
+                                                 });
+                                                 createPolygons();
+                                                }
+                                              }            
+                         }
+                    });
+                  
+                  
+            }
+
+                                              //Adding event listener to handle the changing of the date or of the other parameters
+                                              //cambio wms al cambio del tempo
                                               document.getElementById('myDate').addEventListener('change', function() {
                                                
                                                allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
@@ -2875,68 +2942,6 @@
                                                     image.prependTo("#createImage");
                                               }
                                               });
-                                              
-                                                 
-                                            
-                                          }else{
-                                            //unchecked
-                                            buttonRemoveVisible=true;
-                                          var checkboxRemove=checkboxes_clicked[0].indexOf(checkbox_clicked.value);
-                                          checkboxes_clicked[0].splice(checkboxRemove,1);
-                                          checkboxes_clicked[1].splice(checkboxRemove,1);
-                                          checkboxes_clicked[2].splice(checkboxRemove,1);
-                                          checkboxes_clicked[3].splice(checkboxRemove,1);
-                                          checkboxes_clicked[4].splice(checkboxRemove,1);
-                                           var images=document.getElementsByClassName("legends");
-                                           if(!isLayerVectorial){
-                                           for(var i=0;i<images.length;i++){
-                                             if(images[i].src.split("%")[0]===legendLayer_src.split("%")[0]){
-                                               images[i].parentNode.removeChild(images[i]);
-                                             }
-                                           }
-                                          }else{
-                                           var legendsVectorial=document.getElementsByClassName("myLegendDiv");
-                                           for(var i=0;i<legendsVectorial.length;i++){
-                                             if(dataset_id===legendsVectorial[i].getAttribute("dataset_id")){
-                                               legendsVectorial[i].remove();
-                                             }
-                                           }
-                                          }
-                                           if(!isLayerVectorial){
-                                            map.eachLayer(function(layer){                                      
-                                                if(layer.options.layers===layer_to_attach.layer_name.options.layers){
-                                                  
-                                                    map.removeLayer(layer);
-                                                  
-                                                }
-                                            });
-                                            createPolygons();
-
-                                          }else{
-                                            deletePointVect(dataset_id);
-                                          }
-                                          
-
-                                          
-                                            if ($("input:checkbox:checked").length==0){
-                                              buttonRemoveVisible=false;
-                                              $("input[type=date]").val("");
-                                                 map.eachLayer(function(layer){
-                                                   if(layer!=layerBase){
-                                                        map.removeLayer(layer);
-                                                   }
-                                                   cardDiv.style.height="120px";
-                                                   $("#cardParameters").hide();
-                                                  
-                                                 });
-                                                 createPolygons();
-                                                }
-                                              }            
-                         }
-                    });
-                  
-                  
-            }
 
             
                
