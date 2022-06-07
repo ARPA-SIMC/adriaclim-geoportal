@@ -895,32 +895,34 @@
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
-            
+            var geojsonLayer;
 
-            $.getJSON("{% static 'assets/geojson/GeoJSONFile.geojson' %}",function(data){
-// L.geoJson function is used to parse geojson file and load on to map
-            var geojsonLayer=L.geoJson(data).addTo(map);
-            geojsonLayer.eachLayer(function(layer){
-              var popupName=layer.feature.properties.popupContent;
-              if(popupName!=""){
-                  layer.bindPopup(popupName);
-              }
-              layer.on("click",function(){
-                if(isFlagIcon){
-                    //apro il pannello in basso
-                    $("#modalFlagLabel").html(layer.feature.properties.popupContent);
-                    $("#modalFlag").modal('show');
-                    $("#modalFlag").css("cursor","default");
-                    //devo mostrare nel pannello aperto tutti i layers specifici di quelle zone e quelli che non lo sono anche
-                    
-                }
-              });
-            })
+          function createPolygons(){
+                $.getJSON("{% static 'assets/geojson/GeoJSONFile.geojson' %}",function(data){
+    // L.geoJson function is used to parse geojson file and load on to map
+                geojsonLayer=L.geoJson(data).addTo(map);
+                geojsonLayer.eachLayer(function(layer){
+                  var popupName=layer.feature.properties.popupContent;
+                  if(popupName!=""){
+                      layer.bindPopup(popupName);
+                  }
+                  layer.on("click",function(){
+                    if(isFlagIcon){
+                        //apro il pannello in basso
+                        $("#modalFlagLabel").html(layer.feature.properties.popupContent);
+                        $("#modalFlag").modal('show');
+                        $("#modalFlag").css("cursor","default");
+                        //devo mostrare nel pannello aperto tutti i layers specifici di quelle zone e quelli che non lo sono anche
+                        
+                    }
+                  });
+                })
 
-            });
+                });
                       
+          }
 
-
+          createPolygons();
 
             
             
@@ -1557,47 +1559,7 @@
             return colors;
           }
 
-          function changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,newData){
-            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
-            var range_value;
-            var dataset_id;
-            var name_layer;
-            var num_param;
-            for(var i=0;i<allActiveLayers.length;i++){
-              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
-                dataset_id=allActiveLayers[i].getAttribute("dataset_id");
-                name_layer=allActiveLayers[i].getAttribute("name_layer");
-                range_value=allActiveLayers[i].getAttribute("range_value");
-                num_param=allActiveLayers[i].getAttribute("num_param");
-                break;
-              }
-            }
-            var colors=getColorsLegend(dataset_id);
-            deletePointVect(dataset_id);
-            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false);
-          }
-
-
-
-          function changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,newRangeValue){
-            var date_start;
-            var dataset_id;
-            var name_layer;
-            var num_param;
-            for(var i=0;i<allActiveLayers.length;i++){
-              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
-                dataset_id=allActiveLayers[i].getAttribute("dataset_id");
-                name_layer=allActiveLayers[i].getAttribute("name_layer");
-                date_start=allActiveLayers[i].getAttribute("date_start");
-                num_param=allActiveLayers[i].getAttribute("num_param");
-                break;
-              }
-            }
-            var colors=getColorsLegend(dataset_id);
-            deletePointVect(dataset_id);
-            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false);
-          
-          }
+        
     
                  
             function arrayRemove(arr, value) { 
@@ -2117,6 +2079,48 @@
         
           isArrowsWind=false;
 
+          function changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,newData){
+            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+            var range_value;
+            var dataset_id;
+            var name_layer;
+            var num_param;
+            for(var i=0;i<allActiveLayers.length;i++){
+              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
+                dataset_id=allActiveLayers[i].getAttribute("dataset_id");
+                name_layer=allActiveLayers[i].getAttribute("name_layer");
+                range_value=allActiveLayers[i].getAttribute("range_value");
+                num_param=allActiveLayers[i].getAttribute("num_param");
+                break;
+              }
+            }
+            var colors=getColorsLegend(dataset_id);
+            deletePointVect(dataset_id);
+            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
+          }
+
+
+
+          function changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,newRangeValue){
+            var date_start;
+            var dataset_id;
+            var name_layer;
+            var num_param;
+            for(var i=0;i<allActiveLayers.length;i++){
+              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
+                dataset_id=allActiveLayers[i].getAttribute("dataset_id");
+                name_layer=allActiveLayers[i].getAttribute("name_layer");
+                date_start=allActiveLayers[i].getAttribute("date_start");
+                num_param=allActiveLayers[i].getAttribute("num_param");
+                break;
+              }
+            }
+            var colors=getColorsLegend(dataset_id);
+            deletePointVect(dataset_id);
+            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
+          
+          }
+
           function createPointVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isCreateLegend,isColorChanged){
              $.ajax({
                type:'GET',
@@ -2147,7 +2151,7 @@
                     value_mid=colorsValuesStored[6];
                     value_max=colorsValuesStored[7];
                   }
-
+                 
                  for(var i=0;i<allLatCoordinates.length;i++){
                     
                     
@@ -2170,10 +2174,12 @@
                     }
                     */
                     varColor=getColor(allValues[i],value_min,value_max,colorMin,colorMid,colorMax);
-                    rectangle=L.rectangle(bounds, {fillOpacity:0.7,fill:true,stroke:false,color: fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 3}).bindTooltip(allValues[i]).addTo(map);
+                    rectangle=L.rectangle(bounds, {fillOpacity:0.5,fill:true,stroke:false,color: fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 3}).bindTooltip(allValues[i]).addTo(map);
                     rectangles.push(rectangle); 
                     dataset_ids.push(dataset_id);
                  }
+
+
 
                  
                  allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
@@ -2199,6 +2205,7 @@
                  //attach the custom legend created for vectorial layers
                 
                  if(isCreateLegend){
+                  
                  createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isColorChanged,value_max,value_min,value_mid);
                  }
                   // zoom the map to the rectangle bounds
@@ -2220,6 +2227,7 @@
                     }
                   }
               }
+             
             }
             /*
             function attachVectRemaining(lat_start,lat_end,long_start,long_end){
@@ -2803,31 +2811,69 @@
                                                if(!isLayerVectorial){
                                                 layer_to_attach.layer_name.addTo(map);
                                                }
+
                                               //cambio wms al cambio del tempo 
                                               document.getElementById('myDate').addEventListener('change', function() {
                                                
                                                allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
-                                               changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,this.value);
-                                               
-                                              for(key in layer_to_attach){
-                                                  layer_to_attach[key].setParams({time:formatDate(this.value)});
-                                                }
+                                               if(isLayerVectorial){
+                                                      changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,this.value);
+                                               }else{
+                                                      for(key in layer_to_attach){
+                                                          layer_to_attach[key].setParams({time:formatDate(this.value)});
+                                                        }
+
+                                                        //Rimuovo la vecchia legenda
+                                                        var images=document.getElementsByClassName("legends");
+                                                      
+                                                                for(var i=0;i<images.length;i++){
+                                                                  if(images[i].getAttribute("dataset_id")===allActiveLayers[0].getAttribute("dataset_id")){
+                                                                    images[i].parentNode.removeChild(images[i]);
+                                                                  }
+                                                        }
+                                                        //Aggiungo la nuova legenda
+                                                        if(num_parameters.length===3){
+                                                          legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+formatDate(this.value)+")%5D%5B%5D%5B%5D&.legend=Only";
+                                                        }else{
+                                                          legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+formatDate(this.value)+")%5D%5B("+Math.ceil(min_value)+")%5D%5B%5D%5B%5D&.legend=Only";
+                                                        }
+                                                        legendLayer='<img class="legends" src='+legendLayer_src+' dataset_id='+dataset_id+'>';
+                                                        var image=$(legendLayer);
+                                                        image.prependTo("#createImage");
+                                              }
                                               });
                                               //cambio wms al cambio dello slider 
                                               document.getElementById("otherParam").addEventListener('change',function(){
                                                 allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                                                //Rimuovo la vecchia legenda
+                                                var images=document.getElementsByClassName("legends");
+                                                        for(var i=0;i<images.length;i++){
+                                                          if(images[i].getAttribute("dataset_id")===allActiveLayers[0].getAttribute("dataset_id")){
+                                                            images[i].parentNode.removeChild(images[i]);
+                                                          }
+                                                }
+                                                if(isLayerVectorial){
                                                   if(isNegative){
                                                     changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,-(this.value));
                                                   }else{
                                                     changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,(this.value));
                                                   }
-                                                  for (key in layer_to_attach){
-                                                      if(isNegative){
-                                                        layer_to_attach[key].setParams({[name_extra_param]:-(this.value)});
-                                                      }else{
-                                                        layer_to_attach[key].setParams({[name_extra_param]:this.value});
-                                                      }
-                                                }
+                                                }else{
+                                                    for (key in layer_to_attach){
+                                                        if(isNegative){
+                                                          layer_to_attach[key].setParams({[name_extra_param]:-(this.value)});
+                                                        }else{
+                                                          layer_to_attach[key].setParams({[name_extra_param]:this.value});
+                                                        }
+                                                  }
+                                                  //Aggiungo nuova legenda
+                                                  
+                                                    legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B("+Math.ceil(this.value)+")%5D%5B%5D%5B%5D&.legend=Only";
+                                                    
+                                                    legendLayer='<img class="legends" src='+legendLayer_src+' dataset_id='+dataset_id+'>';
+                                                    var image=$(legendLayer);
+                                                    image.prependTo("#createImage");
+                                              }
                                               });
                                               
                                                  
@@ -2857,11 +2903,14 @@
                                            }
                                           }
                                            if(!isLayerVectorial){
-                                            map.eachLayer(function(layer){
+                                            map.eachLayer(function(layer){                                      
                                                 if(layer.options.layers===layer_to_attach.layer_name.options.layers){
-                                                  map.removeLayer(layer);
+                                                  
+                                                    map.removeLayer(layer);
+                                                  
                                                 }
                                             });
+                                            createPolygons();
 
                                           }else{
                                             deletePointVect(dataset_id);
@@ -2874,12 +2923,13 @@
                                               $("input[type=date]").val("");
                                                  map.eachLayer(function(layer){
                                                    if(layer!=layerBase){
-                                                     map.removeLayer(layer);
+                                                        map.removeLayer(layer);
                                                    }
                                                    cardDiv.style.height="120px";
                                                    $("#cardParameters").hide();
                                                   
                                                  });
+                                                 createPolygons();
                                                 }
                                               }            
                          }
