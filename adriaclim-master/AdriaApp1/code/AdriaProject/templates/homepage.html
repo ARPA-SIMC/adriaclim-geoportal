@@ -2081,7 +2081,6 @@
 
           function changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,newData){
             allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
-            console.log(allActiveLayers);
             var range_value;
             var dataset_id;
             var name_layer;
@@ -2095,6 +2094,10 @@
                 break;
               }
             }
+
+            if(num_param===4){
+              range_value=$("#otherParam").val();
+            }
             
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
@@ -2104,7 +2107,8 @@
 
 
           function changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,newRangeValue){
-            var date_start;
+            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+            var inputDate=$("#myDate").val();
             var dataset_id;
             var name_layer;
             var num_param;
@@ -2119,7 +2123,7 @@
             }
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
-            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
+            createPointVectorial(dataset_id,name_layer,inputDate,lat_start,lat_end,long_start,long_end,num_param,newRangeValue,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
           
           }
 
@@ -2278,6 +2282,7 @@
         var lat_end="35";
         var long_start="5";
         var long_end="35";
+        var isNegative;
           
             function handleCheck(checkbox_clicked){
               var div_checkbox=$(checkbox_clicked).closest('div');
@@ -2484,7 +2489,7 @@
                                             other_param.style.display="block";
                                             var name_extra_param;
                                             var negative_value;
-                                            var isNegative=false;
+                                            isNegative=false;
                                             if(extra_param==="Depth"){
                                               name_extra_param="elevation";
                                                negative_value=-range_param.value;
@@ -2912,17 +2917,12 @@
                                               //cambio wms al cambio dello slider 
                                               document.getElementById("otherParam").addEventListener('change',function(){
                                                 allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
-                                                //Rimuovo la vecchia legenda
-                                                var images=document.getElementsByClassName("legends");
-                                                        for(var i=0;i<images.length;i++){
-                                                          if(images[i].getAttribute("dataset_id")===allActiveLayers[0].getAttribute("dataset_id")){
-                                                            images[i].parentNode.removeChild(images[i]);
-                                                          }
-                                                }
+                                              
                                                 if(isLayerVectorial){
                                                   if(isNegative){
                                                     changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,-(this.value));
                                                   }else{
+                                                    console.log("Ciao!");
                                                     changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,(this.value));
                                                   }
                                                 }else{
@@ -2933,6 +2933,13 @@
                                                           layer_to_attach[key].setParams({[name_extra_param]:this.value});
                                                         }
                                                   }
+                                                   //Rimuovo la vecchia legenda
+                                                var images=document.getElementsByClassName("legends");
+                                                        for(var i=0;i<images.length;i++){
+                                                          if(images[i].getAttribute("dataset_id")===allActiveLayers[0].getAttribute("dataset_id")){
+                                                            images[i].parentNode.removeChild(images[i]);
+                                                          }
+                                                }
                                                   //Aggiungo nuova legenda
                                                   
                                                     legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B("+Math.ceil(this.value)+")%5D%5B%5D%5B%5D&.legend=Only";
