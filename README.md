@@ -1,4 +1,5 @@
 # adriaclim-geoportal
+Resolved bugs related to the use of the layers without WMS, elevation parameter was not working. 
 Added regions to Croatia.
 Resolved the problem of the polygons.
 Now legend changes when parameters are changed.
