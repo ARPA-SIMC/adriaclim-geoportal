@@ -293,6 +293,7 @@ h1 {
     window.parent.postMessage("resize", "*");
   }
 </script>"""
+x=400
 def getTitle():
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
   print(url_datasets)
@@ -466,30 +467,142 @@ def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude
     else:
        url=ERDDAP_URL+"/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
     #https://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
-    url_open = urllib.request.urlopen(url_datasets)
+    url_open = urllib.request.urlopen(url)
     csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',')  
     return csvfile
 
-def getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
+def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     if (num_parameters > 3):
-        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude + "):1:(" + latitude+ ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
     else:
         url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
+
     df = pd.read_csv(url, dtype='unicode')
+    n_values = len(df)
     allData=[]
     values=[]
     dates=[]
+    layerName=[]
     i=0
-    for index,row in df.iterrows():
-        values.insert(i,row[layer_name])
-        dates.insert(i,row["time"])
-        i+=1
+    if n_values<=x:  #all the data
+      for index,row in df.iterrows():
+            layerName.insert(i,layer_name)
+            values.insert(i,row[layer_name])
+            dates.insert(i,row["time"])
+            i+=1
+    else:  #one every nvalues/x data
+      every_nth_rows=int(n_values/x)
+      df=df[::every_nth_rows]
+      for index,row in df.iterrows():
+            layerName.insert(i,layer_name)
+            values.insert(i,row[layer_name])
+            dates.insert(i,row["time"])
+            i+=1
+
     unit = values[0]
     del values[0]
     del dates[0]
 
-    allData=[values,dates,unit]
+    allData=[values,dates,unit,layerName]
     return allData
+
+def getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    graphic1=getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value)
+    graphic2=getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude2,longitude2,num_parameters,range_value)
+    graphic3=getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude3,longitude3,num_parameters,range_value)
+    allData=[graphic1,graphic2,graphic3]
+    return allData
+
+def getDataGraphicPolygon(dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value):
+  if ( num_parameters > 3 ):
+    url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax + "):1:(" + longMin + ")%5D"
+  else:
+    url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax+ "):1:(" + longMin + ")%5D"
+
+    print(url)
+    df = pd.read_csv(url, dtype = 'unicode')
+    n_values = len(df)
+    allData = []
+    values = []
+    dates = []
+    coordinates = []
+    layerName = []
+    i=0
+    if n_values <= x:  #all the data
+      for index,row in df.iterrows():
+            layerName.insert(i,layer_name)
+            try:
+                coordinates.insert(i,np.array([float(row["latitude"]),float(row["longitude"])]))
+            except ValueError:
+                print("Not a float!")
+            values.insert(i,row[layer_name])
+            dates.insert(i,row["time"])
+            i+=1
+    else:  #one every nvalues/x data
+      every_nth_rows = int( n_values / x )
+      df = df[::every_nth_rows]
+      for index,row in df.iterrows():
+            layerName.insert(i,layer_name)
+            try:
+                coordinates.insert(i,[float(row["latitude"]),float(row["longitude"])])
+            except ValueError:
+                print("Not a float!")
+            values.insert(i,row[layer_name])
+            dates.insert(i,row["time"])
+            i+=1
+
+    unit = values[0]
+    del values[0]
+    del dates[0]
+    del coordinates[0]
+    allData=[values,coordinates,dates,unit,layerName]
+    return allData
+ 
+
+
+def getDataGraphicAnnualGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value):
+    if (num_parameters > 3):
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude1 + "):1:(" + latitude1+ ")%5D%5B(" + longitude1 + "):1:(" + longitude1 + ")%5D"
+    else:
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude1 + "):1:(" + latitude1 + ")%5D%5B(" + longitude1 + "):1:(" + longitude1 + ")%5D"
+    
+    df = pd.read_csv(url, dtype='unicode')
+    df = df.iloc[1: , :]
+    df[layer_name] = pd.to_numeric(df[layer_name],downcast="float")
+    df['time'] = pd.to_datetime(df['time'].astype('str'))
+    df = df.groupby([(df.time.dt.day),(df.time.dt.month)])[layer_name].mean()
+    return df.to_json()
+
+
+def getDataGraphicAnnualMean(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+  graphic1=getDataGraphicAnnualGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value)
+  graphic2=getDataGraphicAnnualGeneric(dataset_id,layer_name,time_start,time_finish,latitude2,longitude2,num_parameters,range_value)
+  graphic3=getDataGraphicAnnualGeneric(dataset_id,layer_name,time_start,time_finish,latitude3,longitude3,num_parameters,range_value)
+  allData=[graphic1,graphic2,graphic3]
+  return allData
+
+def getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value):
+  if ( num_parameters > 3 ):
+    url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax + "):1:(" + longMin + ")%5D"
+  else:
+    url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax+ "):1:(" + longMin + ")%5D"
+
+    df = pd.read_csv(url, dtype = 'unicode')
+    df = df.iloc[1: , :]
+    n_values = len(df)
+    if n_values > x:
+      every_nth_rows = int( n_values / x)
+      df = df[::every_nth_rows]
+      df[layer_name] = pd.to_numeric(df[layer_name],downcast="float")
+      df['time'] = pd.to_datetime(df['time'].astype('str'))
+      df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"])])[layer_name].mean()
+      return df.to_json()
+    
+    else:
+      df[layer_name] = pd.to_numeric(df[layer_name],downcast="float")
+      df['time'] = pd.to_datetime(df['time'].astype('str'))
+      df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"])])[layer_name].mean()
+      return df.to_json()
 
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
  if (num_param > 3):
@@ -519,8 +632,7 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
    elif float(value)>value_max:
      value_max=float(value)
 
- print(value_max)
- print(value_min)
+
  allData=[values,lat_coordinates,long_coordinates,value_min,value_max]
  return allData
          

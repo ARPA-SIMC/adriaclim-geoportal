@@ -29,438 +29,11 @@
        <script type="text/javascript" src="https://maps.stamen.com/js/tile.stamen.js?v1.2.4"></script>
        <script data-require="d3@3.5.3" data-semver="3.5.3" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>
         <script src="{% static 'assets/js/GeoJsonAjax.js' %}"></script>
- 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" charset="utf-8"></script>
+        <script src="https://cdn.rawgit.com/hayeswise/Leaflet.PointInPolygon/v1.0.0/wise-leaflet-pip.js"></script>
+        <script type="text/javascript" src="{% static 'assets/js/jquery.tipsy.js' %}"></script>
        <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
-       
-     
-        <style>
-
-          .chart{
-            display:flex;
-            align-items:center;
-            justify-content:center;
-          }
-
-          .form-check{
-            display:flex;
-            padding-left:0px;
-          }
-          .form-check button{
-            min-height:24px;
-            min-width:24px;
-            max-width:24px;
-            max-height:24px;
-            padding:0px;
-            margin:2px;
-            
-            float:right;
-          }
-           #admin_div{
-               flex:1;
-               text-align:right;
-           }
-
-            #divButton{
-              pointer-events: auto;
-              display: flex;
-              flex-direction: column-reverse;
-            }
-           
-           #graphModal{
-             position: absolute;
-            float: left;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-           }
-
-           .modal-lg{
-             max-width:75% !important;
-           }
-
-           #pills-table{
-             overflow-y:scroll;
-             max-height:350px;
-           }
-               
-              #cardDiv{
-                pointer-events:auto;
-                background-color:white;
-               height: 120px;
-              }
-            
-                rop.show {
-                    z-index: 1;
-                  }
-              
-              label{
-                font-size:15px;
-              }
-
-              #scroll_full_list{
-                overflow-y: scroll;
-                 max-height: 120px;
-              }
-
-              .scrollable{
-                overflow-y: scroll;
-                 max-height: 120px;
-              }
-             
-              .panel scrollable{
-                overflow-y:scroll;
-                max-height:120px;
-              }
-              .accordion {
-                  background-color: white;
-                  color: #444;
-                  cursor: pointer;
-                  padding: 0px;
-                  width: 100%;
-                  border: none;
-                  text-align: left;
-                  font-weight:bold;
-                  outline: none;
-                  font-size: 15px;
-                  transition: 0.4s;
-                }
-
-                 .accordion:hover {
-                  background-color: #ccc;
-                }
-
-                .accordion:after {
-                  content: '\002B';
-                  color: #777;
-                  font-weight: bold;
-                  float: right;
-                  margin-left: 0px;
-                }
-
-                .active:after {
-                  content: "\2212";
-                }
-
-                .panel{
-                  padding: 0 0px;
-                  background-color: white;
-                  max-height: 0px;
-                  overflow: hidden;
-                  transition: max-height 0.2s ease-out;
-                }
-                #paramTime{
-                  display:none;
-                }
-
-                #parameters{
-                  font-size:15px;
-                  font-weight:bold;
-                  padding:5px;
-                  display:none;
-                }
-                #layer_opacity{
-                  display:none;
-                }
-                
-                .scrollable_modal{
-                overflow-y: scroll;
-                 max-height: 300px;
-              }
-
-              #param_unknown{
-                display:none;
-              }
-
-              img{
-                width:300px;
-              }
-              #filterLayers {
-                    background-image: url('https://www.w3schools.com/css/searchicon.png');
-                    background-size:15px;
-                    background-position: 10px 10px;
-                    background-repeat: no-repeat;
-                    width: 100%;
-                    font-size: 12px;
-                    padding: 7px 10px 5px 30px;
-                    border: 1px solid #ddd;
-                    margin-bottom: 12px;
-                  }
-
-                [button_remove="removeLayer"]{
-                  display:none;
-                }
-
-                [buttonindex="changeIndex"]{
-                  display:none;
-                }
-
-                #createImage{
-                  display:flex;
-                  flex-direction:column;
-                }
-                
-
-              .nav-link{
-                font-family:'Roboto', sans-serif;
-                font-weight:bold;
-                font-size:15px;
-                
-              }
-              
-              .nav-link:after{
-                content:none;
-              }
-              .tab-pane:after{
-                content:none;
-              }
-
-            #grabHand{
-              display: flex;
-              position: absolute;
-              top: 90px;
-              left:10px;
-              padding: 10px;
-              z-index: 500;
-              background-color:white;
-              border-color:white;
-            }
-
-            #flagHand{
-              display: flex;
-              position: absolute;
-              top:170px;
-              left:10px;
-              padding: 10px;
-              z-index:500;
-              background-color: white;
-              border-color:white;
-            }
-
-            #flagHand:hover{
-              background-color: #04AA6D;
-              cursor:pointer;
-
-            }
-
-            .flagImageOn{
-              cursor: url("https://icons.getbootstrap.com/assets/icons/flag-fill.svg") 16 16, pointer;
-            }
-            
-
-          #grabHand:hover{
-              background-color:#04AA6D;
-              cursor: pointer;
-          }
-
-          #locationHand{
-             display: flex;
-              position: absolute;
-              top: 130px;
-              left:10px;
-              padding: 10px;
-              z-index: 500;
-              background-color:white;
-              border-color:white;
-          }
-           #locationHand:hover{
-              background-color:#04AA6D;
-              cursor: pointer;
-          }
-
-          .loaderText{
-            font-family:'Roboto',sans-serif;
-
-          }
-          #loadingTable{
-            display:flex;
-            justify-content:center;
-          }
-          #loadingGraph{
-            display:flex;
-            justify-content:center;
-          }
-          .loader {
-            border: 16px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 60px;
-            height: 60px;
-            -webkit-animation: spin 2s linear infinite; /* Safari */
-            animation: spin 2s linear infinite;
-          }
-          
-          /* Safari */
-          @-webkit-keyframes spin {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
-          }
-          
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          
-          #labelType{
-            font-weight: bold;
-            font-family:'Roboto',sans-serif;
-          }
-          #extraRangeStart{
-            font-weight: bold;
-            font-family:'Roboto',sans-serif;
-          }
-          #extraRangeStop{
-            font-weight: bold;
-            font-family:'Roboto',sans-serif;
-          }
-
-          
-
-    
-      
-          #selectType {
-            width: 100%;
-            height: 50px;
-            font-size: 100%;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 0;
-            background-color: #007bff;
-            border: none;
-            border-bottom: 2px solid #007bff;
-            color: white;
-            appearance: none;
-            padding: 10px;
-            padding-right: 38px;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            transition: color 0.3s ease, background-color 0.3s ease, border-bottom-color 0.3s ease;
-          }
-          #selectType option{
-            font-family:'Roboto',sans-serif;
-            font-weight:bold;
-          }
-      
-          /* For IE <= 11 */
-          #selectType::-ms-expand {
-            display: none; 
-          }
-      
-          .select-icon {
-            position: absolute;
-            top:62%;
-            right:30px;
-            width: 30px;
-            height: 30px;
-            pointer-events: none;
-            border: 2px solid white;
-            padding-left: 5px;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-          }
-          .select-icon svg.icon {
-            transition: fill 0.3s ease;
-            fill: white;
-          }
-
-          #selectContainer:hover 
-          svg.icon{
-              fill: #007bff;        
-             }
-
-            #selectContainer:focus svg.icon{
-              fill:#007bff;
-            }
-
-            #selectContainer:hover .select-icon{
-              border-color:#007bff;
-            }
-            #selectContainer:focus .select-icon{
-              border-color:#007bff;
-            }
-         
-
-      
-          #selectType:hover,
-          #selectType:focus {
-            color: #007bff;
-            background-color: white;
-            border-bottom-color: #DCDCDC;
-          }
-
-          #submitType:hover{
-            background-color:white;
-            color:#007bff;
-          }
-
-          #submitType{
-            color:white;
-          }
-
-          #paragraphRange{
-             display:none;
-          }
-
-          #slider-Range{
-            display:none;
-          }
-
-          #buttonsDate{
-            margin-left:36px;
-          }
-
-          #scroll_full_list .open-modal{
-            margin-left:auto;
-          }
-
-          #cardParameters{
-            display:none;
-          }
-          #admin_butt{
-            display:none;
-          }
-          #layers_active .open-modal{
-            margin-left:auto;
-          }
-          .modal-backdrop{
-            z-index:998;
-          }
-          
-          .myLegendDiv{
-          
-            background-color:	rgb(255,255,230);
-            border: 1px solid black;
-            width:420px;
-            height:90px;
-            font-family:'Roboto',sans-serif;
-            font-weight:bold;
-          }
-          .myLegendDiv p{
-            margin-left: 80px;
-            margin-top: 11px;
-          }
-
-          .colorValue{
-            display:inline-block;
-          }
-
-          .minColorSpan{
-            margin-right:50px;
-          }
-
-          .midColorSpan{
-            margin-right:58px;
-          }
-
-          .maxColorSpan{
-            margin-right:50px;
-          }
-          
-          
-         
-          
-
-          
-
-        </style>
+       <link href="{% static 'assets/css/stylesheet.css' %}" rel="stylesheet" type="text/css">
     </head>
     <body>
            
@@ -596,7 +169,7 @@
             <div class="modal-content">
               <div class="modal-header d-block">
                             <div class="d-flex">
-                                <h3 class="modal-title" id="exampleModalLabel">Data</h3>
+                                <h3 class="modal-title" id="modalLabelGraph">Data</h3>
                                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -624,8 +197,8 @@
                         </div>
                         <h5 class="loaderText"> &nbsp;Please wait for the loading of the graphic</h5>
                       </div>
-                         <canvas id="myChart"> 
-                        </canvas>
+                         <div id="myChart"> 
+                         </div>
                       </div>
                     
                     </div>
@@ -689,7 +262,7 @@
                           </div>
                           <br>
                           <p>
-                          <a class="btn btn-primary" href="" value="Submit" download id="submitType">Submit</a>
+                          <a class="btn btn-primary" href="" value="Submit"  id="submitType">Submit</a>
                           </p>
                        
                       </div>
@@ -719,6 +292,23 @@
             <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
           </svg>
         </button>
+        <div id="selectRange">
+            <div class="dropdown">
+              <button type="button"class="dropbtn">Region set</button>
+              <div class="dropdown-content">
+                <a id="adriaticView">Adriatic View</a>
+                <a id="pilotArea">Pilot Areas</a>
+                <a id="geojson_loaded" onclick="document.getElementById('upload_geo').click();">Upload Geojson</a>
+                <input type="file" style="display:none" id="upload_geo" accept=".geojson"></a>
+              </div>
+            </div>
+        </div>
+        <button type="button" id="globeButton" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="selectAllRegions(this)" >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-globe" viewBox="0 0 16 16">
+              <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4H4.09zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5h2.49zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5H4.847zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5H8.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.386.295.744.468 1.068.552 1.035 1.218 1.65 1.887 1.855V12H5.145zm.182 2.472a6.696 6.696 0 0 1-.597-.933A9.268 9.268 0 0 1 4.09 12H2.255a7.024 7.024 0 0 0 3.072 2.472zM3.82 11a13.652 13.652 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5H3.82zm6.853 3.472A7.024 7.024 0 0 0 13.745 12H11.91a9.27 9.27 0 0 1-.64 1.539 6.688 6.688 0 0 1-.597.933zM8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855.173-.324.33-.682.468-1.068H8.5zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.65 13.65 0 0 1-.312 2.5zm2.802-3.5a6.959 6.959 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5h2.49zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7.024 7.024 0 0 0-3.072-2.472c.218.284.418.598.597.933zM10.855 4a7.966 7.966 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4h2.355z"/>
+            </svg>
+        </button>
+        
 
          <!-- Modal -->
         <div class="leaflet-bottom">
@@ -817,6 +407,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js" integrity="sha512-GMGzUEevhWh8Tc/njS0bDpwgxdCJLQBWG3Z2Ct+JGOpVnEmjvNx6ts4v6A2XJf1HOrtOsfhv3hBKpK9kE5z8AQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        <script src="https://d3js.org/d3.v3.min.js"></script>
        
          
         <script type="text/javascript">
@@ -885,7 +476,7 @@
           }
 
           */
-
+       
           var map = L.map('map', {
                 attributionControl: false,
                 center: [42.31895914499354, 13.030587093609325],
@@ -896,33 +487,1415 @@
             }).addTo(map);
 
             var geojsonLayer;
+            var geojson_uploaded;
+            var isPilotArea=true;
+            
+          
 
+
+          var isGeojsonUploaded=false;
+          var geojsonPolygons=[];
+
+          function whichPolygonsActive(layer,i){
+            //check which polygons are active
+            var latMin=200000000000000000000000;
+                  var latMax=0;
+                  var longMin=200000000000000000000000000;
+                  var longMax=0;
+                  var coordinates=layer.feature.geometry.coordinates[0];
+                  for(var j=0;j<coordinates.length;j++){
+                    for(var z=0;z<coordinates[j].length;z++){
+                       if(coordinates[j][1]<latMin){
+                        latMin=coordinates[j][1];
+                       }
+                       if(coordinates[j][1]>latMax){
+                        latMax=coordinates[j][1];
+                       }
+                       if(coordinates[j][0]<longMin){
+                        longMin=coordinates[j][0];
+                       }
+                       if(coordinates[j][0]>longMax){
+                        longMax=coordinates[j][0];
+                       }
+                    }
+                  }
+                  var popupName=layer.feature.properties.popupContent;
+                  geojsonPolygons.insert(i,{"name":popupName,"layer":layer,"latMin":latMin,"latMax":latMax,"longMin":longMin,"longMax":longMax});
+                  i++;
+
+          }
+
+          function findPolygon(layer){
+            for(var j=0;j<geojsonPolygons.length;j++){
+              if(geojsonPolygons[j]["layer"]===layer){
+                return geojsonPolygons[j];
+              }
+            }
+          }
+
+          function annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+            $.ajax({
+                type:'GET',
+                url:'getDataAnnualPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                contentType:'application/json',
+                success:function(result){
+                    //prendere i punti e vedere se stanno o meno nel poligono
+                    result=result["dataAnnual"];
+                    var annualDataPolygon=JSON.parse(result);
+                    var data=[];
+                    var layerPolygon=polygonClicked["layer"];
+                    var j=0;
+
+                Object.keys(annualDataPolygon).forEach(function(key){
+                      var day=(key.split(",")[0]).split("(")[1];
+                      var month=(key.split(",")[1]).split(' ').join('');
+                      var latitude=(key.split(",")[2]).split(' ').join('');
+                      var longitude=(key.split(",")[3]).split(')')[0].split(' ').join('');
+                      var coordinates=[parseFloat(latitude.replace("'","")),parseFloat(longitude.replace("'",""))];
+                      if(layerPolygon.contains(L.latLng(coordinates[0],coordinates[1]))){
+                          data.insert(j,{"date":day+"/"+month,"coordinates":coordinates,"value":annualDataPolygon[key]});
+                          j++;
+                      }
+                    });
+
+                    $("#loadingGraph").fadeOut("slow");
+                               //set the margins
+                      if(data.length==0){
+                        $(".chart").append('<h1 id="noDataFound">No data have been found in the polygon. Please choose another dataset or upload a bigger polygon.</h1>');
+                      }else{
+                    
+
+                        function sortByDateAscending(a, b) {
+                              // Dates will be cast to numbers automatically:
+                              return a.date - b.date;
+                          }
+                          
+                    
+
+                    var csv='';
+                    var header=Object.keys(data[0]).join(",");
+                    var values=data.map(o=>Object.values(o).join(",")).join("\n");
+                    csv += header + '\n' + values;
+                    href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                    csv_name_file=$(subtitle).text()+"_annual_polygon_cycle.csv";
+
+                    var valuesCoordinates=[];
+                        for(var i=0;i<data.length;i++){
+                          for(key in data[i]){
+                            if(key=="coordinates"){
+                              valuesCoordinates.push(data[i][key]);
+                            }
+                          }
+                        }
+                    
+                    
+
+                    var dataPolygons=[];
+
+                    function stringToDate(dateString){
+                      var day=dateString.split("/")[0];
+                      var month=dateString.split("/")[1];
+                      return new Date(2022,month-1,day);
+                    }
+        
+                    for(var i=0;i<data.length;i++){
+                      dataPolygons.push({"date":stringToDate(data[i]["date"]),[data[i]["coordinates"]]:data[i]["value"]});
+                      for(var j=i+1;j<data.length;j++){
+                          if(data[j]["coordinates"][0]!==data[i]["coordinates"][0] || data[j]["coordinates"][1]!==data[i]["coordinates"][1]){
+                            if((data[j]["coordinates"] in dataPolygons)===false){
+                              dataPolygons[i][[data[j]["coordinates"]]]="";
+                            }
+                          }
+                    }
+                    }
+                    var diffCoordinates=0;
+                    Object.keys(dataPolygons[0]).filter(function(key){ 
+                      if(key!=="date"){
+                          diffCoordinates++;
+                      }
+                    });
+
+
+                    var margin = {top: 50, right: 160, bottom: 80, left: 50},
+                          width = 1000 - margin.left - margin.right,
+                          height = 600 - margin.top - margin.bottom;
+
+                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
+                    var NumbType = d3.format(".6f");
+                    
+                    var bluescale4=[];
+
+                    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+                    for (var i=0;i<diffCoordinates;i++){
+                      bluescale4.insert(i,"#"+genRanHex(6));
+                    }
+
+                    //color function pulls from array of colors stored in color.js
+                    var color = d3.scale.ordinal().range(bluescale4);
+                      
+
+                    //define the approx. number of x scale ticks
+                    var xscaleticks = 5;
+                  
+
+                    //define your year format here, first for the x scale, then if the date is displayed in tooltips
+                    var parseDate = d3.time.format("%x").parse;
+                    var formatDate = d3.time.format("%d %b");
+
+                      
+                     //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
+                    var maketip = function (d) {			               
+                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
+                                  return tip;}
+                    
+                         //create an SVG
+                         svg = d3.select(".chart").append("svg")
+                          .attr("id","svg_id")
+                          .attr("width", width + margin.left + margin.right)
+                          .attr("height", height + margin.top + margin.bottom)
+                          .append("g")
+                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
+                              
+                      //make a rectangle so there is something to click on
+                      svg.append("svg:rect")
+                          .attr("width", width)
+                          .attr("height", height)
+                          .attr("class", "plot");
+
+                      //make a clip path for the graph  
+                      var clip = svg.append("svg:clipPath")
+                          .attr("id", "clip")
+                          .append("svg:rect")
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .attr("width", width)
+                          .attr("height", height);   
+                  
+
+                          dataPolygons = dataPolygons.sort(sortByDateAscending);
+           
+                          function convertDate(inputFormat) {
+                              function pad(s) { return (s < 10) ? '0' + s : s; }
+                              var d = new Date(inputFormat);
+                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+                            }
+
+                          redraw(dataPolygons);
+
+
+                          d3.select(window)
+                          .on("keydown", function() { altKey = d3.event.altKey; })
+                          .on("keyup", function() { altKey = false; });
+                      var altKey;
+                      // set terms of transition that will take place
+                      // when a new economic indicator is chosen   
+                      function change() {
+                        d3.transition()
+                            .duration(altKey ? 7500 : 1500)
+                            .each(redraw);
+                      }
+
+                      function createDateLine(dateString){
+                          var d=dateString.split("/");
+                          return new Date(+d[2],d[1]-1,+d[0]);
+                      }
+
+                      // all the meat goes in the redraw function
+                      function redraw(data) { 
+                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
+                        color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date"); }));
+
+                        var linedata = color.domain().map(function(name) {
+                                  return {name: name,
+                                        values: data.filter(d=> ! isNaN(parseFloat(d[name])))
+                                        .map(function(d) {
+                                    return {name:name,  date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
+                                        })
+                                  };
+                          });
+                        //make an empty variable to stash the last values into so i can sort the legend
+                        var lastvalues=[];
+
+                        //setup the x and y scales
+                        var x = d3.time.scale()
+                            .domain([
+                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
+                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
+                            ])
+                            .range([0, width+200]);
+                          
+
+                        var y = d3.scale.linear()
+                            .domain([
+                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+                            ])
+                            .range([height, 0]);
+
+                        //will draw the line		
+                        var line = d3.svg.line()
+                            .x(function(d) { return x(d.date); })
+                            .y(function(d) {return y(d.value); });
+
+                        //define the zoom
+                        var zoom = d3.behavior.zoom()
+                            .x(x)
+                            .y(y)
+                            .scaleExtent([0,8])
+                            .on("zoom", zoomed);
+
+                        //call the zoom on the SVG
+                          svg.call(zoom);
+
+                        //create and draw the x axis
+                        var xAxis = d3.svg.axis()
+                            .scale(x)
+                            .tickPadding(5)
+                            .tickFormat(formatDate); 
+                          
+                          svg.append("svg:g")
+                            .attr("class", "x axis");
+
+                        //create and draw the y axis                  
+                        var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left")
+                            .tickSize(0-width)
+                            .tickPadding(8);
+                          
+                          svg.append("svg:g")
+                            .attr("class", "y axis");
+
+                        //bind the data
+                        var thegraph = svg.selectAll(".thegraph")
+                            .data(linedata)
+                      
+                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
+                        var thegraphEnter=thegraph.enter().append("g")
+                            .attr("clip-path", "url(#clip)")
+                            .attr("class", "thegraph")
+                            .attr('id',function(d){ return d.name+"-line"; })
+                            .style("stroke-width",2.5)
+                            .on("mouseover", function (d) {                                  
+                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
+                                .style("stroke-width",'4px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",0.2);
+                                
+                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
+                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
+
+                                d3.selectAll(selectlegend)    // drop opacity on other legend names
+                                  .style("opacity",.2);
+
+                                d3.select(getname)
+                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
+                            })
+                            .on("mouseout",	function(d) {        //undo everything on the mouseout
+                                d3.select(this)
+                                  .style("stroke-width",'2.5px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",1);
+                                
+                                var getname = document.getElementById(d.name);
+                                var getname2= $('.legend[fakeclass="fakelegend"]')
+                                var selectlegend = $('.legend').not(getname2).not(getname);
+
+                                d3.selectAll(selectlegend)
+                                  .style("opacity",1);
+                                
+                                d3.select(getname)
+                                  .attr("class", "legend");        	
+                            });
+
+                        //actually append the line to the graph
+                        thegraphEnter.append("path")
+                            .attr("class", "line")
+                              .style("stroke", function(d) { return color(d.name); })
+                              .attr("d", function(d) { return line(d.values[0]); })
+                              .transition()
+                              .duration(2000)
+                              .attrTween('d',function (d){
+                            var interpolate = d3.scale.quantile()
+                              .domain([0,1])
+                              .range(d3.range(1, d.values.length+1));
+                            return function(t){
+                              return line(d.values.slice(0, interpolate(t)));
+                            };
+                          });
+                        
+                        //then append some 'nearly' invisible circles at each data point  
+                        thegraph.selectAll("circle")
+                          .data( function(d) {return(d.values);} )
+                          .enter()
+                          .append("circle")
+                            .attr("class","tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("r",12)
+                            .style('opacity', 1e-6)//1e-6
+                            .attr ("title", maketip);
+
+                        //append the legend
+                          var legend = svg.selectAll('.legend')
+                              .data(linedata);
+                          
+                          var legendEnter=legend
+                              .enter()
+                              .append('g')
+                              .attr('class', 'legend')
+                              .attr('id',function(d){ return d.name; })
+                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
+                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
+
+                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
+                                  d3.select(elemented)
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",0)
+                                    .style("display",'none');
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass', 'fakelegend')
+                                  .transition()
+                                    .duration(1000)
+                                    .style ("opacity", .2);
+                                } else {
+                                
+                                  var elemented = document.getElementById(this.id +"-line");
+                                  d3.select(elemented)
+                                    .style("display", "block")
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",1);
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass','legend')
+                                    .transition()
+                                    .duration(1000)
+                                    .style ("opacity", 1);}
+                          });
+
+                        //create a scale to pass the legend items through
+                        var legendscale= d3.scale.ordinal()
+                              .domain(lastvalues)
+                              .range([0,30,60,90,120,150,180,210]);
+
+                        //actually add the circles to the created legend container
+                          legendEnter.append('circle')
+                              .attr('cx', width +20)
+                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .attr('r', 7)
+                              .style('fill', function(d) { 
+                                  return color(d.name);
+                              });
+                                          
+                        //add the legend text
+                          legendEnter.append('text')
+                              .attr('x', width+35)
+                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .text(function(d){ return d.name; });
+
+                        // set variable for updating visualization
+                          var thegraphUpdate = d3.transition(thegraph);
+                          
+                          // change values of path and then the circles to those of the new series
+                          thegraphUpdate.select("path")
+                            .attr("d", function(d, i) {       
+                            
+                                //must be a better place to put this, but this works for now
+                                lastvalues[i]=d.values[d.values.length-1].value;         
+                                lastvalues.sort(function (a,b){return b-a});
+                                legendscale.domain(lastvalues);
+                              
+                                return line(d.values); });
+                            
+                          thegraphUpdate.selectAll("circle")
+                            .attr ("title", maketip)
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("cx", function(d,i){return x(d.date)});
+
+
+                          // and now for legend items
+                          var legendUpdate=d3.transition(legend);
+                          
+                        legendUpdate.select("circle")
+                          .attr('cy', function(d, i){  
+                            return legendscale(d.values[d.values.length-1].value);});
+
+                        legendUpdate.select("text")
+                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
+
+
+                        // update the axes,   
+                          d3.transition(svg).select(".y.axis")
+                            .call(yAxis);   
+                                
+                          d3.transition(svg).select(".x.axis")
+                            .attr("transform", "translate(0," + height + ")")
+                              .call(xAxis);
+
+                        //make my tooltips work
+                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
+
+
+                        //define the zoom function
+                        function zoomed() {
+                      
+                            svg.select(".x.axis").call(xAxis);
+                            svg.select(".y.axis").call(yAxis);
+
+                          svg.selectAll(".tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)});
+                            
+                          svg.selectAll(".line")
+                              .attr("class","line")
+                                .attr("d", function (d) { return line(d.values)});
+                        }
+                        }//end redraw
+
+                        var ns = 'http://www.w3.org/2000/svg';
+                         
+                         foreignObject = document.createElementNS( ns, 'foreignObject');
+                         foreignObject.setAttribute('height', 300);
+                         foreignObject.setAttribute('width', 300);
+
+                         var download_csv=document.createElement('a');
+                         download_csv.innerHTML = 'Download CSV File';
+                         download_csv.id="download_id";
+                         download_csv.setAttribute('style','font-size:15px');
+
+                         download_csv.href=href_csv;
+                         download_csv.download=csv_name_file;
+                         foreignObject.appendChild(download_csv);
+                        
+                         var select_graph=document.createElement("select");
+                         select_graph.id="select_graph";
+                         select_graph.setAttribute('style','margin-left:38px');
+                         foreignObject.appendChild(select_graph);
+                         var option_graph1=document.createElement("option");
+                         option_graph1.value="Default";
+                         option_graph1.text="Default Graph";
+                         
+                         select_graph.appendChild(option_graph1);
+
+                         var option_graph2=document.createElement("option");
+                         option_graph2.value="Annual Cycle";
+                         option_graph2.text="Annual Cycle";
+                         option_graph2.selected=true;
+                         select_graph.appendChild(option_graph2);
+                         
+ 
+
+
+                         select_graph.addEventListener("change",function(){
+                           if(select_graph.value==="Annual Cycle"){
+                             //option annual cycle chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                              annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
+                           }else{
+                             //option default graph chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
+                           }
+                         });
+                      document.getElementById("svg_id").appendChild(foreignObject); 
+  
+                  } // else data.length!==0
+                    
+                    
+                } //end success
+              }); //end ajax call
+          }
+
+          function defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+            $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      var coordinatePoints=result[1];
+                      var dates=result[2];
+                      var valuesPolygon=result[0];
+                      var unit=result[3][0];
+                      var data=[];
+                      var j=0;
+                      var layerPolygon=polygonClicked["layer"];
+  
+                      
+                      function convertDate(inputFormat) {
+                              function pad(s) { return (s < 10) ? '0' + s : s; }
+                              var d = new Date(inputFormat)
+                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+                            }
+                      
+
+                      for(var i=0;i<coordinatePoints.length;i++){
+                          //check if point is in polygon
+                          
+                          if(layerPolygon.contains(L.latLng(coordinatePoints[i][0],coordinatePoints[i][1]))){
+                            
+                            data.insert(j,{"date":convertDate(dates[i]),"value":valuesPolygon[i],"name":layerLastName,"coordinates":[coordinatePoints[i][0],coordinatePoints[i][1]]});
+                            j++;
+                          }
+                      }
+                      
+                       $("#loadingGraph").fadeOut("slow");
+                               //set the margins
+                      if(data.length==0){
+                        $(".chart").append('<h1 id="noDataFound">No data have been found in the polygon. Please choose another dataset or upload a bigger polygon.</h1>');
+                      }else{
+ 
+                      var margin = {top: 50, right: 160, bottom: 80, left: 50},
+                          width = 1000 - margin.left - margin.right,
+                          height = 600 - margin.top - margin.bottom;
+                        
+                        var valuesCoordinates=[];
+                        for(var i=0;i<data.length;i++){
+                          for(key in data[i]){
+                            if(key=="coordinates"){
+                              valuesCoordinates.push(data[i][key]);
+                            }
+                          }
+                        }
+                                                    
+                       
+                       var dataPolygons=[];
+
+                       for(var i=0;i<data.length;i++){
+                          dataPolygons.push({"date":data[i]["date"],"name":data[i]["name"],[data[i]["coordinates"]]:data[i]["value"]});
+                          for(var j=i+1;j<data.length;j++){
+                              if(data[j]["coordinates"][0]!==data[i]["coordinates"][0] || data[j]["coordinates"][1]!==data[i]["coordinates"][1]){
+                                if((data[j]["coordinates"] in dataPolygons)===false){
+                                  dataPolygons[i][[data[j]["coordinates"]]]="";
+                                }
+                              }
+                        }
+                       }
+
+                       var diffCoordinates=0;
+                      Object.keys(dataPolygons[0]).filter(function(key){ 
+                        if(key!=="date" && key!=="name"){
+                            diffCoordinates++;
+                        }
+                      });
+
+
+                      
+
+                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
+                      var NumbType = d3.format(".6f");
+                      var bluescale4=[];
+
+                      const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+                    for (var i=0;i<diffCoordinates;i++){
+                      bluescale4.insert(i,"#"+genRanHex(6));
+                    }
+
+
+                    
+                    //color function pulls from array of colors stored in color.js
+                    var color = d3.scale.ordinal().range(bluescale4);
+                      
+
+                      //define the approx. number of x scale ticks
+                      var xscaleticks = 5;
+
+                                  
+                      //define your year format here, first for the x scale, then if the date is displayed in tooltips
+                      var parseDate = d3.time.format("%x").parse;
+                      var formatDate = d3.time.format("%d %b, '%y");
+
+                      
+                      //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
+                      var maketip = function (d) {			               
+                              var tip = '<p class="tip3">' + d.name + '<p class="tip3">' + d.coordinates +'<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
+                                  return tip;}
+
+                      //create an SVG
+                       svg = d3.select(".chart").append("svg")
+                          .attr("id","svg_id")
+                          .attr("width", width + margin.left + margin.right)
+                          .attr("height", height + margin.top + margin.bottom)
+                          .append("g")
+                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
+                              
+                      //make a rectangle so there is something to click on
+                      svg.append("svg:rect")
+                          .attr("width", width)
+                          .attr("height", height)
+                          .attr("class", "plot");
+
+                      //make a clip path for the graph  
+                      var clip = svg.append("svg:clipPath")
+                          .attr("id", "clip")
+                          .append("svg:rect")
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .attr("width", width)
+                          .attr("height", height);   
+                          
+                        
+
+                         var csv='';
+                         var header=Object.keys(data[0]).join(",");
+                         var values=data.map(o=>Object.values(o).join(",")).join("\n");
+                         csv += header + '\n' + values;
+                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                          csv_name_file=$(subtitle).text()+".csv";
+
+                         
+                          function sortByDateAscending(a, b) {
+                              // Dates will be cast to numbers automagically:
+                              return a.date - b.date;
+                          }
+
+                          dataPolygons = dataPolygons.sort(sortByDateAscending);
+                          
+
+                          redraw(dataPolygons);
+    
+
+                      d3.select(window)
+                          .on("keydown", function() { altKey = d3.event.altKey; })
+                          .on("keyup", function() { altKey = false; });
+                      var altKey;
+                      // set terms of transition that will take place
+                      // when a new economic indicator is chosen   
+                      function change() {
+                        d3.transition()
+                            .duration(altKey ? 7500 : 1500)
+                            .each(redraw);
+                      }
+
+                    
+                    function createDateLine(dateString){
+                          var d=dateString.split("/");
+                          return new Date(+d[2],d[1]-1,+d[0]);
+                      }
+                      // all the meat goes in the redraw function
+                      function redraw(data) { 
+                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
+                          //per ogni coordinata, usarla come chiave e segnare tutti i valori trovati di ogni data
+ 
+                        color.domain(Object.keys(dataPolygons[0]).filter(function(key) { return (key !=="date" && key!=="name"); }));
+                        
+                        var linedata = color.domain().map(function(name) {
+                                  return { name:name,
+                                        values: dataPolygons.filter(d=> ! isNaN(parseFloat(d[name])))
+                                          .map(function(d) {
+                                              return {name:d.name, coordinates:name, date: createDateLine(d.date),value:parseFloat(d[name])};
+                                      })
+                                  };
+                          });
+
+
+
+                        //make an empty variable to stash the last values into so i can sort the legend
+                        var lastvalues=[];
+
+                        //setup the x and y scales
+                        var x = d3.time.scale()
+                            .domain([
+                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
+                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
+                            ])
+                            .range([0, width]);
+                          
+
+                        var y = d3.scale.linear()
+                            .domain([
+                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+                            ])
+                            .range([height, 0]);
+
+                        //will draw the line		
+                        var line = d3.svg.line()
+                            .x(function(d) { return x(d.date); })
+                            .y(function(d) {return y(d.value); });
+
+                        //define the zoom
+                        var zoom = d3.behavior.zoom()
+                            .x(x)
+                            .y(y)
+                            .scaleExtent([0,8])
+                            .on("zoom", zoomed);
+
+                        //call the zoom on the SVG
+                          svg.call(zoom);
+
+                        //create and draw the x axis
+                        var xAxis = d3.svg.axis()
+                            .scale(x)
+                            .orient("bottom")
+                            .tickPadding(8)
+                            .ticks(xscaleticks);
+                          
+                          svg.append("svg:g")
+                            .attr("class", "x axis");
+
+                        //create and draw the y axis                  
+                        var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left")
+                            .tickSize(0-width)
+                            .tickPadding(8);
+                          
+                          svg.append("svg:g")
+                            .attr("class", "y axis");
+
+                        //bind the data
+                        var thegraph = svg.selectAll(".thegraph")
+                            .data(linedata)
+                      
+                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
+                        var thegraphEnter=thegraph.enter().append("g")
+                            .attr("clip-path", "url(#clip)")
+                            .attr("class", "thegraph")
+                              .attr('id',function(d){ return d.name+"-line"; })
+                            .style("stroke-width",2.5)
+                            .on("mouseover", function (d) {                                  
+                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
+                                .style("stroke-width",'4px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",0.2);
+                                
+                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
+                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
+
+                                d3.selectAll(selectlegend)    // drop opacity on other legend names
+                                  .style("opacity",.2);
+
+                                d3.select(getname)
+                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
+                            })
+                            .on("mouseout",	function(d) {        //undo everything on the mouseout
+                                d3.select(this)
+                                  .style("stroke-width",'2.5px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",1);
+                                
+                                var getname = document.getElementById(d.name);
+                                var getname2= $('.legend[fakeclass="fakelegend"]')
+                                var selectlegend = $('.legend').not(getname2).not(getname);
+
+                                d3.selectAll(selectlegend)
+                                  .style("opacity",1);
+                                
+                                d3.select(getname)
+                                  .attr("class", "legend");        	
+                            });
+
+                        //actually append the line to the graph
+                        thegraphEnter.append("path")
+                            .attr("class", "line")
+                              .style("stroke", function(d) { return color(d.name); } )
+                              .attr("d", function(d) { return line(d.values[0]); })
+                              .transition()
+                              .duration(2000)
+                              .attrTween('d',function (d){
+                            var interpolate = d3.scale.quantile()
+                              .domain([0,1])
+                              .range(d3.range(1, d.values.length+1));
+                            return function(t){
+                              return line(d.values.slice(0, interpolate(t)));
+                            };
+                          });
+                        
+                        //then append some 'nearly' invisible circles at each data point  
+                        thegraph.selectAll("circle")
+                          .data( function(d) {return(d.values);} )
+                          .enter()
+                          .append("circle")
+                            .attr("class","tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("r",12)
+                            .style('opacity', 1e-6)//1e-6
+                            .attr ("title", maketip);
+
+                        //append the legend
+                          var legend = svg.selectAll('.legend')
+                              .data(linedata);
+                          
+                          var legendEnter=legend
+                              .enter()
+                              .append('g')
+                              .attr('class', 'legend')
+                              .attr('id',function(d){ return d.name; })
+                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
+                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
+
+                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
+                                  d3.select(elemented)
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",0)
+                                    .style("display",'none');
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass', 'fakelegend')
+                                  .transition()
+                                    .duration(1000)
+                                    .style ("opacity", .2);
+                                } else {
+                                
+                                  var elemented = document.getElementById(this.id +"-line");
+                                  d3.select(elemented)
+                                    .style("display", "block")
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",1);
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass','legend')
+                                    .transition()
+                                    .duration(1000)
+                                    .style ("opacity", 1);}
+                          });
+
+                          var legendscale= d3.scale.ordinal()
+                              .domain(lastvalues)
+                              .range([0,30,60,90,120,150,180,210]);
+                             
+                         //actually add the circles to the created legend container
+                          legendEnter.append('circle')
+                              .attr('cx', width +20)
+                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .attr('r', 7)
+                              .style('fill', function(d) { 
+                                  return color(d.name);
+                              });
+                                          
+                        //add the legend text
+                          legendEnter.append('text')
+                              .attr('x', width+35)
+                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .text(function(d){ return d.name; });
+  
+
+                        // set variable for updating visualization
+                          var thegraphUpdate = d3.transition(thegraph);
+                          
+                          // change values of path and then the circles to those of the new series
+                          thegraphUpdate.select("path")
+                            .attr("d", function(d, i) {       
+                            
+                                //must be a better place to put this, but this works for now
+                                lastvalues[i]=d.values[d.values.length-1].value;         
+                                lastvalues.sort(function (a,b){return b-a});
+                                legendscale.domain(lastvalues);
+                              
+                                return line(d.values); });
+                            
+                          thegraphUpdate.selectAll("circle")
+                            .attr ("title", maketip)
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("cx", function(d,i){return x(d.date)});
+
+
+                          // and now for legend items
+                          var legendUpdate=d3.transition(legend);
+                          
+                        legendUpdate.select("circle")
+                          .attr('cy', function(d, i){  
+                            return legendscale(d.values[d.values.length-1].value);});
+
+                        legendUpdate.select("text")
+                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
+
+
+                        // update the axes,   
+                          d3.transition(svg).select(".y.axis")
+                            .call(yAxis);   
+                                
+                          d3.transition(svg).select(".x.axis")
+                            .attr("transform", "translate(0," + height + ")")
+                              .call(xAxis);
+
+                        //make my tooltips work
+                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
+
+
+                        //define the zoom function
+                        function zoomed() {
+                      
+                            svg.select(".x.axis").call(xAxis);
+                            svg.select(".y.axis").call(yAxis);
+
+                          svg.selectAll(".tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)});
+                            
+                          svg.selectAll(".line")
+                              .attr("class","line")
+                                .attr("d", function (d) { return line(d.values)});
+                        }
+
+                      //end of the redraw function
+                      } 
+                      var ns = 'http://www.w3.org/2000/svg';
+                         
+                         foreignObject = document.createElementNS( ns, 'foreignObject');
+                         foreignObject.setAttribute('height', 300);
+                         foreignObject.setAttribute('width', 300);
+
+                         var download_csv=document.createElement('a');
+                         download_csv.innerHTML = 'Download CSV File';
+                         download_csv.id="download_id";
+                         download_csv.setAttribute('style','font-size:15px');
+                         download_csv.href=href_csv;
+                         download_csv.download=csv_name_file;
+                         foreignObject.appendChild(download_csv);
+                        
+                         var select_graph=document.createElement("select");
+                         select_graph.id="select_graph";
+                         select_graph.setAttribute('style','margin-left:38px');
+                         foreignObject.appendChild(select_graph);
+                         var option_graph1=document.createElement("option");
+                         option_graph1.value="Default";
+                         option_graph1.text="Default Graph";
+                         option_graph1.selected=true;
+                         select_graph.appendChild(option_graph1);
+
+                         var option_graph2=document.createElement("option");
+                         option_graph2.value="Annual Cycle";
+                         option_graph2.text="Annual Cycle";
+                         
+                         select_graph.appendChild(option_graph2);
+                         
+ 
+
+
+                         select_graph.addEventListener("change",function(){
+                           if(select_graph.value==="Annual Cycle"){
+                             //option annual cycle chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                             annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
+                           }else{
+                             //option default graph chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
+                           }
+                         });
+                      document.getElementById("svg_id").appendChild(foreignObject); 
+                      
+                        }
+                    }
+                   
+                   });
+          }
+
+          function createModalGraphTable(latitude1,longitude1,polygonChosen){
+            if(!mouseOver && $("input:checkbox:checked").length>0 && pointerLocation){
+             
+             var lastLayer=lastLayerFind();
+             var subtitle=lastLayer.querySelector(".radio_layer").value;
+             var layerLastName=lastLayer.getAttribute("name_layer");
+             var noDataFoundH1=document.getElementById("noDataFound");
+            if(noDataFoundH1!==null){
+                  noDataFoundH1.remove();
+             }
+             //prendo le varie info relative al poligono cliccato
+             var namePolygon=polygonChosen["name"];
+             var latMinPolygon=polygonChosen["latMin"];
+             var latMaxPolygon=polygonChosen["latMax"];
+             var lngMinPolygon=polygonChosen["longMin"];
+             var lngMaxPolygon=polygonChosen["longMax"];
+
+             $("#modalLabelGraph").text(namePolygon);
+             $("#loadingGraph").show();
+             $("#loadingTable").show();
+             counter+=1;
+             if(counter>1){
+               d3.select("svg").remove();
+               $("#tableData").hide();
+               $("#loadingTable").show();
+             }
+             $("#subtitle").html(subtitle);
+             
+
+             var dataset_id_modal=lastLayer.getAttribute("dataset_id");
+             
+             var time_start=lastLayer.getAttribute("date_start");
+             var time_finish=lastLayer.getAttribute("date_end");
+             var isDay=false;
+             var isHour=false;
+             var isMonth=false;
+             var datesLayer=[];
+             
+             var date_to_start =new Date(time_start);
+               var timeFinish=new Date(time_finish);
+               while (date_to_start <= timeFinish) {
+                   datesLayer.push(formatDate(new Date (date_to_start)));
+                   date_to_start=date_to_start.addDays(30);
+               }
+             for(var key in sliderObjects){
+               delete sliderObjects[key];
+             }
+             for(var i=0;i<datesLayer.length;i++){
+               sliderObjects[i]={[i]:datesLayer[i]};
+             }
+             
+             var size=Object.keys(sliderObjects).length;
+             var startInput=document.getElementById("start");
+             startInput.value=sliderObjects[0][0];
+             var stopInput=document.getElementById("stop");
+             stopInput.value=sliderObjects[size-1][size-1];
+            
+
+             
+             $( "#slider-6" ).slider({
+               range:true,
+               min:0,
+               max: size-1,
+               values: [0,size-1],
+              change:function(event,ui){
+                
+                startInput.value=sliderObjects[ui.values[0]][ui.values[0]];
+                stopInput.value=sliderObjects[ui.values[1]][ui.values[1]];
+              },
+              slide: function(event, ui) {
+               $("#start").val(sliderObjects[ui.values[0]][ui.values[0]]);
+               $("#stop").val(sliderObjects[ui.values[1]][ui.values[1]]);
+           }
+             });
+             if(num_parameters.length>3){
+               $("#slider-Range").slider({
+                 range:true,
+                 min:parseInt(min_value),
+                 max:parseInt(max_value),
+                 values: [parseInt(min_value),parseInt(max_value)],
+                 change:function(event,ui){
+                   $("#rangeStart").val(ui.values[0]);
+                   $("#rangeStop").val(ui.values[1]);
+                 },
+                 slide: function(event, ui) {
+                  $("#rangeStart").val(ui.values[0]);
+                  $("#rangeStop").val(ui.values[1]);
+              }
+               });
+               $("#slider-Range").show();
+               $("#paragraphRange").show();
+               $(".select-icon").css("top","71%");
+               $("#submitType").on("click",function(){
+                 var selectedType=$("#selectType").val();
+                 var timeStartChosen=$("#start").val();
+                 var timeStopChosen=$("#stop").val();
+                 var extraRangeStartChosen=$("#rangeStart").val();
+                 var extraRangeStopChosen=$("#rangeStop").val();
+                 var urlCall='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                 $("#submitType").attr("href",urlCall);
+               });
+             }else{
+
+             
+             $("#submitType").on("click",function(){
+               var selectedType=$("#selectType").val();
+               var timeStartChosen=$("#start").val();
+               var timeStopChosen=$("#stop").val();
+               var urlCall='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+               $("#submitType").attr("href",urlCall);
+               });
+           }
+
+
+                       $.ajax({
+                           type:'GET',
+                           url:'getDataTable/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+num_parameters.length+"/"+range_param.value,
+                           contentType:"text/html",
+                           success:function(data){
+                             $("#loadingTable").hide();
+                             var table_data=data;
+                            $(table_data).insertAfter("#tableAdd");
+                           var allButtons=document.querySelectorAll("#scroll_full_list .form-check .btn-danger");
+                           $(allButtons).hide();
+                           }
+                     });
+
+                     defaultGraphPolygon(polygonChosen,dataset_id_modal,layerLastName,time_start,time_finish,latMinPolygon,latMaxPolygon,lngMinPolygon,lngMaxPolygon,num_parameters.length,range_param.value)
+                     
+
+
+             $("#graphModal").modal('show');
+           }
+          }
+
+          
+          
           function createPolygons(){
                 $.getJSON("{% static 'assets/geojson/GeoJSONFile.geojson' %}",function(data){
-    // L.geoJson function is used to parse geojson file and load on to map
-                geojsonLayer=L.geoJson(data).addTo(map);
+              // L.geoJson function is used to parse geojson file and load on to map 
+
+              geojsonLayer=L.geoJson(data).addTo(map).setStyle({fillOpacity:0.1,weight:3});
+
                 geojsonLayer.eachLayer(function(layer){
+
+                  
                   var popupName=layer.feature.properties.popupContent;
+                  
+                  
                   if(popupName!=""){
+                      whichPolygonsActive(layer,0);
                       layer.bindPopup(popupName);
+                  }else{
+                      map.removeLayer(layer);
                   }
-                  layer.on("click",function(){
+                  layer.on("mouseover",function(){
+                    this.setStyle({
+                      fillOpacity:0.3,
+                    });
+
+                  });
+                  layer.on("mouseout",function(){
+                        this.setStyle({
+                          fillOpacity:0.1,
+                        });
+                
+                  });
+                  layer.on("click",function(e){
                     if(isFlagIcon){
                         //apro il pannello in basso
                         $("#modalFlagLabel").html(layer.feature.properties.popupContent);
                         $("#modalFlag").modal('show');
                         $("#modalFlag").css("cursor","default");
-                        //devo mostrare nel pannello aperto tutti i layers specifici di quelle zone e quelli che non lo sono anche
-                        
+                        //devo mostrare nel pannello aperto tutti i layers specifici di quelle zone e quelli che non lo sono anche 
+                    }else if(pointerLocation){
+                       //mostrare il grafico facendo vedere l'andamento dei punti all'interno del poligono
+                       
+                       //1. prendere tra i vari poligoni presenti sulla mappa quello cliccato nell'array di oggetti
+                       var polygonClicked=findPolygon(layer);
+                       //2. creare modale grafico e table del dataset relativo al poligono cliccato
+                       
+
+                      
+                      createModalGraphTable(e.latlng.lat,e.latlng.lng,polygonClicked);
+
+                      //3. effettuare con lat min, lat max, long min e long max la chiamata ajax all'url dove si crea la bounding box
+
                     }
                   });
                 })
+                
 
                 });
+
+                
                       
           }
 
+
           createPolygons();
+
+          //geojson can be uploaded, handling the upload of the geojson
+          document.getElementById("upload_geo").onchange=function(evt){
+            try{
+              let files=evt.target.files;
+              if(!files.length){
+                alert('No file selected!');
+                return;
+              }else{
+                  let file=files[0];
+                  let reader=new FileReader();
+                  const self=this;
+                  reader.onload=(event)=>{
+                    geojsonLayer.eachLayer(function(layer){
+                      map.removeLayer(layer); //remove all the other polygons
+                    });
+                   geojson_uploaded=L.geoJson(JSON.parse(event.target.result)).addTo(map).setStyle({fillOpacity:0.1,weigth:7});
+                   isGeojsonUploaded=true;
+                   geojsonPolygons=[];
+                   geojson_uploaded.eachLayer(function(layer){
+                    var popupUploaded=layer.feature.properties.popupContent;
+                    whichPolygonsActive(layer,0);
+                    if(popupUploaded!=''){
+                      layer.bindPopup(popupUploaded);
+                    }
+
+                    layer.on("click",function(e){
+                      if(pointerLocation){
+                        var polygonAddedClicked=findPolygon(layer);
+                        createModalGraphTable(e.latlng.lat,e.latlng.lng,polygonAddedClicked);
+                      }
+                    })
+                   });
+
+                   isPilotArea=false;
+                  }
+                  reader.readAsText(file);
+              }
+            }catch(err){
+              console.log(err);
+            }
+          }
+
+          //stop propagation for dropdown content
+          $(".dropdown").mouseover(function(){
+            map.doubleClickZoom.disable();
+            mouseOver=true;
+          });
+
+          $(".dropdown").mouseout(function(){
+           map.doubleClickZoom.enable();
+            mouseOver=false;
+          });
+
+          //for now it only illuminates all the polygons execept the one of the adriatic
+        var isSelectedRegions=false;
+         function selectAllRegions(element){
+          event.stopPropagation();
+          if(!isSelectedRegions){
+              geojsonLayer.eachLayer(function(layer){
+                var popupName=layer.feature.properties.popupContent;
+                    if(popupName!=""){
+                      layer.setStyle({
+                        fillOpacity:0.3,
+                      });
+                    }
+              })
+              element.style.backgroundColor="#04AA6D";
+              $(element).attr("data-bs-original-title","Deselect all regions").tooltip('show');
+              isSelectedRegions=true;
+          }else{
+            geojsonLayer.eachLayer(function(layer){
+                var popupName=layer.feature.properties.popupContent;
+                    if(popupName!=""){
+                      layer.setStyle({
+                        fillOpacity:0.1,
+                      });
+                    }
+              })
+              element.style.backgroundColor="white";
+              $(element).attr("data-bs-original-title","Select all regions").tooltip('show');
+              isSelectedRegions=false;
+          }
+        }
+
+
+        //show adriatic view, for now it only illuminates the adriatic region
+        function removeGeojson(layer){
+          for(var j=0;j<geojsonPolygons.length;j++){
+                    if(geojsonPolygons[j]["layer"]===layer){
+                      geojsonPolygons.splice(j,1);
+                    }
+                  }
+        }
+        var isAdriaticView=false;
+        $("#adriaticView").on("click",function(){
+          if(!isAdriaticView){
+            geojsonLayer.eachLayer(function(layer){
+                  removeGeojson(layer);
+                  var popupName=layer.feature.properties.popupContent;
+                      if(popupName==""){
+                        whichPolygonsActive(layer,0);
+                        map.addLayer(layer);
+                        layer.setStyle({
+                          fillOpacity:0.3,
+                        });
+                      }else{
+                        map.removeLayer(layer);
+                      }
+                });
+                if(isGeojsonUploaded){
+                  geojson_uploaded.eachLayer(function(layer){
+                    removeGeojson(layer);
+                    map.removeLayer(layer);
+                  });
+                }
+              $("#adriaticView").attr("background-color","#ddd");
+              isAdriaticView=true;
+              isPilotArea=false;
+
+            }else{
+              if(isGeojsonUploaded){
+                geojsonLayer.eachLayer(function(layer){
+                var popupName=layer.feature.properties.popupContent;
+                      if(popupName==""){
+                        removeGeojson(layer);
+                        map.removeLayer(layer);
+                        layer.setStyle({
+                          fillOpacity:0.1,
+                        });
+                      }
+              });
+                geojson_uploaded.eachLayer(function(layer){
+                  whichPolygonsActive(layer,0);
+                  map.addLayer(layer);
+                });
+
+              }else{
+              geojsonLayer.eachLayer(function(layer){
+                  var popupName=layer.feature.properties.popupContent;
+                      if(popupName==""){
+                        removeGeojson(layer);
+                        map.removeLayer(layer);
+                        layer.setStyle({
+                          fillOpacity:0.1,
+                        });
+                      }else{
+                        whichPolygonsActive(layer,0);
+                        map.addLayer(layer);
+                      }
+                });
+                isPilotArea=true;
+
+              }
+              $("#adriaticView").attr("background-color","white");
+              isAdriaticView=false;
+            }
+        })
+
+
+
+        $("#pilotArea").on("click",function(){
+            if(!isPilotArea){
+              geojsonLayer.eachLayer(function(layer){
+                if(isGeojsonUploaded){
+                  whichPolygonsActive(layer,geojsonPolygons.length-1);
+                }else{
+                  whichPolygonsActive(layer,0);
+                }
+                var popupName=layer.feature.properties.popupContent;
+                if(isAdriaticView && popupName===""){
+                  removeGeojson(layer);
+                }
+                if(popupName!==""){
+                  map.addLayer(layer);
+                }else{
+                  removeGeojson(layer);
+                  map.removeLayer(layer);
+                }
+              });
+              isPilotArea=true;
+              isAdriaticView=false;
+            }else{
+              if(isGeojsonUploaded){
+                geojsonLayer.eachLayer(function(layer){
+                  removeGeojson(layer);
+                  map.removeLayer(layer);
+              });
+              isPilotArea=false;
+              }
+            }
+        });
 
             
             
@@ -987,6 +1960,7 @@
         
           
         $("#flagHand").on("click",function(){
+          event.stopPropagation();
           if(!isFlagIcon){
             $("#flagHand").css("background-color","#04AA6D");
             $("#locationHand").css("background-color","white");
@@ -995,6 +1969,8 @@
             $(".leaflet-interactive").addClass("flagImageOn");
             $("#cardDiv").css("cursor","default");
             isFlagIcon=true;
+            pointerLocation=false;
+            isGrabbedHand=false;
           }else{
             $("#flagHand").css("background-color","white");
             $("#map").removeClass("flagImageOn");
@@ -1017,6 +1993,8 @@
               $("#locationHand").css("background-color","white");
               $("#flagHand").css("background-color","white");
               isGrabbedHand=true;
+              isFlagIcon=false;
+              pointerLocation=false;
            }else{
               $("#map").css("cursor","grab");
               $("#grabHand").css("background-color","white");
@@ -1189,21 +2167,915 @@
           var sliderObjects={};
           var isOpenModal=false;
 
+         
+          var data=[];
+          var svg;
+          var href_csv;
+          var csv_name_file;
+          var foreignObject;
+
+          function annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+            $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicAnnual/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+
+                      $("#loadingGraph").fadeOut("slow");
+                               //set the margins
+                      var margin = {top: 50, right: 160, bottom: 80, left: 50},
+                          width = 1000 - margin.left - margin.right,
+                          height = 600 - margin.top - margin.bottom;
+
+
+                      
+
+                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
+                      var NumbType = d3.format(".6f");
+
+                      // color array
+                      var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
+
+                      //color function pulls from array of colors stored in color.js
+                      var color = d3.scale.ordinal().range(bluescale4);
+
+                      //define the approx. number of x scale ticks
+                      var xscaleticks = 5;
+
+                                  
+                      //define your year format here, first for the x scale, then if the date is displayed in tooltips
+                      var parseDate = d3.time.format("%x").parse;
+                      var formatDate = d3.time.format("%d %b");
+
+                      
+                      //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
+                      var maketip = function (d) {			               
+                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
+                                  return tip;}
+
+                      //create an SVG
+                       svg = d3.select(".chart").append("svg")
+                          .attr("id","svg_id")
+                          .attr("width", width + margin.left + margin.right)
+                          .attr("height", height + margin.top + margin.bottom)
+                          .append("g")
+                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
+                              
+                      //make a rectangle so there is something to click on
+                      svg.append("svg:rect")
+                          .attr("width", width)
+                          .attr("height", height)
+                          .attr("class", "plot");
+
+                      //make a clip path for the graph  
+                      var clip = svg.append("svg:clipPath")
+                          .attr("id", "clip")
+                          .append("svg:rect")
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .attr("width", width)
+                          .attr("height", height);   
+                          
+                          result=result["dataAnnual"];
+                          var annualData=[];
+                          var j=0;
+
+                          var jsonAnnual1=JSON.parse(result[0]);
+                          var jsonAnnual2=JSON.parse(result[1]);
+                          var jsonAnnual3=JSON.parse(result[2]);
+
+                          function convertDate(inputFormat) {
+                              function pad(s) { return (s < 10) ? '0' + s : s; }
+                              var d = new Date(inputFormat);
+                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+                            }
+
+                          function createAnnualDate(day,month){
+                            return new Date(2022,parseInt(month)-1,parseInt(day));
+                          }
+                          Object.keys(jsonAnnual1).forEach(function(key){
+                            var day=(key.split(",")[0]).split("(")[1];
+                            var month=(key.split(",")[1]).split(")")[0].split(' ').join('');
+                            annualData.insert(j,{"date":createAnnualDate(day,month),[layer_name+"1"]:jsonAnnual1[key],[layer_name+"2"]:jsonAnnual2[key],[layer_name+"3"]:jsonAnnual3[key]});
+                            j++;
+                          });
+
+                         
+                    
+                         var csv='';
+                         var header=Object.keys(annualData[0]).join(",");
+                         var values=annualData.map(o=>Object.values(o).join(",")).join("\n");
+                         csv += header + '\n' + values;
+                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                          csv_name_file=$(subtitle).text()+"_annual_cycle.csv";
+                         
+                          function sortByDateAscending(a, b) {
+                              // Dates will be cast to numbers automatically:
+                              return a.date - b.date;
+                          }
+
+                          annualData = annualData.sort(sortByDateAscending);
+           
+
+                          redraw(annualData);
+    
+
+                      d3.select(window)
+                          .on("keydown", function() { altKey = d3.event.altKey; })
+                          .on("keyup", function() { altKey = false; });
+                      var altKey;
+                      // set terms of transition that will take place
+                      // when a new economic indicator is chosen   
+                      function change() {
+                        d3.transition()
+                            .duration(altKey ? 7500 : 1500)
+                            .each(redraw);
+                      }
+
+                      function createDateLine(dateString){
+                          var d=dateString.split("/");
+                          return new Date(+d[2],d[1]-1,+d[0]);
+                      }
+
+                      // all the meat goes in the redraw function
+                      function redraw(data) { 
+                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
+                        color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date"); }));
+
+                        var linedata = color.domain().map(function(name) {
+                                  return {name: name,
+                                        values: data.map(function(d) {
+                                    return {name:name, date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
+                                        })
+                                  };
+                          });
+
+                          
+
+
+
+                        
+                        //make an empty variable to stash the last values into so i can sort the legend
+                        var lastvalues=[];
+
+                        //setup the x and y scales
+                        var x = d3.time.scale()
+                            .domain([
+                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
+                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
+                            ])
+                            .range([0, width+200]);
+                          
+
+                        var y = d3.scale.linear()
+                            .domain([
+                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+                            ])
+                            .range([height, 0]);
+
+                        //will draw the line		
+                        var line = d3.svg.line()
+                            .x(function(d) { return x(d.date); })
+                            .y(function(d) {return y(d.value); });
+
+                        //define the zoom
+                        var zoom = d3.behavior.zoom()
+                            .x(x)
+                            .y(y)
+                            .scaleExtent([0,8])
+                            .on("zoom", zoomed);
+
+                        //call the zoom on the SVG
+                          svg.call(zoom);
+
+                        //create and draw the x axis
+                        var xAxis = d3.svg.axis()
+                            .scale(x)
+                            .tickPadding(5)
+                            .tickFormat(formatDate); 
+                          
+                          svg.append("svg:g")
+                            .attr("class", "x axis");
+
+                        //create and draw the y axis                  
+                        var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left")
+                            .tickSize(0-width)
+                            .tickPadding(8);
+                          
+                          svg.append("svg:g")
+                            .attr("class", "y axis");
+
+                        //bind the data
+                        var thegraph = svg.selectAll(".thegraph")
+                            .data(linedata)
+                      
+                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
+                        var thegraphEnter=thegraph.enter().append("g")
+                            .attr("clip-path", "url(#clip)")
+                            .attr("class", "thegraph")
+                            .attr('id',function(d){ return d.name+"-line"; })
+                            .style("stroke-width",2.5)
+                            .on("mouseover", function (d) {                                  
+                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
+                                .style("stroke-width",'4px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",0.2);
+                                
+                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
+                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
+
+                                d3.selectAll(selectlegend)    // drop opacity on other legend names
+                                  .style("opacity",.2);
+
+                                d3.select(getname)
+                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
+                            })
+                            .on("mouseout",	function(d) {        //undo everything on the mouseout
+                                d3.select(this)
+                                  .style("stroke-width",'2.5px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",1);
+                                
+                                var getname = document.getElementById(d.name);
+                                var getname2= $('.legend[fakeclass="fakelegend"]')
+                                var selectlegend = $('.legend').not(getname2).not(getname);
+
+                                d3.selectAll(selectlegend)
+                                  .style("opacity",1);
+                                
+                                d3.select(getname)
+                                  .attr("class", "legend");        	
+                            });
+
+                        //actually append the line to the graph
+                        thegraphEnter.append("path")
+                            .attr("class", "line")
+                              .style("stroke", function(d) { return color(d.name); })
+                              .attr("d", function(d) { return line(d.values[0]); })
+                              .transition()
+                              .duration(2000)
+                              .attrTween('d',function (d){
+                            var interpolate = d3.scale.quantile()
+                              .domain([0,1])
+                              .range(d3.range(1, d.values.length+1));
+                            return function(t){
+                              return line(d.values.slice(0, interpolate(t)));
+                            };
+                          });
+                        
+                        //then append some 'nearly' invisible circles at each data point  
+                        thegraph.selectAll("circle")
+                          .data( function(d) {return(d.values);} )
+                          .enter()
+                          .append("circle")
+                            .attr("class","tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("r",12)
+                            .style('opacity', 1e-6)//1e-6
+                            .attr ("title", maketip);
+
+                        //append the legend
+                          var legend = svg.selectAll('.legend')
+                              .data(linedata);
+                          
+                          var legendEnter=legend
+                              .enter()
+                              .append('g')
+                              .attr('class', 'legend')
+                              .attr('id',function(d){ return d.name; })
+                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
+                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
+
+                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
+                                  d3.select(elemented)
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",0)
+                                    .style("display",'none');
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass', 'fakelegend')
+                                  .transition()
+                                    .duration(1000)
+                                    .style ("opacity", .2);
+                                } else {
+                                
+                                  var elemented = document.getElementById(this.id +"-line");
+                                  d3.select(elemented)
+                                    .style("display", "block")
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",1);
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass','legend')
+                                    .transition()
+                                    .duration(1000)
+                                    .style ("opacity", 1);}
+                          });
+
+                        //create a scale to pass the legend items through
+                        var legendscale= d3.scale.ordinal()
+                              .domain(lastvalues)
+                              .range([0,30,60,90,120,150,180,210]);
+
+                        //actually add the circles to the created legend container
+                          legendEnter.append('circle')
+                              .attr('cx', width +20)
+                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .attr('r', 7)
+                              .style('fill', function(d) { 
+                                  return color(d.name);
+                              });
+                                          
+                        //add the legend text
+                          legendEnter.append('text')
+                              .attr('x', width+35)
+                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .text(function(d){ return d.name; });
+
+                        // set variable for updating visualization
+                          var thegraphUpdate = d3.transition(thegraph);
+                          
+                          // change values of path and then the circles to those of the new series
+                          thegraphUpdate.select("path")
+                            .attr("d", function(d, i) {       
+                            
+                                //must be a better place to put this, but this works for now
+                                lastvalues[i]=d.values[d.values.length-1].value;         
+                                lastvalues.sort(function (a,b){return b-a});
+                                legendscale.domain(lastvalues);
+                              
+                                return line(d.values); });
+                            
+                          thegraphUpdate.selectAll("circle")
+                            .attr ("title", maketip)
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("cx", function(d,i){return x(d.date)});
+
+
+                          // and now for legend items
+                          var legendUpdate=d3.transition(legend);
+                          
+                        legendUpdate.select("circle")
+                          .attr('cy', function(d, i){  
+                            return legendscale(d.values[d.values.length-1].value);});
+
+                        legendUpdate.select("text")
+                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
+
+
+                        // update the axes,   
+                          d3.transition(svg).select(".y.axis")
+                            .call(yAxis);   
+                                
+                          d3.transition(svg).select(".x.axis")
+                            .attr("transform", "translate(0," + height + ")")
+                              .call(xAxis);
+
+                        //make my tooltips work
+                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
+
+
+                        //define the zoom function
+                        function zoomed() {
+                      
+                            svg.select(".x.axis").call(xAxis);
+                            svg.select(".y.axis").call(yAxis);
+
+                          svg.selectAll(".tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)});
+                            
+                          svg.selectAll(".line")
+                              .attr("class","line")
+                                .attr("d", function (d) { return line(d.values)});
+                        }
+
+                      //end of the redraw function
+                      } 
+                       var ns = 'http://www.w3.org/2000/svg';
+                         
+                         foreignObject = document.createElementNS( ns, 'foreignObject');
+                         foreignObject.setAttribute('height', 300);
+                         foreignObject.setAttribute('width', 300);
+
+                         var download_csv=document.createElement('a');
+                         download_csv.innerHTML = 'Download CSV File';
+                         download_csv.id="download_id";
+                         download_csv.setAttribute('style','font-size:15px');
+
+                         download_csv.href=href_csv;
+                         download_csv.download=csv_name_file;
+                         foreignObject.appendChild(download_csv);
+                        
+                         var select_graph=document.createElement("select");
+                         select_graph.id="select_graph";
+                         select_graph.setAttribute('style','margin-left:38px');
+                         foreignObject.appendChild(select_graph);
+                         var option_graph1=document.createElement("option");
+                         option_graph1.value="Default";
+                         option_graph1.text="Default Graph";
+                         
+                         select_graph.appendChild(option_graph1);
+
+                         var option_graph2=document.createElement("option");
+                         option_graph2.value="Annual Cycle";
+                         option_graph2.text="Annual Cycle";
+                         option_graph2.selected=true;
+                         select_graph.appendChild(option_graph2);
+                         
+ 
+
+
+                         select_graph.addEventListener("change",function(){
+                           if(select_graph.value==="Annual Cycle"){
+                             //option annual cycle chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                              annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                           }else{
+                             //option default graph chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                              defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                           }
+                         });
+                      document.getElementById("svg_id").appendChild(foreignObject); 
+                      
+
+                  }
+                   });
+          }
         
 
+          function defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+            $.ajax({
+                    type:'GET',
+                    url:'getDataGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                       $("#loadingGraph").fadeOut("slow");
+                               //set the margins
+                      var margin = {top: 50, right: 160, bottom: 80, left: 50},
+                          width = 1000 - margin.left - margin.right,
+                          height = 600 - margin.top - margin.bottom;
+
+
+                      
+
+                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
+                      var NumbType = d3.format(".6f");
+
+                      // color array
+                      var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
+
+                      //color function pulls from array of colors stored in color.js
+                      var color = d3.scale.ordinal().range(bluescale4);
+
+                      //define the approx. number of x scale ticks
+                      var xscaleticks = 5;
+
+                                  
+                      //define your year format here, first for the x scale, then if the date is displayed in tooltips
+                      var parseDate = d3.time.format("%x").parse;
+                      var formatDate = d3.time.format("%d %b, '%y");
+
+                      
+                      //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
+                      var maketip = function (d) {			               
+                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
+                                  return tip;}
+
+                      //create an SVG
+                       svg = d3.select(".chart").append("svg")
+                          .attr("id","svg_id")
+                          .attr("width", width + margin.left + margin.right)
+                          .attr("height", height + margin.top + margin.bottom)
+                          .append("g")
+                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
+                              
+                      //make a rectangle so there is something to click on
+                      svg.append("svg:rect")
+                          .attr("width", width)
+                          .attr("height", height)
+                          .attr("class", "plot");
+
+                      //make a clip path for the graph  
+                      var clip = svg.append("svg:clipPath")
+                          .attr("id", "clip")
+                          .append("svg:rect")
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .attr("width", width)
+                          .attr("height", height);   
+                          
+                        
+                          result=result["allData"];
+                          var graph1=result[0];
+                          var unitGraph=graph1[2];
+                         
+                          var graph2=result[1];
+                          var graph3=result[2];
+                          var data=[];
+                          var valueLine=[graph1[3][0]+"1",graph2[3][0]+"2",graph3[3][0]+"3"];
+
+                          function convertDate(inputFormat) {
+                              function pad(s) { return (s < 10) ? '0' + s : s; }
+                              var d = new Date(inputFormat)
+                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+                            }
+                          var j=0;
+                          for(var i=0;i<graph1[0].length;i++){
+                              data.insert(j,{"date":convertDate(graph1[1][i]),[valueLine[0]]:graph1[0][i],[valueLine[1]]:graph2[0][i],[valueLine[2]]:graph3[0][i]});
+                              j++;
+                          }
+
+                        
+
+                         var csv='';
+                         var header=Object.keys(data[0]).join(",");
+                         var values=data.map(o=>Object.values(o).join(",")).join("\n");
+                         csv += header + '\n' + values;
+                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                          csv_name_file=$(subtitle).text()+".csv";
+
+                         
+                          function sortByDateAscending(a, b) {
+                              // Dates will be cast to numbers automagically:
+                              return a.date - b.date;
+                          }
+
+                          data = data.sort(sortByDateAscending);
+                          
+
+                          redraw(data);
+    
+
+                      d3.select(window)
+                          .on("keydown", function() { altKey = d3.event.altKey; })
+                          .on("keyup", function() { altKey = false; });
+                      var altKey;
+                      // set terms of transition that will take place
+                      // when a new economic indicator is chosen   
+                      function change() {
+                        d3.transition()
+                            .duration(altKey ? 7500 : 1500)
+                            .each(redraw);
+                      }
+
+                      function createDateLine(dateString){
+                          var d=dateString.split("/");
+                          return new Date(+d[2],d[1]-1,+d[0]);
+                      }
+
+                      // all the meat goes in the redraw function
+                      function redraw(data) { 
+                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
+                         
+                          color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date"); }));
+
+                        var linedata = color.domain().map(function(name) {
+                                  return {name: name,
+                                        values: data.map(function(d) {
+                                    return {name:name, date: createDateLine(d.date), value: parseFloat(d[name])};
+                                        })
+                                  };
+                          });
+
+                         
+
+
+
+                        
+                        //make an empty variable to stash the last values into so i can sort the legend
+                        var lastvalues=[];
+
+                        //setup the x and y scales
+                        var x = d3.time.scale()
+                            .domain([
+                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
+                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
+                            ])
+                            .range([0, width]);
+                          
+
+                        var y = d3.scale.linear()
+                            .domain([
+                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+                            ])
+                            .range([height, 0]);
+
+                        //will draw the line		
+                        var line = d3.svg.line()
+                            .x(function(d) { return x(d.date); })
+                            .y(function(d) {return y(d.value); });
+
+                        //define the zoom
+                        var zoom = d3.behavior.zoom()
+                            .x(x)
+                            .y(y)
+                            .scaleExtent([0,8])
+                            .on("zoom", zoomed);
+
+                        //call the zoom on the SVG
+                          svg.call(zoom);
+
+                        //create and draw the x axis
+                        var xAxis = d3.svg.axis()
+                            .scale(x)
+                            .orient("bottom")
+                            .tickPadding(8)
+                            .ticks(xscaleticks);
+                          
+                          svg.append("svg:g")
+                            .attr("class", "x axis");
+
+                        //create and draw the y axis                  
+                        var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left")
+                            .tickSize(0-width)
+                            .tickPadding(8);
+                          
+                          svg.append("svg:g")
+                            .attr("class", "y axis");
+
+                        //bind the data
+                        var thegraph = svg.selectAll(".thegraph")
+                            .data(linedata)
+                      
+                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
+                        var thegraphEnter=thegraph.enter().append("g")
+                            .attr("clip-path", "url(#clip)")
+                            .attr("class", "thegraph")
+                              .attr('id',function(d){ return d.name+"-line"; })
+                            .style("stroke-width",2.5)
+                            .on("mouseover", function (d) {                                  
+                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
+                                .style("stroke-width",'4px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",0.2);
+                                
+                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
+                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
+
+                                d3.selectAll(selectlegend)    // drop opacity on other legend names
+                                  .style("opacity",.2);
+
+                                d3.select(getname)
+                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
+                            })
+                            .on("mouseout",	function(d) {        //undo everything on the mouseout
+                                d3.select(this)
+                                  .style("stroke-width",'2.5px');
+                                
+                                var selectthegraphs = $('.thegraph').not(this);
+                                d3.selectAll(selectthegraphs)
+                                  .style("opacity",1);
+                                
+                                var getname = document.getElementById(d.name);
+                                var getname2= $('.legend[fakeclass="fakelegend"]')
+                                var selectlegend = $('.legend').not(getname2).not(getname);
+
+                                d3.selectAll(selectlegend)
+                                  .style("opacity",1);
+                                
+                                d3.select(getname)
+                                  .attr("class", "legend");        	
+                            });
+
+                        //actually append the line to the graph
+                        thegraphEnter.append("path")
+                            .attr("class", "line")
+                              .style("stroke", function(d) { return color(d.name); })
+                              .attr("d", function(d) { return line(d.values[0]); })
+                              .transition()
+                              .duration(2000)
+                              .attrTween('d',function (d){
+                            var interpolate = d3.scale.quantile()
+                              .domain([0,1])
+                              .range(d3.range(1, d.values.length+1));
+                            return function(t){
+                              return line(d.values.slice(0, interpolate(t)));
+                            };
+                          });
+                        
+                        //then append some 'nearly' invisible circles at each data point  
+                        thegraph.selectAll("circle")
+                          .data( function(d) {return(d.values);} )
+                          .enter()
+                          .append("circle")
+                            .attr("class","tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("r",12)
+                            .style('opacity', 1e-6)//1e-6
+                            .attr ("title", maketip);
+
+                        //append the legend
+                          var legend = svg.selectAll('.legend')
+                              .data(linedata);
+                          
+                          var legendEnter=legend
+                              .enter()
+                              .append('g')
+                              .attr('class', 'legend')
+                              .attr('id',function(d){ return d.name; })
+                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
+                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
+
+                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
+                                  d3.select(elemented)
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",0)
+                                    .style("display",'none');
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass', 'fakelegend')
+                                  .transition()
+                                    .duration(1000)
+                                    .style ("opacity", .2);
+                                } else {
+                                
+                                  var elemented = document.getElementById(this.id +"-line");
+                                  d3.select(elemented)
+                                    .style("display", "block")
+                                    .transition()
+                                    .duration(1000)
+                                    .style("opacity",1);
+                                
+                                  d3.select(this)
+                                    .attr('fakeclass','legend')
+                                    .transition()
+                                    .duration(1000)
+                                    .style ("opacity", 1);}
+                          });
+
+                        //create a scale to pass the legend items through
+                        var legendscale= d3.scale.ordinal()
+                              .domain(lastvalues)
+                              .range([0,30,60,90,120,150,180,210]);
+
+                        //actually add the circles to the created legend container
+                          legendEnter.append('circle')
+                              .attr('cx', width +20)
+                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .attr('r', 7)
+                              .style('fill', function(d) { 
+                                  return color(d.name);
+                              });
+                                          
+                        //add the legend text
+                          legendEnter.append('text')
+                              .attr('x', width+35)
+                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
+                              .text(function(d){ return d.name; });
+
+                        // set variable for updating visualization
+                          var thegraphUpdate = d3.transition(thegraph);
+                          
+                          // change values of path and then the circles to those of the new series
+                          thegraphUpdate.select("path")
+                            .attr("d", function(d, i) {       
+                            
+                                //must be a better place to put this, but this works for now
+                                lastvalues[i]=d.values[d.values.length-1].value;         
+                                lastvalues.sort(function (a,b){return b-a});
+                                legendscale.domain(lastvalues);
+                              
+                                return line(d.values); });
+                            
+                          thegraphUpdate.selectAll("circle")
+                            .attr ("title", maketip)
+                            .attr("cy",function(d,i){return y(d.value)})
+                            .attr("cx", function(d,i){return x(d.date)});
+
+
+                          // and now for legend items
+                          var legendUpdate=d3.transition(legend);
+                          
+                        legendUpdate.select("circle")
+                          .attr('cy', function(d, i){  
+                            return legendscale(d.values[d.values.length-1].value);});
+
+                        legendUpdate.select("text")
+                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
+
+
+                        // update the axes,   
+                          d3.transition(svg).select(".y.axis")
+                            .call(yAxis);   
+                                
+                          d3.transition(svg).select(".x.axis")
+                            .attr("transform", "translate(0," + height + ")")
+                              .call(xAxis);
+
+                        //make my tooltips work
+                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
+
+
+                        //define the zoom function
+                        function zoomed() {
+                      
+                            svg.select(".x.axis").call(xAxis);
+                            svg.select(".y.axis").call(yAxis);
+
+                          svg.selectAll(".tipcircle")
+                            .attr("cx", function(d,i){return x(d.date)})
+                            .attr("cy",function(d,i){return y(d.value)});
+                            
+                          svg.selectAll(".line")
+                              .attr("class","line")
+                                .attr("d", function (d) { return line(d.values)});
+                        }
+
+                      //end of the redraw function
+                      } 
+                      var ns = 'http://www.w3.org/2000/svg';
+                         
+                         foreignObject = document.createElementNS( ns, 'foreignObject');
+                         foreignObject.setAttribute('height', 300);
+                         foreignObject.setAttribute('width', 300);
+
+                         var download_csv=document.createElement('a');
+                         download_csv.innerHTML = 'Download CSV File';
+                         download_csv.id="download_id";
+                         download_csv.setAttribute('style','font-size:15px');
+                         download_csv.href=href_csv;
+                         download_csv.download=csv_name_file;
+                         foreignObject.appendChild(download_csv);
+                        
+                         var select_graph=document.createElement("select");
+                         select_graph.id="select_graph";
+                         select_graph.setAttribute('style','margin-left:38px');
+                         foreignObject.appendChild(select_graph);
+                         var option_graph1=document.createElement("option");
+                         option_graph1.value="Default";
+                         option_graph1.text="Default Graph";
+                         option_graph1.selected=true;
+                         select_graph.appendChild(option_graph1);
+
+                         var option_graph2=document.createElement("option");
+                         option_graph2.value="Annual Cycle";
+                         option_graph2.text="Annual Cycle";
+                         
+                         select_graph.appendChild(option_graph2);
+                         
+ 
+
+
+                         select_graph.addEventListener("change",function(){
+                           if(select_graph.value==="Annual Cycle"){
+                             //option annual cycle chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                             annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                           }else{
+                             //option default graph chosen
+                             d3.select("#svg_id").remove();
+                             svg.selectAll("*").remove();
+                              defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                           }
+                         });
+                      document.getElementById("svg_id").appendChild(foreignObject); 
+                      
+
+                    }
+                   
+                   });
+          }
+
+          $('#graphModal').on('hidden.bs.modal', function (e) {
+            // remove graph when modal is hidden
+             d3.select("#svg_id").remove();
+          })
            map.on('click', function(ev){
             var latlng = map.mouseEventToLatLng(ev.originalEvent);
             
             if(!mouseOver && $("input:checkbox:checked").length>0 && pointerLocation){
              
               var lastLayer=lastLayerFind();
+              $("#modalLabelGraph").text("Data");
               var subtitle=lastLayer.querySelector(".radio_layer").value;
               var layerLastName=lastLayer.getAttribute("name_layer");
               $("#loadingGraph").show();
               $("#loadingTable").show();
               counter+=1;
               if(counter>1){
-                $("#myChart").hide();
+                d3.select("svg").remove();
                 $("#tableData").hide();
                 $("#loadingTable").show();
               }
@@ -1278,8 +3150,8 @@
                   var timeStopChosen=$("#stop").val();
                   var extraRangeStartChosen=$("#rangeStart").val();
                   var extraRangeStopChosen=$("#rangeStop").val();
-                  var urlCall1='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
-                  $("#submitType").attr("href",urlCall1);
+                  var urlCall='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+extraRangeStartChosen+"):1:("+extraRangeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
+                  $("#submitType").attr("href",urlCall);
                 });
               }else{
 
@@ -1290,7 +3162,7 @@
                 var timeStopChosen=$("#stop").val();
                 var urlCall='{{ERDDAP_URL}}'+"/griddap/"+dataset_id_modal+"."+selectedType+"?"+layerLastName+"%5B("+timeStartChosen+"):1:("+timeStopChosen+")%5D%5B("+latlng.lat+"):1:("+latlng.lat+")%5D%5B("+latlng.lng+"):1:("+latlng.lng+")%5D"
                 $("#submitType").attr("href",urlCall);
-              });
+                });
             }
               /*
               if(subtitle.indexOf("day")!==-1){
@@ -1313,103 +3185,39 @@
               }
               timeFinish=formatDate(timeFinish);
               */
-              var latitude=latlng.lat;
-              var longitude=latlng.lng;
+              var latitude1=latlng.lat;
+              var longitude1=latlng.lng;
+              var latitude2=latlng.lat+1.20;
+              var longitude2=latlng.lng+0.28;
+              var latitude3=latlng.lat-1.20;
+              var longitude3=latlng.lng-0.28;
                         $.ajax({
                             type:'GET',
-                            url:'getDataTable/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude+"/"+longitude+"/"+num_parameters.length+"/"+range_param.value,
+                            url:'getDataTable/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+num_parameters.length+"/"+range_param.value,
                             contentType:"text/html",
                             success:function(data){
                               $("#loadingTable").hide();
                               var table_data=data;
-                              $("#tableAdd").html(table_data);
-                                  
+                             $(table_data).insertAfter("#tableAdd");
+                            var allButtons=document.querySelectorAll("#scroll_full_list .form-check .btn-danger");
+                            $(allButtons).hide();
                             }
                       });
 
-                      $.ajax({
-                    type:'GET',
-                    url:'getDataGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude+"/"+longitude+"/"+num_parameters.length+"/"+range_param.value,
-                    contentType:'application/json',
-                    success:function(result){
-                       $("#loadingGraph").fadeOut("slow");
-                      
-                      const ctx=document.getElementById("myChart").getContext("2d");
-                      if(myChart!==undefined){
-                        myChart.destroy();
-                        $("#myChart").hide();
-                        $("#loadingGraph").show();
-                      }
-                      //Gradient fill
-                      let gradient=ctx.createLinearGradient(0,0,0,400);
-                      gradient.addColorStop(0,'rgba(58,123,213,1)');
-                      gradient.addColorStop(1,'rgba(0,210,255,0.3)');
-                      let delayed;
-                      var dates=result["allData"][1];
-                      var allData=result["allData"][0];
-                      var unit=result["allData"][2];
-                      const labels=dates  //years
-                      const data={
-                        labels,
-                        datasets:[{  
-                          data:allData, //actual points
-                          label: layer_name, // legend of the data
-                          borderColor:gradient,
-                          pointRadius: function(context) {      
-                            if (context.dataIndex == context.dataset.data.length-1) { 
-                              return 5; // the border radius you want for your lastpoint     
-                              } else {
-                                return 0;     
-                              } 
-                          },
-                          pointBackgroundColor:gradient,
-                        },
-                        ],
-                      };
+                      //vedere quale poligono è presente nella mappa, se sono presenti le pilot area per ogni poligono chiamare l'url di griddap di quel dataset di quel poligono 
 
-                      const config={
-                        type:'line',
-                        data: data,
-                        options: {
-                          radius:0,
-                          hitRadius:30,
-                          hoverRadius:0,
-                          responsive:true,
-                          /*
-                          animation:{
-                            onComplete:() =>{
-                              delayed=true;
-                            },
-                            delay:(context)=>{
-                              let delay=0;
-                              if(context.type==="data" && context.mode==="default" && !delayed){
-                                delay=context.dataIndex* 3 + context.datasetIndex*10;
-                              }
-                              return delay;
-                            },
-                          },
-                          */
-                          scales:{
-                            y:{
-                              ticks:{
-                                callback: function(value){
-                                  return toScientific(value.toString())+" "+unit; //to add the unit
-                                }
-                              }
-                            }
-                          }
-                        },
-                      };
-                      
-                      
-                      myChart=new Chart(ctx,config);
-                      $("#loadingGraph").fadeOut("slow");
-                     $("#myChart").show();
-                      }
-                   });
+                      defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                   
+
+ 
               $("#graphModal").modal('show');
             }
           });
+
+
+          
+
+
 
             function formatDate(date) {
                   var d = new Date(date),
@@ -2081,7 +3889,6 @@
 
           function changeData(allActiveLayers,lat_start,lat_end,long_start,long_end,newData){
             allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
-            console.log(allActiveLayers);
             var range_value;
             var dataset_id;
             var name_layer;
@@ -2095,6 +3902,9 @@
                 break;
               }
             }
+            if(num_param===4){
+              range_value=$("#otherParam").val();
+            }
             
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
@@ -2104,7 +3914,7 @@
 
 
           function changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,newRangeValue){
-            var date_start;
+            allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
             var dataset_id;
             var name_layer;
             var num_param;
@@ -2112,14 +3922,14 @@
               if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
                 dataset_id=allActiveLayers[i].getAttribute("dataset_id");
                 name_layer=allActiveLayers[i].getAttribute("name_layer");
-                date_start=allActiveLayers[i].getAttribute("date_start");
                 num_param=allActiveLayers[i].getAttribute("num_param");
                 break;
               }
             }
+            var inputData=$("#myDate").val();
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
-            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
+            createPointVectorial(dataset_id,name_layer,inputData,lat_start,lat_end,long_start,long_end,num_param,newRangeValue,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
           
           }
 
@@ -2274,10 +4084,15 @@
             }
         }
 
+        var layer_to_attach;
+        var layer_wms=[];
+        var timeValue;
+        var name_extra_param;
         var lat_start="47";
         var lat_end="35";
         var long_start="5";
         var long_end="35";
+        var isNegative;
           
             function handleCheck(checkbox_clicked){
               var div_checkbox=$(checkbox_clicked).closest('div');
@@ -2411,11 +4226,11 @@
                                           layer_name=metadata[4];
                                           var label_other_param=document.getElementById("label_other_param");
                                           
-                                          var layer_to_attach;
+                                          
                                           var cardParamTime=document.getElementById("paramTime");
                                           var legendLayer_src;
                                           cardParam.style.display="block";
-                                          var timeValue;
+                                          
                                          
                                           if ((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
                                           
@@ -2482,9 +4297,8 @@
                                             cardParam.style.height="11rem";
                                             cardParamTime.style.display="block";
                                             other_param.style.display="block";
-                                            var name_extra_param;
                                             var negative_value;
-                                            var isNegative=false;
+                                            isNegative=false;
                                             if(extra_param==="Depth"){
                                               name_extra_param="elevation";
                                                negative_value=-range_param.value;
@@ -2536,13 +4350,14 @@
                                       
                                          
                                           if(checkbox_clicked.checked){
-                                            
+                                                if(!isLayerVectorial){
+                                                  layer_wms.push({"dataset_id":dataset_id,"layer":layer_to_attach.layer_name});
+                                                }
                                                 checkboxes_clicked_values.push(checkbox_clicked.value);
                                                 dates_checkbox.push(formatDate(date_start)+","+formatDate(date_end));
                                                 datasets_id_checkbox.push(dataset_id);
                                                 legendCheckbox.push(legendLayer_src);
                                                 vectorialCheckbox.push(isLayerVectorial);
-                                                
                                                 div_checkbox.prependTo("#layers_active");
                                                 allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
                                                 var lastLayer=allActiveLayers[0];
@@ -2666,6 +4481,11 @@
                                                           $(button_remove).hide();
                                                           
                                                         }
+                                                        if(($(item).attr("wms")=="")){
+                                                          isLayerVectorial=true;
+                                                        }else{
+                                                          isLayerVectorial=false;
+                                                        }
                                                        
                                                         $("#scroll_full_list").append(item);
                                                        orderAlphabetically();
@@ -2769,7 +4589,13 @@
                                                         }
                                                        
                                                         if($(item[0]).attr("wms")!=""){
-                                                            map.removeLayer(layer_to_attach.layer_name);
+                                                            for(var j=0;j<layer_wms.length;j++){  
+                                                              if(layer_wms[j].dataset_id===$(item[0]).attr("dataset_id")){
+                                                                map.removeLayer(layer_wms[j].layer);
+                                                                layer_wms.splice(j,1);
+                                                                break;
+                                                              }
+                                                            }
                                                             allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
                                                             if(allActiveLayers.length>0 && allActiveLayers[0].getAttribute("wms")===""){
                                                               createPointVectorial(allActiveLayers[0].getAttribute("dataset_id"),allActiveLayers[0].getAttribute("name_layer"),allActiveLayers[0].getAttribute("date_start"),lat_start,lat_end,long_start,long_end,allActiveLayers[0].getAttribute("num_param"),allActiveLayers[0].getAttribute("range_value"),"","","","","",false,false);
@@ -2912,17 +4738,12 @@
                                               //cambio wms al cambio dello slider 
                                               document.getElementById("otherParam").addEventListener('change',function(){
                                                 allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
-                                                //Rimuovo la vecchia legenda
-                                                var images=document.getElementsByClassName("legends");
-                                                        for(var i=0;i<images.length;i++){
-                                                          if(images[i].getAttribute("dataset_id")===allActiveLayers[0].getAttribute("dataset_id")){
-                                                            images[i].parentNode.removeChild(images[i]);
-                                                          }
-                                                }
+                                              
                                                 if(isLayerVectorial){
                                                   if(isNegative){
                                                     changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,-(this.value));
                                                   }else{
+                                                    
                                                     changeParam(allActiveLayers,lat_start,lat_end,long_start,long_end,(this.value));
                                                   }
                                                 }else{
@@ -2933,6 +4754,13 @@
                                                           layer_to_attach[key].setParams({[name_extra_param]:this.value});
                                                         }
                                                   }
+                                                   //Rimuovo la vecchia legenda
+                                                var images=document.getElementsByClassName("legends");
+                                                        for(var i=0;i<images.length;i++){
+                                                          if(images[i].getAttribute("dataset_id")===allActiveLayers[0].getAttribute("dataset_id")){
+                                                            images[i].parentNode.removeChild(images[i]);
+                                                          }
+                                                }
                                                   //Aggiungo nuova legenda
                                                   
                                                     legendLayer_src='{{ERDDAP_URL}}'+"/griddap/"+dataset_id+".png?"+layer_name+"%5B("+timeValue+")%5D%5B("+Math.ceil(this.value)+")%5D%5B%5D%5B%5D&.legend=Only";
@@ -3492,6 +5320,9 @@ L$1.polylineDecorator = function (paths, options) {
 };
 
 })));
+
+
+
          
           
         </script>

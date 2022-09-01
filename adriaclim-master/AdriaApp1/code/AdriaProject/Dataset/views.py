@@ -125,9 +125,21 @@ def getDataTable(request,dataset_id,layer_name,time_start,time_finish,latitude,l
     out=[[row[h] for h in headers] for row in data]
     return render(request,"getData.html",{"data":out,"headers":headers})
 
-def getDataGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
-    allData=allFunctions.getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
+def getDataGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
     return JsonResponse({'allData':allData})
+
+def getDataGraphicPolygon(request,dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value):
+    allData=allFunctions.getDataGraphicPolygon(dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
+def getDataAnnualPolygon(request,dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value):
+    dataAnnual=allFunctions.getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value)
+    return JsonResponse({'dataAnnual':dataAnnual})
+
+def getDataGraphicAnnual(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    dataAnnual=allFunctions.getDataGraphicAnnualMean(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'dataAnnual':dataAnnual})
 
 def getDataVectorial(request,dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value)
@@ -148,3 +160,5 @@ def getDataExport(request,dataset_id,selectedType,layer_name,time_start,time_fin
             response['Content-Disposition'] = 'inline; filename=' + nameOfTheFile
             return response
     raise Http404
+
+

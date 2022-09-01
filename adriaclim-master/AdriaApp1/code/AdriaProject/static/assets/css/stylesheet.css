@@ -1,0 +1,629 @@
+
+          .chart{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+          }
+
+          .form-check{
+            display:flex;
+            padding-left:0px;
+          }
+          .form-check button{
+            min-height:24px;
+            min-width:24px;
+            max-width:24px;
+            max-height:24px;
+            padding:0px;
+            margin:2px;
+            
+            float:right;
+          }
+           #admin_div{
+               flex:1;
+               text-align:right;
+           }
+
+            #divButton{
+              pointer-events: auto;
+              display: flex;
+              flex-direction: column-reverse;
+            }
+           
+           #graphModal{
+             position: absolute;
+            float: left;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+           }
+
+           .modal-lg{
+             max-width:75% !important;
+           }
+
+           #pills-table{
+             overflow-y:scroll;
+             max-height:350px;
+           }
+               
+              #cardDiv{
+                pointer-events:auto;
+                background-color:white;
+               height: 120px;
+              }
+            
+                rop.show {
+                    z-index: 1;
+                  }
+              
+              label{
+                font-size:15px;
+              }
+
+              #scroll_full_list{
+                overflow-y: scroll;
+                 max-height: 120px;
+              }
+
+              .scrollable{
+                overflow-y: scroll;
+                 max-height: 120px;
+              }
+             
+              .panel scrollable{
+                overflow-y:scroll;
+                max-height:120px;
+              }
+              .accordion {
+                  background-color: white;
+                  color: #444;
+                  cursor: pointer;
+                  padding: 0px;
+                  width: 100%;
+                  border: none;
+                  text-align: left;
+                  font-weight:bold;
+                  outline: none;
+                  font-size: 15px;
+                  transition: 0.4s;
+                }
+
+                 .accordion:hover {
+                  background-color: #ccc;
+                }
+
+                .accordion:after {
+                  content: '\002B';
+                  color: #777;
+                  font-weight: bold;
+                  float: right;
+                  margin-left: 0px;
+                }
+
+                .active:after {
+                  content: "\2212";
+                }
+
+                .panel{
+                  padding: 0 0px;
+                  background-color: white;
+                  max-height: 0px;
+                  overflow: hidden;
+                  transition: max-height 0.2s ease-out;
+                }
+                #paramTime{
+                  display:none;
+                }
+
+                #parameters{
+                  font-size:15px;
+                  font-weight:bold;
+                  padding:5px;
+                  display:none;
+                }
+                #layer_opacity{
+                  display:none;
+                }
+                
+                .scrollable_modal{
+                overflow-y: scroll;
+                 max-height: 300px;
+              }
+
+              #param_unknown{
+                display:none;
+              }
+
+              img{
+                width:300px;
+              }
+              #filterLayers {
+                    background-image: url('https://www.w3schools.com/css/searchicon.png');
+                    background-size:15px;
+                    background-position: 10px 10px;
+                    background-repeat: no-repeat;
+                    width: 100%;
+                    font-size: 12px;
+                    padding: 7px 10px 5px 30px;
+                    border: 1px solid #ddd;
+                    margin-bottom: 12px;
+                  }
+
+                [button_remove="removeLayer"]{
+                  display:none;
+                }
+
+                [buttonindex="changeIndex"]{
+                  display:none;
+                }
+
+                #createImage{
+                  display:flex;
+                  flex-direction:column;
+                }
+                
+
+              .nav-link{
+                font-family:'Roboto', sans-serif;
+                font-weight:bold;
+                font-size:15px;
+                
+              }
+              
+              .nav-link:after{
+                content:none;
+              }
+              .tab-pane:after{
+                content:none;
+              }
+
+            #grabHand{
+              display: flex;
+              position: absolute;
+              top: 90px;
+              left:10px;
+              padding: 10px;
+              z-index: 500;
+              background-color:white;
+              border-color:white;
+            }
+            #globeButton{
+              display: flex;
+            position:absolute;
+            top: 260px;
+            left:130px;
+            padding: 10px;
+            z-index: 500;
+            background-color: white;
+              border-color: white;
+            }
+
+            #globeButton:hover{
+              background-color: #04AA6D;
+              cursor:pointer;
+            }
+
+            #flagHand{
+              display: flex;
+              position: absolute;
+              top:170px;
+              left:10px;
+              padding: 10px;
+              z-index:500;
+              background-color: white;
+              border-color:white;
+            }
+
+            #flagHand:hover{
+              background-color: #04AA6D;
+              cursor:pointer;
+
+            }
+
+            .flagImageOn{
+              cursor: url("https://icons.getbootstrap.com/assets/icons/flag-fill.svg") 16 16, pointer;
+            }
+            
+
+          #grabHand:hover{
+              background-color:#04AA6D;
+              cursor: pointer;
+          }
+
+          #selectRange{
+            display: flex;
+            position:absolute;
+            top: 230px;
+            padding: 10px;
+            z-index: 500;
+
+          }
+          
+
+          #locationHand{
+             display: flex;
+              position: absolute;
+              top: 130px;
+              left:10px;
+              padding: 10px;
+              z-index: 500;
+              background-color:white;
+              border-color:white;
+          }
+           #locationHand:hover{
+              background-color:#04AA6D;
+              cursor: pointer;
+          }
+
+          .loaderText{
+            font-family:'Roboto',sans-serif;
+
+          }
+          #loadingTable{
+            display:flex;
+            justify-content:center;
+          }
+          #loadingGraph{
+            display:flex;
+            justify-content:center;
+          }
+          .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 60px;
+            height: 60px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+          }
+          
+          /* Safari */
+          @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          #labelType{
+            font-weight: bold;
+            font-family:'Roboto',sans-serif;
+          }
+          #extraRangeStart{
+            font-weight: bold;
+            font-family:'Roboto',sans-serif;
+          }
+          #extraRangeStop{
+            font-weight: bold;
+            font-family:'Roboto',sans-serif;
+          }
+
+          
+
+    
+      
+          #selectType {
+            width: 100%;
+            height: 50px;
+            font-size: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 0;
+            background-color: #007bff;
+            border: none;
+            border-bottom: 2px solid #007bff;
+            color: white;
+            appearance: none;
+            padding: 10px;
+            padding-right: 38px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: color 0.3s ease, background-color 0.3s ease, border-bottom-color 0.3s ease;
+          }
+          #selectType option{
+            font-family:'Roboto',sans-serif;
+            font-weight:bold;
+          }
+      
+          /* For IE <= 11 */
+          #selectType::-ms-expand {
+            display: none; 
+          }
+      
+          .select-icon {
+            position: absolute;
+            top:62%;
+            right:30px;
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+            border: 2px solid white;
+            padding-left: 5px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+          }
+          .select-icon svg.icon {
+            transition: fill 0.3s ease;
+            fill: white;
+          }
+
+          #selectContainer:hover 
+          svg.icon{
+              fill: #007bff;        
+             }
+
+            #selectContainer:focus svg.icon{
+              fill:#007bff;
+            }
+
+            #selectContainer:hover .select-icon{
+              border-color:#007bff;
+            }
+            #selectContainer:focus .select-icon{
+              border-color:#007bff;
+            }
+         
+
+      
+          #selectType:hover,
+          #selectType:focus {
+            color: #007bff;
+            background-color: white;
+            border-bottom-color: #DCDCDC;
+          }
+
+          #submitType:hover{
+            background-color:white;
+            color:#007bff;
+          }
+
+          #submitType{
+            color:white;
+          }
+
+          #paragraphRange{
+             display:none;
+          }
+
+          #slider-Range{
+            display:none;
+          }
+
+          #buttonsDate{
+            margin-left:36px;
+          }
+
+          #scroll_full_list .open-modal{
+            margin-left:auto;
+          }
+
+          #cardParameters{
+            display:none;
+          }
+          #admin_butt{
+            display:none;
+          }
+          #layers_active .open-modal{
+            margin-left:auto;
+          }
+          .modal-backdrop{
+            z-index:998;
+          }
+          
+          .myLegendDiv{
+          
+            background-color:	rgb(255,255,230);
+            border: 1px solid black;
+            width:420px;
+            height:90px;
+            font-family:'Roboto',sans-serif;
+            font-weight:bold;
+          }
+          .myLegendDiv p{
+            margin-left: 80px;
+            margin-top: 11px;
+          }
+
+          .colorValue{
+            display:inline-block;
+          }
+
+          .minColorSpan{
+            margin-right:50px;
+          }
+
+          .midColorSpan{
+            margin-right:58px;
+          }
+
+          .maxColorSpan{
+            margin-right:50px;
+          }
+          
+          /* Dropdown Button */
+          .dropbtn {
+            color: black;
+            padding: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            background-color: white;
+            border-color:white;
+          }
+
+          /* The container <div> - needed to position the dropdown content */
+          .dropdown {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+          }
+
+          /* Dropdown Content (Hidden by Default) */
+          .dropdown-content {
+            display: none;
+            position: relative;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+          }
+
+          /* Links inside the dropdown */
+          .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+          }
+
+
+          /* Change color of dropdown links on hover */
+          .dropdown-content a:hover {background-color: #ddd;}
+
+          /* Show the dropdown menu on hover */
+          .dropdown:hover .dropdown-content {display: block;}
+
+          /* Change the background color of the dropdown button when the dropdown content is shown */
+          .dropdown:hover .dropbtn {background-color: #04AA6D;}
+ 
+
+
+.plot{
+    fill: #fff;
+    }
+    .axis path,
+    .axis line {
+      fill: none;
+        stroke: #AFBABF;
+        shape-rendering: crispEdges;
+        }
+    .axis text {
+        font-family:  SourceSansPro-Bold;
+        font-size: 14px;
+        fill: #AFBABF;
+        }
+    
+    .x.axis path {
+      display: none;
+    }
+    .y.axis path{
+      display: none;
+      }
+    
+    .line {
+      fill: none;
+      stroke: steelblue;
+      stroke-linejoin: round;
+      stroke-linecap:round;
+    }
+        
+    .hed {
+        font-family: SourceSansPro-Bold;
+        font-size: 24pt;
+        margin-bottom:5px; 
+        margin-top:0px;
+        }
+        
+    .dek {
+        font-family: SourceSansPro-Light;
+        font-size: 12pt;
+        margin-bottom:0px; 
+        margin-top:0px;
+        }	
+    .menuchoice {
+        font-family: SourceSansPro-Light;
+        font-size: 10pt;
+        margin-bottom:0px;
+        fill: #231F20; 
+        }
+    .legend {
+        font-family: SourceSansPro-Light;
+        font-size: 10pt;
+        margin-bottom:0px;
+        fill: #231F20; 
+        }	
+    .legend-off {
+        font-family: SourceSansPro-Light;
+        font-size: 10pt;
+        margin-bottom:0px;
+        fill: #231F20; 
+        }
+    .legend-select {
+        font-family: SourceSansPro-Bold;
+        font-size: 10pt;
+        margin-bottom:0px;
+        fill: #231F20; 
+        }
+    .tip1 {
+        font-family: SourceSansPro-Bold;
+        font-size: 14pt;
+        text-align: center; 
+        margin-bottom:-12px; 
+        margin-top:0px;
+        }
+        
+    .tip2 {
+        font-family: SourceSansPro-ExtraLight;
+        font-size: 10pt;
+        text-align: center; 
+        margin-bottom:-12px; 
+        }	
+    .tip3 {
+        font-family: SourceSansPro-ExtraLight;
+        font-size: 10pt;
+        text-align: center; 
+        margin-bottom:0px; 
+        }		
+    
+    @font-face {
+      font-family: 'SourceSansPro-ExtraLight';
+      font-style: normal;
+      font-weight: 200;
+      src: local('Source Sans Pro ExtraLight'), local('SourceSansPro-ExtraLight'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v5/toadOcfmlt9b38dHJxOBGC-IiwWNzQT_LXAtr-Ee9Pw.woff) format('woff');
+    }
+    @font-face {
+      font-family: 'SourceSansPro-Light';
+      font-style: normal;
+      font-weight: 300;
+      src: local('Source Sans Pro Light'), local('SourceSansPro-Light'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v5/toadOcfmlt9b38dHJxOBGMVNtom4QlEDNJaqqqzqdSs.woff) format('woff');
+    }
+    @font-face {
+      font-family: 'SourceSansPro-Bold';
+      font-style: normal;
+      font-weight: 700;
+      src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v5/toadOcfmlt9b38dHJxOBGIqjGYJUyOXcBwUQbRaNH6c.woff) format('woff');
+    }
+    
+    .tipsy { font-family:"Source Sans Pro"; font-size: 10px; position: absolute; padding: 5px; z-index: 100000; }
+      .tipsy-inner { background-color: #000; color: #FFF; max-width: 200px; padding: 0; text-align: left; padding:10px;}
+      /* Rounded corners */
+      .tipsy-inner { border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+      
+      /* Uncomment for shadow */
+      /*.tipsy-inner { box-shadow: 0 0 5px #000000; -webkit-box-shadow: 0 0 5px #000000; -moz-box-shadow: 0 0 5px #000000; }*/
+      
+      .tipsy-arrow { position: absolute; width: 0; height: 0; line-height: 0; border: 5px dashed #000; }
+      
+      /* Rules to colour arrows */
+      .tipsy-arrow-n { border-bottom-color: #000; }
+      .tipsy-arrow-s { border-top-color: #000; }
+      .tipsy-arrow-e { border-left-color: #FFF; }
+      .tipsy-arrow-w { border-right-color: #000; }
+      
+        .tipsy-n .tipsy-arrow { top: 0px; left: 50%; margin-left: -5px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent; }
+        .tipsy-nw .tipsy-arrow { top: 0; left: 10px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent;}
+        .tipsy-ne .tipsy-arrow { top: 0; right: 10px; border-bottom-style: solid; border-top: none;  border-left-color: transparent; border-right-color: transparent;}
+      .tipsy-s .tipsy-arrow { bottom: 0; left: 50%; margin-left: -5px; border-top-style: solid; border-bottom: none;  border-left-color: transparent; border-right-color: transparent; }
+        .tipsy-sw .tipsy-arrow { bottom: 0; left: 10px; border-top-style: solid; border-bottom: none;  border-left-color: transparent; border-right-color: transparent; }
+        .tipsy-se .tipsy-arrow { bottom: 0; right: 10px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
+      .tipsy-e .tipsy-arrow { right: 0; top: 50%; margin-top: -5px; border-left-style: solid; border-right: none; border-top-color: transparent; border-bottom-color: transparent; }
+      .tipsy-w .tipsy-arrow { left: 0; top: 50%; margin-top: -5px; border-right-style: solid; border-left: none; border-top-color: transparent; border-bottom-color: transparent; }
+    
+    
+    .gravity { width: 100%; margin: 5px 0; border-spacing: 5px; }
+      .gravity td { text-align: center; vertical-align: middle; padding: 5px 0; background-color: #d0d0d0; width: 33%; }
+      .gravity a { }
+        .gravity a:hover { color: #505050; background: none; }

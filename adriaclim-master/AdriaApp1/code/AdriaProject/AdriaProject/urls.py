@@ -35,14 +35,20 @@ urlpatterns = [
     path('getWindArrows/<str:datasetId1>/<str:datasetId2>/<str:layer_name1>/<str:date_start1>/<int:num_param1>/<int:range_value1>/<str:layer_name2>/<str:date_start2>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param2>/<int:range_value2>',data_views.getWindArrows),
     path('allDatasets',data_views.allDatasets),
     path('getMetadata/<str:dataset_id>',metadata_views.getMetadataUrl),
-    path('getDataTable/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
-    '<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataTable),
-    path('getDataGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
-    '<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataGraphic),
+    path('getDataTable/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataTable),
+    path('getDataGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
+    '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getDataGraphic),
+    path('getDataGraphicPolygon/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latMin>/'+
+    '<str:longMin>/<str:latMax>/<str:longMax>/<int:num_parameters>/<int:range_value>',data_views.getDataGraphicPolygon),
+    path('getDataAnnualPolygon/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latMin>/'+
+    '<str:longMin>/<str:latMax>/<str:longMax>/<int:num_parameters>/<int:range_value>',data_views.getDataAnnualPolygon),
+    path('getDataGraphicAnnual/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
+    '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getDataGraphicAnnual),
     path('myFunctions/getMetadata/<str:title>',data_views.getMetadata),
     path("myFunctions/getWMS",data_views.getWMS),
     path("myFunctions/getTitle",data_views.getTitle),
     path("<str:dataset_id>",metadata_views.getMetadataForm),
+ 
   
 ]
 
