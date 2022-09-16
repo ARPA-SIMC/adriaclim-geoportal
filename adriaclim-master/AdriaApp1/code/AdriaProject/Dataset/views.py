@@ -141,6 +141,18 @@ def getDataGraphicAnnual(request,dataset_id,layer_name,time_start,time_finish,la
     dataAnnual=allFunctions.getDataGraphicAnnualMean(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
     return JsonResponse({'dataAnnual':dataAnnual})
 
+def getMaxMomentGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.getMaxMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
+def getMinMomentGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.getMinMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
+def getMeanMomentGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.getMeanMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
 def getDataVectorial(request,dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value)
     return JsonResponse({'dataVect':dataVect})

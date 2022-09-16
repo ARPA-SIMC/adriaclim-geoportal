@@ -533,976 +533,8 @@
             }
           }
 
-          function annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
-            $.ajax({
-                type:'GET',
-                url:'getDataAnnualPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
-                contentType:'application/json',
-                success:function(result){
-                    //prendere i punti e vedere se stanno o meno nel poligono
-                    result=result["dataAnnual"];
-                    var annualDataPolygon=JSON.parse(result);
-                    var data=[];
-                    var layerPolygon=polygonClicked["layer"];
-                    var j=0;
 
-                Object.keys(annualDataPolygon).forEach(function(key){
-                      var day=(key.split(",")[0]).split("(")[1];
-                      var month=(key.split(",")[1]).split(' ').join('');
-                      var latitude=(key.split(",")[2]).split(' ').join('');
-                      var longitude=(key.split(",")[3]).split(')')[0].split(' ').join('');
-                      var coordinates=[parseFloat(latitude.replace("'","")),parseFloat(longitude.replace("'",""))];
-                      if(layerPolygon.contains(L.latLng(coordinates[0],coordinates[1]))){
-                          data.insert(j,{"date":day+"/"+month,"coordinates":coordinates,"value":annualDataPolygon[key]});
-                          j++;
-                      }
-                    });
-
-                    $("#loadingGraph").fadeOut("slow");
-                               //set the margins
-                      if(data.length==0){
-                        $(".chart").append('<h1 id="noDataFound">No data have been found in the polygon. Please choose another dataset or upload a bigger polygon.</h1>');
-                      }else{
-                    
-
-                        function sortByDateAscending(a, b) {
-                              // Dates will be cast to numbers automatically:
-                              return a.date - b.date;
-                          }
-                          
-                    
-
-                    var csv='';
-                    var header=Object.keys(data[0]).join(",");
-                    var values=data.map(o=>Object.values(o).join(",")).join("\n");
-                    csv += header + '\n' + values;
-                    href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
-                    csv_name_file=$(subtitle).text()+"_annual_polygon_cycle.csv";
-
-                    var valuesCoordinates=[];
-                        for(var i=0;i<data.length;i++){
-                          for(key in data[i]){
-                            if(key=="coordinates"){
-                              valuesCoordinates.push(data[i][key]);
-                            }
-                          }
-                        }
-                    
-                    
-
-                    var dataPolygons=[];
-
-                    function stringToDate(dateString){
-                      var day=dateString.split("/")[0];
-                      var month=dateString.split("/")[1];
-                      return new Date(2022,month-1,day);
-                    }
         
-                    for(var i=0;i<data.length;i++){
-                      dataPolygons.push({"date":stringToDate(data[i]["date"]),[data[i]["coordinates"]]:data[i]["value"]});
-                      for(var j=i+1;j<data.length;j++){
-                          if(data[j]["coordinates"][0]!==data[i]["coordinates"][0] || data[j]["coordinates"][1]!==data[i]["coordinates"][1]){
-                            if((data[j]["coordinates"] in dataPolygons)===false){
-                              dataPolygons[i][[data[j]["coordinates"]]]="";
-                            }
-                          }
-                    }
-                    }
-                    var diffCoordinates=0;
-                    Object.keys(dataPolygons[0]).filter(function(key){ 
-                      if(key!=="date"){
-                          diffCoordinates++;
-                      }
-                    });
-
-
-                    var margin = {top: 50, right: 160, bottom: 80, left: 50},
-                          width = 1000 - margin.left - margin.right,
-                          height = 600 - margin.top - margin.bottom;
-
-                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
-                    var NumbType = d3.format(".6f");
-                    
-                    var bluescale4=[];
-
-                    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-
-                    for (var i=0;i<diffCoordinates;i++){
-                      bluescale4.insert(i,"#"+genRanHex(6));
-                    }
-
-                    //color function pulls from array of colors stored in color.js
-                    var color = d3.scale.ordinal().range(bluescale4);
-                      
-
-                    //define the approx. number of x scale ticks
-                    var xscaleticks = 5;
-                  
-
-                    //define your year format here, first for the x scale, then if the date is displayed in tooltips
-                    var parseDate = d3.time.format("%x").parse;
-                    var formatDate = d3.time.format("%d %b");
-
-                      
-                     //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
-                    var maketip = function (d) {			               
-                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
-                                  return tip;}
-                    
-                         //create an SVG
-                         svg = d3.select(".chart").append("svg")
-                          .attr("id","svg_id")
-                          .attr("width", width + margin.left + margin.right)
-                          .attr("height", height + margin.top + margin.bottom)
-                          .append("g")
-                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
-                              
-                      //make a rectangle so there is something to click on
-                      svg.append("svg:rect")
-                          .attr("width", width)
-                          .attr("height", height)
-                          .attr("class", "plot");
-
-                      //make a clip path for the graph  
-                      var clip = svg.append("svg:clipPath")
-                          .attr("id", "clip")
-                          .append("svg:rect")
-                          .attr("x", 0)
-                          .attr("y", 0)
-                          .attr("width", width)
-                          .attr("height", height);   
-                  
-
-                          dataPolygons = dataPolygons.sort(sortByDateAscending);
-           
-                          function convertDate(inputFormat) {
-                              function pad(s) { return (s < 10) ? '0' + s : s; }
-                              var d = new Date(inputFormat);
-                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
-                            }
-
-                          redraw(dataPolygons);
-
-
-                          d3.select(window)
-                          .on("keydown", function() { altKey = d3.event.altKey; })
-                          .on("keyup", function() { altKey = false; });
-                      var altKey;
-                      // set terms of transition that will take place
-                      // when a new economic indicator is chosen   
-                      function change() {
-                        d3.transition()
-                            .duration(altKey ? 7500 : 1500)
-                            .each(redraw);
-                      }
-
-                      function createDateLine(dateString){
-                          var d=dateString.split("/");
-                          return new Date(+d[2],d[1]-1,+d[0]);
-                      }
-
-                      // all the meat goes in the redraw function
-                      function redraw(data) { 
-                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
-                        color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date"); }));
-
-                        var linedata = color.domain().map(function(name) {
-                                  return {name: name,
-                                        values: data.filter(d=> ! isNaN(parseFloat(d[name])))
-                                        .map(function(d) {
-                                    return {name:name,  date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
-                                        })
-                                  };
-                          });
-                        //make an empty variable to stash the last values into so i can sort the legend
-                        var lastvalues=[];
-
-                        //setup the x and y scales
-                        var x = d3.time.scale()
-                            .domain([
-                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
-                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
-                            ])
-                            .range([0, width+200]);
-                          
-
-                        var y = d3.scale.linear()
-                            .domain([
-                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-                            ])
-                            .range([height, 0]);
-
-                        //will draw the line		
-                        var line = d3.svg.line()
-                            .x(function(d) { return x(d.date); })
-                            .y(function(d) {return y(d.value); });
-
-                        //define the zoom
-                        var zoom = d3.behavior.zoom()
-                            .x(x)
-                            .y(y)
-                            .scaleExtent([0,8])
-                            .on("zoom", zoomed);
-
-                        //call the zoom on the SVG
-                          svg.call(zoom);
-
-                        //create and draw the x axis
-                        var xAxis = d3.svg.axis()
-                            .scale(x)
-                            .tickPadding(5)
-                            .tickFormat(formatDate); 
-                          
-                          svg.append("svg:g")
-                            .attr("class", "x axis");
-
-                        //create and draw the y axis                  
-                        var yAxis = d3.svg.axis()
-                            .scale(y)
-                            .orient("left")
-                            .tickSize(0-width)
-                            .tickPadding(8);
-                          
-                          svg.append("svg:g")
-                            .attr("class", "y axis");
-
-                        //bind the data
-                        var thegraph = svg.selectAll(".thegraph")
-                            .data(linedata)
-                      
-                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
-                        var thegraphEnter=thegraph.enter().append("g")
-                            .attr("clip-path", "url(#clip)")
-                            .attr("class", "thegraph")
-                            .attr('id',function(d){ return d.name+"-line"; })
-                            .style("stroke-width",2.5)
-                            .on("mouseover", function (d) {                                  
-                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
-                                .style("stroke-width",'4px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",0.2);
-                                
-                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
-                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
-
-                                d3.selectAll(selectlegend)    // drop opacity on other legend names
-                                  .style("opacity",.2);
-
-                                d3.select(getname)
-                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
-                            })
-                            .on("mouseout",	function(d) {        //undo everything on the mouseout
-                                d3.select(this)
-                                  .style("stroke-width",'2.5px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",1);
-                                
-                                var getname = document.getElementById(d.name);
-                                var getname2= $('.legend[fakeclass="fakelegend"]')
-                                var selectlegend = $('.legend').not(getname2).not(getname);
-
-                                d3.selectAll(selectlegend)
-                                  .style("opacity",1);
-                                
-                                d3.select(getname)
-                                  .attr("class", "legend");        	
-                            });
-
-                        //actually append the line to the graph
-                        thegraphEnter.append("path")
-                            .attr("class", "line")
-                              .style("stroke", function(d) { return color(d.name); })
-                              .attr("d", function(d) { return line(d.values[0]); })
-                              .transition()
-                              .duration(2000)
-                              .attrTween('d',function (d){
-                            var interpolate = d3.scale.quantile()
-                              .domain([0,1])
-                              .range(d3.range(1, d.values.length+1));
-                            return function(t){
-                              return line(d.values.slice(0, interpolate(t)));
-                            };
-                          });
-                        
-                        //then append some 'nearly' invisible circles at each data point  
-                        thegraph.selectAll("circle")
-                          .data( function(d) {return(d.values);} )
-                          .enter()
-                          .append("circle")
-                            .attr("class","tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("r",12)
-                            .style('opacity', 1e-6)//1e-6
-                            .attr ("title", maketip);
-
-                        //append the legend
-                          var legend = svg.selectAll('.legend')
-                              .data(linedata);
-                          
-                          var legendEnter=legend
-                              .enter()
-                              .append('g')
-                              .attr('class', 'legend')
-                              .attr('id',function(d){ return d.name; })
-                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
-                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
-
-                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
-                                  d3.select(elemented)
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",0)
-                                    .style("display",'none');
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass', 'fakelegend')
-                                  .transition()
-                                    .duration(1000)
-                                    .style ("opacity", .2);
-                                } else {
-                                
-                                  var elemented = document.getElementById(this.id +"-line");
-                                  d3.select(elemented)
-                                    .style("display", "block")
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",1);
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass','legend')
-                                    .transition()
-                                    .duration(1000)
-                                    .style ("opacity", 1);}
-                          });
-
-                        //create a scale to pass the legend items through
-                        var legendscale= d3.scale.ordinal()
-                              .domain(lastvalues)
-                              .range([0,30,60,90,120,150,180,210]);
-
-                        //actually add the circles to the created legend container
-                          legendEnter.append('circle')
-                              .attr('cx', width +20)
-                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .attr('r', 7)
-                              .style('fill', function(d) { 
-                                  return color(d.name);
-                              });
-                                          
-                        //add the legend text
-                          legendEnter.append('text')
-                              .attr('x', width+35)
-                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .text(function(d){ return d.name; });
-
-                        // set variable for updating visualization
-                          var thegraphUpdate = d3.transition(thegraph);
-                          
-                          // change values of path and then the circles to those of the new series
-                          thegraphUpdate.select("path")
-                            .attr("d", function(d, i) {       
-                            
-                                //must be a better place to put this, but this works for now
-                                lastvalues[i]=d.values[d.values.length-1].value;         
-                                lastvalues.sort(function (a,b){return b-a});
-                                legendscale.domain(lastvalues);
-                              
-                                return line(d.values); });
-                            
-                          thegraphUpdate.selectAll("circle")
-                            .attr ("title", maketip)
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("cx", function(d,i){return x(d.date)});
-
-
-                          // and now for legend items
-                          var legendUpdate=d3.transition(legend);
-                          
-                        legendUpdate.select("circle")
-                          .attr('cy', function(d, i){  
-                            return legendscale(d.values[d.values.length-1].value);});
-
-                        legendUpdate.select("text")
-                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
-
-
-                        // update the axes,   
-                          d3.transition(svg).select(".y.axis")
-                            .call(yAxis);   
-                                
-                          d3.transition(svg).select(".x.axis")
-                            .attr("transform", "translate(0," + height + ")")
-                              .call(xAxis);
-
-                        //make my tooltips work
-                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
-
-
-                        //define the zoom function
-                        function zoomed() {
-                      
-                            svg.select(".x.axis").call(xAxis);
-                            svg.select(".y.axis").call(yAxis);
-
-                          svg.selectAll(".tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)});
-                            
-                          svg.selectAll(".line")
-                              .attr("class","line")
-                                .attr("d", function (d) { return line(d.values)});
-                        }
-                        }//end redraw
-
-                        var ns = 'http://www.w3.org/2000/svg';
-                         
-                         foreignObject = document.createElementNS( ns, 'foreignObject');
-                         foreignObject.setAttribute('height', 300);
-                         foreignObject.setAttribute('width', 300);
-
-                         var download_csv=document.createElement('a');
-                         download_csv.innerHTML = 'Download CSV File';
-                         download_csv.id="download_id";
-                         download_csv.setAttribute('style','font-size:15px');
-
-                         download_csv.href=href_csv;
-                         download_csv.download=csv_name_file;
-                         foreignObject.appendChild(download_csv);
-                        
-                         var select_graph=document.createElement("select");
-                         select_graph.id="select_graph";
-                         select_graph.setAttribute('style','margin-left:38px');
-                         foreignObject.appendChild(select_graph);
-                         var option_graph1=document.createElement("option");
-                         option_graph1.value="Default";
-                         option_graph1.text="Default Graph";
-                         
-                         select_graph.appendChild(option_graph1);
-
-                         var option_graph2=document.createElement("option");
-                         option_graph2.value="Annual Cycle";
-                         option_graph2.text="Annual Cycle";
-                         option_graph2.selected=true;
-                         select_graph.appendChild(option_graph2);
-                         
- 
-
-
-                         select_graph.addEventListener("change",function(){
-                           if(select_graph.value==="Annual Cycle"){
-                             //option annual cycle chosen
-                             d3.select("#svg_id").remove();
-                             svg.selectAll("*").remove();
-                              annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
-                           }else{
-                             //option default graph chosen
-                             d3.select("#svg_id").remove();
-                             svg.selectAll("*").remove();
-                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
-                           }
-                         });
-                      document.getElementById("svg_id").appendChild(foreignObject); 
-  
-                  } // else data.length!==0
-                    
-                    
-                } //end success
-              }); //end ajax call
-          }
-
-          function defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
-            $.ajax({
-                    type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
-                    contentType:'application/json',
-                    success:function(result){
-                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
-                      result=result["allData"];
-                      var coordinatePoints=result[1];
-                      var dates=result[2];
-                      var valuesPolygon=result[0];
-                      var unit=result[3][0];
-                      var data=[];
-                      var j=0;
-                      var layerPolygon=polygonClicked["layer"];
-  
-                      
-                      function convertDate(inputFormat) {
-                              function pad(s) { return (s < 10) ? '0' + s : s; }
-                              var d = new Date(inputFormat)
-                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
-                            }
-                      
-
-                      for(var i=0;i<coordinatePoints.length;i++){
-                          //check if point is in polygon
-                          
-                          if(layerPolygon.contains(L.latLng(coordinatePoints[i][0],coordinatePoints[i][1]))){
-                            
-                            data.insert(j,{"date":convertDate(dates[i]),"value":valuesPolygon[i],"name":layerLastName,"coordinates":[coordinatePoints[i][0],coordinatePoints[i][1]]});
-                            j++;
-                          }
-                      }
-                      
-                       $("#loadingGraph").fadeOut("slow");
-                               //set the margins
-                      if(data.length==0){
-                        $(".chart").append('<h1 id="noDataFound">No data have been found in the polygon. Please choose another dataset or upload a bigger polygon.</h1>');
-                      }else{
- 
-                      var margin = {top: 50, right: 160, bottom: 80, left: 50},
-                          width = 1000 - margin.left - margin.right,
-                          height = 600 - margin.top - margin.bottom;
-                        
-                        var valuesCoordinates=[];
-                        for(var i=0;i<data.length;i++){
-                          for(key in data[i]){
-                            if(key=="coordinates"){
-                              valuesCoordinates.push(data[i][key]);
-                            }
-                          }
-                        }
-                                                    
-                       
-                       var dataPolygons=[];
-
-                       for(var i=0;i<data.length;i++){
-                          dataPolygons.push({"date":data[i]["date"],"name":data[i]["name"],[data[i]["coordinates"]]:data[i]["value"]});
-                          for(var j=i+1;j<data.length;j++){
-                              if(data[j]["coordinates"][0]!==data[i]["coordinates"][0] || data[j]["coordinates"][1]!==data[i]["coordinates"][1]){
-                                if((data[j]["coordinates"] in dataPolygons)===false){
-                                  dataPolygons[i][[data[j]["coordinates"]]]="";
-                                }
-                              }
-                        }
-                       }
-
-                       var diffCoordinates=0;
-                      Object.keys(dataPolygons[0]).filter(function(key){ 
-                        if(key!=="date" && key!=="name"){
-                            diffCoordinates++;
-                        }
-                      });
-
-
-                      
-
-                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
-                      var NumbType = d3.format(".6f");
-                      var bluescale4=[];
-
-                      const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-
-                    for (var i=0;i<diffCoordinates;i++){
-                      bluescale4.insert(i,"#"+genRanHex(6));
-                    }
-
-
-                    
-                    //color function pulls from array of colors stored in color.js
-                    var color = d3.scale.ordinal().range(bluescale4);
-                      
-
-                      //define the approx. number of x scale ticks
-                      var xscaleticks = 5;
-
-                                  
-                      //define your year format here, first for the x scale, then if the date is displayed in tooltips
-                      var parseDate = d3.time.format("%x").parse;
-                      var formatDate = d3.time.format("%d %b, '%y");
-
-                      
-                      //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
-                      var maketip = function (d) {			               
-                              var tip = '<p class="tip3">' + d.name + '<p class="tip3">' + d.coordinates +'<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
-                                  return tip;}
-
-                      //create an SVG
-                       svg = d3.select(".chart").append("svg")
-                          .attr("id","svg_id")
-                          .attr("width", width + margin.left + margin.right)
-                          .attr("height", height + margin.top + margin.bottom)
-                          .append("g")
-                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
-                              
-                      //make a rectangle so there is something to click on
-                      svg.append("svg:rect")
-                          .attr("width", width)
-                          .attr("height", height)
-                          .attr("class", "plot");
-
-                      //make a clip path for the graph  
-                      var clip = svg.append("svg:clipPath")
-                          .attr("id", "clip")
-                          .append("svg:rect")
-                          .attr("x", 0)
-                          .attr("y", 0)
-                          .attr("width", width)
-                          .attr("height", height);   
-                          
-                        
-
-                         var csv='';
-                         var header=Object.keys(data[0]).join(",");
-                         var values=data.map(o=>Object.values(o).join(",")).join("\n");
-                         csv += header + '\n' + values;
-                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
-                          csv_name_file=$(subtitle).text()+".csv";
-
-                         
-                          function sortByDateAscending(a, b) {
-                              // Dates will be cast to numbers automagically:
-                              return a.date - b.date;
-                          }
-
-                          dataPolygons = dataPolygons.sort(sortByDateAscending);
-                          
-
-                          redraw(dataPolygons);
-    
-
-                      d3.select(window)
-                          .on("keydown", function() { altKey = d3.event.altKey; })
-                          .on("keyup", function() { altKey = false; });
-                      var altKey;
-                      // set terms of transition that will take place
-                      // when a new economic indicator is chosen   
-                      function change() {
-                        d3.transition()
-                            .duration(altKey ? 7500 : 1500)
-                            .each(redraw);
-                      }
-
-                    
-                    function createDateLine(dateString){
-                          var d=dateString.split("/");
-                          return new Date(+d[2],d[1]-1,+d[0]);
-                      }
-                      // all the meat goes in the redraw function
-                      function redraw(data) { 
-                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
-                          //per ogni coordinata, usarla come chiave e segnare tutti i valori trovati di ogni data
- 
-                        color.domain(Object.keys(dataPolygons[0]).filter(function(key) { return (key !=="date" && key!=="name"); }));
-                        
-                        var linedata = color.domain().map(function(name) {
-                                  return { name:name,
-                                        values: dataPolygons.filter(d=> ! isNaN(parseFloat(d[name])))
-                                          .map(function(d) {
-                                              return {name:d.name, coordinates:name, date: createDateLine(d.date),value:parseFloat(d[name])};
-                                      })
-                                  };
-                          });
-
-
-
-                        //make an empty variable to stash the last values into so i can sort the legend
-                        var lastvalues=[];
-
-                        //setup the x and y scales
-                        var x = d3.time.scale()
-                            .domain([
-                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
-                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
-                            ])
-                            .range([0, width]);
-                          
-
-                        var y = d3.scale.linear()
-                            .domain([
-                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-                            ])
-                            .range([height, 0]);
-
-                        //will draw the line		
-                        var line = d3.svg.line()
-                            .x(function(d) { return x(d.date); })
-                            .y(function(d) {return y(d.value); });
-
-                        //define the zoom
-                        var zoom = d3.behavior.zoom()
-                            .x(x)
-                            .y(y)
-                            .scaleExtent([0,8])
-                            .on("zoom", zoomed);
-
-                        //call the zoom on the SVG
-                          svg.call(zoom);
-
-                        //create and draw the x axis
-                        var xAxis = d3.svg.axis()
-                            .scale(x)
-                            .orient("bottom")
-                            .tickPadding(8)
-                            .ticks(xscaleticks);
-                          
-                          svg.append("svg:g")
-                            .attr("class", "x axis");
-
-                        //create and draw the y axis                  
-                        var yAxis = d3.svg.axis()
-                            .scale(y)
-                            .orient("left")
-                            .tickSize(0-width)
-                            .tickPadding(8);
-                          
-                          svg.append("svg:g")
-                            .attr("class", "y axis");
-
-                        //bind the data
-                        var thegraph = svg.selectAll(".thegraph")
-                            .data(linedata)
-                      
-                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
-                        var thegraphEnter=thegraph.enter().append("g")
-                            .attr("clip-path", "url(#clip)")
-                            .attr("class", "thegraph")
-                              .attr('id',function(d){ return d.name+"-line"; })
-                            .style("stroke-width",2.5)
-                            .on("mouseover", function (d) {                                  
-                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
-                                .style("stroke-width",'4px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",0.2);
-                                
-                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
-                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
-
-                                d3.selectAll(selectlegend)    // drop opacity on other legend names
-                                  .style("opacity",.2);
-
-                                d3.select(getname)
-                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
-                            })
-                            .on("mouseout",	function(d) {        //undo everything on the mouseout
-                                d3.select(this)
-                                  .style("stroke-width",'2.5px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",1);
-                                
-                                var getname = document.getElementById(d.name);
-                                var getname2= $('.legend[fakeclass="fakelegend"]')
-                                var selectlegend = $('.legend').not(getname2).not(getname);
-
-                                d3.selectAll(selectlegend)
-                                  .style("opacity",1);
-                                
-                                d3.select(getname)
-                                  .attr("class", "legend");        	
-                            });
-
-                        //actually append the line to the graph
-                        thegraphEnter.append("path")
-                            .attr("class", "line")
-                              .style("stroke", function(d) { return color(d.name); } )
-                              .attr("d", function(d) { return line(d.values[0]); })
-                              .transition()
-                              .duration(2000)
-                              .attrTween('d',function (d){
-                            var interpolate = d3.scale.quantile()
-                              .domain([0,1])
-                              .range(d3.range(1, d.values.length+1));
-                            return function(t){
-                              return line(d.values.slice(0, interpolate(t)));
-                            };
-                          });
-                        
-                        //then append some 'nearly' invisible circles at each data point  
-                        thegraph.selectAll("circle")
-                          .data( function(d) {return(d.values);} )
-                          .enter()
-                          .append("circle")
-                            .attr("class","tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("r",12)
-                            .style('opacity', 1e-6)//1e-6
-                            .attr ("title", maketip);
-
-                        //append the legend
-                          var legend = svg.selectAll('.legend')
-                              .data(linedata);
-                          
-                          var legendEnter=legend
-                              .enter()
-                              .append('g')
-                              .attr('class', 'legend')
-                              .attr('id',function(d){ return d.name; })
-                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
-                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
-
-                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
-                                  d3.select(elemented)
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",0)
-                                    .style("display",'none');
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass', 'fakelegend')
-                                  .transition()
-                                    .duration(1000)
-                                    .style ("opacity", .2);
-                                } else {
-                                
-                                  var elemented = document.getElementById(this.id +"-line");
-                                  d3.select(elemented)
-                                    .style("display", "block")
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",1);
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass','legend')
-                                    .transition()
-                                    .duration(1000)
-                                    .style ("opacity", 1);}
-                          });
-
-                          var legendscale= d3.scale.ordinal()
-                              .domain(lastvalues)
-                              .range([0,30,60,90,120,150,180,210]);
-                             
-                         //actually add the circles to the created legend container
-                          legendEnter.append('circle')
-                              .attr('cx', width +20)
-                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .attr('r', 7)
-                              .style('fill', function(d) { 
-                                  return color(d.name);
-                              });
-                                          
-                        //add the legend text
-                          legendEnter.append('text')
-                              .attr('x', width+35)
-                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .text(function(d){ return d.name; });
-  
-
-                        // set variable for updating visualization
-                          var thegraphUpdate = d3.transition(thegraph);
-                          
-                          // change values of path and then the circles to those of the new series
-                          thegraphUpdate.select("path")
-                            .attr("d", function(d, i) {       
-                            
-                                //must be a better place to put this, but this works for now
-                                lastvalues[i]=d.values[d.values.length-1].value;         
-                                lastvalues.sort(function (a,b){return b-a});
-                                legendscale.domain(lastvalues);
-                              
-                                return line(d.values); });
-                            
-                          thegraphUpdate.selectAll("circle")
-                            .attr ("title", maketip)
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("cx", function(d,i){return x(d.date)});
-
-
-                          // and now for legend items
-                          var legendUpdate=d3.transition(legend);
-                          
-                        legendUpdate.select("circle")
-                          .attr('cy', function(d, i){  
-                            return legendscale(d.values[d.values.length-1].value);});
-
-                        legendUpdate.select("text")
-                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
-
-
-                        // update the axes,   
-                          d3.transition(svg).select(".y.axis")
-                            .call(yAxis);   
-                                
-                          d3.transition(svg).select(".x.axis")
-                            .attr("transform", "translate(0," + height + ")")
-                              .call(xAxis);
-
-                        //make my tooltips work
-                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
-
-
-                        //define the zoom function
-                        function zoomed() {
-                      
-                            svg.select(".x.axis").call(xAxis);
-                            svg.select(".y.axis").call(yAxis);
-
-                          svg.selectAll(".tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)});
-                            
-                          svg.selectAll(".line")
-                              .attr("class","line")
-                                .attr("d", function (d) { return line(d.values)});
-                        }
-
-                      //end of the redraw function
-                      } 
-                      var ns = 'http://www.w3.org/2000/svg';
-                         
-                         foreignObject = document.createElementNS( ns, 'foreignObject');
-                         foreignObject.setAttribute('height', 300);
-                         foreignObject.setAttribute('width', 300);
-
-                         var download_csv=document.createElement('a');
-                         download_csv.innerHTML = 'Download CSV File';
-                         download_csv.id="download_id";
-                         download_csv.setAttribute('style','font-size:15px');
-                         download_csv.href=href_csv;
-                         download_csv.download=csv_name_file;
-                         foreignObject.appendChild(download_csv);
-                        
-                         var select_graph=document.createElement("select");
-                         select_graph.id="select_graph";
-                         select_graph.setAttribute('style','margin-left:38px');
-                         foreignObject.appendChild(select_graph);
-                         var option_graph1=document.createElement("option");
-                         option_graph1.value="Default";
-                         option_graph1.text="Default Graph";
-                         option_graph1.selected=true;
-                         select_graph.appendChild(option_graph1);
-
-                         var option_graph2=document.createElement("option");
-                         option_graph2.value="Annual Cycle";
-                         option_graph2.text="Annual Cycle";
-                         
-                         select_graph.appendChild(option_graph2);
-                         
- 
-
-
-                         select_graph.addEventListener("change",function(){
-                           if(select_graph.value==="Annual Cycle"){
-                             //option annual cycle chosen
-                             d3.select("#svg_id").remove();
-                             svg.selectAll("*").remove();
-                             annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
-                           }else{
-                             //option default graph chosen
-                             d3.select("#svg_id").remove();
-                             svg.selectAll("*").remove();
-                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters.length,range_param.value);
-                           }
-                         });
-                      document.getElementById("svg_id").appendChild(foreignObject); 
-                      
-                        }
-                    }
-                   
-                   });
-          }
 
           function createModalGraphTable(latitude1,longitude1,polygonChosen){
             if(!mouseOver && $("input:checkbox:checked").length>0 && pointerLocation){
@@ -2174,47 +1206,139 @@
           var csv_name_file;
           var foreignObject;
 
-          function annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
-            $.ajax({
-                    type:'GET',
-                    url:'getDataGraphicAnnual/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
-                    contentType:'application/json',
-                    success:function(result){
-
-                      $("#loadingGraph").fadeOut("slow");
+          function creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,isAnnual,isPolygon,isMaximum,isMinimum,isMean,result,subtitle,dataPolygon,polygonClicked){
+            
+            $("#loadingGraph").fadeOut("slow");
                                //set the margins
+                      
+                      if(isPolygon && dataPolygon.length===0){
+                        $(".chart").append('<h1 id="noDataFound">No data have been found in the polygon. Please choose another dataset or upload a bigger polygon.</h1>');
+                      }else{
+
                       var margin = {top: 50, right: 160, bottom: 80, left: 50},
                           width = 1000 - margin.left - margin.right,
-                          height = 600 - margin.top - margin.bottom;
-
-
-                      
+                          height = 600 - margin.top - margin.bottom;                      
 
                       // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
                       var NumbType = d3.format(".6f");
 
                       // color array
-                      var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
+                      if(isMaximum || isMinimum || isMean){
+                        var bluescale4=["#6A90C1"];
+                      }
+                      else if(!isPolygon){
+                          var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
+                      }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                        var valuesCoordinates=[];
+                              for(var i=0;i<dataPolygon.length;i++){
+                                for(key in dataPolygon[i]){
+                                  if(key=="coordinates"){
+                                    valuesCoordinates.push(dataPolygon[i][key]);
+                                  }
+                                }
+                              }
+                                                          
+                            
+                            var dataPolygons=[];
 
+                            for(var i=0;i<dataPolygon.length;i++){
+                                dataPolygons.push({"unit":dataPolygon[i]["unit"],"date":dataPolygon[i]["date"],"name":dataPolygon[i]["name"],[dataPolygon[i]["coordinates"]]:dataPolygon[i]["value"]});
+                                for(var j=i+1;j<dataPolygon.length;j++){
+                                    if(dataPolygon[j]["coordinates"][0]!==dataPolygon[i]["coordinates"][0] || dataPolygon[j]["coordinates"][1]!==dataPolygon[i]["coordinates"][1]){
+                                      if((dataPolygon[j]["coordinates"] in dataPolygons)===false){
+                                        dataPolygons[i][[dataPolygon[j]["coordinates"]]]="";
+                                      }
+                                    }
+                              }
+                            }
+
+                            var diffCoordinates=0;
+                            Object.keys(dataPolygons[0]).filter(function(key){ 
+                              if(key!=="date" && key!=="name"){
+                                  diffCoordinates++;
+                              }
+                            });
+                        var bluescale4=[];
+                        const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+                        for (var i=0;i<diffCoordinates;i++){
+                          bluescale4.insert(i,"#"+genRanHex(6));
+                        }
+                      }else if(isPolygon && isAnnual){
+                        var valuesCoordinates=[];
+                        for(var i=0;i<dataPolygon.length;i++){
+                          for(key in dataPolygon[i]){
+                            if(key=="coordinates"){
+                              valuesCoordinates.push(dataPolygon[i][key]);
+                            }
+                          }
+                        }
+                    
+                    
+
+                    var dataPolygons=[];
+
+                    function stringToDate(dateString){
+                      var day=dateString.split("/")[0];
+                      var month=dateString.split("/")[1];
+                      return new Date(2022,month-1,day);
+                    }
+        
+                    for(var i=0;i<dataPolygon.length;i++){
+                      dataPolygons.push({"date":stringToDate(dataPolygon[i]["date"]),"unit":dataPolygon[i]["unit"],[dataPolygon[i]["coordinates"]]:dataPolygon[i]["value"]});
+                      for(var j=i+1;j<dataPolygon.length;j++){
+                          if(dataPolygon[j]["coordinates"][0]!==dataPolygon[i]["coordinates"][0] || dataPolygon[j]["coordinates"][1]!==dataPolygon[i]["coordinates"][1]){
+                            if((dataPolygon[j]["coordinates"] in dataPolygons)===false){
+                              dataPolygons[i][[dataPolygon[j]["coordinates"]]]="";
+                            }
+                          }
+                    }
+                    }
+                    var diffCoordinates=0;
+                    Object.keys(dataPolygons[0]).filter(function(key){ 
+                      if(key!=="date"){
+                          diffCoordinates++;
+                      }
+                    });
+                    var bluescale4=[];
+
+                      const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+                      for (var i=0;i<diffCoordinates;i++){
+                        bluescale4.insert(i,"#"+genRanHex(6));
+                      }
+
+
+                      }
                       //color function pulls from array of colors stored in color.js
                       var color = d3.scale.ordinal().range(bluescale4);
 
                       //define the approx. number of x scale ticks
                       var xscaleticks = 5;
-
-                                  
+                      
                       //define your year format here, first for the x scale, then if the date is displayed in tooltips
                       var parseDate = d3.time.format("%x").parse;
-                      var formatDate = d3.time.format("%d %b");
+                      if(isAnnual){
+                          var formatDate = d3.time.format("%d %b");
+                      }else{
+                        var formatDate = d3.time.format("%d %b, '%y");
+                      }
 
-                      
-                      //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
-                      var maketip = function (d) {			               
-                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
-                                  return tip;}
+                       //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
+                          
+                        if(isPolygon && !isAnnual && !isMean){
+                             //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
+                              var maketip = function (d) {			               
+                                  var tip = '<p class="tip3">' + d.name + '<p class="tip3">' + d.coordinates +'<p class="tip1">' + NumbType(d.value)+ " "+ d.unit + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
+                                      return tip;}
+                        }else{
+                          var maketip = function (d) {			               
+                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + " " +d.unit+'</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
+                                  return tip;
+                              }  
+                        }
 
                       //create an SVG
-                       svg = d3.select(".chart").append("svg")
+                      svg = d3.select(".chart").append("svg")
                           .attr("id","svg_id")
                           .attr("width", width + margin.left + margin.right)
                           .attr("height", height + margin.top + margin.bottom)
@@ -2234,15 +1358,8 @@
                           .attr("x", 0)
                           .attr("y", 0)
                           .attr("width", width)
-                          .attr("height", height);   
-                          
-                          result=result["dataAnnual"];
-                          var annualData=[];
-                          var j=0;
+                          .attr("height", height); 
 
-                          var jsonAnnual1=JSON.parse(result[0]);
-                          var jsonAnnual2=JSON.parse(result[1]);
-                          var jsonAnnual3=JSON.parse(result[2]);
 
                           function convertDate(inputFormat) {
                               function pad(s) { return (s < 10) ? '0' + s : s; }
@@ -2253,365 +1370,838 @@
                           function createAnnualDate(day,month){
                             return new Date(2022,parseInt(month)-1,parseInt(day));
                           }
-                          Object.keys(jsonAnnual1).forEach(function(key){
-                            var day=(key.split(",")[0]).split("(")[1];
-                            var month=(key.split(",")[1]).split(")")[0].split(' ').join('');
-                            annualData.insert(j,{"date":createAnnualDate(day,month),[layer_name+"1"]:jsonAnnual1[key],[layer_name+"2"]:jsonAnnual2[key],[layer_name+"3"]:jsonAnnual3[key]});
-                            j++;
-                          });
 
-                         
-                    
-                         var csv='';
-                         var header=Object.keys(annualData[0]).join(",");
-                         var values=annualData.map(o=>Object.values(o).join(",")).join("\n");
-                         csv += header + '\n' + values;
-                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
-                          csv_name_file=$(subtitle).text()+"_annual_cycle.csv";
-                         
-                          function sortByDateAscending(a, b) {
-                              // Dates will be cast to numbers automatically:
-                              return a.date - b.date;
-                          }
-
-                          annualData = annualData.sort(sortByDateAscending);
-           
-
-                          redraw(annualData);
-    
-
-                      d3.select(window)
-                          .on("keydown", function() { altKey = d3.event.altKey; })
-                          .on("keyup", function() { altKey = false; });
-                      var altKey;
-                      // set terms of transition that will take place
-                      // when a new economic indicator is chosen   
-                      function change() {
-                        d3.transition()
-                            .duration(altKey ? 7500 : 1500)
-                            .each(redraw);
-                      }
-
+                          
                       function createDateLine(dateString){
                           var d=dateString.split("/");
                           return new Date(+d[2],d[1]-1,+d[0]);
                       }
 
-                      // all the meat goes in the redraw function
-                      function redraw(data) { 
-                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
-                        color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date"); }));
-
-                        var linedata = color.domain().map(function(name) {
+                          function redraw(data){
+                                                      // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
+                          if(isMaximum || isMinimum || isMean){
+                            color.domain(Object.keys(data[0]).filter(function(key){ return (key==="name")}));
+                          }
+                          else if(!isPolygon || (isPolygon && isAnnual)){
+                              color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date" && key!=="unit"); }));
+                          }else{
+                            color.domain(Object.keys(dataPolygons[0]).filter(function(key) { return (key !=="date" && key!=="name" && key!=="unit"); }));
+                          }
+                          if(!isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                              var linedata = color.domain().map(function(name) {
+                                        return {name: name,
+                                              values: data.map(function(d) {
+                                          return {name:name,unit:d.unit, date: createDateLine(d.date), value: parseFloat(d[name])};
+                                              })
+                                        };
+                                });
+                          }else if(!isPolygon && isAnnual){
+                            var linedata = color.domain().map(function(name) {
                                   return {name: name,
                                         values: data.map(function(d) {
-                                    return {name:name, date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
+                                    return {name:name, unit:d.unit,date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
                                         })
                                   };
                           });
+                          } else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                            var linedata = color.domain().map(function(name) {
+                                  return { name:name,
+                                        values: dataPolygons.filter(d=> ! isNaN(parseFloat(d[name])))
+                                          .map(function(d) {
+                                              return {name:d.name, coordinates:name, unit:d.unit,date: createDateLine(d.date),value:parseFloat(d[name])};
+                                      })
+                                  };
+                          });
+                          } else if(isPolygon && isAnnual){
+                            var linedata = color.domain().map(function(name) {
+                                  return {name: name,
+                                        values: data.filter(d=> ! isNaN(parseFloat(d[name])))
+                                        .map(function(d) {
+                                    return {name:name, unit:d.unit, date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
+                                        })
+                                  };
+                            });
+                          }else if((isMaximum || isMinimum || isMean) && !isPolygon){
+                            var linedata = color.domain().map(function(name) {
+                                        return {name: data[0]["name"],
+                                              values: data.map(function(d) {
+                                          return {name:d.name, date: createDateLine(d.date), value: parseFloat(d.value),unit:d.unit};
+                                              })
+                                        };
+                                });
+                          }else if((isMaximum || isMinimum || isMean) && isPolygon){
+                            var linedata = color.domain().map(function(name) {
+                                        return {name: data[0]["name"],
+                                              values: data.map(function(d) {
+                                          return {name:d.name, date: createDateLine(d.date),coordinates:d.coordinates,value: parseFloat(d.value),unit:d.unit};
+                                              })
+                                        };
+                                });
+                          }
 
                           
 
 
 
-                        
-                        //make an empty variable to stash the last values into so i can sort the legend
-                        var lastvalues=[];
 
-                        //setup the x and y scales
-                        var x = d3.time.scale()
-                            .domain([
-                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
-                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
-                            ])
-                            .range([0, width+200]);
-                          
+                          //make an empty variable to stash the last values into so i can sort the legend
+                          var lastvalues=[];
 
-                        var y = d3.scale.linear()
-                            .domain([
-                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-                            ])
-                            .range([height, 0]);
+                          //setup the x and y scales
+                          var x = d3.time.scale()
+                              .domain([
+                                d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
+                                d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
+                              ])
+                              .range([0, width]);
+                            
 
-                        //will draw the line		
-                        var line = d3.svg.line()
-                            .x(function(d) { return x(d.date); })
-                            .y(function(d) {return y(d.value); });
+                          var y = d3.scale.linear()
+                              .domain([
+                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+                              ])
+                              .range([height, 0]);
 
-                        //define the zoom
-                        var zoom = d3.behavior.zoom()
-                            .x(x)
-                            .y(y)
-                            .scaleExtent([0,8])
-                            .on("zoom", zoomed);
+                          //will draw the line		
+                          var line = d3.svg.line()
+                              .x(function(d) { return x(d.date); })
+                              .y(function(d) {return y(d.value); });
 
-                        //call the zoom on the SVG
-                          svg.call(zoom);
+                          //define the zoom
+                          var zoom = d3.behavior.zoom()
+                              .x(x)
+                              .y(y)
+                              .scaleExtent([0,8])
+                              .on("zoom", zoomed);
 
-                        //create and draw the x axis
-                        var xAxis = d3.svg.axis()
-                            .scale(x)
-                            .tickPadding(5)
-                            .tickFormat(formatDate); 
-                          
-                          svg.append("svg:g")
-                            .attr("class", "x axis");
+                          //call the zoom on the SVG
+                            svg.call(zoom);
 
-                        //create and draw the y axis                  
-                        var yAxis = d3.svg.axis()
-                            .scale(y)
-                            .orient("left")
-                            .tickSize(0-width)
-                            .tickPadding(8);
-                          
-                          svg.append("svg:g")
-                            .attr("class", "y axis");
+                          //create and draw the x axis
+                          var xAxis = d3.svg.axis()
+                              .scale(x)
+                              .orient("bottom")
+                              .tickPadding(8)
+                              .ticks(xscaleticks);
+                            
+                            svg.append("svg:g")
+                              .attr("class", "x axis");
 
-                        //bind the data
-                        var thegraph = svg.selectAll(".thegraph")
-                            .data(linedata)
-                      
-                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
-                        var thegraphEnter=thegraph.enter().append("g")
-                            .attr("clip-path", "url(#clip)")
-                            .attr("class", "thegraph")
-                            .attr('id',function(d){ return d.name+"-line"; })
-                            .style("stroke-width",2.5)
-                            .on("mouseover", function (d) {                                  
-                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
-                                .style("stroke-width",'4px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",0.2);
-                                
-                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
-                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
+                          //create and draw the y axis                  
+                          var yAxis = d3.svg.axis()
+                              .scale(y)
+                              .orient("left")
+                              .tickSize(0-width)
+                              .tickPadding(8);
+                            
+                            svg.append("svg:g")
+                              .attr("class", "y axis");
 
-                                d3.selectAll(selectlegend)    // drop opacity on other legend names
-                                  .style("opacity",.2);
+                          //bind the data
+                          var thegraph = svg.selectAll(".thegraph")
+                              .data(linedata)
 
-                                d3.select(getname)
-                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
-                            })
-                            .on("mouseout",	function(d) {        //undo everything on the mouseout
-                                d3.select(this)
-                                  .style("stroke-width",'2.5px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",1);
-                                
-                                var getname = document.getElementById(d.name);
-                                var getname2= $('.legend[fakeclass="fakelegend"]')
-                                var selectlegend = $('.legend').not(getname2).not(getname);
+                          //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
+                          var thegraphEnter=thegraph.enter().append("g")
+                              .attr("clip-path", "url(#clip)")
+                              .attr("class", "thegraph")
+                                .attr('id',function(d){ return d.name+"-line"; })
+                              .style("stroke-width",2.5)
+                              .on("mouseover", function (d) {                                  
+                                  d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
+                                  .style("stroke-width",'4px');
+                                  
+                                  var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
+                                  d3.selectAll(selectthegraphs)
+                                    .style("opacity",0.2);
+                                  
+                                  var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
+                                  var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
 
-                                d3.selectAll(selectlegend)
-                                  .style("opacity",1);
-                                
-                                d3.select(getname)
-                                  .attr("class", "legend");        	
+                                  d3.selectAll(selectlegend)    // drop opacity on other legend names
+                                    .style("opacity",.2);
+
+                                  d3.select(getname)
+                                    .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
+                              })
+                              .on("mouseout",	function(d) {        //undo everything on the mouseout
+                                  d3.select(this)
+                                    .style("stroke-width",'2.5px');
+                                  
+                                  var selectthegraphs = $('.thegraph').not(this);
+                                  d3.selectAll(selectthegraphs)
+                                    .style("opacity",1);
+                                  
+                                  var getname = document.getElementById(d.name);
+                                  var getname2= $('.legend[fakeclass="fakelegend"]')
+                                  var selectlegend = $('.legend').not(getname2).not(getname);
+
+                                  d3.selectAll(selectlegend)
+                                    .style("opacity",1);
+                                  
+                                  d3.select(getname)
+                                    .attr("class", "legend");        	
+                              });
+
+                          //actually append the line to the graph
+                          thegraphEnter.append("path")
+                              .attr("class", "line")
+                                .style("stroke", function(d) { return color(d.name); })
+                                .attr("d", function(d) { return line(d.values[0]); })
+                                .transition()
+                                .duration(2000)
+                                .attrTween('d',function (d){
+                              var interpolate = d3.scale.quantile()
+                                .domain([0,1])
+                                .range(d3.range(1, d.values.length+1));
+                              return function(t){
+                                return line(d.values.slice(0, interpolate(t)));
+                              };
                             });
 
-                        //actually append the line to the graph
-                        thegraphEnter.append("path")
-                            .attr("class", "line")
-                              .style("stroke", function(d) { return color(d.name); })
-                              .attr("d", function(d) { return line(d.values[0]); })
-                              .transition()
-                              .duration(2000)
-                              .attrTween('d',function (d){
-                            var interpolate = d3.scale.quantile()
-                              .domain([0,1])
-                              .range(d3.range(1, d.values.length+1));
-                            return function(t){
-                              return line(d.values.slice(0, interpolate(t)));
-                            };
-                          });
-                        
-                        //then append some 'nearly' invisible circles at each data point  
-                        thegraph.selectAll("circle")
-                          .data( function(d) {return(d.values);} )
-                          .enter()
-                          .append("circle")
-                            .attr("class","tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("r",12)
-                            .style('opacity', 1e-6)//1e-6
-                            .attr ("title", maketip);
+                          //then append some 'nearly' invisible circles at each data point  
+                          thegraph.selectAll("circle")
+                            .data( function(d) {return(d.values);} )
+                            .enter()
+                            .append("circle")
+                              .attr("class","tipcircle")
+                              .attr("cx", function(d,i){return x(d.date)})
+                              .attr("cy",function(d,i){return y(d.value)})
+                              .attr("r",12)
+                              .style('opacity', 1e-6)//1e-6
+                              .attr ("title", maketip);
 
-                        //append the legend
-                          var legend = svg.selectAll('.legend')
-                              .data(linedata);
-                          
-                          var legendEnter=legend
-                              .enter()
-                              .append('g')
-                              .attr('class', 'legend')
-                              .attr('id',function(d){ return d.name; })
-                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
-                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
-
-                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
-                                  d3.select(elemented)
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",0)
-                                    .style("display",'none');
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass', 'fakelegend')
-                                  .transition()
-                                    .duration(1000)
-                                    .style ("opacity", .2);
-                                } else {
-                                
-                                  var elemented = document.getElementById(this.id +"-line");
-                                  d3.select(elemented)
-                                    .style("display", "block")
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",1);
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass','legend')
-                                    .transition()
-                                    .duration(1000)
-                                    .style ("opacity", 1);}
-                          });
-
-                        //create a scale to pass the legend items through
-                        var legendscale= d3.scale.ordinal()
-                              .domain(lastvalues)
-                              .range([0,30,60,90,120,150,180,210]);
-
-                        //actually add the circles to the created legend container
-                          legendEnter.append('circle')
-                              .attr('cx', width +20)
-                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .attr('r', 7)
-                              .style('fill', function(d) { 
-                                  return color(d.name);
-                              });
-                                          
-                        //add the legend text
-                          legendEnter.append('text')
-                              .attr('x', width+35)
-                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .text(function(d){ return d.name; });
-
-                        // set variable for updating visualization
-                          var thegraphUpdate = d3.transition(thegraph);
-                          
-                          // change values of path and then the circles to those of the new series
-                          thegraphUpdate.select("path")
-                            .attr("d", function(d, i) {       
+                          //append the legend
+                            var legend = svg.selectAll('.legend')
+                                .data(linedata);
                             
-                                //must be a better place to put this, but this works for now
-                                lastvalues[i]=d.values[d.values.length-1].value;         
-                                lastvalues.sort(function (a,b){return b-a});
-                                legendscale.domain(lastvalues);
+                            var legendEnter=legend
+                                .enter()
+                                .append('g')
+                                .attr('class', 'legend')
+                                .attr('id',function(d){ return d.name; })
+                                .on('click', function (d) {                           //onclick function to toggle off the lines        	
+                                  if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
+
+                                    var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
+                                    d3.select(elemented)
+                                      .transition()
+                                      .duration(1000)
+                                      .style("opacity",0)
+                                      .style("display",'none');
+                                  
+                                    d3.select(this)
+                                      .attr('fakeclass', 'fakelegend')
+                                    .transition()
+                                      .duration(1000)
+                                      .style ("opacity", .2);
+                                  } else {
+                                  
+                                    var elemented = document.getElementById(this.id +"-line");
+                                    d3.select(elemented)
+                                      .style("display", "block")
+                                      .transition()
+                                      .duration(1000)
+                                      .style("opacity",1);
+                                  
+                                    d3.select(this)
+                                      .attr('fakeclass','legend')
+                                      .transition()
+                                      .duration(1000)
+                                      .style ("opacity", 1);}
+                            });
+
+                          //create a scale to pass the legend items through
+                          var legendscale= d3.scale.ordinal()
+                                .domain(lastvalues)
+                                .range([0,30,60,90,120,150,180,210]);
+
+                          //actually add the circles to the created legend container
+                            legendEnter.append('circle')
+                                .attr('cx', width +20)
+                                .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
+                                .attr('r', 7)
+                                .style('fill', function(d) { 
+                                    return color(d.name);
+                                });
+                                            
+                          //add the legend text
+                            legendEnter.append('text')
+                                .attr('x', width+35)
+                                .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
+                                .text(function(d){ return d.name; });
+
+                          // set variable for updating visualization
+                            var thegraphUpdate = d3.transition(thegraph);
+                            
+                            // change values of path and then the circles to those of the new series
+                            thegraphUpdate.select("path")
+                              .attr("d", function(d, i) {       
                               
-                                return line(d.values); });
-                            
-                          thegraphUpdate.selectAll("circle")
-                            .attr ("title", maketip)
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("cx", function(d,i){return x(d.date)});
-
-
-                          // and now for legend items
-                          var legendUpdate=d3.transition(legend);
-                          
-                        legendUpdate.select("circle")
-                          .attr('cy', function(d, i){  
-                            return legendscale(d.values[d.values.length-1].value);});
-
-                        legendUpdate.select("text")
-                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
-
-
-                        // update the axes,   
-                          d3.transition(svg).select(".y.axis")
-                            .call(yAxis);   
+                                  //must be a better place to put this, but this works for now
+                                  lastvalues[i]=d.values[d.values.length-1].value;         
+                                  lastvalues.sort(function (a,b){return b-a});
+                                  legendscale.domain(lastvalues);
                                 
-                          d3.transition(svg).select(".x.axis")
-                            .attr("transform", "translate(0," + height + ")")
-                              .call(xAxis);
+                                  return line(d.values); });
+                              
+                            thegraphUpdate.selectAll("circle")
+                              .attr ("title", maketip)
+                              .attr("cy",function(d,i){return y(d.value)})
+                              .attr("cx", function(d,i){return x(d.date)});
 
-                        //make my tooltips work
-                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
 
-
-                        //define the zoom function
-                        function zoomed() {
-                      
-                            svg.select(".x.axis").call(xAxis);
-                            svg.select(".y.axis").call(yAxis);
-
-                          svg.selectAll(".tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)});
+                            // and now for legend items
+                            var legendUpdate=d3.transition(legend);
                             
-                          svg.selectAll(".line")
-                              .attr("class","line")
-                                .attr("d", function (d) { return line(d.values)});
-                        }
+                          legendUpdate.select("circle")
+                            .attr('cy', function(d, i){  
+                              return legendscale(d.values[d.values.length-1].value);});
 
-                      //end of the redraw function
-                      } 
-                       var ns = 'http://www.w3.org/2000/svg';
-                         
-                         foreignObject = document.createElementNS( ns, 'foreignObject');
-                         foreignObject.setAttribute('height', 300);
-                         foreignObject.setAttribute('width', 300);
+                          legendUpdate.select("text")
+                            .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
 
-                         var download_csv=document.createElement('a');
-                         download_csv.innerHTML = 'Download CSV File';
-                         download_csv.id="download_id";
-                         download_csv.setAttribute('style','font-size:15px');
 
-                         download_csv.href=href_csv;
-                         download_csv.download=csv_name_file;
-                         foreignObject.appendChild(download_csv);
+                          // update the axes,   
+                            d3.transition(svg).select(".y.axis")
+                              .call(yAxis);   
+                                  
+                            d3.transition(svg).select(".x.axis")
+                              .attr("transform", "translate(0," + height + ")")
+                                .call(xAxis);
+
+                          //make my tooltips work
+                          $('circle').tipsy({opacity:.9, gravity:'n', html:true});
+
+
+                          //define the zoom function
+                          function zoomed() {
+
+                              svg.select(".x.axis").call(xAxis);
+                              svg.select(".y.axis").call(yAxis);
+
+                            svg.selectAll(".tipcircle")
+                              .attr("cx", function(d,i){return x(d.date)})
+                              .attr("cy",function(d,i){return y(d.value)});
+                              
+                            svg.selectAll(".line")
+                                .attr("class","line")
+                                  .attr("d", function (d) { return line(d.values)});
+                          }
+
+                          //end of the redraw function
+                          } 
                         
-                         var select_graph=document.createElement("select");
-                         select_graph.id="select_graph";
-                         select_graph.setAttribute('style','margin-left:38px');
-                         foreignObject.appendChild(select_graph);
-                         var option_graph1=document.createElement("option");
-                         option_graph1.value="Default";
-                         option_graph1.text="Default Graph";
-                         
-                         select_graph.appendChild(option_graph1);
+                          function sortByDateAscending(a, b) {
+                                    // Dates will be cast to numbers automatically:
+                                    return a.date - b.date;
+                                }
+                          
+                          
+                          if(isAnnual && !isPolygon){
+                              var annualData=[];
+                              var j=0;
+                              var jsonAnnual1=JSON.parse(result[0]);
+                              var jsonAnnual2=JSON.parse(result[1]);
+                              var jsonAnnual3=JSON.parse(result[2]);
+                           
+                              Object.keys(jsonAnnual1).forEach(function(key){
+                                var day=(key.split(",")[0]).split("(")[1];
+                                var month=(key.split(",")[1]).split(' ').join('');
+                                var unit=(key.split(",")[2]).split("'")[1];
+                                annualData.insert(j,{"date":createAnnualDate(day,month),"unit":unit,[layer_name+"1"]:jsonAnnual1[key],[layer_name+"2"]:jsonAnnual2[key],[layer_name+"3"]:jsonAnnual3[key]});
+                                j++;
+                          });
 
-                         var option_graph2=document.createElement("option");
-                         option_graph2.value="Annual Cycle";
-                         option_graph2.text="Annual Cycle";
-                         option_graph2.selected=true;
-                         select_graph.appendChild(option_graph2);
-                         
- 
+                              var csv='';
+                              var header=Object.keys(annualData[0]).join(",");
+                              var values=annualData.map(o=>Object.values(o).join(",")).join("\n");
+                              csv += header + '\n' + values;
+                                href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                                csv_name_file=$(subtitle).text()+"_annual_cycle.csv";
+                              
+                              
+                                annualData = annualData.sort(sortByDateAscending);
+                
+
+                                redraw(annualData);
 
 
-                         select_graph.addEventListener("change",function(){
+                          }else if(!isAnnual && !isPolygon && !isMaximum && !isMinimum && !isMean){
+                            var j=0;
+                            var graph1=result[0];
+                            var unitGraph=graph1[2];
+                            var graph2=result[1];
+                            var graph3=result[2];
+                            var defaultData=[];
+                            var valueLine=[graph1[3][0]+"1",graph2[3][0]+"2",graph3[3][0]+"3"];
+                            for(var i=0;i<graph1[0].length;i++){
+                              defaultData.insert(j,{"date":convertDate(graph1[1][i]),"unit":unitGraph,[valueLine[0]]:graph1[0][i],[valueLine[1]]:graph2[0][i],[valueLine[2]]:graph3[0][i]});
+                              j++;
+                            }
+                            
+
+                              var csv='';
+                            var header=Object.keys(defaultData[0]).join(",");
+                            var values=defaultData.map(o=>Object.values(o).join(",")).join("\n");
+                            csv += header + '\n' + values;
+                              href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                              csv_name_file=$(subtitle).text()+".csv";
+
+                              defaultData=defaultData.sort(sortByDateAscending);
+
+                              redraw(defaultData);
+
+                          }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+
+                        
+                        var csv='';
+                         var header=Object.keys(dataPolygon[0]).join(",");
+                         var values=dataPolygon.map(o=>Object.values(o).join(",")).join("\n");
+                         csv += header + '\n' + values;
+                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                          csv_name_file=$(subtitle).text()+".csv";
+
+                          
+                          dataPolygons = dataPolygons.sort(sortByDateAscending);
+                          
+
+                          redraw(dataPolygons);
+
+                          }else if(isPolygon && isAnnual){
+                            var csv='';
+                            var header=Object.keys(dataPolygon[0]).join(",");
+                            var values=data.map(o=>Object.values(o).join(",")).join("\n");
+                            csv += header + '\n' + values;
+                            href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                            csv_name_file=$(subtitle).text()+"_annual_polygon_cycle.csv";
+
+                            dataPolygons = dataPolygons.sort(sortByDateAscending);
+
+                            redraw(dataPolygons);
+                          }else if((isMaximum || isMinimum || isMean) && !isPolygon){
+                            var j=0;
+                            allDates=result[0];
+                            values=result[1];
+                            layerName=result[2];
+                            unit=result[3];
+                            var defaultData=[];
+                            
+                            for(var i=0;i<allDates.length;i++){
+                              defaultData.insert(j,{"date":convertDate(allDates[i]),"value":values[i],"name":layerName,"unit":unit});
+                              j++;
+                            }
+
+                            
+                              
+                              var csv='';
+                            var header=Object.keys(defaultData[0]).join(",");
+                            var values=defaultData.map(o=>Object.values(o).join(",")).join("\n");
+                            csv += header + '\n' + values;
+                              href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+
+                              if(isMaximum){
+                                  csv_name_file=$(subtitle).text()+ "_maximum_moment.csv";
+                              }else if(isMinimum){
+                                  csv_name_file=$(subtitle).text()+ "_minimum_moment.csv";
+                              }else if(isMean){
+                                  csv_name_file=$(subtitle).text()+ "_mean_moment.csv";
+                              }
+                              defaultData=defaultData.sort(sortByDateAscending);
+
+                              redraw(defaultData);
+                          }else if((isMaximum || isMinimum || isMean) && isPolygon){
+                            var csv='';
+                            var header=Object.keys(dataPolygon[0]).join(",");
+                            var values=dataPolygon.map(o=>Object.values(o).join(",")).join("\n");
+                            csv += header + '\n' + values;
+                              href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                              if(isMaximum){
+                                  csv_name_file=$(subtitle).text()+ "_maximum_polygon_moment.csv";
+                              }else if(isMinimum){
+                                  csv_name_file=$(subtitle).text()+ "_minimum_polygon_moment.csv";
+                              }else if(isMean){
+                                  csv_name_file=$(subtitle).text()+ "_mean_polygon_moment.csv";
+                              }
+                              
+                              dataPolygon=dataPolygon.sort(sortByDateAscending);
+                              redraw(dataPolygon);
+                          }
+
+
+                          var ns = 'http://www.w3.org/2000/svg';
+                          
+                          foreignObject = document.createElementNS( ns, 'foreignObject');
+                          foreignObject.setAttribute('height', 500);
+                          foreignObject.setAttribute('width', 600);
+
+                          var download_csv=document.createElement('a');
+                          download_csv.innerHTML = 'Download CSV File';
+                          download_csv.id="download_id";
+                          download_csv.setAttribute('style','font-size:15px');
+                          download_csv.href=href_csv;
+                          download_csv.download=csv_name_file;
+                          foreignObject.appendChild(download_csv);
+                          
+
+  
+                          var select_graph=document.createElement("select");
+                          select_graph.id="select_graph";
+                          select_graph.setAttribute('style','margin-left:38px');
+                          foreignObject.appendChild(select_graph);
+                          var option_graph1=document.createElement("option");
+                          option_graph1.value="Default";
+                          option_graph1.text="Default Graph";
+                          option_graph1.selected=true;
+                          select_graph.appendChild(option_graph1);
+
+                          var option_graph2=document.createElement("option");
+                          option_graph2.value="Annual Cycle";
+                          option_graph2.text="Annual Cycle";
+                          
+                          select_graph.appendChild(option_graph2);
+
+                          var option_graph3=document.createElement("option");
+                          option_graph3.value="Maximum Value (Moment By Moment)";
+                          option_graph3.text="Maximum Value (Moment By Moment)";
+
+                          select_graph.appendChild(option_graph3);
+
+                          var option_graph4=document.createElement("option");
+                          option_graph4.value="Minimum Value (Moment By Moment)";
+                          option_graph4.text="Minimum Value (Moment By Moment)";
+
+                          select_graph.appendChild(option_graph4);
+
+
+                          var option_graph5=document.createElement("option");
+                          option_graph5.value="Mean Value (Moment By Moment)";
+                          option_graph5.text="Mean Value (Moment By Moment)";
+
+                          select_graph.appendChild(option_graph5);
+
+                          if(isAnnual){
+                            select_graph.value="Annual Cycle";
+                          }else if(isMaximum){
+                            select_graph.value="Maximum Value (Moment By Moment)";
+                          }else if(isMinimum){
+                            select_graph.value="Minimum Value (Moment By Moment)";
+                          }else if(isMean){
+                            select_graph.value="Mean Value (Moment By Moment)";
+                          }
+                          
+
+
+                        if(!isPolygon){
+                          select_graph.addEventListener("change",function(){
+                            if(select_graph.value==="Annual Cycle"){
+                              //option annual cycle chosen
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }else if(select_graph.value==="Default"){
+                              //option default graph chosen
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                                defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Maximum Value (Moment By Moment)"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              
+                              maxMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Minimum Value (Moment By Moment)"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              minMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Mean Value (Moment By Moment)"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
+                          });
+                        }else{
+                          select_graph.addEventListener("change",function(){
                            if(select_graph.value==="Annual Cycle"){
                              //option annual cycle chosen
                              d3.select("#svg_id").remove();
                              svg.selectAll("*").remove();
-                              annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
-                           }else{
+                             annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                           }else if(select_graph.value==="Maximum Value (Moment By Moment)"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              maxMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Minimum Value (Moment By Moment)"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              minMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Mean Value (Moment By Moment)"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                            }
+                           
+                           else{
                              //option default graph chosen
                              d3.select("#svg_id").remove();
                              svg.selectAll("*").remove();
-                              defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
                            }
+
                          });
-                      document.getElementById("svg_id").appendChild(foreignObject); 
+                        }
+                          document.getElementById("svg_id").appendChild(foreignObject); 
+                      }
+                        }
+          
+        function annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+            $.ajax({
+                type:'GET',
+                url:'getDataAnnualPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                contentType:'application/json',
+                success:function(result){
+                    //prendere i punti e vedere se stanno o meno nel poligono
+                    result=result["dataAnnual"];
+                    var annualDataPolygon=JSON.parse(result);
+                    var data=[];
+                    var layerPolygon=polygonClicked["layer"];
+                    var j=0;
+                    
+                Object.keys(annualDataPolygon).forEach(function(key){
+                      var day=(key.split(",")[0]).split("(")[1];
+                      var month=(key.split(",")[1]).split(' ').join('');
+                      var latitude=(key.split(",")[2]).split(' ').join('');
+                      var longitude=(key.split(",")[3]).split(' ').join('');
+                      var coordinates=[parseFloat(latitude.replace("'","")),parseFloat(longitude.replace("'",""))];
+                      var unit=(key.split(",")[4]).split("'")[1].split(' ').join('');
+                      unit=unit.replace("'","");
+                      if(layerPolygon.contains(L.latLng(coordinates[0],coordinates[1]))){
+                          data.insert(j,{"date":day+"/"+month,"unit":unit,"coordinates":coordinates,"value":annualDataPolygon[key]});
+                          j++;
+                      }
+                    });
+                    
+
+                   creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,true,true,false,false,false,result,subtitle,data,polygonClicked);
+
+                    
+                    
+                } //end success
+              }); //end ajax call
+          }
+
+          function defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+            $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,result,subtitle,data,polygonClicked);
+                      
+   
+                    }
+                   
+                   });
+          }
+
+          function dataMaxMinPolygon(result,polygonClicked,layerLastName){
+                      var coordinatePoints=result[1];
+                      var dates=result[2];
+                      var valuesPolygon=result[0];
+                      var unit=result[3];
+                      var data=[];
+                      var j=0;
+                      var layerPolygon=polygonClicked["layer"];
+  
+                      
+                      function convertDate(inputFormat) {
+                              function pad(s) { return (s < 10) ? '0' + s : s; }
+                              var d = new Date(inputFormat)
+                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+                            }
                       
 
+                      for(var i=0;i<coordinatePoints.length;i++){
+                          //check if point is in polygon
+                          
+                          if(layerPolygon.contains(L.latLng(coordinatePoints[i][0],coordinatePoints[i][1]))){
+                            
+                            data.insert(j,{"date":convertDate(dates[i]),"value":valuesPolygon[i],"name":layerLastName,"unit":unit,"coordinates":[coordinatePoints[i][0],coordinatePoints[i][1]]});
+                            j++;
+                          }
+                      }
+
+                     
+                      function sortByDateAscending(a,b){
+                        return a.date-b.date;
+                      }
+
+                      data = data.sort(sortByDateAscending);
+                      return data;
+          }
+          function maxMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+
+                      var z=0;
+                      var maxData=[];
+                      maxData.insert(z,data[0]);
+                      
+                      data.map(function(obj){
+                        if(obj.value> maxData[z]["value"] && maxData[z]["date"]===obj.date){
+                          maxData[z]=obj;
+                        }else if(maxData[z]["date"]!==obj.date){
+                          z++;
+                          maxData.insert(z,obj);
+                        }
+                      });
+
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,true,false,false,result,subtitle,maxData,polygonClicked);
+                      
+   
+                    }
+                   
+                   });
+          }
+
+
+          function minMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+                      var z=0;
+                      var minData=[];
+                      minData.insert(z,data[0]);
+
+                      data.map(function(obj){
+                        if(obj.value< minData[z]["value"] && minData[z]["date"]===obj.date){
+                          minData[z]=obj;
+                        }else if(minData[z]["date"]!==obj.date){
+                          z++;
+                          minData.insert(z,obj);
+                        }
+                      });
+                      
+                      
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,true,false,result,subtitle,minData,polygonClicked);
+                      
+                    }
+                   
+                   });
+          }
+
+          function meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                     
+                      var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+                      
+                      data.forEach(function(obj){
+                        obj.value=parseFloat(obj.value);
+                      });
+
+                  
+                      var meanData=[];
+                      var tmp ={};
+
+                        data.forEach(function(item){
+                          // if property for current date already exists  we update existing otherwise start new one
+                          var obj =  tmp[item.date] = tmp[item.date] || {count:0, total: 0,name:item.name,unit:item.unit,coordinates:item.coordinates};
+                          // increment count and total of all the ratings
+                          obj.count ++;
+                          obj.total += item.value
+                          
+
+                        });
+
+                        var meanData = Object.entries(tmp).map(function(entry){
+                            return { date: entry[0], value: entry[1].total/entry[1].count,name:entry[1].name,unit:entry[1].unit,coordinates:entry[1].coordinates}
+                        })
+
+                        
+                     creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,true,result,subtitle,meanData,polygonClicked);
+                      
+                    }
+                   
+                   });
+          }
+
+          function maxMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+            $.ajax({
+              type:'GET',
+              url:'getMaxMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+              contentType:'application/json',
+              success:function(result){
+                  //maximum value moment by moment
+                  result=result["allData"];
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,true,false,false,result,subtitle,null,null);
+                  
+              }
+            });
+          }
+
+
+          function minMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+            $.ajax({
+              type:'GET',
+              url:'getMinMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+              contentType:'application/json',
+              success:function(result){
+                  //maximum value moment by moment
+                  result=result["allData"];
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,true,false,result,subtitle,null,null);
+                  
+              }
+            });
+          }
+
+          function meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+            $.ajax({
+              type:'GET',
+              url:'getMeanMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+              contentType:'application/json',
+              success:function(result){
+                  //maximum value moment by moment
+                  result=result["allData"];
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,true,result,subtitle,null,null);
+                  
+              }
+            });
+          }
+
+          function annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+            $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicAnnual/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                        result=result["dataAnnual"];
+                        creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,true,false,false,false,false,result,subtitle,null,null)
                   }
                    });
           }
@@ -2623,439 +2213,11 @@
                     url:'getDataGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
                     contentType:'application/json',
                     success:function(result){
-                       $("#loadingGraph").fadeOut("slow");
-                               //set the margins
-                      var margin = {top: 50, right: 160, bottom: 80, left: 50},
-                          width = 1000 - margin.left - margin.right,
-                          height = 600 - margin.top - margin.bottom;
-
-
-                      
-
-                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
-                      var NumbType = d3.format(".6f");
-
-                      // color array
-                      var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
-
-                      //color function pulls from array of colors stored in color.js
-                      var color = d3.scale.ordinal().range(bluescale4);
-
-                      //define the approx. number of x scale ticks
-                      var xscaleticks = 5;
-
-                                  
-                      //define your year format here, first for the x scale, then if the date is displayed in tooltips
-                      var parseDate = d3.time.format("%x").parse;
-                      var formatDate = d3.time.format("%d %b, '%y");
-
-                      
-                      //defines a function to be used to append the title to the tooltip.  you can set how you want it to display here.
-                      var maketip = function (d) {			               
-                              var tip = '<p class="tip3">' + d.name + '<p class="tip1">' + NumbType(d.value) + '</p> <p class="tip3">'+  formatDate(d.date)+'</p>';
-                                  return tip;}
-
-                      //create an SVG
-                       svg = d3.select(".chart").append("svg")
-                          .attr("id","svg_id")
-                          .attr("width", width + margin.left + margin.right)
-                          .attr("height", height + margin.top + margin.bottom)
-                          .append("g")
-                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");  
-                              
-                      //make a rectangle so there is something to click on
-                      svg.append("svg:rect")
-                          .attr("width", width)
-                          .attr("height", height)
-                          .attr("class", "plot");
-
-                      //make a clip path for the graph  
-                      var clip = svg.append("svg:clipPath")
-                          .attr("id", "clip")
-                          .append("svg:rect")
-                          .attr("x", 0)
-                          .attr("y", 0)
-                          .attr("width", width)
-                          .attr("height", height);   
-                          
-                        
                           result=result["allData"];
-                          var graph1=result[0];
-                          var unitGraph=graph1[2];
-                         
-                          var graph2=result[1];
-                          var graph3=result[2];
-                          var data=[];
-                          var valueLine=[graph1[3][0]+"1",graph2[3][0]+"2",graph3[3][0]+"3"];
+                          creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,result,subtitle,null,null);
+                   }
 
-                          function convertDate(inputFormat) {
-                              function pad(s) { return (s < 10) ? '0' + s : s; }
-                              var d = new Date(inputFormat)
-                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
-                            }
-                          var j=0;
-                          for(var i=0;i<graph1[0].length;i++){
-                              data.insert(j,{"date":convertDate(graph1[1][i]),[valueLine[0]]:graph1[0][i],[valueLine[1]]:graph2[0][i],[valueLine[2]]:graph3[0][i]});
-                              j++;
-                          }
-
-                        
-
-                         var csv='';
-                         var header=Object.keys(data[0]).join(",");
-                         var values=data.map(o=>Object.values(o).join(",")).join("\n");
-                         csv += header + '\n' + values;
-                          href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
-                          csv_name_file=$(subtitle).text()+".csv";
-
-                         
-                          function sortByDateAscending(a, b) {
-                              // Dates will be cast to numbers automagically:
-                              return a.date - b.date;
-                          }
-
-                          data = data.sort(sortByDateAscending);
-                          
-
-                          redraw(data);
-    
-
-                      d3.select(window)
-                          .on("keydown", function() { altKey = d3.event.altKey; })
-                          .on("keyup", function() { altKey = false; });
-                      var altKey;
-                      // set terms of transition that will take place
-                      // when a new economic indicator is chosen   
-                      function change() {
-                        d3.transition()
-                            .duration(altKey ? 7500 : 1500)
-                            .each(redraw);
-                      }
-
-                      function createDateLine(dateString){
-                          var d=dateString.split("/");
-                          return new Date(+d[2],d[1]-1,+d[0]);
-                      }
-
-                      // all the meat goes in the redraw function
-                      function redraw(data) { 
-                          // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
-                         
-                          color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date"); }));
-
-                        var linedata = color.domain().map(function(name) {
-                                  return {name: name,
-                                        values: data.map(function(d) {
-                                    return {name:name, date: createDateLine(d.date), value: parseFloat(d[name])};
-                                        })
-                                  };
-                          });
-
-                         
-
-
-
-                        
-                        //make an empty variable to stash the last values into so i can sort the legend
-                        var lastvalues=[];
-
-                        //setup the x and y scales
-                        var x = d3.time.scale()
-                            .domain([
-                              d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
-                              d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
-                            ])
-                            .range([0, width]);
-                          
-
-                        var y = d3.scale.linear()
-                            .domain([
-                            d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-                            d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-                            ])
-                            .range([height, 0]);
-
-                        //will draw the line		
-                        var line = d3.svg.line()
-                            .x(function(d) { return x(d.date); })
-                            .y(function(d) {return y(d.value); });
-
-                        //define the zoom
-                        var zoom = d3.behavior.zoom()
-                            .x(x)
-                            .y(y)
-                            .scaleExtent([0,8])
-                            .on("zoom", zoomed);
-
-                        //call the zoom on the SVG
-                          svg.call(zoom);
-
-                        //create and draw the x axis
-                        var xAxis = d3.svg.axis()
-                            .scale(x)
-                            .orient("bottom")
-                            .tickPadding(8)
-                            .ticks(xscaleticks);
-                          
-                          svg.append("svg:g")
-                            .attr("class", "x axis");
-
-                        //create and draw the y axis                  
-                        var yAxis = d3.svg.axis()
-                            .scale(y)
-                            .orient("left")
-                            .tickSize(0-width)
-                            .tickPadding(8);
-                          
-                          svg.append("svg:g")
-                            .attr("class", "y axis");
-
-                        //bind the data
-                        var thegraph = svg.selectAll(".thegraph")
-                            .data(linedata)
-                      
-                        //append a g tag for each line and set of tooltip circles and give it a unique ID based on the column name of the data     
-                        var thegraphEnter=thegraph.enter().append("g")
-                            .attr("clip-path", "url(#clip)")
-                            .attr("class", "thegraph")
-                              .attr('id',function(d){ return d.name+"-line"; })
-                            .style("stroke-width",2.5)
-                            .on("mouseover", function (d) {                                  
-                                d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
-                                .style("stroke-width",'4px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",0.2);
-                                
-                                var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
-                                var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
-
-                                d3.selectAll(selectlegend)    // drop opacity on other legend names
-                                  .style("opacity",.2);
-
-                                d3.select(getname)
-                                  .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
-                            })
-                            .on("mouseout",	function(d) {        //undo everything on the mouseout
-                                d3.select(this)
-                                  .style("stroke-width",'2.5px');
-                                
-                                var selectthegraphs = $('.thegraph').not(this);
-                                d3.selectAll(selectthegraphs)
-                                  .style("opacity",1);
-                                
-                                var getname = document.getElementById(d.name);
-                                var getname2= $('.legend[fakeclass="fakelegend"]')
-                                var selectlegend = $('.legend').not(getname2).not(getname);
-
-                                d3.selectAll(selectlegend)
-                                  .style("opacity",1);
-                                
-                                d3.select(getname)
-                                  .attr("class", "legend");        	
-                            });
-
-                        //actually append the line to the graph
-                        thegraphEnter.append("path")
-                            .attr("class", "line")
-                              .style("stroke", function(d) { return color(d.name); })
-                              .attr("d", function(d) { return line(d.values[0]); })
-                              .transition()
-                              .duration(2000)
-                              .attrTween('d',function (d){
-                            var interpolate = d3.scale.quantile()
-                              .domain([0,1])
-                              .range(d3.range(1, d.values.length+1));
-                            return function(t){
-                              return line(d.values.slice(0, interpolate(t)));
-                            };
-                          });
-                        
-                        //then append some 'nearly' invisible circles at each data point  
-                        thegraph.selectAll("circle")
-                          .data( function(d) {return(d.values);} )
-                          .enter()
-                          .append("circle")
-                            .attr("class","tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("r",12)
-                            .style('opacity', 1e-6)//1e-6
-                            .attr ("title", maketip);
-
-                        //append the legend
-                          var legend = svg.selectAll('.legend')
-                              .data(linedata);
-                          
-                          var legendEnter=legend
-                              .enter()
-                              .append('g')
-                              .attr('class', 'legend')
-                              .attr('id',function(d){ return d.name; })
-                              .on('click', function (d) {                           //onclick function to toggle off the lines        	
-                                if($(this).css("opacity") == 1){				  //uses the opacity of the item clicked on to determine whether to turn the line on or off        	
-
-                                  var elemented = document.getElementById(this.id +"-line");   //grab the line that has the same ID as this point along w/ "-line"  use get element cause ID has spaces
-                                  d3.select(elemented)
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",0)
-                                    .style("display",'none');
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass', 'fakelegend')
-                                  .transition()
-                                    .duration(1000)
-                                    .style ("opacity", .2);
-                                } else {
-                                
-                                  var elemented = document.getElementById(this.id +"-line");
-                                  d3.select(elemented)
-                                    .style("display", "block")
-                                    .transition()
-                                    .duration(1000)
-                                    .style("opacity",1);
-                                
-                                  d3.select(this)
-                                    .attr('fakeclass','legend')
-                                    .transition()
-                                    .duration(1000)
-                                    .style ("opacity", 1);}
-                          });
-
-                        //create a scale to pass the legend items through
-                        var legendscale= d3.scale.ordinal()
-                              .domain(lastvalues)
-                              .range([0,30,60,90,120,150,180,210]);
-
-                        //actually add the circles to the created legend container
-                          legendEnter.append('circle')
-                              .attr('cx', width +20)
-                              .attr('cy', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .attr('r', 7)
-                              .style('fill', function(d) { 
-                                  return color(d.name);
-                              });
-                                          
-                        //add the legend text
-                          legendEnter.append('text')
-                              .attr('x', width+35)
-                              .attr('y', function(d){return legendscale(d.values[d.values.length-1].value);})
-                              .text(function(d){ return d.name; });
-
-                        // set variable for updating visualization
-                          var thegraphUpdate = d3.transition(thegraph);
-                          
-                          // change values of path and then the circles to those of the new series
-                          thegraphUpdate.select("path")
-                            .attr("d", function(d, i) {       
-                            
-                                //must be a better place to put this, but this works for now
-                                lastvalues[i]=d.values[d.values.length-1].value;         
-                                lastvalues.sort(function (a,b){return b-a});
-                                legendscale.domain(lastvalues);
-                              
-                                return line(d.values); });
-                            
-                          thegraphUpdate.selectAll("circle")
-                            .attr ("title", maketip)
-                            .attr("cy",function(d,i){return y(d.value)})
-                            .attr("cx", function(d,i){return x(d.date)});
-
-
-                          // and now for legend items
-                          var legendUpdate=d3.transition(legend);
-                          
-                        legendUpdate.select("circle")
-                          .attr('cy', function(d, i){  
-                            return legendscale(d.values[d.values.length-1].value);});
-
-                        legendUpdate.select("text")
-                          .attr('y',  function (d) {return legendscale(d.values[d.values.length-1].value);});
-
-
-                        // update the axes,   
-                          d3.transition(svg).select(".y.axis")
-                            .call(yAxis);   
-                                
-                          d3.transition(svg).select(".x.axis")
-                            .attr("transform", "translate(0," + height + ")")
-                              .call(xAxis);
-
-                        //make my tooltips work
-                        $('circle').tipsy({opacity:.9, gravity:'n', html:true});
-
-
-                        //define the zoom function
-                        function zoomed() {
-                      
-                            svg.select(".x.axis").call(xAxis);
-                            svg.select(".y.axis").call(yAxis);
-
-                          svg.selectAll(".tipcircle")
-                            .attr("cx", function(d,i){return x(d.date)})
-                            .attr("cy",function(d,i){return y(d.value)});
-                            
-                          svg.selectAll(".line")
-                              .attr("class","line")
-                                .attr("d", function (d) { return line(d.values)});
-                        }
-
-                      //end of the redraw function
-                      } 
-                      var ns = 'http://www.w3.org/2000/svg';
-                         
-                         foreignObject = document.createElementNS( ns, 'foreignObject');
-                         foreignObject.setAttribute('height', 300);
-                         foreignObject.setAttribute('width', 300);
-
-                         var download_csv=document.createElement('a');
-                         download_csv.innerHTML = 'Download CSV File';
-                         download_csv.id="download_id";
-                         download_csv.setAttribute('style','font-size:15px');
-                         download_csv.href=href_csv;
-                         download_csv.download=csv_name_file;
-                         foreignObject.appendChild(download_csv);
-                        
-                         var select_graph=document.createElement("select");
-                         select_graph.id="select_graph";
-                         select_graph.setAttribute('style','margin-left:38px');
-                         foreignObject.appendChild(select_graph);
-                         var option_graph1=document.createElement("option");
-                         option_graph1.value="Default";
-                         option_graph1.text="Default Graph";
-                         option_graph1.selected=true;
-                         select_graph.appendChild(option_graph1);
-
-                         var option_graph2=document.createElement("option");
-                         option_graph2.value="Annual Cycle";
-                         option_graph2.text="Annual Cycle";
-                         
-                         select_graph.appendChild(option_graph2);
-                         
- 
-
-
-                         select_graph.addEventListener("change",function(){
-                           if(select_graph.value==="Annual Cycle"){
-                             //option annual cycle chosen
-                             d3.select("#svg_id").remove();
-                             svg.selectAll("*").remove();
-                             annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
-                           }else{
-                             //option default graph chosen
-                             d3.select("#svg_id").remove();
-                             svg.selectAll("*").remove();
-                              defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
-                           }
-                         });
-                      document.getElementById("svg_id").appendChild(foreignObject); 
-                      
-
-                    }
-                   
-                   });
+                  });
           }
 
           $('#graphModal').on('hidden.bs.modal', function (e) {

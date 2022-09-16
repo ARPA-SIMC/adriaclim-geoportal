@@ -293,7 +293,7 @@ h1 {
     window.parent.postMessage("resize", "*");
   }
 </script>"""
-x=400
+x=1400
 def getTitle():
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
   print(url_datasets)
@@ -478,6 +478,8 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
         url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
 
     df = pd.read_csv(url, dtype='unicode')
+    unit = df[layer_name][0]
+    df = df.iloc[1: , :]
     n_values = len(df)
     allData=[]
     values=[]
@@ -499,10 +501,6 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
             dates.insert(i,row["time"])
             i+=1
 
-    unit = values[0]
-    del values[0]
-    del dates[0]
-
     allData=[values,dates,unit,layerName]
     return allData
 
@@ -513,14 +511,69 @@ def getDataGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longit
     allData=[graphic1,graphic2,graphic3]
     return allData
 
+def getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
+    if (num_parameters > 3):
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude + "):1:(" + latitude+ ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
+    else:
+        url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude + "):1:(" + latitude + ")%5D%5B(" + longitude + "):1:(" + longitude + ")%5D"
+
+    df = pd.read_csv(url, dtype = 'unicode')
+    unit = df[layer_name][0]
+    df = df.iloc[1: , :]
+    df_length = len(df)
+    all_date = []
+    all_values = []
+    allData = []
+    if df_length <= x:
+        #take every value
+        all_date = df["time"].to_numpy()
+        all_values = df[layer_name].astype(float).to_numpy()
+    else:
+        every_nth_rows = int(df_length / x)
+        df = df[::every_nth_rows]
+        all_date = df["time"].to_numpy()
+        all_values = df[layer_name].astype(float).to_numpy()
+    
+    allData = [all_date.tolist(),all_values.tolist(),layer_name,unit]
+    return allData
+
+
+def getMaxMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData1 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value)
+    allData2 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude2,longitude2,num_parameters,range_value)
+    allData3 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude3,longitude3,num_parameters,range_value)
+    maximum_value = np.maximum(allData1[1],allData2[1])
+    maximum_value1 = np.maximum(maximum_value,allData3[1])
+    allData = [allData1[0],maximum_value1.tolist(),allData1[len(allData1)-2],allData1[len(allData1)-1]]
+    return allData
+
+def getMinMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData1 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value)
+    allData2 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude2,longitude2,num_parameters,range_value)
+    allData3 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude3,longitude3,num_parameters,range_value)
+    minimum_value = np.minimum(allData1[1],allData2[1])
+    minimum_value1 = np.minimum(minimum_value,allData3[1])
+    allData = [allData1[0],minimum_value1.tolist(),allData1[len(allData1)-2],allData1[len(allData1)-1]]
+    return allData
+
+def getMeanMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData1 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value)
+    allData2 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude2,longitude2,num_parameters,range_value)
+    allData3 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude3,longitude3,num_parameters,range_value)
+    all_arrays = [allData1[1],allData2[1],allData3[1]]
+    average_array = np.array(all_arrays,dtype=float).mean(axis=0)
+    allData=[allData1[0],average_array.tolist(),allData1[len(allData1)-2],allData1[len(allData1)-1]]
+    return allData
+
 def getDataGraphicPolygon(dataset_id,layer_name,time_start,time_finish,latMin,longMin,latMax,longMax,num_parameters,range_value):
   if ( num_parameters > 3 ):
     url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax + "):1:(" + longMin + ")%5D"
   else:
     url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax+ "):1:(" + longMin + ")%5D"
 
-    print(url)
     df = pd.read_csv(url, dtype = 'unicode')
+    unit = df[layer_name][0]
+    df = df.iloc[1: , :]
     n_values = len(df)
     allData = []
     values = []
@@ -551,10 +604,6 @@ def getDataGraphicPolygon(dataset_id,layer_name,time_start,time_finish,latMin,lo
             dates.insert(i,row["time"])
             i+=1
 
-    unit = values[0]
-    del values[0]
-    del dates[0]
-    del coordinates[0]
     allData=[values,coordinates,dates,unit,layerName]
     return allData
  
@@ -567,10 +616,12 @@ def getDataGraphicAnnualGeneric(dataset_id,layer_name,time_start,time_finish,lat
         url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latitude1 + "):1:(" + latitude1 + ")%5D%5B(" + longitude1 + "):1:(" + longitude1 + ")%5D"
     
     df = pd.read_csv(url, dtype='unicode')
+    unit = df[layer_name][0]
     df = df.iloc[1: , :]
     df[layer_name] = pd.to_numeric(df[layer_name],downcast="float")
     df['time'] = pd.to_datetime(df['time'].astype('str'))
-    df = df.groupby([(df.time.dt.day),(df.time.dt.month)])[layer_name].mean()
+    df['unit']=unit
+    df = df.groupby([(df.time.dt.day),(df.time.dt.month),(df.unit)])[layer_name].mean()
     return df.to_json()
 
 
@@ -588,6 +639,7 @@ def getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,lon
     url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + time_start + "):1:(" + time_finish + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + longMax+ "):1:(" + longMin + ")%5D"
 
     df = pd.read_csv(url, dtype = 'unicode')
+    unit = df[layer_name][0]
     df = df.iloc[1: , :]
     n_values = len(df)
     if n_values > x:
@@ -595,13 +647,15 @@ def getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,lon
       df = df[::every_nth_rows]
       df[layer_name] = pd.to_numeric(df[layer_name],downcast="float")
       df['time'] = pd.to_datetime(df['time'].astype('str'))
-      df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"])])[layer_name].mean()
+      df['unit']=unit
+      df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"]),(df.unit)])[layer_name].mean()
       return df.to_json()
     
     else:
       df[layer_name] = pd.to_numeric(df[layer_name],downcast="float")
       df['time'] = pd.to_datetime(df['time'].astype('str'))
-      df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"])])[layer_name].mean()
+      df['unit']=unit
+      df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"]),(df.unit)])[layer_name].mean()
       return df.to_json()
 
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
