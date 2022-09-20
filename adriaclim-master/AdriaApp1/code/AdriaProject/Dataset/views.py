@@ -153,6 +153,18 @@ def getMeanMomentGraphic(request,dataset_id,layer_name,time_start,time_finish,la
     allData=allFunctions.getMeanMomentGraphic(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
     return JsonResponse({'allData':allData})
 
+def getTenthPercentileGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.percentile(0.1,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
+def getNinetiethPercentileGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.percentile(0.9,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
+def getMedianaGraphic(request,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData=allFunctions.percentile(0.5,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value)
+    return JsonResponse({'allData':allData})
+
 def getDataVectorial(request,dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value)
     return JsonResponse({'dataVect':dataVect})

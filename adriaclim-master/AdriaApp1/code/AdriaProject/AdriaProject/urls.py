@@ -50,6 +50,12 @@ urlpatterns = [
     '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getMinMomentGraphic),
     path('getMeanMomentGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
     '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getMeanMomentGraphic),
+    path('getTenthPercentileGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
+    '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getTenthPercentileGraphic),
+    path('getNinetiethPercentileGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
+    '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getNinetiethPercentileGraphic),
+    path('getMedianaGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
+    '<str:longitude1>/<str:latitude2>/<str:longitude2>/<str:latitude3>/<str:longitude3>/<int:num_parameters>/<int:range_value>',data_views.getMedianaGraphic),
     path('myFunctions/getMetadata/<str:title>',data_views.getMetadata),
     path("myFunctions/getWMS",data_views.getWMS),
     path("myFunctions/getTitle",data_views.getTitle),

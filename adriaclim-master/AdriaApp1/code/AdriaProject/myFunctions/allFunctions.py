@@ -658,6 +658,38 @@ def getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,lon
       df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"]),(df.unit)])[layer_name].mean()
       return df.to_json()
 
+def percentile(percentile,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value):
+    allData1 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,num_parameters,range_value)
+    allData2 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude2,longitude2,num_parameters,range_value)
+    allData3 = getMaxMinMeanMomentGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude3,longitude3,num_parameters,range_value)
+    result_percentile=[]
+    all_values1=allData1[1]
+    all_values2=allData2[1]
+    all_values3=allData3[1]
+    all_date=allData1[0]
+    unit=allData1[len(allData1)-1]
+    allData=[]
+    i=0
+    for date,val1,val2,val3 in np.nditer([all_date,all_values1,all_values2,all_values3], flags=["refs_ok"]): 
+        array_percentile = [float(val1),float(val2),float(val3)]
+        result_percentile.insert(i,percentileFunction(array_percentile,percentile))
+    
+    result_percentile.reverse()
+    allData=[all_date,result_percentile,layer_name,unit]
+    return allData
+
+def percentileFunction(arr,percentile):
+    #sort the array
+    arr.sort()
+    k = len(arr)*percentile
+    if (isinstance(k,int) & len(arr)>1):
+        #is an integer, mean between the k-nth and the (k+1)-nth value
+        mean = (arr[k-1] + arr[k]) / 2
+        return mean
+    else:
+        index_array=round(k)
+        return arr[index_array-1]
+
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value):
  if (num_param > 3):
         url = ERDDAP_URL+"/griddap/" + dataset_id + ".csv?" + layer_name + "%5B(" + date_start + "):1:(" + date_start + ")%5D%5B(" + str(range_value) + "):1:(" + str(range_value) + ")%5D%5B(" + latitude_start + "):1:(" + latitude_end + ")%5D%5B(" + longitude_start + "):1:(" + longitude_end + ")%5D"

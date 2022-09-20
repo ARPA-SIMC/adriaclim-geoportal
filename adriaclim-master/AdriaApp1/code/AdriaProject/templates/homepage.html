@@ -1206,7 +1206,7 @@
           var csv_name_file;
           var foreignObject;
 
-          function creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,isAnnual,isPolygon,isMaximum,isMinimum,isMean,result,subtitle,dataPolygon,polygonClicked){
+          function creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,isAnnual,isPolygon,isMaximum,isMinimum,isMean,isTenthPercentile,isNinetiethPercentile,isMediana,result,subtitle,dataPolygon,polygonClicked){
             
             $("#loadingGraph").fadeOut("slow");
                                //set the margins
@@ -1223,12 +1223,12 @@
                       var NumbType = d3.format(".6f");
 
                       // color array
-                      if(isMaximum || isMinimum || isMean){
+                      if(isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana){
                         var bluescale4=["#6A90C1"];
                       }
                       else if(!isPolygon){
                           var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
-                      }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                      }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
                         var valuesCoordinates=[];
                               for(var i=0;i<dataPolygon.length;i++){
                                 for(key in dataPolygon[i]){
@@ -1379,7 +1379,7 @@
 
                           function redraw(data){
                                                       // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
-                          if(isMaximum || isMinimum || isMean){
+                          if(isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana){
                             color.domain(Object.keys(data[0]).filter(function(key){ return (key==="name")}));
                           }
                           else if(!isPolygon || (isPolygon && isAnnual)){
@@ -1387,7 +1387,7 @@
                           }else{
                             color.domain(Object.keys(dataPolygons[0]).filter(function(key) { return (key !=="date" && key!=="name" && key!=="unit"); }));
                           }
-                          if(!isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                          if(!isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
                               var linedata = color.domain().map(function(name) {
                                         return {name: name,
                                               values: data.map(function(d) {
@@ -1403,7 +1403,7 @@
                                         })
                                   };
                           });
-                          } else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                          } else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
                             var linedata = color.domain().map(function(name) {
                                   return { name:name,
                                         values: dataPolygons.filter(d=> ! isNaN(parseFloat(d[name])))
@@ -1421,7 +1421,7 @@
                                         })
                                   };
                             });
-                          }else if((isMaximum || isMinimum || isMean) && !isPolygon){
+                          }else if((isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana) && !isPolygon){
                             var linedata = color.domain().map(function(name) {
                                         return {name: data[0]["name"],
                                               values: data.map(function(d) {
@@ -1429,7 +1429,7 @@
                                               })
                                         };
                                 });
-                          }else if((isMaximum || isMinimum || isMean) && isPolygon){
+                          }else if((isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana) && isPolygon){
                             var linedata = color.domain().map(function(name) {
                                         return {name: data[0]["name"],
                                               values: data.map(function(d) {
@@ -1728,7 +1728,7 @@
                                 redraw(annualData);
 
 
-                          }else if(!isAnnual && !isPolygon && !isMaximum && !isMinimum && !isMean){
+                          }else if(!isAnnual && !isPolygon && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
                             var j=0;
                             var graph1=result[0];
                             var unitGraph=graph1[2];
@@ -1753,13 +1753,13 @@
 
                               redraw(defaultData);
 
-                          }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean){
+                          }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
 
                         
-                        var csv='';
-                         var header=Object.keys(dataPolygon[0]).join(",");
-                         var values=dataPolygon.map(o=>Object.values(o).join(",")).join("\n");
-                         csv += header + '\n' + values;
+                          var csv='';
+                          var header=Object.keys(dataPolygon[0]).join(",");
+                          var values=dataPolygon.map(o=>Object.values(o).join(",")).join("\n");
+                          csv += header + '\n' + values;
                           href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
                           csv_name_file=$(subtitle).text()+".csv";
 
@@ -1780,7 +1780,7 @@
                             dataPolygons = dataPolygons.sort(sortByDateAscending);
 
                             redraw(dataPolygons);
-                          }else if((isMaximum || isMinimum || isMean) && !isPolygon){
+                          }else if((isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana) && !isPolygon){
                             var j=0;
                             allDates=result[0];
                             values=result[1];
@@ -1807,11 +1807,17 @@
                                   csv_name_file=$(subtitle).text()+ "_minimum_moment.csv";
                               }else if(isMean){
                                   csv_name_file=$(subtitle).text()+ "_mean_moment.csv";
+                              }else if(isTenthPercentile){
+                                csv_name_file=$(subtitle).text()+ "_tenthpercentile_.csv";
+                              }else if(isNinetiethPercentile){
+                                csv_name_file=$(subtitle).text()+ "_ninetiethpercentile_.csv";
+                              }else if(isMediana){
+                                csv_name_file=$(subtitle).text()+ "_median_.csv";
                               }
                               defaultData=defaultData.sort(sortByDateAscending);
 
                               redraw(defaultData);
-                          }else if((isMaximum || isMinimum || isMean) && isPolygon){
+                          }else if((isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana) && isPolygon){
                             var csv='';
                             var header=Object.keys(dataPolygon[0]).join(",");
                             var values=dataPolygon.map(o=>Object.values(o).join(",")).join("\n");
@@ -1823,6 +1829,12 @@
                                   csv_name_file=$(subtitle).text()+ "_minimum_polygon_moment.csv";
                               }else if(isMean){
                                   csv_name_file=$(subtitle).text()+ "_mean_polygon_moment.csv";
+                              }else if(isTenthPercentile){
+                                csv_name_file=$(subtitle).text()+ "_tenthpercentile_polygon.csv";
+                              }else if(isNinetiethPercentile){
+                                csv_name_file=$(subtitle).text()+ "_ninetiethpercentile_polygon_.csv";
+                              }else if(isMediana){
+                                csv_name_file=$(subtitle).text()+ "_median_polygon_.csv";
                               }
                               
                               dataPolygon=dataPolygon.sort(sortByDateAscending);
@@ -1881,6 +1893,24 @@
 
                           select_graph.appendChild(option_graph5);
 
+                          var option_graph6=document.createElement("option");
+                          option_graph6.value="Tenth Percentile";
+                          option_graph6.text="Tenth Percentile";
+
+                          select_graph.appendChild(option_graph6);
+
+                          var option_graph7=document.createElement("option");
+                          option_graph7.value="Ninetieth Percentile";
+                          option_graph7.text="Ninetieth Percentile";
+
+                          select_graph.appendChild(option_graph7);
+                          
+                          var option_graph8=document.createElement("option");
+                          option_graph8.value="Median";
+                          option_graph8.text="Median";
+
+                          select_graph.appendChild(option_graph8);
+
                           if(isAnnual){
                             select_graph.value="Annual Cycle";
                           }else if(isMaximum){
@@ -1889,6 +1919,12 @@
                             select_graph.value="Minimum Value (Moment By Moment)";
                           }else if(isMean){
                             select_graph.value="Mean Value (Moment By Moment)";
+                          }else if(isTenthPercentile){
+                            select_graph.value="Tenth Percentile";
+                          }else if(isNinetiethPercentile){
+                            select_graph.value="Ninetieth Percentile";
+                          }else if(isMediana){
+                            select_graph.value="Median";
                           }
                           
 
@@ -1922,6 +1958,21 @@
                               svg.selectAll("*").remove();
                               meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
                             }
+                            else if(select_graph.value==="Tenth Percentile"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              tenthPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Ninetieth Percentile"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              ninetiethPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Median"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              medianaGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                            }
                           });
                         }else{
                           select_graph.addEventListener("change",function(){
@@ -1944,6 +1995,19 @@
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
                               meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                            }
+                            else if(select_graph.value==="Tenth Percentile"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              tenthPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                            }else if(select_graph.value==="Ninetieth Percentile"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              ninetiethPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                            }else if(select_graph.value==="Median"){
+                              d3.select("#svg_id").remove();
+                              svg.selectAll("*").remove();
+                              medianaPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
                             }
                            
                            else{
@@ -1987,7 +2051,7 @@
                     });
                     
 
-                   creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,true,true,false,false,false,result,subtitle,data,polygonClicked);
+                   creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,true,true,false,false,false,false,false,false,result,subtitle,data,polygonClicked);
 
                     
                     
@@ -2005,13 +2069,15 @@
                       result=result["allData"];
                       data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
 
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,result,subtitle,data,polygonClicked);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,false,false,result,subtitle,data,polygonClicked);
                       
    
                     }
                    
                    });
           }
+
+
 
           function dataMaxMinPolygon(result,polygonClicked,layerLastName){
                       var coordinatePoints=result[1];
@@ -2070,8 +2136,8 @@
                           maxData.insert(z,obj);
                         }
                       });
-
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,true,false,false,result,subtitle,maxData,polygonClicked);
+                    
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,true,false,false,false,false,false,result,subtitle,maxData,polygonClicked);
                       
    
                     }
@@ -2103,7 +2169,7 @@
                       });
                       
                       
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,true,false,result,subtitle,minData,polygonClicked);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,true,false,false,false,false,result,subtitle,minData,polygonClicked);
                       
                     }
                    
@@ -2144,8 +2210,111 @@
                         })
 
                         
-                     creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,true,result,subtitle,meanData,polygonClicked);
+                     creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,true,false,false,false,result,subtitle,meanData,polygonClicked);
                       
+                    }
+                   
+                   });
+          }
+
+          function percentileFunction(data,percentile){
+            //the array is an array of objects with {values,coordinates,dates,unit,layer_name}
+            //i need to calculate for every date the percentile passed for all the existing values of that specific date
+            //so for every date I take all the values of that specific date and put it in an array
+            arr=[];
+            i=0;
+            z=0;
+            j=0;
+            dataPercentiles=[];
+            data.map(function(item){
+              if(arr.length!==0){
+              if(item.date===arr[z]["date"] && item.coordinates !== arr[z]["coordinates"]){
+                  //new value for the same date, add it to the arr array
+                  i++;
+                  arr[z][item.name+i]=item.value;
+              }else if(item.date!==arr[z]["date"]){
+                i=0;
+                arr_percentile=[];
+                p=0;
+                Object.keys(arr[z]).forEach((key)=>{
+                  if(key!=="date" && key!=="coordinates" && key!=="unit" && key!=="name"){
+                    arr_percentile.insert(p,parseFloat(arr[z][key]));
+                    p++;
+                  }
+                });
+                arr_percentile.sort();
+                k=arr_percentile.length*percentile;
+                if(Number.isInteger(k) && arr_percentile.length>1){
+                   mean=(arr_percentile[k-1]+arr_percentile[k])/2;
+                  dataPercentiles.insert(j,{"date":arr[z]["date"],"unit":arr[z]["unit"],"name":arr[z]["name"],"value":mean,"coordinates":arr[z]["coordinates"]});
+                  j++;
+                }else{
+                  indexArray=Math.ceil(k);
+                  dataPercentiles.insert(j,{"date":arr[z]["date"],"unit":arr[z]["unit"],"name":arr[z]["name"],"value":arr_percentile[indexArray-1],"coordinates":arr[z]["coordinates"]});
+                  j++;
+                }
+                z++;
+                arr.insert(z,{"date":item.date,"coordinates":item.coordinates,"unit":item.unit,[item.name+i]:item.value,"name":item.name});
+              }
+            }else{
+              arr.insert(z,{"date":item.date,"coordinates":item.coordinates,"unit":item.unit,[item.name+i]:item.value,"name":item.name});
+            }
+          });
+          
+            value_key=arr[z]["name"]+i;
+            dataPercentiles.insert(j,{"date":arr[z]["date"],"unit":arr[z]["unit"],"name":arr[z]["name"],"value":parseFloat(arr[z][value_key]),"coordinates":arr[z]["coordinates"]});
+            
+            return dataPercentiles;
+            
+          }
+
+          function tenthPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+                      var percentileData=percentileFunction(data,0.1);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,true,false,false,result,subtitle,percentileData,polygonClicked);       
+   
+                    }
+                   
+                   });
+          }
+
+          
+          function ninetiethPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+                      var percentileData=percentileFunction(data,0.9);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,true,false,result,subtitle,percentileData,polygonClicked);       
+   
+                    }
+                   
+                   });
+          }
+
+          
+          function medianaPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    contentType:'application/json',
+                    success:function(result){
+                      //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
+                      result=result["allData"];
+                      var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
+                      var percentileData=percentileFunction(data,0.5);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,false,true,result,subtitle,percentileData,polygonClicked);       
                     }
                    
                    });
@@ -2159,7 +2328,7 @@
               success:function(result){
                   //maximum value moment by moment
                   result=result["allData"];
-                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,true,false,false,result,subtitle,null,null);
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,true,false,false,false,false,false,result,subtitle,null,null);
                   
               }
             });
@@ -2174,7 +2343,7 @@
               success:function(result){
                   //maximum value moment by moment
                   result=result["allData"];
-                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,true,false,result,subtitle,null,null);
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,true,false,false,false,false,result,subtitle,null,null);
                   
               }
             });
@@ -2188,10 +2357,49 @@
               success:function(result){
                   //maximum value moment by moment
                   result=result["allData"];
-                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,true,result,subtitle,null,null);
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,true,false,false,false,result,subtitle,null,null);
                   
               }
             });
+          }
+
+          function tenthPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+              $.ajax({
+                type:'GET',
+                url:'getTenthPercentileGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                contentType:'application/json',
+                success:function(result){
+                  result=result["allData"];
+                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,true,false,false,result,subtitle,null,null)
+                }
+              });
+          }
+
+
+          
+          
+          function ninetiethPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+              $.ajax({
+                type:'GET',
+                url:'getNinetiethPercentileGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                contentType:'application/json',
+                success:function(result){
+                  result=result["allData"];
+                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,true,false,result,subtitle,null,null)
+                }
+              });
+          }
+
+          function medianaGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+              $.ajax({
+                type:'GET',
+                url:'getMedianaGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                contentType:'application/json',
+                success:function(result){
+                  result=result["allData"];
+                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,true,result,subtitle,null,null)
+                }
+              });
           }
 
           function annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
@@ -2201,10 +2409,12 @@
                     contentType:'application/json',
                     success:function(result){
                         result=result["dataAnnual"];
-                        creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,true,false,false,false,false,result,subtitle,null,null)
+                        creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,true,false,false,false,false,false,false,false,result,subtitle,null,null)
                   }
                    });
           }
+
+
         
 
           function defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
@@ -2214,7 +2424,7 @@
                     contentType:'application/json',
                     success:function(result){
                           result=result["allData"];
-                          creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,result,subtitle,null,null);
+                          creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,false,result,subtitle,null,null);
                    }
 
                   });
