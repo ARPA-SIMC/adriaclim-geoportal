@@ -32,7 +32,8 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" charset="utf-8"></script>
         <script src="https://cdn.rawgit.com/hayeswise/Leaflet.PointInPolygon/v1.0.0/wise-leaflet-pip.js"></script>
         <script type="text/javascript" src="{% static 'assets/js/jquery.tipsy.js' %}"></script>
-       <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
+       <link href = "https://code.jquery.com/ui/1.13.2/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
+       <script type="text/javascript" src="{% static 'assets/js/sweetalert.js' %}"></script>
        <link href="{% static 'assets/css/stylesheet.css' %}" rel="stylesheet" type="text/css">
     </head>
     <body>
@@ -52,14 +53,119 @@
                     </div>
                      <div class="card"  id="cardFullList">
                       <div class="card-body">
-                        <button class="card-title accordion">Full List</button>
+                        <button class="card-title accordion" id="observations">Observations</button>
+                        <div class="panel" style="margin-left: 15px;">
+                           
+                        </div>
+                        <button class="card-title accordion" id="indicators">Indicators</button>
+                        
+                        <div class="panel" style="margin-left: 15px;overflow-y: scroll;">
+
+                          <button class="btn card-title accordion" id="large_scale_indicator" data-bs-toggle="tooltip" data-bs-placement="bottom">Large Scale</button>
+                          <div class="panel" style="margin-left: 15px;" id="ind_large_scale">
+                              {% for i in indicators %}
+                                {% if i.adriaclim_scale == "large" %}
+                                <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.dataset_id}}" adriaclim_model = "{{i.adriaclim_model}}" wms="{{i.wms_url}}"
+                                adriaclim_scale = "{{i.adriaclim_scale}}" dataset_type="ind_large_scale" adriaclim_timeperiod = "{{i.adriaclim_timeperiod}}" adriaclim_type = "{{i.adriaclim_type}}"
+                                metadata_url="{{i.metadata_url}}"  tabledap_url="{{i.tabledap_url}}"  institution="{{i.institution}}" name_layer="" date_start="{{i.time_start}}" date_end="{{i.time_end}}" 
+                                num_param="" range_value="">
+                                  <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
+                                
+                                  <button class="btn btn-primary btn-sm open-modal" title="Information on the layer" data-bs-toggle="modal" onclick="openModal(this)" data-bs-target="#exampleModal">
+                                  <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                </svg>
+                                  </button>
+                                  <button class="btn btn-danger btn-sm" button_remove="removeLayer">
+                                  <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                  </svg>
+                                  </button>
+                          
+                                </div>
+                            {% endif %}
+                          {% endfor %}
+                          </div>
+
+                          <button class="btn card-title accordion" id="pilot_scale_indicator" data-bs-toggle="tooltip" data-bs-placement="top">Pilot Scale</button>
+                          <div class="panel" style="margin-left: 15px;" id="ind_pilot_scale">
+                            {% for i in indicators %}
+                              {% if i.adriaclim_scale == "pilot" %}
+                              <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.dataset_id}}" adriaclim_model = "{{i.adriaclim_model}}" 
+                              adriaclim_scale = "{{i.adriaclim_scale}}" dataset_type="ind_pilot_scale" adriaclim_timeperiod = "{{i.adriaclim_timeperiod}}" adriaclim_type = "{{i.adriaclim_type}}"
+                              metadata_url="{{i.metadata_url}}"  tabledap_url="{{i.tabledap_url}}"  institution="{{i.institution}}" name_layer="" date_start="{{i.time_start}}" date_end="{{i.time_end}}" 
+                              num_param="" range_value="">
+                                <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
+                              
+                                <button class="btn btn-primary btn-sm open-modal" title="Information on the layer" data-bs-toggle="modal" onclick="openModal(this)" data-bs-target="#exampleModal">
+                                <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                              </svg>
+                                </button>
+                                <button class="btn btn-danger btn-sm" button_remove="removeLayer">
+                                <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                                </button>
+                        
+                              </div>
+                          {% endif %}
+                        {% endfor %}
+                            
+                          </div>
+                          
+                            <button class="btn card-title accordion" id="local_scale_indicator" data-bs-toggle="tooltip" data-bs-placement="top">Local Scale</button>
+                            <div class="panel" id="ind_local_scale" style="margin-left: 15px;">
+                            
+                              {% for i in indicators %}
+                                {% if i.adriaclim_scale == "local" %}
+                                <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.dataset_id}}" adriaclim_model = "{{i.adriaclim_model}}" 
+                                adriaclim_scale = "{{i.adriaclim_scale}}" dataset_type="ind_local_scale"  adriaclim_timeperiod = "{{i.adriaclim_timeperiod}}" adriaclim_type = "{{i.adriaclim_type}}"
+                                metadata_url="{{i.metadata_url}}"  tabledap_url="{{i.tabledap_url}}" institution="{{i.institution}}" name_layer="" date_start="{{i.time_start}}" date_end="{{i.time_end}}" 
+                                num_param="" range_value="">
+                                  <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
+                                
+                                  <button class="btn btn-primary btn-sm open-modal" title="Information on the layer" data-bs-toggle="modal" onclick="openModal(this)" data-bs-target="#exampleModal">
+                                  <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                </svg>
+                                  </button>
+                                  <button class="btn btn-danger btn-sm" button_remove="removeLayer">
+                                  <svg xmlns="https://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                  </svg>
+                                  </button>
+                          
+                                </div>
+                            {% endif %}
+                          {% endfor %}
+                            </div>
+                            
+                    </div><!--panel class indicators-->
+
+                  
+
+                        
+                        <button class="card-title accordion" id="numerical_models">Numerical Models</button>
+                        <div class="panel" style="margin-left: 15px; overflow-y: scroll;">
+                          <button class="btn card-title accordion" id="large_scale_models" data-bs-toggle="tooltip" data-bs-placement="top">Large Scale</button>
+                          <button class="btn card-title accordion" id="local_scale_models" data-bs-toggle="tooltip" data-bs-placement="top">Pilot Scale</button>
+                          <button class="btn card-title accordion" id="pilot_scale_models" data-bs-toggle="tooltip" data-bs-placement="top">Local Scale</button>
+                        </div>
+                        <button class="card-title accordion" id="button_full_list">Full List</button>
                         <div class="panel">
                         <input type="text" id="filterLayers" placeholder="Search for layers..." title="Type in a name">
                           <div id="scroll_full_list">
                            
-                          {% for i in datasets %}
+                          {% for i in indicators %}
                           <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.id}}" griddap_url="{{i.griddap_url}}" 
-                             wms="{{i.wms}}" metadata_url="{{i.metadata_url}}" institution="{{i.institution}}" name_layer="" date_start="" date_end="" 
+                             wms="{{i.wms_url}}" metadata_url="{{i.metadata_url}}" dataset_type="scroll_full_list" institution="{{i.institution}}" name_layer="" date_start="{{i.time_start}}" date_end="{{i.time_end}}" 
                              num_param="" range_value="">
                               <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
                             
@@ -79,6 +185,7 @@
                               
                              
                           </div>
+                        
     
                     <!-- Modal -->
       <div class="modal fade" id="exampleModal" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true" >
@@ -476,6 +583,82 @@
           }
 
           */
+
+          //GET ALL INDICATORS
+          $.ajax({
+            type:"GET",
+            url:"myFunctions/getIndicators",
+            contentType:"application/json"
+          })
+
+ 
+
+          //display and hide accordion in panel if you click on #name
+          var display_all_accordion=true;
+          function displayHide(name,start,end){
+            if(display_all_accordion){
+              $(name).siblings(".accordion").slice(start,end).css("display","none");
+              display_all_accordion=false;
+            }else{
+              $(name).siblings(".accordion").slice(start,end).css("display","block");
+              display_all_accordion=true;
+            }
+          }
+
+          var display_all_scale=true;
+          function displayHideScales(name,start,end){
+            if(display_all_scale){
+              $(name).siblings(".accordion").slice(start,end).css("display","none");
+              display_all_scale=false;
+            }else{
+              $(name).siblings(".accordion").slice(start,end).css("display","block");
+              display_all_scale=true;
+            }
+          }
+          //display and hide accordion in panel if you click on indicators
+        $("#indicators").on("click",function(){
+            displayHide("#indicators",0,3);
+         });
+
+        //display and hide accordion indicator scales in panel if you click on indicators' large scale
+        $("#large_scale_indicator").on("click",function(){
+            displayHideScales("#large_scale_indicator",0,2);
+         });
+        //display and hide accordion indicator scales in panel if you click on indicators' pilot scale
+        $("#pilot_scale_indicator").on("click",function(){
+            displayHideScales("#pilot_scale_indicator",0,2);
+         });
+
+        //display and hide accordion indicator scales in panel if you click on indicators' local scale
+        $("#local_scale_indicator").on("click",function(){
+            displayHideScales("#local_scale_indicator",0,2);
+         });
+
+
+        //display and hide accordion in panel if you click on numerical models accordion
+        $("#numerical_models").on("click",function(){
+            displayHide("#numerical_models",0,3);
+         });
+
+
+
+
+          //display and hide accordion in panel if you click on observations
+          $("#observations").on("click",function(){
+            displayHide("#observations",0,3);
+         });
+
+         //display and hide accordion in panel if you click on full list!!
+         $("#button_full_list").on("click",function(){
+            displayHide("#button_full_list",0,3);
+         });
+
+         
+       function isLayerHistorical(l) {
+	  return l && l.date_end && parseInt(l.date_end)<1643296933;
+	}
+
+        
        
           var map = L.map('map', {
                 attributionControl: false,
@@ -566,13 +749,14 @@
              
 
              var dataset_id_modal=lastLayer.getAttribute("dataset_id");
-             
+             var is_indicator=lastLayer.getAttribute("is_indicator");
              var time_start=lastLayer.getAttribute("date_start");
              var time_finish=lastLayer.getAttribute("date_end");
              var isDay=false;
              var isHour=false;
              var isMonth=false;
              var datesLayer=[];
+             var graphFetchingUrl;
              
              var date_to_start =new Date(time_start);
                var timeFinish=new Date(time_finish);
@@ -580,6 +764,24 @@
                    datesLayer.push(formatDate(new Date (date_to_start)));
                    date_to_start=date_to_start.addDays(30);
                }
+
+             $.ajax({
+                           type:'GET',
+                           url:'getDataTable/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+num_parameters.length+"/"+range_param.value,
+                           contentType:"text/html",
+                           success:function(data){
+                             $("#loadingTable").hide();
+                             var table_data=data;
+                            $(table_data).insertAfter("#tableAdd");
+                           var allButtons=document.querySelectorAll("#scroll_full_list .form-check .btn-danger");
+                           $(allButtons).hide();
+                           }
+                     });
+
+             defaultGraphNew(dataset_id_modal,layerLastName,"avg","polygon",time_start,time_finish,latitude1,longitude1,range_param.value,latMinPolygon,lngMinPolygon,latMaxPolygon,lngMaxPolygon)
+             $("#graphModal").modal('show');
+             return;
+	
              for(var key in sliderObjects){
                delete sliderObjects[key];
              }
@@ -663,7 +865,7 @@
                            }
                      });
 
-                     defaultGraphPolygon(polygonChosen,dataset_id_modal,layerLastName,time_start,time_finish,latMinPolygon,latMaxPolygon,lngMinPolygon,lngMaxPolygon,num_parameters.length,range_param.value)
+                     defaultGraphPolygon(polygonChosen,dataset_id_modal,layerLastName,time_start,time_finish,latMinPolygon,latMaxPolygon,lngMinPolygon,lngMaxPolygon,num_parameters.length,range_param.value,is_indicator)
                      
 
 
@@ -742,7 +944,7 @@
             try{
               let files=evt.target.files;
               if(!files.length){
-                alert('No file selected!');
+                swal('Error',"No file selected","error");
                 return;
               }else{
                   let file=files[0];
@@ -754,6 +956,7 @@
                     });
                    geojson_uploaded=L.geoJson(JSON.parse(event.target.result)).addTo(map).setStyle({fillOpacity:0.1,weigth:7});
                    isGeojsonUploaded=true;
+                   enableDisableScale();
                    geojsonPolygons=[];
                    geojson_uploaded.eachLayer(function(layer){
                     var popupUploaded=layer.feature.properties.popupContent;
@@ -855,7 +1058,7 @@
               $("#adriaticView").attr("background-color","#ddd");
               isAdriaticView=true;
               isPilotArea=false;
-
+              enableDisableScale();
             }else{
               if(isGeojsonUploaded){
                 geojsonLayer.eachLayer(function(layer){
@@ -888,10 +1091,12 @@
                       }
                 });
                 isPilotArea=true;
+                
 
               }
               $("#adriaticView").attr("background-color","white");
               isAdriaticView=false;
+              enableDisableScale();
             }
         })
 
@@ -918,6 +1123,8 @@
               });
               isPilotArea=true;
               isAdriaticView=false;
+              //call function to disable large scale and enable pilot and local scale
+              enableDisableScale();
             }else{
               if(isGeojsonUploaded){
                 geojsonLayer.eachLayer(function(layer){
@@ -928,6 +1135,48 @@
               }
             }
         });
+
+
+
+
+        //function to disable and enable accordion large,pilot and local according to which view is selected
+        function enableDisableScale(){
+	  if (1==1) return;
+          if(!isAdriaticView || isGeojsonUploaded || isPilotArea){
+            //disable large scale and enable pilot and local scale and show tooltip!
+            $("#large_scale_indicator").prop("disabled",true);
+            $("#large_scale_indicator").attr("title","You should choose a view with bigger polygons to select this scale");
+            $("#large_scale_models").prop("disabled",true);
+            $("#large_scale_models").attr("title","You should choose a view with bigger polygons to select this scale");
+
+            $("#pilot_scale_indicator").prop("disabled",false);
+            $("#pilot_scale_indicator").attr("title","");
+            $("#pilot_scale_models").prop("disabled",false);
+            $("#pilot_scale_models").attr("title","");
+
+            $("#local_scale_indicator").prop("disabled",false);
+            $("#local_scale_indicator").attr("title","");
+            $("#local_scale_models").prop("disabled",false);
+            $("#local_scale_models").attr("title","");
+          }else{
+            //enable large scale and disable pilot and local scale and show tooltip!
+            $("#large_scale_indicator").prop("disabled",false);
+            $("#large_scale_indicator").attr("title","");
+            $("#large_scale_models").prop("disabled",false);
+            $("#large_scale_models").attr("title","");
+
+            $("#pilot_scale_indicator").prop("disabled",true);
+            $("#pilot_scale_indicator").attr("title","You should choose a view with smaller polygons to select this scale");
+            $("#pilot_scale_models").prop("disabled",true);
+            $("#pilot_scale_models").attr("title","You should choose a view with smaller polygons to select this scale");
+
+            $("#local_scale_indicator").prop("disabled",true);
+            $("#local_scale_indicator").attr("title","You should choose a view with smaller polygons to select this scale");
+            $("#local_scale_models").prop("disabled",true);
+            $("#local_scale_models").attr("title","You should choose a view with smaller polygons to select this scale");
+          }
+      }
+      enableDisableScale();
 
             
             
@@ -1040,7 +1289,7 @@
         $("#locationHand").on('click',(e)=>{
           e.stopPropagation();
           if($("input:checkbox:checked").length==0){
-            alert("Please choose a layer to see its data");
+            swal("Error","Please choose a layer to see its data","error");
             $("#grabHand").css("background-color","white");
             $("#flagHand").css("background-color","white");
             $("#locationHand").css("background-color","white");
@@ -1090,7 +1339,9 @@
                 panel.style.maxHeight = null;
               } else if(panel.getAttribute("id")==="layers_active"){
                 panel.style.maxHeight="80px";
-              }else{
+              } 
+              else{
+
                 panel.style.maxHeight = panel.scrollHeight + "px";
               } 
             });
@@ -1206,7 +1457,320 @@
           var csv_name_file;
           var foreignObject;
 
-          function creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,isAnnual,isPolygon,isMaximum,isMinimum,isMean,isTenthPercentile,isNinetiethPercentile,isMediana,result,subtitle,dataPolygon,polygonClicked){
+
+	function creationGraphNew(dataset_id_modal,layerLastName,time_start,time_finish,latitude,longitude,range_param_value,context,operation,result,subtitle,dataPolygon,polygonClicked){	
+
+	isPolygon = (context === "polygon")
+	isAnnual = (operation === "annual")
+	$("#loadingGraph").fadeOut("slow");
+                               //set the margins
+
+	if (!result || !result.entries || result.entries.length==0) {
+		$(".chart").append('<h1 id="noDataFound">No data found at this location.</h1>');
+		return;
+	}
+
+	var datasets = result.entries
+	var datasetNumber = result.entries.length
+
+
+	var margin = {top: 50, right: 50, bottom: 80, left: 50},
+                          //width = window.innerWidth - margin.left - margin.right,
+                        width = document.getElementById('pills-graphic').clientWidth - 70,
+                        height = window.innerHeight - 300 - margin.top - margin.bottom;
+                
+
+                      // set the type of number here, n is a number with a comma, .2% will get you a percent, .2f will get you 2 decimal points
+                      var NumbType = d3.format(".6f");
+
+	var bluescale4 = ["#ff0000 ", "#6A90C1", "#FFFF00", "#00FF00"];
+	var color = d3.scale.ordinal().range(bluescale4);
+	//define the approx. number of x scale ticks
+        var xscaleticks = 5;
+                      
+	//define your year format here, first for the x scale, then if the date is displayed in tooltips
+	var parseDate = d3.time.format("%x").parse;
+	if(isAnnual){
+		var formatDate = d3.time.format("%d %b");
+	}else{
+		var formatDate = d3.time.format("%d %b, '%y");
+	}
+	
+	svg = d3.select(".chart").append("svg")
+                          .attr("id","svg_id")
+                          .attr("width", width + margin.left + margin.right)
+                          .attr("height", height + margin.top + margin.bottom)
+                          .append("g")
+                          .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+			.attr("class","thegraph");  
+                              
+	//make a rectangle so there is something to click on
+	svg.append("svg:rect")
+                          .attr("width", width)
+                          .attr("height", height)
+                          .attr("class", "plot");
+
+	//make a clip path for the graph  
+	var clip = svg.append("svg:clipPath")
+                          .attr("id", "clip")
+                          .append("svg:rect")
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .attr("width", width)
+                          .attr("height", height); 
+
+
+	function convertDate(inputFormat) {
+                              function pad(s) { return (s < 10) ? '0' + s : s; }
+                              var d = new Date(inputFormat);
+                              return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/')
+                            }
+
+	function createAnnualDate(day,month){
+                            return new Date(2022,parseInt(month)-1,parseInt(day));
+                          }
+
+                          
+	function createDateLine(dateString){
+                          /*var d=dateString.split("/");
+                          return new Date(+d[2],d[1]-1,+d[0]);*/
+			return new Date(dateString)
+                      }
+
+	function redraw() {
+
+		var linedata = {}
+		var items = result[datasets[0]].map(function(item) {
+			var out = {}
+			out.name = datasets[0]
+			out.value = parseFloat(item.y)
+			out.date = createDateLine(item.x)
+			return out
+			
+		});
+		linedata.name = datasets[0]
+		linedata.values = items
+
+		//setup the x and y scales
+		var x = d3.time.scale()
+                              .domain([
+                                d3.min(linedata.values, function(c) {  return c.date; }),
+                                d3.max(linedata.values, function(c) { return c.date; })
+                              ])
+                              .range([0, width]);
+                            
+
+		var y = d3.scale.linear()
+                              .domain([
+                              d3.min(linedata.values, function(c) { return c.value;}),
+                              d3.max(linedata.values, function(c) { return c.value; })
+                              ])
+                              .range([height, 0]);
+
+		//will draw the line		
+		var line = d3.svg.line()
+                              .x(function(d) { return x(d.date); })
+                              .y(function(d) {return y(d.value); })
+				.interpolate('linear');
+
+		svg.append("path")
+  		.attr("d", line(linedata.values))
+		.attr("class", "line")
+  		.attr("stroke", "blue")
+  		.attr("stroke-width", 2)
+  		.attr("fill", "none")
+		.transition()
+                .duration(2000)
+
+		//define the zoom
+ 		
+		//create and draw the x axis
+		var xAxis = d3.svg.axis()
+                              .scale(x)
+                              .orient("bottom")
+                              .tickPadding(8)
+                              .ticks(xscaleticks);
+                            
+
+                          //create and draw the y axis                  
+		var yAxis = d3.svg.axis()
+                              .scale(y)
+                              .orient("left")
+                              .tickSize(0-width)
+                              .tickPadding(8);
+                            
+		var zoom = d3.behavior.zoom()
+                              .x(x)
+                              //.y(y)
+                              .scaleExtent([1,8])
+                              .on("zoom", function zoomed() {
+
+                                console.log(d3.event.translate)
+                                console.log(d3.event.scale)
+                                
+                            translate = 0
+                            if (d3.event.translate[0]>0) translate = (-d3.event.translate[0])
+                            if (d3.event.translate[0]<-width*(d3.event.scale-1.0)) translate = -width*(d3.event.scale-1.0)-d3.event.translate[0]
+                            console.log(translate)
+                                
+
+                              if (d3.event.translate[0]<0 || translate==0)
+                                svg.select(".x.axis").call(xAxis) .attr("transform", "translate(" + translate + " "+height+")");
+                              svg.select(".y.axis").call(yAxis) ;
+
+                            svg.selectAll(".tipcircle")
+                              .attr("cx", function(d,i){return x(d.date)})
+                              .attr("cy",function(d,i){return y(d.value)});
+                              
+                            svg.selectAll(".line").remove();
+			svg.append("path")
+  		.attr("d", line(linedata.values))
+		.attr("class", "line")
+  		.attr("stroke", "blue")
+  		.attr("stroke-width", 2)
+  		.attr("fill", "none")
+                .attr("transform", "translate(" + translate + " 0)")               
+		/*.append("svg:clipPath")
+                          .attr("id", "pathclip")
+                          .append("svg:rect")
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .attr("width", width)
+                          .attr("height", height);   */        
+                          });
+                      
+
+		//call the zoom on the SVG
+		svg.call(zoom);
+
+		//bind the data
+		//var thegraph = svg.selectAll(".thegraph")
+                //              .data(linedata.values)
+
+
+		svg.append("svg:g")
+                              .attr("class", "y axis").call(yAxis);
+		
+		svg.append("path")
+                              .attr("class", "line")
+                                 .style("stroke", function(d) { return "blue"; })
+				.data(linedata)
+                                .attr("d", function(d) { 
+					return line(d.values);
+					return 0;
+				})
+                svg.append("svg:g")
+                              .attr("class", "x axis").attr("transform", "translate(0, "+height+")").call(xAxis);
+
+	svg.selectAll(".line")
+                           .data(linedata)
+				
+
+
+		/*var thegraphEnter=thegraph.enter().append("g")
+                              .attr("clip-path", "url(#clip)")
+                              .attr("class", "thegraph")
+                                .attr('id',function(d){ return d.name+"-line"; })
+                              .style("stroke-width",2.5)
+                              .on("mouseover", function (d) {                                  
+                                  d3.select(this)                          //on mouseover of each line, give it a nice thick stroke
+                                  .style("stroke-width",'4px');
+                                  
+                                  var selectthegraphs = $('.thegraph').not(this);     //select all the rest of the lines, except the one you are hovering on and drop their opacity
+                                  d3.selectAll(selectthegraphs)
+                                    .style("opacity",0.2);
+                                  
+                                  var getname = document.getElementById(d.name);    //use get element cause the ID names have spaces in them
+                                  var selectlegend = $('.legend').not(getname);    //grab all the legend items that match the line you are on, except the one you are hovering on
+
+                                  d3.selectAll(selectlegend)    // drop opacity on other legend names
+                                    .style("opacity",.2);
+
+                                  d3.select(getname)
+                                    .attr("class", "legend-select");  //change the class on the legend name that corresponds to hovered line to be bolder        	
+                              })
+                              .on("mouseout",	function(d) {        //undo everything on the mouseout
+                                  d3.select(this)
+                                    .style("stroke-width",'2.5px');
+                                  
+                                  var selectthegraphs = $('.thegraph').not(this);
+                                  d3.selectAll(selectthegraphs)
+                                    .style("opacity",1);
+                                  
+                                  var getname = document.getElementById(d.name);
+                                  var getname2= $('.legend[fakeclass="fakelegend"]')
+                                  var selectlegend = $('.legend').not(getname2).not(getname);
+
+                                  d3.selectAll(selectlegend)
+                                    .style("opacity",1);
+                                  
+                                  d3.select(getname)
+                                    .attr("class", "legend");        	
+                              });
+
+                          //actually append the line to the graph
+                          svg.append("path")
+                              .attr("class", "line")
+                                 .style("stroke", function(d) { return "blue"; })
+                                .attr("d", function(d) { return line(d); })
+                                .transition()
+                                .duration(2000)*/
+                                /*.attrTween('d',function (d){
+				return 
+                              var interpolate = d3.scale.quantile()
+                                .domain([0,1])
+                                .range(d3.range(1, 1));
+                              return function(t){
+                                return d;
+                              };
+                            }); */
+	}
+
+	redraw()
+
+	var ns = 'http://www.w3.org/2000/svg';
+                          
+	foreignObject = document.createElementNS( ns, 'foreignObject');
+	foreignObject.setAttribute('height', 50);
+	foreignObject.setAttribute('width', 600);
+
+	var labels = ["Default Graph","Annual Cycle","Maximum Value (Moment By Moment)","Minimum Value (Moment By Moment)","Mean Value (Moment By Moment)","10th Percentile","90th Percentile","Median"]
+	var ops = ["default","annual","max","min","avg","percentile_10","percentile_90","median"]
+
+	var download_csv=document.createElement('a');
+	download_csv.innerHTML = 'Download CSV File';
+	download_csv.id="download_id";
+	download_csv.setAttribute('style','font-size:15px');
+	download_csv.href="/"+graphFetchingUrl.replace("getDataGraphicNew","getDataGraphicCsv");
+	download_csv.download=csv_name_file;
+        download_csv.target="_blank";
+	foreignObject.appendChild(download_csv);
+	var select_graph=document.createElement("select");
+	select_graph.id="select_graph";
+	select_graph.setAttribute('style','margin-left:38px');
+	foreignObject.appendChild(select_graph);
+	var ind = 0;
+	for (ind=0; ind<labels.length; ind++) {
+		var option_graph1=document.createElement("option");
+		option_graph1.value=ops[ind];
+		option_graph1.operation=ops[ind];
+		option_graph1.text=labels[ind];
+		option_graph1.selected=(operation==ops[ind]);
+		select_graph.appendChild(option_graph1);
+	}
+
+	select_graph.addEventListener("change",function(){
+		var opp = select_graph.value
+		d3.select("#svg_id").remove();
+		svg.selectAll("*").remove();
+		defaultGraphNew(dataset_id_modal,layerLastName,opp,context,time_start,time_finish,latitude,longitude,range_param_value,"no","no","no","no")
+	})
+
+	document.getElementById("svg_id").appendChild(foreignObject); 
+
+    }
+
+          function creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,isAnnual,isPolygon,isMaximum,isMinimum,isMean,isTenthPercentile,isNinetiethPercentile,isMediana,result,subtitle,dataPolygon,polygonClicked,is_indicator){
             
             $("#loadingGraph").fadeOut("slow");
                                //set the margins
@@ -1382,27 +1946,39 @@
                           if(isMaximum || isMinimum || isMean || isTenthPercentile || isNinetiethPercentile || isMediana){
                             color.domain(Object.keys(data[0]).filter(function(key){ return (key==="name")}));
                           }
+                          else if(is_indicator=="true"){
+                            color.domain(Object.keys(data[0]).filter(function(key){ return (key !== "date" && key!=="unit" && key!=="latitude" && key!=="longitude")}));
+                          }
                           else if(!isPolygon || (isPolygon && isAnnual)){
-                              color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date" && key!=="unit"); }));
+                              color.domain(Object.keys(data[0]).filter(function(key) { return (key !== "date" && key!=="unit" && key!=="latitude" && key!=="longitude"); }));
                           }else{
-                            color.domain(Object.keys(dataPolygons[0]).filter(function(key) { return (key !=="date" && key!=="name" && key!=="unit"); }));
+                            color.domain(Object.keys(dataPolygons[0]).filter(function(key) { return (key !=="date" && key!=="name" && key!=="unit" && key!=="latitude" && key!=="longitude"); }));
                           }
                           if(!isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
-                              var linedata = color.domain().map(function(name) {
-                                        return {name: name,
-                                              values: data.map(function(d) {
-                                          return {name:name,unit:d.unit, date: createDateLine(d.date), value: parseFloat(d[name])};
-                                              })
-                                        };
-                                });
+                              
+                                var linedata = color.domain().map(function(name) {
+                                            return {name: name,
+                                                  values: data.map(function(d) {
+                                                    if(is_indicator == "false"){
+                                                      return {name:name,unit:d.unit, date: createDateLine(d.date), value: parseFloat(d[name])};
+                                                    }else{
+                                                      return {name:name,unit:d.unit, date: createDateLine(d.date), value: parseFloat(d[name]),latitude:d.latitude,longitude:d.longitude};
+                                                    }
+                                                    })
+                                            };
+                                    });
                           }else if(!isPolygon && isAnnual){
-                            var linedata = color.domain().map(function(name) {
-                                  return {name: name,
-                                        values: data.map(function(d) {
-                                    return {name:name, unit:d.unit,date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
-                                        })
-                                  };
-                          });
+                              var linedata = color.domain().map(function(name) {
+                                    return {name: name,
+                                          values: data.map(function(d) {
+                                            if(is_indicator == "false"){
+                                              return {name:name, unit:d.unit,date: createDateLine(convertDate(d.date)), value: parseFloat(d[name])};
+                                            }else{
+                                              return {name:name, unit:d.unit,date: createDateLine(convertDate(d.date)), value: parseFloat(d[name]),latitude:d.latitude,longitude:d.longitude};
+                                            }
+                                          })
+                                    };
+                            });
                           } else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
                             var linedata = color.domain().map(function(name) {
                                   return { name:name,
@@ -1700,6 +2276,7 @@
                           
                           
                           if(isAnnual && !isPolygon){
+                             if(is_indicator == "false"){
                               var annualData=[];
                               var j=0;
                               var jsonAnnual1=JSON.parse(result[0]);
@@ -1712,7 +2289,25 @@
                                 var unit=(key.split(",")[2]).split("'")[1];
                                 annualData.insert(j,{"date":createAnnualDate(day,month),"unit":unit,[layer_name+"1"]:jsonAnnual1[key],[layer_name+"2"]:jsonAnnual2[key],[layer_name+"3"]:jsonAnnual3[key]});
                                 j++;
+                                
                           });
+                        }else{
+                            //is an indicator graph!!!
+                              var annualData=[];
+                              var j=0;
+                              var jsonAnnual=JSON.parse(result);
+                           
+                              Object.keys(jsonAnnual).forEach(function(key){
+                                var day=(key.split(",")[0]).split("(")[1];
+                                var month=(key.split(",")[1]).split(' ').join('');
+                                var latitude=(key.split(",")[2]).split("'")[1];
+                                var longitude=(key.split(",")[3]).split("'")[1]
+                                annualData.insert(j,{"date":createAnnualDate(day,month),[layer_name]:jsonAnnual[key],"latitude":latitude,"longitude":longitude});
+                                j++;
+                                
+                          });           
+                            
+                        }
 
                               var csv='';
                               var header=Object.keys(annualData[0]).join(",");
@@ -1729,29 +2324,43 @@
 
 
                           }else if(!isAnnual && !isPolygon && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
-                            var j=0;
-                            var graph1=result[0];
-                            var unitGraph=graph1[2];
-                            var graph2=result[1];
-                            var graph3=result[2];
-                            var defaultData=[];
-                            var valueLine=[graph1[3][0]+"1",graph2[3][0]+"2",graph3[3][0]+"3"];
-                            for(var i=0;i<graph1[0].length;i++){
-                              defaultData.insert(j,{"date":convertDate(graph1[1][i]),"unit":unitGraph,[valueLine[0]]:graph1[0][i],[valueLine[1]]:graph2[0][i],[valueLine[2]]:graph3[0][i]});
-                              j++;
-                            }
+                            if(is_indicator === "false"){
+                                var j=0;
+                                var graph1=result[0];
+                                var unitGraph=graph1[2];
+                                var graph2=result[1];
+                                var graph3=result[2];
+                                var defaultData=[];
+                                var valueLine=[graph1[3][0]+"1",graph2[3][0]+"2",graph3[3][0]+"3"];
+                                for(var i=0;i<graph1[0].length;i++){
+                                  defaultData.insert(j,{"date":convertDate(graph1[1][i]),"unit":unitGraph,[valueLine[0]]:graph1[0][i],[valueLine[1]]:graph2[0][i],[valueLine[2]]:graph3[0][i]});
+                                  j++;
+                                }
+                                
+
+                            }else{
+                              var j=0;
+                              
+                                            
+                                var unitGraph=result[2];
+                                var defaultData=[];
+                                for(var i=0;i<result[0].length;i++){
+                                  defaultData.insert(j,{"date":convertDate(result[1][i]),"unit":unitGraph,[result[3][0]]:result[0][i],"latitude":result[4][i],"longitude":result[5][i]});
+                                  j++;
+                                }
+                                
+                              }
+                                  var csv='';
+                                var header=Object.keys(defaultData[0]).join(",");
+                                var values=defaultData.map(o=>Object.values(o).join(",")).join("\n");
+                                csv += header + '\n' + values;
+                                  href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
+                                  csv_name_file=$(subtitle).text()+".csv";
+
+                                  defaultData=defaultData.sort(sortByDateAscending);
+                                  
+                                  redraw(defaultData);
                             
-
-                              var csv='';
-                            var header=Object.keys(defaultData[0]).join(",");
-                            var values=defaultData.map(o=>Object.values(o).join(",")).join("\n");
-                            csv += header + '\n' + values;
-                              href_csv='data:text/plain;charset=utf-8,' + encodeURIComponent(csv);
-                              csv_name_file=$(subtitle).text()+".csv";
-
-                              defaultData=defaultData.sort(sortByDateAscending);
-
-                              redraw(defaultData);
 
                           }else if(isPolygon && !isAnnual && !isMaximum && !isMinimum && !isMean && !isTenthPercentile && !isNinetiethPercentile && !isMediana){
 
@@ -1785,7 +2394,11 @@
                             allDates=result[0];
                             values=result[1];
                             layerName=result[2];
-                            unit=result[3];
+                            if(is_indicator === "false"){
+                              unit=result[3];
+                            }else{
+                              unit = "Not available"
+                            }
                             var defaultData=[];
                             
                             for(var i=0;i<allDates.length;i++){
@@ -1864,6 +2477,7 @@
                           foreignObject.appendChild(select_graph);
                           var option_graph1=document.createElement("option");
                           option_graph1.value="Default";
+                          option_graph1.operation="";
                           option_graph1.text="Default Graph";
                           option_graph1.selected=true;
                           select_graph.appendChild(option_graph1);
@@ -1871,44 +2485,44 @@
                           var option_graph2=document.createElement("option");
                           option_graph2.value="Annual Cycle";
                           option_graph2.text="Annual Cycle";
-                          
+                          option_graph2.operation="annual";                          
                           select_graph.appendChild(option_graph2);
 
                           var option_graph3=document.createElement("option");
                           option_graph3.value="Maximum Value (Moment By Moment)";
                           option_graph3.text="Maximum Value (Moment By Moment)";
-
+                          option_graph3.operation="max";
                           select_graph.appendChild(option_graph3);
 
                           var option_graph4=document.createElement("option");
                           option_graph4.value="Minimum Value (Moment By Moment)";
                           option_graph4.text="Minimum Value (Moment By Moment)";
-
+                          option_graph4.operation="min";
                           select_graph.appendChild(option_graph4);
 
 
                           var option_graph5=document.createElement("option");
                           option_graph5.value="Mean Value (Moment By Moment)";
                           option_graph5.text="Mean Value (Moment By Moment)";
-
+                          option_graph5.operation="avg";
                           select_graph.appendChild(option_graph5);
 
                           var option_graph6=document.createElement("option");
                           option_graph6.value="Tenth Percentile";
                           option_graph6.text="Tenth Percentile";
-
+                          option_graph6.operation="percentile_10";
                           select_graph.appendChild(option_graph6);
 
                           var option_graph7=document.createElement("option");
                           option_graph7.value="Ninetieth Percentile";
                           option_graph7.text="Ninetieth Percentile";
-
+                          option_graph7.operation="percentile_90";
                           select_graph.appendChild(option_graph7);
                           
                           var option_graph8=document.createElement("option");
                           option_graph8.value="Median";
                           option_graph8.text="Median";
-
+                          option_graph8.operation="percentile_90";
                           select_graph.appendChild(option_graph8);
 
                           if(isAnnual){
@@ -1935,43 +2549,82 @@
                               //option annual cycle chosen
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }else if(select_graph.value==="Default"){
                               //option default graph chosen
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                                defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                             else if(select_graph.value==="Maximum Value (Moment By Moment)"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              
-                              maxMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              maxMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                             else if(select_graph.value==="Minimum Value (Moment By Moment)"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              minMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              minMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                             else if(select_graph.value==="Mean Value (Moment By Moment)"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                             else if(select_graph.value==="Tenth Percentile"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              tenthPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              tenthPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                             else if(select_graph.value==="Ninetieth Percentile"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              ninetiethPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              ninetiethPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                             else if(select_graph.value==="Median"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              medianaGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
+                              let allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
+                              let lat_min=allActiveLayers[0].getAttribute("lat_min");
+                              let lat_max=allActiveLayers[0].getAttribute("lat_max");
+                              let long_min=allActiveLayers[0].getAttribute("long_min");
+                              let long_max=allActiveLayers[0].getAttribute("long_max");
+                              medianaGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);
                             }
                           });
                         }else{
@@ -1980,41 +2633,41 @@
                              //option annual cycle chosen
                              d3.select("#svg_id").remove();
                              svg.selectAll("*").remove();
-                             annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                             annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                            }else if(select_graph.value==="Maximum Value (Moment By Moment)"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              maxMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              maxMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                             }
                             else if(select_graph.value==="Minimum Value (Moment By Moment)"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              minMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              minMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                             }
                             else if(select_graph.value==="Mean Value (Moment By Moment)"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                             }
                             else if(select_graph.value==="Tenth Percentile"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              tenthPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              tenthPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                             }else if(select_graph.value==="Ninetieth Percentile"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              ninetiethPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              ninetiethPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                             }else if(select_graph.value==="Median"){
                               d3.select("#svg_id").remove();
                               svg.selectAll("*").remove();
-                              medianaPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              medianaPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                             }
                            
                            else{
                              //option default graph chosen
                              d3.select("#svg_id").remove();
                              svg.selectAll("*").remove();
-                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value);
+                              defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,num_parameters.length,range_param.value,is_indicator);
                            }
 
                          });
@@ -2023,10 +2676,10 @@
                       }
                         }
           
-        function annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+        function annualCyclePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
             $.ajax({
                 type:'GET',
-                url:'getDataAnnualPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                url:'getDataAnnualPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                 contentType:'application/json',
                 success:function(result){
                     //prendere i punti e vedere se stanno o meno nel poligono
@@ -2051,7 +2704,7 @@
                     });
                     
 
-                   creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,true,true,false,false,false,false,false,false,result,subtitle,data,polygonClicked);
+                   creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,true,true,false,false,false,false,false,false,result,subtitle,data,polygonClicked,is_indicator);
 
                     
                     
@@ -2059,17 +2712,17 @@
               }); //end ajax call
           }
 
-          function defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function defaultGraphPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
             $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
                       result=result["allData"];
                       data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
 
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,false,false,result,subtitle,data,polygonClicked);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,false,false,result,subtitle,data,polygonClicked,is_indicator);
                       
    
                     }
@@ -2114,10 +2767,10 @@
                       data = data.sort(sortByDateAscending);
                       return data;
           }
-          function maxMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function maxMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
               $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
@@ -2137,7 +2790,7 @@
                         }
                       });
                     
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,true,false,false,false,false,false,result,subtitle,maxData,polygonClicked);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,true,false,false,false,false,false,result,subtitle,maxData,polygonClicked,is_indicator);
                       
    
                     }
@@ -2146,10 +2799,10 @@
           }
 
 
-          function minMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function minMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
               $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
@@ -2169,17 +2822,17 @@
                       });
                       
                       
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,true,false,false,false,false,result,subtitle,minData,polygonClicked);
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,true,false,false,false,false,result,subtitle,minData,polygonClicked,is_indicator);
                       
                     }
                    
                    });
           }
 
-          function meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function meanMomentPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
               $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
@@ -2210,7 +2863,7 @@
                         })
 
                         
-                     creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,true,false,false,false,result,subtitle,meanData,polygonClicked);
+                     creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,true,false,false,false,result,subtitle,meanData,polygonClicked,is_indicator);
                       
                     }
                    
@@ -2268,17 +2921,17 @@
             
           }
 
-          function tenthPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function tenthPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
               $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
                       result=result["allData"];
                       var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
                       var percentileData=percentileFunction(data,0.1);
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,true,false,false,result,subtitle,percentileData,polygonClicked);       
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,true,false,false,result,subtitle,percentileData,polygonClicked,is_indicator);       
    
                     }
                    
@@ -2286,17 +2939,17 @@
           }
 
           
-          function ninetiethPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function ninetiethPercentilePolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
               $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
                       result=result["allData"];
                       var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
                       var percentileData=percentileFunction(data,0.9);
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,true,false,result,subtitle,percentileData,polygonClicked);       
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,true,false,result,subtitle,percentileData,polygonClicked,is_indicator);       
    
                     }
                    
@@ -2304,73 +2957,72 @@
           }
 
           
-          function medianaPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value){
+          function medianaPolygon(polygonClicked,dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,num_parameters_length,range_param_value,is_indicator){
               $.ajax({
                     type:'GET',
-                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicPolygon/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator,
                     contentType:'application/json',
                     success:function(result){
                       //first I need to check using pointinpolygon if the point is in the polygon clicked, then adding to the array
                       result=result["allData"];
                       var data=dataMaxMinPolygon(result,polygonClicked,layerLastName);
                       var percentileData=percentileFunction(data,0.5);
-                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,false,true,result,subtitle,percentileData,polygonClicked);       
+                      creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latMin,latMax,longMin,longMax,null,null,num_parameters_length,range_param_value,false,true,false,false,false,false,false,true,result,subtitle,percentileData,polygonClicked,is_indicator);       
                     }
                    
                    });
           }
 
-          function maxMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+          function maxMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
             $.ajax({
               type:'GET',
-              url:'getMaxMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+              url:'getMaxMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
               contentType:'application/json',
               success:function(result){
                   //maximum value moment by moment
-                  result=result["allData"];
-                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,true,false,false,false,false,false,result,subtitle,null,null);
-                  
+                    result=result["allData"];
+                    creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,true,false,false,false,false,false,result,subtitle,null,null,is_indicator);
               }
             });
           }
 
 
-          function minMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+          function minMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
             $.ajax({
               type:'GET',
-              url:'getMinMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+              url:'getMinMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
               contentType:'application/json',
               success:function(result){
-                  //maximum value moment by moment
+                  //minimum value moment by moment
                   result=result["allData"];
-                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,true,false,false,false,false,result,subtitle,null,null);
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,true,false,false,false,false,result,subtitle,null,null,is_indicator);
                   
               }
             });
           }
 
-          function meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+          function meanMomentGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
             $.ajax({
               type:'GET',
-              url:'getMeanMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+              url:'getMeanMomentGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
               contentType:'application/json',
               success:function(result){
-                  //maximum value moment by moment
+                  //mean value moment by moment
                   result=result["allData"];
-                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,true,false,false,false,result,subtitle,null,null);
+                 creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,true,false,false,false,result,subtitle,null,null,is_indicator);
                   
               }
             });
           }
 
-          function tenthPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+          function tenthPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
               $.ajax({
                 type:'GET',
-                url:'getTenthPercentileGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                url:'getTenthPercentileGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
                 contentType:'application/json',
                 success:function(result){
                   result=result["allData"];
-                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,true,false,false,result,subtitle,null,null)
+                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,true,false,false,result,subtitle,null,null,is_indicator)
                 }
               });
           }
@@ -2378,56 +3030,244 @@
 
           
           
-          function ninetiethPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+          function ninetiethPercentileGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
               $.ajax({
                 type:'GET',
-                url:'getNinetiethPercentileGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                url:'getNinetiethPercentileGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
                 contentType:'application/json',
                 success:function(result){
                   result=result["allData"];
-                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,true,false,result,subtitle,null,null)
+                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,true,false,result,subtitle,null,null,is_indicator)
                 }
               });
           }
 
-          function medianaGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
+          function medianaGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
               $.ajax({
                 type:'GET',
-                url:'getMedianaGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                url:'getMedianaGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
                 contentType:'application/json',
                 success:function(result){
                   result=result["allData"];
-                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,true,result,subtitle,null,null)
+                  creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,true,result,subtitle,null,null,is_indicator)
                 }
               });
           }
 
-          function annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
-            $.ajax({
+          function annualCycleGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
+            if(is_indicator == "true"){
+
+              //prepare csrf_token for ajax post request!
+              function getCookie(name) {
+                  var cookieValue = null;
+                  if (document.cookie && document.cookie !== '') {
+                      var cookies = document.cookie.split(';');
+                      for (var i = 0; i < cookies.length; i++) {
+                          var cookie = jQuery.trim(cookies[i]);
+                          // Does this cookie string begin with the name we want?
+                          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                              break;
+                          }
+                      }
+                  }
+                  return cookieValue;
+              }
+              var csrftoken = getCookie('csrftoken');
+
+              function csrfSafeMethod(method) {
+                  // these HTTP methods do not require CSRF protection
+                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+              }
+              $.ajaxSetup({
+                  beforeSend: function(xhr, settings) {
+                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                      }
+                  }
+                });
+              var new_result = JSON.parse(window.localStorage.getItem("indicator_result"));
+              $.ajax({
+                    type:'POST',
+                    url:'getDataGraphicIndicatorAnnual/'+dataset_id_modal+"/"+layerLastName+"/"+latitude1+"/"+longitude1+"/"+num_parameters_length+"/"+range_param_value,
+                    data: JSON.stringify({new_result:new_result}),
+                    contentType:'application/json; charset=utf-8',
+                    success:function(result){
+                      //here we obtain only one result on puglia test indicator since only the data of 1 july is present!!
+                       result=result["dataAnnual"];
+                       creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,true,false,false,false,false,false,false,false,result,subtitle,null,null,is_indicator);
+                  }
+                   });
+            }else{
+              $.ajax({
                     type:'GET',
-                    url:'getDataGraphicAnnual/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                    url:'getDataGraphicAnnual/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
                     contentType:'application/json',
                     success:function(result){
                         result=result["dataAnnual"];
-                        creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,true,false,false,false,false,false,false,false,result,subtitle,null,null)
+                        creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,true,false,false,false,false,false,false,false,result,subtitle,null,null,is_indicator);
                   }
                    });
+                }
           }
 
 
         
+          var markers=[];
+          var areThereMarkers=false;
+          var value_return=true;
 
-          function defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value){
-            $.ajax({
+	function defaultGraphNew(dataset_id_modal,layerLastName,opp,context,time_start,time_finish,latitude,longitude,range_param_value,latMin,longMin,latMax,longMax) {
+		if (!opp || opp==="") opp = "default"
+		if (latMin=="no") latMin = latitude-0.025
+		if (latMax=="no") latMax = latitude+0.025
+		if (longMin=="no") longMin = longitude-0.032
+		if (longMax=="no") longMax = longitude+0.032
+                graphFetchingUrl = 'getDataGraphicNew/'+dataset_id_modal+"/"+layerLastName+"/"+opp+"/"+context+"/"+time_start+"/"+time_finish+"/"+latitude+"/"+longitude+"/"+range_param_value+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax
+                    
+		$.ajax({
                     type:'GET',
-                    url:'getDataGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+latitude2+"/"+longitude2+"/"+latitude3+"/"+longitude3+"/"+num_parameters_length+"/"+range_param_value,
+                    url:graphFetchingUrl,
                     contentType:'application/json',
+		error: function(XMLHttpRequest, textStatus, errorThrown) { 
+        alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+    },
                     success:function(result){
-                          result=result["allData"];
-                          creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,false,result,subtitle,null,null);
-                   }
+                          //Don't know why ajax call when it returns change my style of the accordion buttons and shows the hidden button
+                          //button that with this code I hide again!
+			result=result["allData"];
+			creationGraphNew(dataset_id_modal,layerLastName,time_start,time_finish,latitude,longitude,range_param_value,context,opp,result,subtitle,null,null);
+			return
+		}
+		})
+	}
 
+          function defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,latMin,longMin,latMax,longMax){
+            
+	if (latMin=="no") latMin = latitude1-0.000025
+	if (latMax=="no") latMax = latitude1+0.000025
+	if (longMin=="no") longMin = longitude1-0.000032
+	if (longMax=="no") longMax = longitude1+0.000032
+	is_indicator = false
+
+              $.ajax({
+                    type:'GET',
+                    url:'getDataGraphic/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+num_parameters_length+"/"+range_param_value+"/"+is_indicator+"/"+latMin+"/"+longMin+"/"+latMax+"/"+longMax,
+                    contentType:'application/json',
+		error: function(XMLHttpRequest, textStatus, errorThrown) { 
+        alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+    },
+                    success:function(result){
+                          //Don't know why ajax call when it returns change my style of the accordion buttons and shows the hidden button
+                          //button that with this code I hide again!
+			result=result["allData"];
+			creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,false,result,subtitle,null,null,is_indicator);
+			return
+                          
+                          if(is_indicator){
+                            var local_scale_indicator=document.getElementById("ind_local_scale").getElementsByTagName("div");
+                            for(var i=0;i<local_scale_indicator.length;i++){
+                               var all_buttons = local_scale_indicator[i].getElementsByTagName("button");
+                                all_buttons[1].style.display="none";
+                            }
+                          }
+                          result=result["allData"];
+                          if(is_indicator=="true"){
+                            //I need to take only the points that are at maximum 1km far from the one clicked!
+                            // the one clicked is latitude1, longitude1
+                            //using Leaflet.distanceTo (in meters) to filter the points!
+                            var pointClicked = L.latLng(latitude1,longitude1);
+                            allLatitudes = result[4];
+                            allLongitudes = result[5];
+                            var new_result = [];
+                            var new_points = [];
+                            var new_dates = [];
+                            var unit = "";
+                            var new_type_results = [];
+                            var new_latitudes = [];
+                            var new_longitudes = [];
+                            var j=0;
+                            markers=[];
+                            for(var i=0;i<allLatitudes.length;i++){
+                              
+                              let point = L.latLng(allLatitudes[i],allLongitudes[i]);
+                              var marker = L.marker(point);
+
+                              markers.push(marker);
+
+                              if (pointClicked.distanceTo(point)<5000){
+                                  //this point is inside the 1km distance, put the result in the new list 
+                                  new_points.insert(j,result[0][i]);
+                                  new_dates.insert(j,result[1][i]);
+                                  unit = result[2];
+                                  new_type_results.insert(j,result[3][i]);
+                                  new_latitudes.insert(j,result[4][i]);
+                                  new_longitudes.insert(j,result[5][i]);
+                                  j++;
+                              }
+                            }
+                            new_result = [new_points,new_dates,unit,new_type_results,new_latitudes,new_longitudes]
+                            if(new_result[0].length==0){
+                               value_return=false;
+                               $("#graphModal").modal('hide');                               
+                              //there are no points that are in that range
+                              //here my idea is to alert the user that there are no points in that range
+                              //and add markers to the points where data are available!
+                              swal("No points","There are no points within a 5km radius of where you clicked!","error",{
+                                button:"Show available points"
+                              }).then(()=>{
+                               
+                                if(!areThereMarkers){
+                                  for(var i=0;i<markers.length;i++){
+                                  //create a marker for every point and then remove these markers once the layer is unselected!
+                                  markers[i].addTo(map).on('click',function(e){
+
+				defaultGraphNew(dataset_id_modal,layerLastName,"default","one",time_start,time_finish,e.latlng.lat,e.latlng.lng,range_param_value,e.latlng.lat-0.025,e.latlng.lng-0.032,e.latlng.lat+0.025,e.latlng.lng+0.032)
+
+				  /*defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,e.latlng.lat,latitude2,e.latlng.lng,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,is_indicator,e.latlng.lat-0.025,e.latlng.lng-0.032,e.latlng.lat+0.025,e.latlng.lng+0.032)*/
+                                  });
+
+                                }
+                                areThereMarkers=true;
+                              }
+                              });
+
+                              
+                            }else{
+                              value_return=true;
+                              //save it in the local storage so other type of graphs use this result without recalculating them
+                              window.localStorage.removeItem("indicator_result");
+                              window.localStorage.setItem("indicator_result",JSON.stringify(new_result));
+                              $("#graphModal").modal('show');  
+                              result=new_result;     
+                            }
+
+                          }
+                          if(value_return){
+                            creationGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters_length,range_param_value,false,false,false,false,false,false,false,false,result,subtitle,null,null,is_indicator);
+                          }
+                          
+                          return value_return;
+                        }
+                    
+                    
                   });
+               
+
+                  
+                  
+          }
+
+          //function to remove the markers
+          function removeMarker(){
+            if(areThereMarkers){
+                for(var i=0;i<markers.length;i++){
+                  map.removeLayer(markers[i]);
+                }
+                areThereMarkers=false;
+                markers=[];
+              }
+          
           }
 
           $('#graphModal').on('hidden.bs.modal', function (e) {
@@ -2454,9 +3294,14 @@
               $("#subtitle").html(subtitle);
 
               var dataset_id_modal=lastLayer.getAttribute("dataset_id");
-              
+              var is_indicator=lastLayer.getAttribute("is_indicator");
               var time_start=lastLayer.getAttribute("date_start");
               var time_finish=lastLayer.getAttribute("date_end");
+              var lat_min=lastLayer.getAttribute("lat_min");
+              var lat_max=lastLayer.getAttribute("lat_max");
+              var long_min=lastLayer.getAttribute("long_min");
+              var long_max=lastLayer.getAttribute("long_max");
+
               var isDay=false;
               var isHour=false;
               var isMonth=false;
@@ -2563,6 +3408,8 @@
               var longitude2=latlng.lng+0.28;
               var latitude3=latlng.lat-1.20;
               var longitude3=latlng.lng-0.28;
+              var show_modal=true;
+              if(true){
                         $.ajax({
                             type:'GET',
                             url:'getDataTable/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+latitude1+"/"+longitude1+"/"+num_parameters.length+"/"+range_param.value,
@@ -2575,14 +3422,32 @@
                             $(allButtons).hide();
                             }
                       });
+                      /*defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,"no","no","no","no");*/
+			defaultGraphNew(dataset_id_modal,layerLastName,"default","one",time_start,time_finish,latitude1,longitude1,range_param.value,"no","no","no","no")
 
-                      //vedere quale poligono è presente nella mappa, se sono presenti le pilot area per ogni poligono chiamare l'url di griddap di quel dataset di quel poligono 
+                    }else{
+                      $.ajax({
+                            type:'GET',
+                            url:'getDataTableIndicator/'+dataset_id_modal+"/"+layerLastName+"/"+time_start+"/"+time_finish+"/"+lat_min+"/"+lat_max+"/"+long_min+"/"+long_max+"/"+num_parameters.length+"/"+range_param.value,
+                            contentType:"text/html",
+                            success:function(data){
+                              $("#loadingTable").hide();
+                              var table_data=data;
+                             $(table_data).insertAfter("#tableAdd");
+                            var allButtons=document.querySelectorAll("#scroll_full_list .form-check .btn-danger");
+                            $(allButtons).hide();
+                            }
+                      });
+                    /*defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value,is_indicator,lat_min,long_min,lat_max,long_max);*/
+		defaultGraphNew(dataset_id_modal,layerLastName,"default","one",time_start,time_finish,latitude,longitude,range_param.value,lat_min,long_min,lat_max,long_max);
+                                 
+                      
+                    }    
 
-                      defaultGraph(dataset_id_modal,layerLastName,time_start,time_finish,latitude1,latitude2,longitude1,longitude2,latitude3,longitude3,num_parameters.length,range_param.value);
-                   
-
- 
-              $("#graphModal").modal('show');
+                    
+              
+                $("#graphModal").modal('show');
+           
             }
           });
 
@@ -2819,7 +3684,7 @@
         var isLegendAlreadyPresent=false;
         var data;
 
-        function createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMidMax,colorMax,isColorChanged,value_max,value_min,value_mid){
+        function createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMidMax,colorMax,isColorChanged,value_max,value_min,value_mid,is_indicator){
           var myLegendDiv=document.createElement("div");
           var divBottom=document.getElementById("createImage");
           myLegendDiv.classList.add("myLegendDiv");
@@ -2834,6 +3699,7 @@
           legendModal.setAttribute("longitude_end",longitude_end);
           legendModal.setAttribute("num_param",num_param);
           legendModal.setAttribute("range_value",range_value);
+          legendModal.setAttribute("is_indicator",is_indicator);
 
           myLegendDiv.setAttribute("colorMin",colorMin);
           myLegendDiv.setAttribute("colorMinMid",colorMinMid);
@@ -3106,7 +3972,8 @@
            var longEnd=modalDiv.getAttribute("longitude_end");
            var numParam=modalDiv.getAttribute("num_param");
            var rangeValue=modalDiv.getAttribute("range_value");
-           createPointVectorial(datasetIdChange,nameLayer,dateStart,latStart,latEnd,longStart,longEnd,numParam,rangeValue,"","","","","",true,true);
+           var is_indicator=modalDiv.getAttribute("is_indicator");
+           createPointVectorial(datasetIdChange,nameLayer,dateStart,latStart,latEnd,longStart,longEnd,numParam,rangeValue,"","","","","",true,true,is_indicator);
         }
 
        
@@ -3138,6 +4005,7 @@
            var longEnd=modalDiv.getAttribute("longitude_end");
            var numParam=modalDiv.getAttribute("num_param");
            var rangeValue=modalDiv.getAttribute("range_value");
+           var is_indicator=modalDiv.getAttribute("is_indicator");
            var colors = $('.colorsLegend');
            var minColor = $(colors[0]).val();
            var midColor = $(colors[1]).val();
@@ -3150,7 +4018,7 @@
            var maxMidColor=getMix(midColor,maxColor);
            var value=[minColor,minMidColor,midColor,maxMidColor,maxColor,valueMinLegend,valueMidLegend,valueMaxLegend]
            localStorage.setItem(datasetIdChange,JSON.stringify(value));
-           createPointVectorial(datasetIdChange,nameLayer,dateStart,latStart,latEnd,longStart,longEnd,numParam,rangeValue,minColor,minMidColor,midColor,maxMidColor,maxColor,true,isColorChanged);
+           createPointVectorial(datasetIdChange,nameLayer,dateStart,latStart,latEnd,longStart,longEnd,numParam,rangeValue,minColor,minMidColor,midColor,maxMidColor,maxColor,true,isColorChanged,is_indicator);
           
         }
         
@@ -3266,11 +4134,12 @@
             var name_layer;
             var num_param;
             for(var i=0;i<allActiveLayers.length;i++){
-              if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
+              if((allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked) ||(allActiveLayers[i].getAttribute("is_indicator")=="true" && allActiveLayers[i].children[0].checked)){
                 dataset_id=allActiveLayers[i].getAttribute("dataset_id");
                 name_layer=allActiveLayers[i].getAttribute("name_layer");
                 range_value=allActiveLayers[i].getAttribute("range_value");
                 num_param=allActiveLayers[i].getAttribute("num_param");
+                is_indicator=allActiveLayers[i].getAttribute("is_indicator");
                 break;
               }
             }
@@ -3280,7 +4149,7 @@
             
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
-            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
+            createPointVectorial(dataset_id,name_layer,newData,lat_start,lat_end,long_start,long_end,num_param,range_value,colors[0],colors[1],colors[2],colors[3],colors[4],false,false,is_indicator);
           }
 
 
@@ -3290,25 +4159,27 @@
             var dataset_id;
             var name_layer;
             var num_param;
+            var is_indicator;
             for(var i=0;i<allActiveLayers.length;i++){
               if(allActiveLayers[i].getAttribute("wms")=="" && allActiveLayers[i].children[0].checked){
                 dataset_id=allActiveLayers[i].getAttribute("dataset_id");
                 name_layer=allActiveLayers[i].getAttribute("name_layer");
                 num_param=allActiveLayers[i].getAttribute("num_param");
+                is_indicator=allActiveLayers[i].getAttribute("is_indicator");
                 break;
               }
             }
             var inputData=$("#myDate").val();
             var colors=getColorsLegend(dataset_id);
             deletePointVect(dataset_id);
-            createPointVectorial(dataset_id,name_layer,inputData,lat_start,lat_end,long_start,long_end,num_param,newRangeValue,colors[0],colors[1],colors[2],colors[3],colors[4],false,false);
+            createPointVectorial(dataset_id,name_layer,inputData,lat_start,lat_end,long_start,long_end,num_param,newRangeValue,colors[0],colors[1],colors[2],colors[3],colors[4],false,false,is_indicator);
           
           }
 
-          function createPointVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isCreateLegend,isColorChanged){
+          function createPointVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isCreateLegend,isColorChanged,isIndicator){
              $.ajax({
                type:'GET',
-               url:'getDataVectorial/'+dataset_id+'/'+layer_name+'/'+formatDate(date_start)+'/'+latitude_start+'/'+latitude_end+'/'+longitude_start+'/'+longitude_end+'/'+num_param+'/'+range_value,
+               url:'getDataVectorial/'+dataset_id+'/'+layer_name+'/'+formatDate(date_start)+'/'+latitude_start+'/'+latitude_end+'/'+longitude_start+'/'+longitude_end+'/'+num_param+'/'+range_value+"/"+isIndicator,
                contentType:"application/json",
                success:function(data){
                  var allData=data['dataVect'];
@@ -3323,8 +4194,9 @@
                  }else{
                  value_mid=Math.ceil((parseFloat(value_max)-parseFloat(value_min))/2);
                  }
-
+                 
                  var colorsValuesStored=JSON.parse(localStorage.getItem(dataset_id));
+                 
                   if(colorsValuesStored!==null){ 
                     colorMin=colorsValuesStored[0];
                     colorMinMid=colorsValuesStored[1];
@@ -3390,7 +4262,7 @@
                 
                  if(isCreateLegend){
                   
-                 createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isColorChanged,value_max,value_min,value_mid);
+                 createLegend(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,colorMin,colorMinMid,colorMid,colorMaxMid,colorMax,isColorChanged,value_max,value_min,value_mid,isIndicator);
                  }
                   // zoom the map to the rectangle bounds
                   //map.fitBounds(bounds);
@@ -3470,6 +4342,7 @@
               var div_checkbox=$(checkbox_clicked).closest('div');
               dataset_id=div_checkbox.attr("dataset_id");
               if(!div_checkbox.attr("wms")){
+               
                 isLayerVectorial=true;
               }else{
                 isLayerVectorial=false;
@@ -3477,10 +4350,13 @@
               $.ajax({
                     type:'GET',
                     url:'myFunctions/getMetadata/'+dataset_id,
-                    //dataType:'json',
                     contentType:"application/json",
                     success:function(data){
+                        var is_indicator = false
                         var metadata=data["metadata"];
+                        if(metadata.length>10){
+                          is_indicator=true
+                        }
                         num_parameters=metadata[1].split(", ");
                         var label_other_param=document.getElementById("label_other_param");
                         range_param=document.getElementById("otherParam");
@@ -3488,6 +4364,10 @@
                         var extra_param;
                         var min_max_value;
                         var positiveNegative=metadata[7];
+                        var lat_min=metadata[8].split(",")[0];
+                        var lat_max=metadata[8].split(",")[1].replace(" ","");
+                        var long_min=metadata[9].split(",")[0];
+                        var long_max=metadata[9].split(",")[1].replace(" ","");
                         if(num_parameters.length==3 && extraParamArray.length==0 && checkbox_clicked.checked){
                           other_param.style.display="none";
                         }
@@ -3543,20 +4423,22 @@
                                           var seconds_epoch_start=seconds_epoch[0];
                                        
                                           var seconds_epoch_end=seconds_epoch[1];
+
+
                                         
-                                         if (checkbox_clicked.checked && checkbox_clicked.value.indexOf("historical") !== -1){
+                                         if (checkbox_clicked.checked && isLayerHistorical(checkbox_clicked)){
                                            countHistorical+=1;
                                          }
-                                         else if(checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections") !== -1){
+                                         else if(checkbox_clicked.checked && !isLayerHistorical(checkbox_clicked)){
                                            countProjections+=1;
                                          }
-                                         else if(!checkbox_clicked.checked && checkbox_clicked.value.indexOf("historical") !== -1){
+                                         else if(!checkbox_clicked.checked && isLayerHistorical(checkbox_clicked)){
                                             countHistorical-=1;
                                             if(countHistorical===0){
                                               historical_Date=[];
                                             }
                                          }
-                                         else if(!checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections") !== -1){
+                                         else if(!checkbox_clicked.checked && !isLayerHistorical(checkbox_clicked)){
                                            countProjections-=1;
                                            if(countProjections===0){
                                              projections_Date=[];
@@ -3566,18 +4448,22 @@
                                           date_start.setUTCSeconds(seconds_epoch_start);
                                           date_end=new Date(0);
                                           date_end.setUTCSeconds(seconds_epoch_end.trim());
-                                         
+          
                                           var dateArray=new Array();
                                           var cardParam=document.getElementById("cardParameters");
                                           
-                                          if((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1)  && checkbox_clicked.checked){
+                                          if((isLayerHistorical(checkbox_clicked) || checkbox_clicked.value.indexOf("from")!==-1 || is_indicator)  
+                                                && checkbox_clicked.checked){
                                               historical_Date.length=0;
                                               var currentDate =date_start
                                                 while (currentDate <= date_end) {
                                                     historical_Date.push(new Date (currentDate));
                                                     currentDate = currentDate.addDays(1);
                                                 }
-                                          }else if(checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections") !== -1)
+                                                
+                                                historical_Date.push(new Date (currentDate));
+                                                
+                                          }else if(checkbox_clicked.checked && !isLayerHistorical(checkbox_clicked))
                                           {
                                                 var currentDate =date_start
                                                 projections_Date.length=0;
@@ -3585,12 +4471,13 @@
                                                     projections_Date.push(new Date (currentDate));
                                                     currentDate = currentDate.addDays(1);
                                                 }
+                                                projections_Date.push(new Date (currentDate));
                                           }
                                         
                                           dateArray.length=0;
                                           dateArray=historical_Date.concat(projections_Date);
                                           
-                                          
+        
                                           var input_time=document.getElementById("myDate");
                                           input_time.min=formatDateInput(dateArray[0]);
                                           input_time.max=formatDateInput(dateArray[dateArray.length-1]);
@@ -3604,13 +4491,13 @@
                                           cardParam.style.display="block";
                                           
                                          
-                                          if ((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
+                                          if ((isLayerHistorical(checkbox_clicked) || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
                                           
                                            var firstDate=input_time.min;
                                            
                                            input_time.value=firstDate;
                                             timeValue=formatDate(firstDate);
-                                          }else if(checkbox_clicked.value.indexOf("projections")!==-1 && checkbox_clicked.checked) 
+                                          }else if(!isLayerHistorical(checkbox_clicked) && checkbox_clicked.checked) 
                                           {
 
                                             var lastDate=input_time.max;
@@ -3658,7 +4545,7 @@
                                           }else{
                                            
                                             if(checkbox_clicked.checked){
-                                            createPointVectorial(dataset_id,layer_name,date_start,lat_start,lat_end,long_start,long_end,num_parameters.length,range_param.value,"","","","","",true,false);
+                                            createPointVectorial(dataset_id,layer_name,date_start,lat_start,lat_end,long_start,long_end,num_parameters.length,range_param.value,"","","","","",true,false,is_indicator);
                                             }
                                           }
 
@@ -3712,7 +4599,7 @@
                                           }else{
                                             
                                             if(checkbox_clicked.checked){
-                                              createPointVectorial(dataset_id,layer_name,date_start,lat_start,lat_end,long_start,long_end,num_parameters.length,range_param.value,"","","","","",true,false);
+                                              createPointVectorial(dataset_id,layer_name,date_start,lat_start,lat_end,long_start,long_end,num_parameters.length,range_param.value,"","","","","",true,false,is_indicator);
                                             }
                                           }
                                           }
@@ -3738,6 +4625,12 @@
                                                 lastLayer.setAttribute("date_end",formatDate(date_end));
                                                 lastLayer.setAttribute("num_param",num_parameters.length);
                                                 lastLayer.setAttribute("range_value",range_param.value);
+                                                lastLayer.setAttribute("is_indicator",is_indicator);
+                                                lastLayer.setAttribute("lat_min",lat_min);
+                                                lastLayer.setAttribute("lat_max",lat_max);
+                                                lastLayer.setAttribute("long_min",long_min);
+                                                lastLayer.setAttribute("long_max",long_max);
+
 
                                                var movement;
                                                $("#layers_active").sortable({
@@ -3781,7 +4674,7 @@
                                                      var notCreateLegend=false;
                                                      if(allActiveLayers[0].getAttribute("dataset_id")===ui.item[0].attributes[2].value){
                                                          var colors=getColorsLegend(allActiveLayers[0].getAttribute("dataset_id"));
-                                                        createPointVectorial(ui.item[0].attributes[2].value,ui.item[0].attributes[7].value,ui.item[0].attributes[8].value,lat_start,lat_end,long_start,long_end,ui.item[0].attributes[10].value,ui.item[0].attributes[11].value,colors[0],colors[1],colors[2],colors[3],colors[4],notCreateLegend,false);
+                                                        createPointVectorial(ui.item[0].attributes[2].value,ui.item[0].attributes[7].value,ui.item[0].attributes[8].value,lat_start,lat_end,long_start,long_end,ui.item[0].attributes[10].value,ui.item[0].attributes[11].value,colors[0],colors[1],colors[2],colors[3],colors[4],notCreateLegend,false,ui.item[0].attributes[9].value);
                                                      }
                                                      }
                                                      //precedente vettoriale, nuovo vettoriale
@@ -3793,7 +4686,7 @@
                                                       if( allActiveLayers[0].getAttribute("dataset_id")===ui.item[0].attributes[2].value){
                                                         deletePointVect(uiItemPrev[0].attributes[2].value);
                                                         var colors=getColorsLegend(allActiveLayers[0].getAttribute("dataset_id"));
-                                                        createPointVectorial(ui.item[0].attributes[2].value,ui.item[0].attributes[7].value,ui.item[0].attributes[8].value,lat_start,lat_end,long_start,long_end,ui.item[0].attributes[10].value,ui.item[0].attributes[11].value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false);
+                                                        createPointVectorial(ui.item[0].attributes[2].value,ui.item[0].attributes[7].value,ui.item[0].attributes[8].value,lat_start,lat_end,long_start,long_end,ui.item[0].attributes[10].value,ui.item[0].attributes[11].value,colors[0],colors[1],colors[2],colors[3],colors[4],true,false,ui.item[0].attributes[9].value);
                                                      }
                                                      
                                                     }else{
@@ -3848,23 +4741,28 @@
                                                 
                                                 $(button_remove).on("click",function(){
                                                         var item=$(this).closest('div');
+                                                        var isIndicator=false;
+                                                        var dataset_type=item.attr("dataset_type");
+                                                        removeMarker();
                                                         buttonRemoveVisible=false;
                                                         if(!buttonRemoveVisible){
                                                           $(button_remove).hide();
                                                           
                                                         }
-                                                        if(($(item).attr("wms")=="")){
+                                                        if(($(item).attr("wms")=="") || ($(item).attr("wms")===undefined)){
                                                           isLayerVectorial=true;
                                                         }else{
                                                           isLayerVectorial=false;
                                                         }
                                                        
-                                                        $("#scroll_full_list").append(item);
+                                                        $("#"+dataset_type).append(item);
+                                                        
                                                        orderAlphabetically();
 
                                                        
                                                        for(var i=0;i<checkboxes_clicked[0].length;i++){
                                                           if(checkboxes_clicked[0][i]===$(item[0]).attr("dataset_id") && $(item[0]).attr("wms")==""){
+                                                                
                                                                 checkboxes_clicked[4].splice(i,1);                     
                                                           }
                                                        }
@@ -3908,7 +4806,7 @@
                                                             other_param.style.display="none";
                                                           }
                                                         }
-                                                        if((checkbox_clicked.value.indexOf("historical") !== -1 || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
+                                                        if((isLayerHistorical(checkbox_clicked) || checkbox_clicked.value.indexOf("from")!==-1) && checkbox_clicked.checked){
                                                           countHistorical-=1;
                                                         
                                                           if(countHistorical===0){
@@ -3921,7 +4819,7 @@
                                                               input_time.max=formatDateInput(dateArray[dateArray.length-1]);
                                                               input_time.value=input_time.max;
                                                           }
-                                                        }else if(checkbox_clicked.checked && checkbox_clicked.value.indexOf("projections")!==-1)
+                                                        }else if(checkbox_clicked.checked && !isLayerHistorical(checkbox_clicked))
                                                         {
                                                           countProjections-=1;
                                                           
@@ -3936,7 +4834,7 @@
                                                               input_time.value=input_time.min;
 
                                                           }
-                                                        }else if((checkbox_clicked.value.indexOf("historical")|| checkbox_clicked.value.indexOf("from"))){
+                                                        }else if((isLayerHistorical(checkbox_clicked) || checkbox_clicked.value.indexOf("from"))){
                                                             if(countHistorical===0){
                                                             dateArray=dateArray.filter((el)=> !historical_Date.indexOf(el)<0);
                                                               historical_Date=[];
@@ -3960,7 +4858,7 @@
                                                           }
                                                         }
                                                        
-                                                        if($(item[0]).attr("wms")!=""){
+                                                        if($(item[0]).attr("wms")!="" && $(item[0]).attr("wms")!==undefined){
                                                             for(var j=0;j<layer_wms.length;j++){  
                                                               if(layer_wms[j].dataset_id===$(item[0]).attr("dataset_id")){
                                                                 map.removeLayer(layer_wms[j].layer);
@@ -3970,9 +4868,10 @@
                                                             }
                                                             allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
                                                             if(allActiveLayers.length>0 && allActiveLayers[0].getAttribute("wms")===""){
-                                                              createPointVectorial(allActiveLayers[0].getAttribute("dataset_id"),allActiveLayers[0].getAttribute("name_layer"),allActiveLayers[0].getAttribute("date_start"),lat_start,lat_end,long_start,long_end,allActiveLayers[0].getAttribute("num_param"),allActiveLayers[0].getAttribute("range_value"),"","","","","",false,false);
+                                                              createPointVectorial(allActiveLayers[0].getAttribute("dataset_id"),allActiveLayers[0].getAttribute("name_layer"),allActiveLayers[0].getAttribute("date_start"),lat_start,lat_end,long_start,long_end,allActiveLayers[0].getAttribute("num_param"),allActiveLayers[0].getAttribute("range_value"),"","","","","",false,false,allActiveLayers[0].getAttribute("is_indicator"));
                                                             }
                                                         }else{
+                                                          
                                                          deletePointVect($(item[0]).attr("dataset_id"));
                                                          allActiveLayers=document.getElementById("layers_active").querySelectorAll(".form-check");
                                                          if(isArrowsWind){
@@ -4002,6 +4901,7 @@
                                                           }
                                                     });
                                                   if(buttonRemoveVisible){
+                                                    
                                                     $(button_remove).show();
               
                                                   }
@@ -4018,8 +4918,9 @@
                                                  
                                             
                                           }else{
-                                            //unchecked
+                                            //unchecked checkbox
                                             buttonRemoveVisible=true;
+                                            removeMarker();
                                           var checkboxRemove=checkboxes_clicked[0].indexOf(checkbox_clicked.value);
                                           checkboxes_clicked[0].splice(checkboxRemove,1);
                                           checkboxes_clicked[1].splice(checkboxRemove,1);
@@ -4159,8 +5060,19 @@
                     var title=parent.querySelector('input[type=checkbox]');
                     var title_value=title.value;
                     var div_parent=$(title).closest('div');
-                    var griddap_url=div_parent.attr("griddap_url");
+                    var tabledap_url;
+                    var griddap_url;
+                    var isIndicator=false;
+                    if(div_parent.attr("adriaclim_model")!==undefined){
+                      tabledap_url = div_parent.attr("tabledap_url");
+                      isIndicator=true;
+                    }else{
+                      isIndicator=false;
+                      griddap_url=div_parent.attr("griddap_url");
+                    }
+                    
                     var dataset_id=div_parent.attr("dataset_id");
+                    
                     
                     $.ajax({
                       type:'GET',
@@ -4174,7 +5086,11 @@
                     $(".leaflet-bottom").css("z-index","130");
                     
                     $("#exampleModalLabel").html(title_value);
-                    $("#url_dataset").html(griddap_url);
+                    if(!isIndicator){
+                        $("#url_dataset").html(griddap_url);
+                    }else{
+                      $("#url_dataset").html(tabledap_url);
+                    }
                     $("#dataset_id").html(dataset_id);
                     $('#modal').modal('show');
                   }
@@ -4194,7 +5110,6 @@
           $.ajax({
                   type:'GET',
                   url:'myFunctions/getTitle',
-                  //dataType:'json',
                   contentType:"application/json"
                   
               });

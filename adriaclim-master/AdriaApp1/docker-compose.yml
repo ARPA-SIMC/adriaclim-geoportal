@@ -9,22 +9,23 @@ services:
     volumes:
       - ./code:/code
     command: >
-      sh -c "python AdriaProject/manage.py migrate && python AdriaProject/manage.py runserver 0.0.0.0:8000"
+      sh -c "python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && hypercorn --bind '0.0.0.0:8000' AdriaProject.asgi:application --reload "
     environment:
       - DB_HOST=db
-      - DB_NAME=adriaclim
-      - DB_USER=postgres
-      - DB_PASS=db_adriaclim
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       - db
   db:
     image: postgres:13
     ports:
       - "5433:5433"
+      - "5532:5432"
     environment:
-      - POSTGRES_DB=adriaclim
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=db_adriaclim
+      - POSTGRES_DB=$POSTGRES_NAME
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
     volumes:
     - postgres-volume:/var/lib/postgresql/data
 
