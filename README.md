@@ -1,4 +1,5 @@
 # adriaclim-geoportal
+Deployed on hypercorn using ASGI, DEBUG changed to False, SECRET_KEY is secret and also db credentials
 Added Maximum, minimum and mean (moment by moment) graphics for both, outside or inside a polygon.
 Added annual and default graph for both, a point outside a polygon, but also for a point inside one (that can also be uploaded).
 Resolved bugs related to the use of the layers without WMS, elevation parameter was not working.
