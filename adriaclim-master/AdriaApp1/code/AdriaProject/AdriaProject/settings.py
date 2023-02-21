@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
+import mimetypes
+mimetypes.add_type("text/css", ".css", True)
+mimetypes.add_type('text/html', '.html', True)
+# mimetypes.add_type('application/javascript', '.js', True)
+# mimetypes.add_type('text/javascript', '.js', True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +30,7 @@ load_dotenv(find_dotenv())
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -42,8 +47,14 @@ INSTALLED_APPS = [
     'Dataset.apps.DatasetConfig',
     'Metadata',
     'Utente',
-    'crispy_forms'
+    'crispy_forms',
+    'rest_framework',
+    'corsheaders',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+ ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 MIDDLEWARE = [
@@ -143,3 +154,4 @@ STATICFILES_DIRS=[
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap" 
+

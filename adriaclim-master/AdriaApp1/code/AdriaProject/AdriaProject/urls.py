@@ -19,6 +19,8 @@ from django.urls import path
 from Dataset import views as data_views
 from Metadata import views as metadata_views
 from Utente import views as utente_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -82,8 +84,6 @@ urlpatterns = [
     path("<str:dataset_id>",metadata_views.getMetadataForm),
  
   
-]
-
-
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 #handler500="Dataset.views.dataset_id_wrong"
