@@ -164,7 +164,7 @@
                           <div id="scroll_full_list">
                            
                           {% for i in indicators %}
-                          <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.id}}" griddap_url="{{i.griddap_url}}" 
+                          <div class="form-check form-check-group " div_layer="hideAll" dataset_id="{{i.dataset_id}}" griddap_url="{{i.griddap_url}}" 
                              wms="{{i.wms_url}}" metadata_url="{{i.metadata_url}}" dataset_type="scroll_full_list" institution="{{i.institution}}" name_layer="" date_start="{{i.time_start}}" date_end="{{i.time_end}}" 
                              num_param="" range_value="">
                               <input class="radio_layer" name="layers" type="checkbox" onchange="allTheFunctions(this)"  value="{{i.title}}" /> &nbsp; {{i.title}}
@@ -283,7 +283,7 @@
                             </div>
                             <h5 class="modal-title" id="subtitle"></h5>
               </div>
-                      <div class="modal-body">
+                      <div class="modal-body" id="modal-graph-table">
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item">
                       <a class="nav-link active" id="pills-graphic-tab" data-toggle="pill" href="#pills-graphic" role="tab" aria-controls="pills-graphic" aria-selected="true">Graphic</a>
@@ -737,6 +737,7 @@
              var lngMaxPolygon=polygonChosen["longMax"];
 
              $("#modalLabelGraph").text(namePolygon);
+             $(".dataframe").remove();
              $("#loadingGraph").show();
              $("#loadingTable").show();
              counter+=1;
@@ -1457,7 +1458,6 @@
           var csv_name_file;
           var foreignObject;
 
-
 	function creationGraphNew(dataset_id_modal,layerLastName,time_start,time_finish,latitude,longitude,range_param_value,context,operation,result,subtitle,dataPolygon,polygonClicked){	
 
 	isPolygon = (context === "polygon")
@@ -1472,11 +1472,16 @@
 
 	var datasets = result.entries
 	var datasetNumber = result.entries.length
-
-
+ 
+  var modal_width = $("#modal-graph-table").width();
+  
 	var margin = {top: 50, right: 50, bottom: 80, left: 50},
                           //width = window.innerWidth - margin.left - margin.right,
-                        width = document.getElementById('pills-graphic').clientWidth - 70,
+                        
+                          //this offsetWidth returns 0 since you need to display the block before doing this
+                          //but if you display it, in pills-table, it will give you a blank space so I decided to use
+                          // the width of the modal less a value!
+                        width = modal_width - margin.left - margin.right,
                         height = window.innerHeight - 300 - margin.top - margin.bottom;
                 
 
@@ -3283,6 +3288,7 @@
               $("#modalLabelGraph").text("Data");
               var subtitle=lastLayer.querySelector(".radio_layer").value;
               var layerLastName=lastLayer.getAttribute("name_layer");
+              $(".dataframe").remove();
               $("#loadingGraph").show();
               $("#loadingTable").show();
               counter+=1;
@@ -4229,8 +4235,9 @@
                       rectangles.push(rectangle); 
                     }
                     */
+                   
                     varColor=getColor(allValues[i],value_min,value_max,colorMin,colorMid,colorMax);
-                    rectangle=L.rectangle(bounds, {fillOpacity:0.5,fill:true,stroke:false,color: fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 3}).bindTooltip(allValues[i]).addTo(map);
+                    rectangle=L.rectangle(bounds, {fillOpacity:.4,opacity:.4,fill:true,stroke:false,color: fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1}).bindTooltip(allValues[i]).addTo(map);
                     rectangles.push(rectangle); 
                     dataset_ids.push(dataset_id);
                  }
@@ -5049,7 +5056,9 @@
 
               
             function allTheFunctions(checkbox_clicked){
+              
                 handleCheck(checkbox_clicked);
+                
 
             }
 

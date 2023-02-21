@@ -23,12 +23,12 @@ class Indicator(models.Model):
     time_start = models.CharField(max_length=120,default="")
     time_end = models.CharField(max_length=120,default="")
     tabledap_url = models.CharField(max_length=250,default="")
-    dimensions = models.IntegerField(default=0)
-    dimension_names = models.CharField(max_length=500,default="")
-    variables = models.IntegerField(default=0)
-    variable_names = models.CharField(max_length=500,default="")
-    griddap_url = models.CharField(max_length=250,default="")
-    wms_url = models.CharField(max_length=500,default="")
+    dimensions = models.IntegerField(default=0,null=True)
+    dimension_names = models.CharField(max_length=1500,default="",null=True)
+    variables = models.IntegerField(default=0,null=True)
+    variable_names = models.CharField(max_length=1500,default="",null=True)
+    griddap_url = models.CharField(max_length=250,default="",null=True)
+    wms_url = models.CharField(max_length=500,default="",null=True)
 
 class Cache(models.Model):   
     url = models.TextField(primary_key=True)

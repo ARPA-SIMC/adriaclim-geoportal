@@ -983,8 +983,7 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
     return [values2,dates2,unit,layerName2,lats2,longs2]
 
   for n in range(len(values)):
-
-
+    
     if lastDate is None:
       lastDate = dates[n]
       
