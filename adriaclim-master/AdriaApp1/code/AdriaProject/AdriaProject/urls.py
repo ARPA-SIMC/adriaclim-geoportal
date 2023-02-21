@@ -21,6 +21,7 @@ from Metadata import views as metadata_views
 from Utente import views as utente_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.decorators.csrf import csrf_exempt
 
 
 urlpatterns = [
@@ -82,6 +83,8 @@ urlpatterns = [
     path("myFunctions/getTitle",data_views.getTitle),
     path("myFunctions/getIndicators",data_views.getIndicators),
     path("<str:dataset_id>",metadata_views.getMetadataForm),
+    path("test/prova",data_views.getTest),
+    path("test/pippo",data_views.getPippo),
  
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

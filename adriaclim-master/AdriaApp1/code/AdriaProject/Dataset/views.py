@@ -10,6 +10,7 @@ import os
 import json
 from .models import Node,Indicator
 from AdriaProject.settings import ERDDAP_URL
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def index(request):
@@ -226,4 +227,14 @@ def getDataExport(request,dataset_id,selectedType,layer_name,time_start,time_fin
             return response
     raise Http404
 
+@csrf_exempt
+def getTest(request):
+    print("test")
+    return JsonResponse({'test':'test'})
+    # print("test")
+    # return JsonResponse({'test':'test'})
 
+@csrf_exempt
+def getPippo(request):
+    print("pippo")
+    return JsonResponse({'pippo':'pippo'})
