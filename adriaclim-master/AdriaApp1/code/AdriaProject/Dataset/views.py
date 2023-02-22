@@ -235,6 +235,7 @@ def getTest(request):
     # return JsonResponse({'test':'test'})
 
 @csrf_exempt
-def getPippo(request):
+def getPippo(request, inputEsterno):
+    print(inputEsterno)
     print("pippo")
     return JsonResponse({'pippo':'pippo'})

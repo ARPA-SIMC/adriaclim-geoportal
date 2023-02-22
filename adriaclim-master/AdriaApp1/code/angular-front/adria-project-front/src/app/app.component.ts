@@ -27,13 +27,13 @@ export class AppComponent implements OnInit {
       }
     });
 
-    this.getPippo();
+    this.getPippo("ciao");
 
   }
 
-  getPippo() {
+  getPippo(idInput: string) {
     this.httpClient.post('http://localhost:8000/test/pippo', {
-
+      id: idInput
     }).subscribe({
       next(position) {
         console.log('PIPPO: ', position);
