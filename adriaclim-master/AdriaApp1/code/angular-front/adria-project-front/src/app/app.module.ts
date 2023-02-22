@@ -5,10 +5,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
+import { GeoportalMapComponent } from './geoportal-map/geoportal-map.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    GeoportalMapComponent
   ],
   imports: [
     BrowserModule,

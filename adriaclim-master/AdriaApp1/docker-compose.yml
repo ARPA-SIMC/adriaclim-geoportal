@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  web:
+  django:
     build:
       context: .
     ports:
@@ -17,6 +17,12 @@ services:
       - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       - db
+  angular:
+    build: code/angular-front/adria-project-front
+    ports:
+      - "4200:4200"
+    depends_on:
+      - django
   db:
     image: postgres:13
     ports:
