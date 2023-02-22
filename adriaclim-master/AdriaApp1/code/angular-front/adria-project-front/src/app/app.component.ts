@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
 
   getPippo(idInput: string) {
     this.httpClient.post('http://localhost:8000/test/pippo', {
-      id: idInput
+      inputEsterno: idInput
     }).subscribe({
       next(position) {
         console.log('PIPPO: ', position);

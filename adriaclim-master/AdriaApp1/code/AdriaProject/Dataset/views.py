@@ -11,6 +11,9 @@ import json
 from .models import Node,Indicator
 from AdriaProject.settings import ERDDAP_URL
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+
+
 
 # Create your views here.
 def index(request):
@@ -234,8 +237,17 @@ def getTest(request):
     # print("test")
     # return JsonResponse({'test':'test'})
 
-@csrf_exempt
-def getPippo(request, inputEsterno):
-    print(inputEsterno)
+# @csrf_exempt
+@api_view(['GET', 'POST'])
+def getPippo(request):
+    # prova = inputEsterno
+    inputEs = request.data.get('inputEsterno')
+    print()
+    print()
+    print("REQUEST ==", request)
+    print("INPUT ==", inputEs)
+    # print("PROVA ==", prova)
+    print()
+    print()
     print("pippo")
     return JsonResponse({'pippo':'pippo'})
