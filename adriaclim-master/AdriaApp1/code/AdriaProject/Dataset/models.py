@@ -30,7 +30,7 @@ class Indicator(models.Model):
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
 
-class Cache(models.Model):   
-    url = models.TextField(primary_key=True)
-    value = models.TextField() 
-    start = models.DateTimeField(auto_now=True)
+# class Cache(models.Model):   
+#     url = models.TextField(primary_key=True)
+#     value = models.TextField() 
+#     start = models.DateTimeField(auto_now=True)

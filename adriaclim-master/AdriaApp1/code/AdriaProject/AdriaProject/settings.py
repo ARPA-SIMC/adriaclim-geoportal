@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
-import mimetypes
-mimetypes.add_type("text/css", ".css", True)
-mimetypes.add_type('text/html', '.html', True)
-# mimetypes.add_type('application/javascript', '.js', True)
-# mimetypes.add_type('text/javascript', '.js', True)
+# import mimetypes
+# mimetypes.add_type("text/css", ".css", True)
+# mimetypes.add_type('text/html', '.html', True)
+# # mimetypes.add_type('application/javascript', '.js', True)
+# # mimetypes.add_type('text/javascript', '.js', True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +34,14 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+
+#cache, we use memcached as our default backend cache
+CACHES = {
+    'default':{
+    'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+    'LOCATION': 'memcached:11211'
+    }
+}
 
 # Application definition
 
@@ -226,7 +234,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT=os.path.join(BASE_DIR,'static_root/')
+#STATIC_ROOT=os.path.join(BASE_DIR,'static/assets')
+STATIC_ROOT = '/static'
 
 STATICFILES_DIRS=[
     BASE_DIR / 'static',

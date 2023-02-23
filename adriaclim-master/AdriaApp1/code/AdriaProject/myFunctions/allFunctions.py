@@ -2,7 +2,7 @@ from pydoc import resolve
 from math import isnan
 from termios import VLNEXT
 from django.db import models
-from Dataset.models import Node,Indicator,Cache
+from Dataset.models import Node,Indicator #,Cache
 import pandas as pd
 import csv
 import urllib
@@ -13,6 +13,7 @@ import re
 import io
 from django.contrib import messages
 from AdriaProject.settings import ERDDAP_URL
+from django.core.cache import cache
  
 htmlGetMetadata = """<style>
 @import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
@@ -297,17 +298,32 @@ h1 {
 </script>"""
 x=500000
 
+#I need to save in the cache the url and corresponding value!
+
 def download_with_cache(u):
-    q = Cache.objects.filter(url=u)
-    if q.count()==0:
-      output = urllib.request.urlopen(u).read()
-      if output:
-        output = output.decode('utf-8')
-        new_cache = Cache(url=u,value=output)
-        new_cache.save()
-        return output 
+    cache_key = u # needs to be unique
+    cache_time = 43200 # time in seconds for cache to be valid (now it is 12 hours)
+    output_value = cache.get(cache_key) # returns None if no key-value pair
+    if output_value == None:
+        #if is none we save it in the cache and returns it
+        output_value = urllib.request.urlopen(cache_key).read()
+        if output_value:
+          output_value = output_value.decode('utf-8')
+          cache.set(cache_key,output_value,cache_time)
+          return output_value
     else:
-      return q[0].value
+      return output_value
+
+    # q = Cache.objects.filter(url=u)
+    # if q.count()==0:
+    #   output = urllib.request.urlopen(u).read()
+    #   if output:
+    #     output = output.decode('utf-8')
+    #     new_cache = Cache(url=u,value=output)
+    #     new_cache.save()
+    #     return output 
+    # else:
+    #   return q[0].value
 
 def download_with_cache_as_csv(u):
     q = download_with_cache(u)

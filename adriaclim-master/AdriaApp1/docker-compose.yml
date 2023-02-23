@@ -4,12 +4,14 @@ services:
   django:
     build:
       context: .
-    ports:
-      - "8000:8000"
+    container_name: adriapp_django
+    expose:
+      - "8000"
     volumes:
       - ./code:/code
+      - /static:/static
     command: >
-      sh -c "python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && hypercorn --bind '0.0.0.0:8000' AdriaProject.asgi:application --reload "
+      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && hypercorn --bind '0.0.0.0:8000' AdriaProject.asgi:application --reload "
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -17,14 +19,34 @@ services:
       - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       - db
-  # angular:
-  #   build: code/angular-front/adria-project-front
-  #   ports:
-  #     - "4200:4200"
-  #   depends_on:
-  #     - django
+      - memcached
+  nginx:
+    build: ./nginx
+    container_name: adriapp_nginx
+    volumes:
+      - /static:/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - django
+  angular:
+    build: code/angular-front/adria-project-front
+    container_name: adriapp_angular
+    ports:
+      - "4200:4200"
+    depends_on:
+      - django
+  memcached:
+   image: memcached
+   container_name: adriapp_memcached
+   ports:
+     - "11211:11211"
+   entrypoint:
+    - memcached
+    - -m 64
   db:
     image: postgres:13
+    container_name: adriapp_postgres
     ports:
       - "5433:5433"
       - "5532:5432"
