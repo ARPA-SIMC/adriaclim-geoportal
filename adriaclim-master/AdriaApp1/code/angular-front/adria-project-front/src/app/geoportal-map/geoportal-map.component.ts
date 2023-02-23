@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatMenuTrigger } from '@angular/material/menu';
 import * as L from 'leaflet';
 import { latLng, marker, Marker, icon } from 'leaflet';
 import * as poly from '../../assets/geojson/gj.json';
@@ -9,6 +10,8 @@ import * as poly from '../../assets/geojson/gj.json';
   styleUrls: ['./geoportal-map.component.scss']
 })
 export class GeoportalMapComponent implements OnInit, AfterViewInit {
+
+  panelOpenState = false;
 
   @ViewChild('map') mapContainer!: ElementRef;
   map!: L.Map;
@@ -37,7 +40,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
-      console.log("FEATURE =", f);
+      // console.log("FEATURE =", f);
       if(f.properties.popupContent !== "") {
 
         f.geometry.coordinates.forEach(c => {
@@ -101,7 +104,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
-    console.log("EVENT ON CLICK =", e);
+    // console.log("EVENT ON CLICK =", e);
 
     // imposto la lat e long del marker e le dimensioni della sua icona
     // METODO 1
@@ -128,17 +131,30 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.markersLayer.addLayer(marker);
     // this.markersLayer.addTo(this.map);
 
-    console.log("MARKER =", marker);
-    console.log("MAP =", this.map);
+    // console.log("MARKER =", marker);
+    // console.log("MAP =", this.map);
   }
 
 
   onMarkerClick(event: any) {
     const marker = event.target;
-    console.log("MARKER CLICKED =", marker);
+    // console.log("MARKER CLICKED =", marker);
 
     this.map.removeLayer(marker);
     this.markers = this.markers.filter(m => m !== marker);
   }
 
+  openMyMenu(menuTrigger: MatMenuTrigger) {
+    console.log("MENU TRIGGER =", menuTrigger);
+
+    // menuTrigger.openMenu();
+    menuTrigger.openMenu();
+  }
+
+  closeMyMenu(menuTrigger: MatMenuTrigger) {
+    menuTrigger.closeMenu();
+  }
+
 }
+
+

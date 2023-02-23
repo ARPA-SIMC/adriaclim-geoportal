@@ -7,7 +7,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { GeoportalMapComponent } from './geoportal-map/geoportal-map.component';
 import {MatButtonModule} from '@angular/material/button';
-import { FlexLayoutModule } from '@angular/flex-layout'
+import { FlexLayoutModule } from '@angular/flex-layout';
+import {MatCardModule} from '@angular/material/card';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
+import {MatExpansionModule} from '@angular/material/expansion';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { OverlayModule } from '@angular/cdk/overlay';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -20,9 +28,19 @@ import { FlexLayoutModule } from '@angular/flex-layout'
     BrowserAnimationsModule,
     HttpClientModule,
     MatButtonModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatExpansionModule,
+    MatMenuModule,
+    OverlayModule,
+    MatFormFieldModule,
+    MatSelectModule
   ],
-  providers: [],
+  providers: [
+    MatMenuTrigger
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
