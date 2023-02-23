@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as L from 'leaflet';
 import { latLng, marker, Marker, icon } from 'leaflet';
-import * as poly from '../../assets/geojson/geoJson.json';
+import * as poly from '../../assets/geojson/gj.json';
 
 @Component({
   selector: 'app-geoportal-map',
@@ -20,7 +20,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   markers: L.Marker[] = [];
 
-  poligony = poly;
+  polygon = poly;
 
 
   constructor() {
@@ -29,7 +29,42 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngAfterViewInit(): Promise<void> {
 
     await this.initMap();
-    console.log("POL ==", this.poligony.features[0]);
+    // console.log("POLYGON JSON =", this.polygon);
+    // console.log("POL ==", this.polygon.features[0].geometry.coordinates[0]);
+
+    // let geo = L.geoJSON(this.polygon).addTo(this.map);
+
+
+    let polyg: any = [];
+    this.polygon.features.forEach(f => {
+      console.log("FEATURE =", f);
+      if(f.properties.popupContent !== "") {
+
+        f.geometry.coordinates.forEach(c => {
+          // console.log("COORDINATE =", c);
+          c.forEach(coord => {
+            coord.reverse();
+            // console.log("COORDINATE 2 =", coord);
+          });
+
+          polyg.push(c);
+          // poligon = L.polygon(c);
+        });
+        // console.log("POLYGON =", polyg[0]);
+
+        let pol = L.polygon(polyg[0]).addTo(this.map);
+        polyg = [];
+      }
+    });
+    // .addTo(this.map);
+    // const polygo = L.polygon(
+    //   [
+    //     [43.34471993041581, 10.695002224139875],
+    //     [43.06626090251556, 11.585015616399813],
+    //     [42.616704865269284, 11.4120295594627],
+    //     [42.61546062315476, 10.695002224139875],
+    //   ],
+    // ).addTo(this.map);
 
 
   }
@@ -56,14 +91,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.map.on('click', this.onMapClick.bind(this));
 
     // ASSEGNO DEI VALORI E GENERO UN POLIGONO
-    const polygon = L.polygon(
-      [
-        [43.34471993041581, 10.695002224139875],
-        [43.06626090251556, 11.585015616399813],
-        [42.616704865269284, 11.4120295594627],
-        [42.61546062315476, 10.695002224139875],
-      ],
-    ).addTo(this.map);
+
+
+  }
+
+  addPolygons() {
 
   }
 
