@@ -583,6 +583,13 @@
           }
 
           */
+         //GET ALL TITLES!
+          $.ajax({
+                  type:'GET',
+                  url:'myFunctions/getTitle',
+                  contentType:"application/json"
+                  
+              });
 
           //GET ALL INDICATORS
           $.ajax({
@@ -1733,7 +1740,7 @@
 
 	redraw()
 
-	var ns = 'http://www.w3.org/2000/svg';
+	var ns = 'https://www.w3.org/2000/svg';
                           
 	foreignObject = document.createElementNS( ns, 'foreignObject');
 	foreignObject.setAttribute('height', 50);
@@ -2460,7 +2467,7 @@
                           }
 
 
-                          var ns = 'http://www.w3.org/2000/svg';
+                          var ns = 'https://www.w3.org/2000/svg';
                           
                           foreignObject = document.createElementNS( ns, 'foreignObject');
                           foreignObject.setAttribute('height', 500);
@@ -5081,7 +5088,7 @@
                     }
                     
                     var dataset_id=div_parent.attr("dataset_id");
-                    
+                    console.log(dataset_id)
                     
                     $.ajax({
                       type:'GET',
@@ -5116,12 +5123,7 @@
 
 
         
-          $.ajax({
-                  type:'GET',
-                  url:'myFunctions/getTitle',
-                  contentType:"application/json"
-                  
-              });
+     
         $(document).ready(function(){
           var allLayers=document.getElementsByClassName("form-check");
           for(var i=0;i<allLayers.length;i++){

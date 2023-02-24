@@ -11,6 +11,7 @@ import numpy as np
 import os
 import re
 import io
+import time
 from django.contrib import messages
 from AdriaProject.settings import ERDDAP_URL
 from django.core.cache import cache
@@ -511,6 +512,8 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
   return url
 
 def getTitle():
+  start_time = time.time()
+  print("Started getTitle()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
   df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
@@ -528,10 +531,13 @@ def getTitle():
         n1=Node(id=row["Dataset ID"],title=row["Title"],metadata_url=row["Info"],griddap_url=row["griddap"],wms=row["wms"],institution=row["Institution"])
         n1.save()
         titleList.append(row["Title"])
-
+  
+  print("Time to finish getTitle() ========= {:.2f} seconds".format(time.time()-start_time))
   return titleList
 
 def getIndicators():
+  start_time = time.time()
+  print("Started getIndicators()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
   df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
@@ -548,7 +554,6 @@ def getIndicators():
      if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
       #if the dataset_id starts with indicat...For now we assume that indicators have this thing in common......
       #we found an indicator so we need to explore its metadata!
-      print(row["Dataset ID"])
       adriaclim_scale = None
       adriaclim_dataset = None
       adriaclim_timeperiod = None
@@ -640,7 +645,7 @@ def getIndicators():
         dataset_list.append(adriaclim_dataset)
         scale_list.append(adriaclim_scale)
   
-
+  print("Time to finish getIndicators() ========= {:.2f} seconds".format(time.time()-start_time))
   return [indicator_list,dataset_list,scale_list]
     
 
@@ -748,7 +753,6 @@ def getMetadataTime1(dataset_id):
 
 def getMetadata(dataset_id):
     all_metadata=getMetadataTime1(dataset_id)
-    print(all_metadata)
     min_max_value=[]
     average_spacing_others=[]
     final_list=[]
@@ -796,13 +800,15 @@ def listAllDatasets():
    
    file_to_write.close() """
 
+
 def getMetadataOfASpecificDataset(dataset_id):
+  is_indicator = False
   try:
     x=Node.objects.get(id=dataset_id)
     df=pd.read_csv(x.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
     df1=df.replace(np.nan,"Value not available",regex=True)
-    df1.to_html("AdriaProject/templates/specificDataset.html",index=False)
-    with open("AdriaProject/templates/specificDataset.html") as file:
+    df1.to_html("./templates/specificDataset.html",index=False)
+    with open("./templates/specificDataset.html") as file:
         file=file.read()
     file=file.replace("<table ","<table class='rwd-table'")
     return file
@@ -814,8 +820,8 @@ def getMetadataOfASpecificDataset(dataset_id):
       indicator = Indicator.objects.get(pk=dataset_id)
       df=pd.read_csv(indicator.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
       df1=df.replace(np.nan,"Value not available",regex=True)
-      df1.to_html("AdriaProject/templates/specificDataset.html",index=False)
-      with open("AdriaProject/templates/specificDataset.html") as file:
+      df1.to_html("./templates/specificDataset.html",index=False)
+      with open("./templates/specificDataset.html") as file:
           file=file.read()
       file=file.replace("<table ","<table class='rwd-table'")
       return file
@@ -877,7 +883,6 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
 
 
   url = getIndicatorQueryUrl(dataset_id,False,False,latitude=latitude,longitude=longitude, latitudeMin=lat_start, latitudeMax=lat_end, longitudeMin=long_start, longitudeMax=long_end, range=range_value,variable=layer_name,format="csv",timeMin=time_start,timeMax=time_finish)
-  print(url) 
   if cache==1:
     url = download_with_cache_as_csv(url)
   df = pd.read_csv(url, dtype='unicode')

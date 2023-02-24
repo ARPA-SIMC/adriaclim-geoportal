@@ -47,23 +47,51 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
+      <td>creator_name</td>
+      <td>String</td>
+      <td>IPSL</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>creator_type</td>
+      <td>String</td>
+      <td>institution</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
       <td>Easternmost_Easting</td>
       <td>double</td>
-      <td>21.98158</td>
+      <td>21.66346</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>frequency</td>
+      <td>String</td>
+      <td>year</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_max</td>
       <td>double</td>
-      <td>46.97328</td>
+      <td>46.88878</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_min</td>
       <td>double</td>
-      <td>37.00147</td>
+      <td>37.28878</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>geospatial_lat_resolution</td>
+      <td>double</td>
+      <td>0.2999999999999998</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -77,21 +105,21 @@
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_max</td>
       <td>double</td>
-      <td>21.98158</td>
+      <td>21.66346</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_min</td>
       <td>double</td>
-      <td>10.0168</td>
+      <td>10.24039</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_resolution</td>
       <td>double</td>
-      <td>0.062316562500000006</td>
+      <td>0.3461536363636364</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -103,9 +131,9 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
-      <td>history_of_appended_files</td>
+      <td>history</td>
       <td>String</td>
-      <td>Mon Dec 19 15:53:54 2022: Appended file lat1.nc had following "history" attribute:\nMon Dec 19 15:53:53 2022: ncrename -O -d south_north,lat lat1.nc\nMon Dec 19 15:53:53 2022: ncwa -a west_east lat.nc lat1.nc\nMon Dec 19 15:53:52 2022: ncks -v XLAT adriaclim_WRF_r95p_hist_monthly_1991_2005.nc lat.nc\nIndicator provided by CMCC Foundation\nMon Dec 19 15:53:54 2022: Appended file lon1.nc had following "history" attribute:\nMon Dec 19 15:53:53 2022: ncrename -O -d west_east,lon lon1.nc\nMon Dec 19 15:53:52 2022: ncwa -a south_north lon.nc lon1.nc\nMon Dec 19 15:53:52 2022: ncks -v XLONG adriaclim_WRF_r95p_hist_monthly_1991_2005.nc lon.nc\nIndicator provided by CMCC Foundation</td>
+      <td>Fri Feb 03 10:44:21 2023: cdo -selyear,1970/2005 MedCordex_CNRS-IPSL_txn_monthly_1970_2050.nc MedCordex_CNRS-IPSL_txn_hist_monthly_1970_2005.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -119,14 +147,21 @@
       <td>NC_GLOBAL</td>
       <td>institution</td>
       <td>String</td>
-      <td>???</td>
+      <td>IPSL</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>keywords</td>
       <td>String</td>
-      <td>95th, above, all, amount, calculated, daily, data, day, days, given, least, local, meteorology, per, percent, percentile, period, precipitation, rain, rainfall, reference, source, sum, time, value, very_wet_days_wrt_95th_percentile_of_reference_period, wet, where, year</td>
+      <td>2-m, air, air_temperature, atmosphere, atmospheric, coordonnees, daily, data, day, earth, Earth Science &gt; Atmosphere &gt; Atmospheric Temperature &gt; Air Temperature, Earth Science &gt; Atmosphere &gt; Atmospheric Temperature &gt; Surface Air Temperature, fichier, ipsl, maxi, pression, science, surface, temperature, time, txn</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>keywords_vocabulary</td>
+      <td>String</td>
+      <td>GCMD Science Keywords</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -138,16 +173,30 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
+      <td>model</td>
+      <td>String</td>
+      <td>Modele de circulation generale</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
       <td>NCO</td>
       <td>String</td>
-      <td>netCDF Operators version 4.8.1 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
+      <td>netCDF Operators version 4.9.3 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>nco_openmp_thread_number</td>
+      <td>int</td>
+      <td>1</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Northernmost_Northing</td>
       <td>double</td>
-      <td>46.97328</td>
+      <td>46.88878</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -161,7 +210,7 @@
       <td>NC_GLOBAL</td>
       <td>Southernmost_Northing</td>
       <td>double</td>
-      <td>37.00147</td>
+      <td>37.28878</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -175,42 +224,42 @@
       <td>NC_GLOBAL</td>
       <td>summary</td>
       <td>String</td>
-      <td>AdriaClim Indicators | adriaclim_WRF | monthly | hist | r95p</td>
+      <td>AdriaClim Indicators | MedCordex_IPSL | monthly | hist | tnx</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_end</td>
       <td>String</td>
-      <td>2020-12-01T00:00:00Z</td>
+      <td>2005-11-20T12:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_start</td>
       <td>String</td>
-      <td>1991-01-01T00:00:00Z</td>
+      <td>1969-12-30T12:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>title</td>
       <td>String</td>
-      <td>AdriaClim Indicators | adriaclim_WRF | monthly | hist | r95p</td>
+      <td>AdriaClim Indicators | MedCordex_IPSL | monthly | hist | tnx</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Westernmost_Easting</td>
       <td>double</td>
-      <td>10.0168</td>
+      <td>10.24039</td>
     </tr>
     <tr>
       <td>dimension</td>
       <td>time</td>
       <td>Value not available</td>
       <td>double</td>
-      <td>nValues=360, evenlySpaced=false, averageSpacing=30 days 10h 29m 45s</td>
+      <td>nValues=432, evenlySpaced=false, averageSpacing=30 days 9h 58m 3s</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -224,7 +273,7 @@
       <td>time</td>
       <td>actual_range</td>
       <td>double</td>
-      <td>6.62688E8, 1.6067808E9</td>
+      <td>-129600.0, 1.132488E9</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -238,7 +287,7 @@
       <td>time</td>
       <td>calendar</td>
       <td>String</td>
-      <td>proleptic_gregorian</td>
+      <td>365_day</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -252,7 +301,7 @@
       <td>time</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Time</td>
+      <td>time counter</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -280,7 +329,7 @@
       <td>latitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=217, evenlySpaced=false, averageSpacing=0.04616578703703706</td>
+      <td>nValues=33, evenlySpaced=true, averageSpacing=-0.2999999999999998</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -294,7 +343,7 @@
       <td>latitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>37.00147, 46.97328</td>
+      <td>37.28878, 46.88878</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -336,7 +385,7 @@
       <td>longitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=193, evenlySpaced=true, averageSpacing=0.062316562500000006</td>
+      <td>nValues=34, evenlySpaced=true, averageSpacing=0.3461536363636364</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -350,7 +399,7 @@
       <td>longitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>10.0168, 21.98158</td>
+      <td>10.24039, 21.66346</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -389,59 +438,59 @@
     </tr>
     <tr>
       <td>variable</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
+      <td>txn</td>
       <td>Value not available</td>
       <td>float</td>
       <td>time, latitude, longitude</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
+      <td>txn</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: minimum</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
+      <td>txn</td>
       <td>colorBarMaximum</td>
       <td>double</td>
-      <td>100.0</td>
+      <td>313.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
+      <td>txn</td>
       <td>colorBarMinimum</td>
       <td>double</td>
-      <td>0.0</td>
+      <td>263.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
+      <td>txn</td>
       <td>ioos_category</td>
       <td>String</td>
-      <td>Meteorology</td>
+      <td>Temperature</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
+      <td>txn</td>
       <td>long_name</td>
       <td>String</td>
-      <td>This is the percent of time per time period of wet days (daily sum at least 1 mm / day) where daily precipitation amount of a wet day is above a reference value. The reference value is calculated  as the 95th percentile of all wet days of a given 30 year</td>
+      <td>minimum vale of daily maximum temperature over the period</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
+      <td>txn</td>
+      <td>standard_name</td>
+      <td>String</td>
+      <td>air_temperature</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
+      <td>txn</td>
       <td>units</td>
       <td>String</td>
-      <td>Percent</td>
+      <td>degree_K</td>
     </tr>
   </tbody>
 </table>

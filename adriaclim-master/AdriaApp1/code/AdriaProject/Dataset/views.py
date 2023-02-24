@@ -121,6 +121,11 @@ def getIndicators(request):
     indicators = allFunctions.getIndicators()
     return JsonResponse({'indicators':indicators})
 
+
+def getMetadataUrl(request,dataset_id):
+    metadata=allFunctions.getMetadataOfASpecificDataset(dataset_id)
+    return HttpResponse(metadata)
+
 def getWMS(request):
     wms=allFunctions.getWMS()
     return JsonResponse({'wms':wms})
