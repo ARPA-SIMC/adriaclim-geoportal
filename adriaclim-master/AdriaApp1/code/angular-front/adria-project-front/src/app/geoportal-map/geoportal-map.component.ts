@@ -1,8 +1,112 @@
+import { FlatTreeControl } from '@angular/cdk/tree';
+import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import * as L from 'leaflet';
 import { latLng, marker, Marker, icon } from 'leaflet';
+import { map } from 'rxjs';
 import * as poly from '../../assets/geojson/gj.json';
+
+
+/**
+ * Food data with nested structure.
+ * Each node has a name and an optional list of children.
+ */
+interface FoodNode {
+  name: string;
+  children?: FoodNode[];
+}
+
+// const TREE_DATA: FoodNode[] = [
+//   {
+//     name: 'Fruit',
+//     children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}],
+//   },
+//   {
+//     name: 'Vegetables',
+//     children: [
+//       {
+//         name: 'Green',
+//         children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
+//       },
+//       {
+//         name: 'Orange',
+//         children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
+//       },
+//     ],
+//   },
+// ];
+
+const TREE_DATA: FoodNode[] = [
+    {
+      name: 'Observations',
+      children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}],
+    },
+    {
+      name: 'Indicators',
+      children: [
+        {
+          name: 'Large scale',
+          children: [
+            {name: 'Yearly'},
+            {name: 'Monthly'},
+            {name: 'Seasonal'}
+          ],
+        },
+        {
+          name: 'Pilot scale',
+          children: [
+            {name: 'Yearly'},
+            {name: 'Monthly'},
+            {name: 'Seasonal'}
+          ],
+        },
+        {
+          name: 'Local scale',
+          children: [
+            {name: 'Yearly'},
+            {name: 'Monthly'},
+            {name: 'Seasonal'}
+          ],
+        },
+      ],
+    },
+    {
+      name: 'Numerical models',
+      children: [
+        {
+          name: 'Green',
+          children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
+        },
+        {
+          name: 'Orange',
+          children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
+        },
+      ],
+    },
+    {
+      name: 'Full list',
+      children: [
+        {
+          name: 'Green',
+          children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
+        },
+        {
+          name: 'Orange',
+          children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
+        },
+      ],
+    },
+  ];
+
+/** Flat node with expandable and level information */
+interface ExampleFlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+}
 
 @Component({
   selector: 'app-geoportal-map',
@@ -25,8 +129,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   polygon = poly;
 
+  dataInd: any;
 
-  constructor() {
+  constructor(private httpClient: HttpClient) {
+    this.dataSource.data = TREE_DATA;
 
   }
   async ngAfterViewInit(): Promise<void> {
@@ -68,7 +174,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //     [42.61546062315476, 10.695002224139875],
     //   ],
     // ).addTo(this.map);
-
+    this.getPluto();
+    this.getInd();
 
   }
 
@@ -155,6 +262,80 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     menuTrigger.closeMenu();
   }
 
+  getPluto() {
+    this.httpClient.post('http://localhost:8000/test/pluto', {
+    }).subscribe({
+      next(position) {
+        console.log('PLUTO: ', position);
+      },
+      error(msg) {
+        console.log('PLUTO ERROR: ', msg);
+      }
+    });
+  }
+
+  getInd() {
+    // this.httpClient.post('http://localhost:8000/test/ind', {
+    // }).pipe(map((res: any) => res.json())).subscribe({
+    //   next(res) {
+    //     console.log('IND: ', res);
+    //     this.dataInd = res;
+    //   },
+    //   error(msg) {
+    //     console.log('IND ERROR: ', msg);
+    //   }
+
+    // });
+    this.httpClient.post('http://localhost:8000/test/ind', {
+    }).subscribe({
+      next: (res: any) => {
+        console.log('IND: ', res);
+
+        this.dataInd = res.ind;
+      },
+      error: (msg: any) => {
+        console.log('IND ERROR: ', msg);
+      }
+
+    });
+
+  }
+
+
+
+  /**
+   * TREE
+   */
+
+  typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
+  private _transformer = (node: FoodNode, level: number) => {
+    return {
+      expandable: !!node.children && node.children.length > 0,
+      name: node.name,
+      level: level,
+    };
+  };
+
+  treeControl = new FlatTreeControl<ExampleFlatNode>(
+    node => node.level,
+    node => node.expandable,
+  );
+
+  treeFlattener = new MatTreeFlattener(
+    this._transformer,
+    node => node.level,
+    node => node.expandable,
+    node => node.children,
+  );
+
+  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
+
+  hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
 }
+
+
+
+
 
 

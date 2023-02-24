@@ -17,8 +17,21 @@
 }
 
 .dataset-panel {
-  height: 40vh;
-  width: 18vw;
+  height: 50vh;
+  // height: 480px;
+  width: 320px;
+}
+
+.text-menu {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+  // text-shadow: 1px 1px 1px #000;
+}
+
+.list-indicators {
+  max-height: 100%;
+  overflow: auto;
 }
 
 /**
@@ -30,13 +43,14 @@
   // bottom: 0;
   left: 0;
   right: 0;
-  margin: 10px;
+  margin: 0px 10px 10px 10px;
   // width: 100%;
   height: 80%;
   // z-index: -1;
 }
 .map-frame {
   border: 2px solid black;
+  border-top: none;
   height: 100%;
 }
 #map {
@@ -56,3 +70,44 @@
   overflow: none !important;
 }
 
+// ::ng-deep .mdc-radio{
+//   display: none !important;
+// }
+
+/**
+* REMOVE ICONS FROM LIST
+*/
+::ng-deep .mdc-list-item.mdc-list-item--with-one-line .mdc-list-item__end {
+  // display: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+// ::ng-deep .mdc-list-item--with-trailing-radio {
+//   margin-left: 0 !important;
+//   margin-right: 0 !important;
+// }
+
+// ::ng-deep .mdc-list-item-end {
+//   margin-left: 0 !important;
+//   margin-right: 0 !important;
+// }
+
+// ::ng-deep .mdc-list .mdc-list-item .mdc-line{
+//   word-wrap: break-word;
+//  white-space: pre-wrap;
+// }
+
+// ::ng-deep .mdc-line{
+//   word-wrap: break-word !important;
+//   white-space: pre-wrap !important;
+// }
+
+::ng-deep .mdc-list-item__primary-text {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+::ng-deep .mdc-list-item__content {
+  word-wrap: break-word !important;
+}

@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from django.http import response,request,Http404
 from django.http.response import HttpResponse, JsonResponse,ResponseHeaders
 from django.conf import settings
@@ -12,6 +13,7 @@ from .models import Node,Indicator
 from AdriaProject.settings import ERDDAP_URL
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from django.core import serializers
 
 
 
@@ -243,12 +245,36 @@ def getTest(request):
 def getPippo(request):
     # prova = inputEsterno
     inputEs = request.data.get('inputEsterno')
-    print()
-    print()
-    print("REQUEST ==", request)
+    # print()
+    # print()
+    # print("REQUEST ==", request)
     print("INPUT ==", inputEs)
     # print("PROVA ==", prova)
-    print()
-    print()
+    # print()
+    # print()
     print("pippo")
     return JsonResponse({'pippo':'pippo'})
+
+@api_view(['GET', 'POST'])
+def getPluto(request):
+    prova = Indicator.objects.get(dataset_id = "adriaclim_WRF_5e78_b419_ec8a")
+    # provaJson = json.dumps(prova)
+    # provaJson = serializers.serialize('json', prova)
+    provaSer = serializers.serialize('json', [prova, ])
+    provaJson = json.loads(provaSer)
+    # print()
+    print()
+    print("PROVA ==", prova)
+    print("PROVA JSON ==", provaJson)
+    print()
+    # print()
+    return JsonResponse({"pluto": provaJson})
+    # return HttpResponse(provaJson, status=200)
+
+@api_view(['GET', 'POST'])
+def getInd(request):
+    ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator")
+    data = [model_to_dict(i) for i in ind]
+    # indSer = serializers.serialize('json', data)
+    # indJson = json.loads(indSer)
+    return JsonResponse({"ind": data})
