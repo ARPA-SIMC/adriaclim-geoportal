@@ -46,10 +46,11 @@
                 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
                   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
 
-                    <!-- {{node | json}} -->
+                    <!-- {{node.name["dataset_id"] | json}} -->
                     <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio">
-                      <mat-radio-button [value]="node">{{node.name}}</mat-radio-button>
+                      <mat-radio-button [value]="node" (change)="getMeta(node.name['dataset_id'])">{{node.name["title"]}}</mat-radio-button>
                     </ng-container>
+
                     <ng-template #noRadio>
                       <button
                         mat-icon-button

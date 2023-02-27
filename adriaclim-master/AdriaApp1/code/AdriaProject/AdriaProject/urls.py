@@ -87,6 +87,7 @@ urlpatterns = [
     path("test/pippo",data_views.getPippo),
     path("test/pluto",data_views.getPluto),
     path("test/ind",data_views.getInd),
+    path("test/metadata",data_views.getMetadataNew),
  
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

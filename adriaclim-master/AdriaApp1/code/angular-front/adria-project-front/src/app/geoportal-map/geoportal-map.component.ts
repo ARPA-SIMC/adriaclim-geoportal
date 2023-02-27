@@ -312,7 +312,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(ind.adriaclim_timeperiod.toLowerCase()))[0];
           if(time?.children?.findIndex(title => title.name === ind.title) === -1) {
             time?.children?.push({
-              name: ind.title
+              name: ind
             });
             time.childVisible = true;
           }
@@ -320,7 +320,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             // console.log("INDICATORI ESISTE");
             // console.log("TREE DATA =", indicatori);
             // console.log("TREE DATA =", scale);
-            console.log("TREE DATA =", time);
+            // console.log("TREE DATA =", time);
 
 
           // TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
@@ -337,6 +337,22 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       },
       error: (msg: any) => {
         console.log('IND ERROR: ', msg);
+      }
+
+    });
+
+  }
+
+  getMeta(idMeta: any) {
+    this.httpClient.post('http://localhost:8000/test/metadata', {
+      idMeta: idMeta
+    }).subscribe({
+      next: (res: any) => {
+        console.log('METADATA: ', res);
+
+      },
+      error: (msg: any) => {
+        console.log('METADATA ERROR: ', msg);
       }
 
     });
@@ -382,9 +398,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   //   !!node.children && node.children.length > 0;
 
 }
-
-
-
 
 
 
