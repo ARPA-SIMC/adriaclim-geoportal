@@ -1,9 +1,9 @@
-import { FlatTreeControl } from '@angular/cdk/tree';
+import { FlatTreeControl, NestedTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
+import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
 import * as L from 'leaflet';
 import { latLng, marker, Marker, icon } from 'leaflet';
 import { map } from 'rxjs';
@@ -17,6 +17,7 @@ import * as poly from '../../assets/geojson/gj.json';
 interface FoodNode {
   name: string;
   value?: string;
+  childVisible?: boolean;
   children?: FoodNode[];
 }
 
@@ -43,33 +44,38 @@ interface FoodNode {
 let TREE_DATA: FoodNode[] = [
     {
       name: 'Observations',
-      children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}],
+      childVisible: false,
+      children: [],
     },
     {
       name: 'Indicators',
+      childVisible: true,
       children: [
         {
           name: 'Large scale',
+          childVisible: true,
           children: [
-            {name: 'Yearly', children: []},
-            {name: 'Monthly', children: []},
-            {name: 'Seasonal', children: []}
+            {name: 'Yearly', childVisible: true, children: []},
+            {name: 'Monthly', childVisible: false, children: []},
+            {name: 'Seasonal', childVisible: false, children: []}
           ],
         },
         {
           name: 'Pilot scale',
+          childVisible: true,
           children: [
-            {name: 'Yearly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
-            {name: 'Monthly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
-            {name: 'Seasonal', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]}
+            {name: 'Yearly', childVisible: false, children: []},
+            {name: 'Monthly', childVisible: false, children: []},
+            {name: 'Seasonal', childVisible: false, children: []}
           ],
         },
         {
           name: 'Local scale',
+          childVisible: true,
           children: [
-            {name: 'Yearly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
-            {name: 'Monthly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
-            {name: 'Seasonal', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]}
+            {name: 'Yearly', childVisible: false, children: []},
+            {name: 'Monthly', childVisible: false, children: []},
+            {name: 'Seasonal', childVisible: false, children: []}
           ],
         },
       ],
@@ -304,12 +310,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           let indicatori = TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
           let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(ind.adriaclim_scale.toLowerCase()))[0];
           let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(ind.adriaclim_timeperiod.toLowerCase()))[0];
-          time?.children?.push({
-            name: ind.title
-          });
-            console.log("INDICATORI ESISTE");
-            console.log("TREE DATA =", indicatori);
-            console.log("TREE DATA =", scale);
+          if(time?.children?.findIndex(title => title.name === ind.title) === -1) {
+            time?.children?.push({
+              name: ind.title
+            });
+            time.childVisible = true;
+          }
+
+            // console.log("INDICATORI ESISTE");
+            // console.log("TREE DATA =", indicatori);
+            // console.log("TREE DATA =", scale);
             console.log("TREE DATA =", time);
 
 
@@ -353,6 +363,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     node => node.expandable,
   );
 
+  // treeControl = new NestedTreeControl<FoodNode>((node) => node.children);
+  // dataSource = new MatTreeNestedDataSource<FoodNode>();
+
+
   treeFlattener = new MatTreeFlattener(
     this._transformer,
     node => node.level,
@@ -364,6 +378,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+  // hasChild = (_: number, node: FoodNode) =>
+  //   !!node.children && node.children.length > 0;
+
 }
 
 

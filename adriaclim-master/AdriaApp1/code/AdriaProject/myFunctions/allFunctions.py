@@ -624,11 +624,17 @@ def getIndicators():
           adriaclim_dataset="no"
 
       if adriaclim_timeperiod is None:
-        if re.search("^yearly*",row["Title"]):
+        # if re.search("^yearly*",row["Title"]):
+        #   adriaclim_timeperiod = "yearly"
+        # if re.search("^monthly*",row["Title"]):
+        #   adriaclim_timeperiod = "monthly"
+        # if re.search("^seasonal*",row["Title"]):
+        #   adriaclim_timeperiod = "seasonal"
+        if "yearly" in row["Title"].lower():
           adriaclim_timeperiod = "yearly"
-        if re.search("^monthly*",row["Title"]):
+        if "monthly" in row["Title"].lower():
           adriaclim_timeperiod = "monthly"
-        if re.search("^seasonal*",row["Title"]):
+        if "seasonal" in row["Title"].lower():
           adriaclim_timeperiod = "seasonal"
       if adriaclim_timeperiod is None:
         adriaclim_timeperiod = "yearly"
