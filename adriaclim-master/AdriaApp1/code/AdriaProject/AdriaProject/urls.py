@@ -88,6 +88,7 @@ urlpatterns = [
     path("test/pluto",data_views.getPluto),
     path("test/ind",data_views.getInd),
     path("test/metadata",data_views.getMetadataNew),
+    path("test/layers2d",data_views.layers2DNew),
  
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

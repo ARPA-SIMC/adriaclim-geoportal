@@ -287,11 +287,43 @@ def getInd(request):
 @api_view(['GET', 'POST'])
 def getMetadataNew(request):
     idMeta = request.data.get('idMeta')
+    print("ID METADATA ==", idMeta)
     metadata=allFunctions.getMetadataTime1(idMeta)
-    data = [model_to_dict(m) for m in metadata]
+    print("METADATA ==", metadata)
+    # data = [model_to_dict(m) for m in metadata]
+    # metaSer = serializers.serialize('json', metadata)
+    # print("SERIALIZER ==", metaSer)
+    # data = json.loads(metaSer)
     print()
     print()
-    print("DATA ==", data)
+    # print("DATA ==", data)
     print()
     print()
-    return JsonResponse({'metadata': data})
+    return JsonResponse({'metadata': metadata})
+
+
+@api_view(['GET', 'POST'])
+def layers2DNew(request):
+    service=request.data.get['service']
+    request1=request.data.get['request']
+    layers=request.data.get['layers']
+    styles=request.data.get['styles']
+    format=request.data.get['format']
+    transparent=request.data.get['transparent']
+    version=request.data.get['version']
+    width=request.data.get['width']
+    height=request.data.get['height']
+    crs=request.data.get['crs']
+    bbox=request.data.get['bbox']
+    time=request.data.get['time']
+    bgcolor=request.data.get['bgcolor']
+    dataset_id=layers.partition(":")[0]
+    url=ERDDAP_URL+"/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
+    requests_response = requests.get(url)
+    django_response = HttpResponse(
+            content=requests_response.content,
+            status=requests_response.status_code,
+            content_type=requests_response.headers['Content-Type']
+        )
+        
+    return django_response

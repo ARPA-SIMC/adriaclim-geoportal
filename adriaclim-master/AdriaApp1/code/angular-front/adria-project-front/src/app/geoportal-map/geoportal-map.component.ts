@@ -140,6 +140,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   selData: FormGroup;
 
+  metadata: any;
+
   constructor(private httpClient: HttpClient) {
     this.selData = new FormGroup({
       dataSetSel: new FormControl()
@@ -349,7 +351,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }).subscribe({
       next: (res: any) => {
         console.log('METADATA: ', res);
-
+        this.metadata = res;
+        this.getLayers(idMeta);
       },
       error: (msg: any) => {
         console.log('METADATA ERROR: ', msg);
@@ -357,6 +360,77 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     });
 
+  }
+
+  getLayers(idMeta: any) {
+    // attribution: metadata[6],
+    // bgcolor: '0x808080',
+    // crs: L.CRS.EPSG4326,
+    // format: 'image/png',
+    // layers: dataset_id+':'+layer_name,
+    // styles: '',
+    // time: timeValue,
+    // transparent: true,
+    // version: '1.3.0',
+    // opacity:0.7,
+
+    let d = new Date()
+    // d.setUTCSeconds
+    console.log("METADATAaaaa ==", this.metadata);
+    // d.setUTCSeconds
+    console.log("METADATA 2 ==", this.metadata[2]);
+
+    let seconds_epoch = this.metadata[2].split(",");
+
+    let seconds_epoch_start = seconds_epoch[0];
+
+    let seconds_epoch_end = seconds_epoch[1];
+
+    let date_start=new Date(0);
+    date_start.setUTCSeconds(seconds_epoch_start);
+    let date_end=new Date(0);
+    date_end.setUTCSeconds(seconds_epoch_end.trim());
+
+    let time = this.formatDate(date_start);
+
+    this.httpClient.post('http://localhost:8000/test/metadata', {
+      attribution: this.metadata[6],
+      bgcolor: '0x808080',
+      crs: L.CRS.EPSG4326,
+      format: 'image/png',
+      layers: idMeta +':'+ this.metadata[4],
+      styles: '',
+      time: time,
+      transparent: true,
+      version: '1.3.0',
+      opacity:0.7,
+    }).subscribe({
+      next: (res: any) => {
+        console.log('LAYERS: ', res);
+        let layer = L.tileLayer.wms(res.url, res.options);
+      },
+      error: (msg: any) => {
+        console.log('LAYERS ERROR: ', msg);
+      }
+
+    });
+
+  }
+
+  formatDate(date: any) {
+    let d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    let first_part=[year, month, day].join('-');
+    let second_part="T00:00:00Z";
+    return first_part+second_part;
   }
 
 
