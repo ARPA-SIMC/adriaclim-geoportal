@@ -82,29 +82,11 @@ let TREE_DATA: FoodNode[] = [
     },
     {
       name: 'Numerical models',
-      children: [
-        {
-          name: 'Green',
-          children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
-        },
-        {
-          name: 'Orange',
-          children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
-        },
-      ],
+      children: [],
     },
     {
       name: 'Full list',
-      children: [
-        {
-          name: 'Green',
-          children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
-        },
-        {
-          name: 'Orange',
-          children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
-        },
-      ],
+      children: [],
     },
   ];
 
@@ -334,6 +316,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
           });
+          
           console.log("TREE DATA =", TREE_DATA);
           this.dataSource.data = TREE_DATA;
       },
@@ -376,11 +359,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let d = new Date()
     // d.setUTCSeconds
+    this.metadata = this.metadata["metadata"];
+
     console.log("METADATAaaaa ==", this.metadata);
     // d.setUTCSeconds
-    console.log("METADATA 2 ==", this.metadata[2]);
+    console.log("METADATA 2 ==", this.metadata[0][2]);
 
-    let seconds_epoch = this.metadata[2].split(",");
+    let seconds_epoch = this.metadata[0][2].split(",");
 
     let seconds_epoch_start = seconds_epoch[0];
 
@@ -393,27 +378,48 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let time = this.formatDate(date_start);
 
-    this.httpClient.post('http://localhost:8000/test/metadata', {
-      attribution: this.metadata[6],
-      bgcolor: '0x808080',
+    console.log("TIME======== ",time);
+
+    //NOT WORKING!!
+    let layer_to_attach={
+      layer_name: L.tileLayer.wms( 
+      'http://localhost:8000/test/layers2d',{
+      attribution: this.metadata[0][6],
       crs: L.CRS.EPSG4326,
       format: 'image/png',
-      layers: idMeta +':'+ this.metadata[4],
+      layers: idMeta +':'+this.metadata[0][4],
       styles: '',
-      time: time,
       transparent: true,
       version: '1.3.0',
       opacity:0.7,
-    }).subscribe({
-      next: (res: any) => {
-        console.log('LAYERS: ', res);
-        let layer = L.tileLayer.wms(res.url, res.options);
-      },
-      error: (msg: any) => {
-        console.log('LAYERS ERROR: ', msg);
-      }
+      })
+  };
 
-    });
+  layer_to_attach.layer_name.addTo(this.map);
+
+    
+
+  //   this.httpClient.post('http://localhost:8000/test/layers2d?', {
+  //     attribution: this.metadata[0][6],
+  //     bgcolor: '0x808080',
+  //     crs: L.CRS.EPSG4326,
+  //     format: 'image/png',
+  //     layers: idMeta +':'+ this.metadata[0][4],
+  //     styles: '',
+  //     time: time,
+  //     transparent: true,
+  //     version: '1.3.0',
+  //     opacity:0.7,
+  //   }).subscribe({
+  //     next: (res: any) => {
+  //       console.log('LAYERS: ', res);
+  //       // let layer = L.tileLayer.wms(res.url, res.options);
+  //     },
+  //     error: (msg: any) => {
+  //       console.log('LAYERS ERROR: ', msg);
+  //     }
+
+  //   });
 
   }
 

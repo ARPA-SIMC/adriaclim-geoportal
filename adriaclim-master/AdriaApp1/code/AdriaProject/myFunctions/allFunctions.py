@@ -752,7 +752,6 @@ def getMetadataTime1(dataset_id):
       our_metadata = [values_others, dimensions, values_time, title_meta, layer_name, average_spacing_others,
                       attribution_layer,positive_negative,latitude_range,longitude_range,is_indicator]
 
-    print("our_metadata ==", our_metadata)
     return our_metadata
 
 #def getValuesDatasets(id1,id2):
