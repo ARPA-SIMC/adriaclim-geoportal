@@ -16,6 +16,7 @@ import * as poly from '../../assets/geojson/gj.json';
  */
 interface FoodNode {
   name: string;
+  value?: string;
   children?: FoodNode[];
 }
 
@@ -39,7 +40,7 @@ interface FoodNode {
 //   },
 // ];
 
-const TREE_DATA: FoodNode[] = [
+let TREE_DATA: FoodNode[] = [
     {
       name: 'Observations',
       children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}],
@@ -50,25 +51,25 @@ const TREE_DATA: FoodNode[] = [
         {
           name: 'Large scale',
           children: [
-            {name: 'Yearly'},
-            {name: 'Monthly'},
-            {name: 'Seasonal'}
+            {name: 'Yearly', children: []},
+            {name: 'Monthly', children: []},
+            {name: 'Seasonal', children: []}
           ],
         },
         {
           name: 'Pilot scale',
           children: [
-            {name: 'Yearly'},
-            {name: 'Monthly'},
-            {name: 'Seasonal'}
+            {name: 'Yearly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
+            {name: 'Monthly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
+            {name: 'Seasonal', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]}
           ],
         },
         {
           name: 'Local scale',
           children: [
-            {name: 'Yearly'},
-            {name: 'Monthly'},
-            {name: 'Seasonal'}
+            {name: 'Yearly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
+            {name: 'Monthly', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]},
+            {name: 'Seasonal', children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}]}
           ],
         },
       ],
@@ -131,8 +132,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   dataInd: any;
 
+  selData: FormGroup;
+
   constructor(private httpClient: HttpClient) {
-    this.dataSource.data = TREE_DATA;
+    this.selData = new FormGroup({
+      dataSetSel: new FormControl()
+    });
+
+    this.getInd();
+    // this.dataSource.data = TREE_DATA;
 
   }
   async ngAfterViewInit(): Promise<void> {
@@ -175,7 +183,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //   ],
     // ).addTo(this.map);
     this.getPluto();
-    this.getInd();
 
   }
 
@@ -292,6 +299,31 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         console.log('IND: ', res);
 
         this.dataInd = res.ind;
+
+        this.dataInd.forEach((ind: any) => {
+          let indicatori = TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
+          let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(ind.adriaclim_scale.toLowerCase()))[0];
+          let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(ind.adriaclim_timeperiod.toLowerCase()))[0];
+          time?.children?.push({
+            name: ind.title
+          });
+            console.log("INDICATORI ESISTE");
+            console.log("TREE DATA =", indicatori);
+            console.log("TREE DATA =", scale);
+            console.log("TREE DATA =", time);
+
+
+          // TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
+          //   .children?.filter((sca: any) => sca.name.toLowerCase().includes(ind.adriaclim_scale.toLowerCase()))[0]
+          //   .children?.filter((time: any) => time.name.toLowerCase().includes(ind.adriaclim_timeperiod.toLowerCase()))[0].children?.push({
+          //     name: ind.title
+          //   })
+
+
+
+          });
+          console.log("TREE DATA =", TREE_DATA);
+          this.dataSource.data = TREE_DATA;
       },
       error: (msg: any) => {
         console.log('IND ERROR: ', msg);

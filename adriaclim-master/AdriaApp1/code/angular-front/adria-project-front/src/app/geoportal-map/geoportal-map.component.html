@@ -15,9 +15,14 @@
       </button> -->
       <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 100%;">
 
+        <div fxFlex="30">
+          <span *ngIf="selData.get('dataSetSel')?.value">Form: {{selData.get("dataSetSel")?.value.name}}</span>
+        </div>
+
         <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
           #menuTrigger="matMenuTrigger"
-          [matMenuTriggerFor]="myMenu1">	<mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span> </button>
+          [matMenuTriggerFor]="myMenu1">	<mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
+        </button>
           <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
 
         <mat-menu #myMenu1="matMenu">
@@ -34,28 +39,31 @@
                 No
               </mat-list-option>
             </mat-selection-list> -->
-            <mat-radio-group>
-              <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-                <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <form [formGroup]="selData">
 
-                  <mat-radio-button>{{node.name}}</mat-radio-button>
+              <mat-radio-group formControlName="dataSetSel">
+                <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+                  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
 
-                </mat-tree-node>
-                <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
-                  <button
+                      <mat-radio-button [value]="node">{{node.name}}</mat-radio-button>
+
+                  </mat-tree-node>
+                  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+                    <button
                     mat-icon-button
                     matTreeNodeToggle
                     [attr.aria-label]="'Toggle ' + node.name"
-                  >
-                    <mat-icon class="mat-icon-rtl-mirror">
-                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                    </mat-icon>
-                  </button>
-                  {{node.name}}
-                </mat-tree-node>
-              </mat-tree>
+                    >
+                      <mat-icon class="mat-icon-rtl-mirror">
+                        {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                      </mat-icon>
+                    </button>
+                    {{node.name}}
+                  </mat-tree-node>
+                </mat-tree>
+              </mat-radio-group>
+            </form>
 
-            </mat-radio-group>
             <!-- <button mat-menu-item>A 1</button>
             <button mat-menu-item>A 2</button>
             <button mat-menu-item>A 3</button> -->
