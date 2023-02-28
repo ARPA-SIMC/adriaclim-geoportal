@@ -5,7 +5,7 @@
 // }
 .overlay-buttons-top-map {
   position: absolute;
-  top: 102px;
+  top: 80px;
   // top: 17%;
   // left: 0;
   right: 40px;
@@ -17,7 +17,25 @@
 }
 
 .dataset-panel {
-  height: 50vh;
+  // height: 10vh;
+  height: fit-content;
+  // height: 480px;
+  width: 420px;
+}
+
+.overlay-image {
+  position: absolute;
+  top: 70vh;
+  left: 25px;
+  bottom: 0;
+  // bottom: 150px;
+  // width: 100%;
+  // height: 100%;
+  z-index: 500;
+}
+
+.panel-image {
+  height: 20vh;
   // height: 480px;
   width: 320px;
 }
@@ -32,6 +50,10 @@
 .list-indicators {
   max-height: 100%;
   overflow: auto;
+}
+
+.bolder-title {
+  font-weight: 500;
 }
 
 /**
@@ -115,3 +137,17 @@
 .example-tree-invisible {
   display: none;
 }
+
+::ng-deep .mat-mdc-card-header {
+  display: flex;
+  padding: 5px 5px 5px 5px !important;
+}
+
+::ng-deep .mat-mdc-card-content:last-child {
+  padding-bottom: 5px !important;
+}
+
+// ::ng-deep .edit-icon-size button {
+//   padding: 1px 1px !important;
+//   border-width: 1px !important;
+// }

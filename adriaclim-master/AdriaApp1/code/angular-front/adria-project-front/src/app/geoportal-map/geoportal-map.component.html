@@ -43,7 +43,7 @@
             <form [formGroup]="selData">
 
               <mat-radio-group formControlName="dataSetSel">
-                
+
                 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
                   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
 
@@ -118,26 +118,33 @@
     </mat-toolbar>
   </div>
 
-  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map">
-    <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center">
-      <mat-card-header>
-        <mat-card-title>title</mat-card-title>
-        <mat-card-subtitle>subtitle</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content style="height: 100%; overflow: auto;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center">
-        <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
-          <div fxFlex="100" fxLayoutAlign="center start">
+  <ng-container *ngIf="selData.get('dataSetSel')?.value">
+    <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map">
+      <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center">
+        <mat-card-header>
+          <mat-card-title class="bolder-title">Active layer</mat-card-title>
+        </mat-card-header>
+        <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center">
+          <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
+          <div fxFlex="100" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
 
-            <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
-              <mat-list-option fxFlex="100" fxLayoutAlign="start center" [value]="elem" *ngFor="let elem of dataInd">{{elem.title}}</mat-list-option>
-            </mat-selection-list>
+              <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
+              <button><mat-icon [ngStyle]="{'color': 'blue'}" (click)="cliccami()">info</mat-icon></button>
+              <button><mat-icon [ngStyle]="{'color': 'red'}" (click)="cliccami()">delete</mat-icon></button>
+
+
+              <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
+                <mat-list-option fxFlex="100" fxLayoutAlign="start center" [value]="elem" *ngFor="let elem of dataInd">{{elem.title}}</mat-list-option>
+              </mat-selection-list> -->
           </div>
-        <!-- </div> -->
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-button>Ok</button>
-      </mat-card-actions>
-    </mat-card>
+            <!-- </div> -->
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </ng-container>
+
+  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-image">
+        <img [src]="legendLayer_src">
   </div>
 
 

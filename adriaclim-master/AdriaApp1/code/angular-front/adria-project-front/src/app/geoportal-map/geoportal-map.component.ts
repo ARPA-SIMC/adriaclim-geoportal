@@ -128,6 +128,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   metadata: any;
 
+  ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
+  legendLayer_src: any;
+
   constructor(private httpClient: HttpClient) {
     this.selData = new FormGroup({
       dataSetSel: new FormControl()
@@ -137,6 +140,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.dataSource.data = TREE_DATA;
 
   }
+
+  cliccami() {
+    console.log("Cliccato");
+  }
+
   async ngAfterViewInit(): Promise<void> {
 
     await this.initMap();
@@ -148,7 +156,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
-      console.log("FEATURE =", f);
+      // console.log("FEATURE =", f);
       if(f.properties.popupContent !== "") {
 
         f.geometry.coordinates.forEach(c => {
@@ -183,8 +191,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngOnInit(): Promise<void> {
 
     // await this.initMap();
-    console.log("POLYGON =", this.polygon.features);
-    console.log("PROVA");
+    // console.log("POLYGON =", this.polygon.features);
+    // console.log("PROVA");
 
   }
 
@@ -383,6 +391,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     date_end.setUTCSeconds(seconds_epoch_end.trim());
 
     let time = this.formatDate(date_start);
+    let layer_name = this.metadata[0][4]
+
+    this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
 
     console.log("TIME======== ",time);
 
