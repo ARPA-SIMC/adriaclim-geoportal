@@ -20,6 +20,10 @@ interface FoodNode {
   childVisible?: boolean;
   children?: FoodNode[];
 }
+interface ExtendedWMSOptions extends L.TileLayerOptions {
+  bgcolor?: string;
+  time?: string;
+}
 
 // const TREE_DATA: FoodNode[] = [
 //   {
@@ -385,41 +389,44 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       layer_name: L.tileLayer.wms( 
       'http://localhost:8000/test/layers2d',{
       attribution: this.metadata[0][6],
+      bgcolor: '0x808080',
       crs: L.CRS.EPSG4326,
       format: 'image/png',
       layers: idMeta +':'+this.metadata[0][4],
       styles: '',
+      time: time,
       transparent: true,
       version: '1.3.0',
       opacity:0.7,
-      })
+      } as ExtendedWMSOptions
+      )
   };
 
   layer_to_attach.layer_name.addTo(this.map);
 
     
 
-  //   this.httpClient.post('http://localhost:8000/test/layers2d?', {
-  //     attribution: this.metadata[0][6],
-  //     bgcolor: '0x808080',
-  //     crs: L.CRS.EPSG4326,
-  //     format: 'image/png',
-  //     layers: idMeta +':'+ this.metadata[0][4],
-  //     styles: '',
-  //     time: time,
-  //     transparent: true,
-  //     version: '1.3.0',
-  //     opacity:0.7,
-  //   }).subscribe({
-  //     next: (res: any) => {
-  //       console.log('LAYERS: ', res);
-  //       // let layer = L.tileLayer.wms(res.url, res.options);
-  //     },
-  //     error: (msg: any) => {
-  //       console.log('LAYERS ERROR: ', msg);
-  //     }
+    // this.httpClient.get('http://localhost:8000/test/layers2d?', {
+    //   attribution: this.metadata[0][6],
+    //   bgcolor: '0x808080',
+    //   crs: L.CRS.EPSG4326,
+    //   format: 'image/png',
+    //   layers: idMeta +':'+ this.metadata[0][4],
+    //   styles: '',
+    //   time: time,
+    //   transparent: true,
+    //   version: '1.3.0',
+    //   opacity:0.7,
+    // }).subscribe({
+    //   next: (res: any) => {
+    //     console.log('LAYERS: ', res);
+    //     // let layer = L.tileLayer.wms(res.url, res.options);
+    //   },
+    //   error: (msg: any) => {
+    //     console.log('LAYERS ERROR: ', msg);
+    //   }
 
-  //   });
+    // });
 
   }
 

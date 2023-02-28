@@ -303,31 +303,29 @@ def getMetadataNew(request):
     return JsonResponse({'metadata': metadata})
 
 
-@api_view(['GET', 'POST'])
+
 def layers2DNew(request):
-    print("Ciaoooooooooooooooooo")
-    # NON ENTRA PROPRIO QUI DENTRO!
-    # service=request.data.get['service']
-    # print("TEST SERVICE=========== ",service)
-    # request1=request.data.get['request']
-    # layers=request.data.get['layers']
-    # styles=request.data.get['styles']
-    # format=request.data.get['format']
-    # transparent=request.data.get['transparent']
-    # version=request.data.get['version']
-    # width=request.data.get['width']
-    # height=request.data.get['height']
-    # crs=request.data.get['crs']
-    # bbox=request.data.get['bbox']
-    # time=request.data.get['time']
-    # bgcolor=request.data.get['bgcolor']
-    # dataset_id=layers.partition(":")[0]
-    # url=ERDDAP_URL+"/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
-    # requests_response = requests.get(url)
-    # django_response = HttpResponse(
-    #         content=requests_response.content,
-    #         status=requests_response.status_code,
-    #         content_type=requests_response.headers['Content-Type']
-    #     )
+    service=request.GET['service']
+    request1=request.GET['request']
+    layers=request.GET['layers']
+    styles=request.GET['styles']
+    format=request.GET['format']
+    transparent=request.GET['transparent']
+    version=request.GET['version']
+    width=request.GET['width']
+    height=request.GET['height']
+    crs=request.GET['crs']
+    bbox=request.GET['bbox']
+    time=request.GET['time']
+    bgcolor=request.GET['bgcolor']
+    dataset_id=layers.partition(":")[0]
+    url=ERDDAP_URL+"/wms/"+dataset_id+"/request?&service="+service+"&request="+request1+"&layers="+layers+"&styles="+styles+"&format="+format+"&transparent="+transparent+"&version="+version+"&bgcolor="+bgcolor+"&time="+time+"&width="+width+"&height="+height+"&crs="+crs+"&bbox="+bbox
+    requests_response = requests.get(url)
+    django_response = HttpResponse(
+            content=requests_response.content,
+            status=requests_response.status_code,
+            content_type=requests_response.headers['Content-Type']
+        )
+    # return JsonResponse({'ciao':'ciao'})
         
-    # return django_response
+    return django_response
