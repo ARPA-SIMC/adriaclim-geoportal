@@ -151,3 +151,30 @@
 //   padding: 1px 1px !important;
 //   border-width: 1px !important;
 // }
+
+/**
+* CSS FOR MAT TREE
+*/
+
+::ng-deep .mat-tree {
+	width: fit-content !important;
+}
+
+::ng-deep .mat-mdc-menu-content {
+	display: inline-table !important;
+  max-width: none !important;
+  width: fit-content !important;
+}
+
+::ng-deep .mat-mdc-menu-panel {
+  max-width: none !important;
+  width: fit-content !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  max-width: none !important;
+  width: fit-content !important;
+}
+
+
+

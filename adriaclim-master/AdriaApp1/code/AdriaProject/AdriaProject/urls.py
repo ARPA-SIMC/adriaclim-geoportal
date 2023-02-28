@@ -89,6 +89,9 @@ urlpatterns = [
     path("test/ind",data_views.getInd),
     path("test/metadata",data_views.getMetadataNew),
     path("test/layers2d",data_views.layers2DNew),
+    path('test/layers3d/<str:parameter>',data_views.layers3DNew),
+    path("test/addOverlays/<str:dataset_id>",data_views.overlaysNew),
+    path("test/metadataTable",data_views.get_metadata_table),
  
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

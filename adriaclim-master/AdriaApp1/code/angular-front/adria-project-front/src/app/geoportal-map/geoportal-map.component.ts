@@ -2,12 +2,14 @@ import { FlatTreeControl, NestedTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
 import * as L from 'leaflet';
 import { latLng, marker, Marker, icon } from 'leaflet';
 import { map } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
+import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 
 
 /**
@@ -130,8 +132,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
   legendLayer_src: any;
+  datasetLayer: any;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private dialog: MatDialog) {
     this.selData = new FormGroup({
       dataSetSel: new FormControl()
     });
@@ -141,13 +144,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  cliccami() {
-    console.log("Cliccato");
-  }
-
   async ngAfterViewInit(): Promise<void> {
 
-    await this.initMap();
+    // this.landLayers();
     // console.log("POLYGON JSON =", this.polygon);
     // console.log("POL ==", this.polygon.features[0].geometry.coordinates[0]);
 
@@ -189,6 +188,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
+    await this.initMap();
+
 
     // await this.initMap();
     // console.log("POLYGON =", this.polygon.features);
@@ -263,7 +264,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   openMyMenu(menuTrigger: MatMenuTrigger) {
-    console.log("MENU TRIGGER =", menuTrigger);
+    // console.log("MENU TRIGGER =", menuTrigger);
 
     // menuTrigger.openMenu();
     menuTrigger.openMenu();
@@ -277,10 +278,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpClient.post('http://localhost:8000/test/pluto', {
     }).subscribe({
       next(position) {
-        console.log('PLUTO: ', position);
+        // console.log('PLUTO: ', position);
       },
       error(msg) {
-        console.log('PLUTO ERROR: ', msg);
+        // console.log('PLUTO ERROR: ', msg);
       }
     });
   }
@@ -300,7 +301,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpClient.post('http://localhost:8000/test/ind', {
     }).subscribe({
       next: (res: any) => {
-        console.log('IND: ', res);
+        // console.log('IND: ', res);
 
         this.dataInd = res.ind;
 
@@ -331,11 +332,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           });
 
-          console.log("TREE DATA =", TREE_DATA);
+          // console.log("TREE DATA =", TREE_DATA);
           this.dataSource.data = TREE_DATA;
       },
       error: (msg: any) => {
-        console.log('IND ERROR: ', msg);
+        // console.log('IND ERROR: ', msg);
       }
 
     });
@@ -343,16 +344,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getMeta(idMeta: any) {
+    if(this.legendLayer_src) {
+      this.deleteLayer();
+
+    }
     this.httpClient.post('http://localhost:8000/test/metadata', {
       idMeta: idMeta
     }).subscribe({
       next: (res: any) => {
-        console.log('METADATA: ', res);
+        // console.log('METADATA: ', res);
         this.metadata = res;
         this.getLayers(idMeta);
       },
       error: (msg: any) => {
-        console.log('METADATA ERROR: ', msg);
+        // console.log('METADATA ERROR: ', msg);
       }
 
     });
@@ -360,24 +365,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getLayers(idMeta: any) {
-    // attribution: metadata[6],
-    // bgcolor: '0x808080',
-    // crs: L.CRS.EPSG4326,
-    // format: 'image/png',
-    // layers: dataset_id+':'+layer_name,
-    // styles: '',
-    // time: timeValue,
-    // transparent: true,
-    // version: '1.3.0',
-    // opacity:0.7,
 
     let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
 
-    console.log("METADATAaaaa ==", this.metadata);
+    // console.log("METADATAaaaa ==", this.metadata);
     // d.setUTCSeconds
-    console.log("METADATA 2 ==", this.metadata[0][2]);
+    // console.log("METADATA 2 ==", this.metadata[0][2]);
 
     let seconds_epoch = this.metadata[0][2].split(",");
 
@@ -395,10 +390,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
 
-    console.log("TIME======== ",time);
+    // console.log("TIME======== ",time);
+    //if num_parameters.length > 3, layers3D!!!
+    let num_parameters=this.metadata[0][1].split(", ");
 
-    //NOT WORKING!!
-    let layer_to_attach={
+    let layer_to_attach = {
       layer_name: L.tileLayer.wms(
       'http://localhost:8000/test/layers2d',{
       attribution: this.metadata[0][6],
@@ -411,11 +407,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       transparent: true,
       version: '1.3.0',
       opacity:0.7,
-      } as ExtendedWMSOptions
-      )
-  };
+      } as ExtendedWMSOptions)
+    };
 
-  layer_to_attach.layer_name.addTo(this.map);
+
+
+
+    this.datasetLayer = layer_to_attach.layer_name.addTo(this.map);
+
 
 
 
@@ -441,6 +440,76 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     // });
 
+  }
+
+  landLayers() {
+
+    let overlays = {
+      Land: L.tileLayer.wms(
+      'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+      bgcolor: '0x808080',
+      crs: L.CRS.EPSG4326,
+      format: 'image/png',
+      layers: 'Land',
+      styles: '',
+      transparent: true,
+      version: '1.3.0'} as ExtendedWMSOptions
+      ),
+    Coastlines: L.tileLayer.wms(
+      'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+      bgcolor: '0x808080',
+      crs: L.CRS.EPSG4326,
+      format: 'image/png',
+      layers: 'Coastlines',
+      styles: '',
+      transparent: true,
+      version: '1.3.0'} as ExtendedWMSOptions
+      ),
+    LakesAndRivers: L.tileLayer.wms(
+       'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+      bgcolor: '0x808080',
+      crs: L.CRS.EPSG4326,
+      format: 'image/png',
+      layers: 'LakesAndRivers',
+      styles: '',
+      transparent: true,
+      version: '1.3.0'} as ExtendedWMSOptions
+      ),
+    Nations: L.tileLayer.wms(
+       'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+      bgcolor: '0x808080',
+      crs: L.CRS.EPSG4326,
+      format: 'image/png',
+      layers: 'Nations',
+      styles: '',
+      transparent: true,
+      version: '1.3.0'} as ExtendedWMSOptions
+      ),
+    States: L.tileLayer.wms(
+      'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+      bgcolor: '0x808080',
+      crs: L.CRS.EPSG4326,
+      format: 'image/png',
+      layers: 'States',
+      styles: '',
+      transparent: true,
+      version: '1.3.0'} as ExtendedWMSOptions
+      )
+    };
+
+  let control_layers=L.control.layers().addTo(this.map);
+  control_layers.addOverlay(overlays.Land,"Land");
+  control_layers.addOverlay(overlays.Coastlines,"Coastlines");
+  control_layers.addOverlay(overlays.States,"States");
+  control_layers.addOverlay(overlays.Nations,"Nations");
+  control_layers.addOverlay(overlays.LakesAndRivers,"LakesAndRivers");
+
+  }
+
+  deleteLayer() {
+    this.legendLayer_src = null;
+    this.selData.reset();
+    this.map.removeLayer(this.datasetLayer);
   }
 
   formatDate(date: any) {
@@ -496,6 +565,49 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
   // hasChild = (_: number, node: FoodNode) =>
   //   !!node.children && node.children.length > 0;
+
+
+  openTableDialog(idMeta?: string, title?: string) {
+    console.log("DATASET ID PER DIALOG ===", this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.dataset_id : idMeta);
+
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    dialogConfig.data = {
+      success: true,
+      datasetId: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.dataset_id : idMeta,
+      datasetName: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.title : title,
+    };
+
+
+    const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
+
+    // dialogRef.afterClosed().subscribe(
+    //   async data => {
+    //     if(data == "ok") {
+    //       // this.getAlgoConfig();
+    //       dialogConfig.data = {
+    //         success: false,
+    //         description: "Operation successful"
+    //       }
+    //       this.dialog.open(AlgorithmConfigurationDialogComponent, dialogConfig);
+    //     }
+    //     else if(data.id == "exists") {
+    //       console.log("DATA =", data);
+
+    //       dialogConfig.data = {
+    //         success: false,
+    //         description: data.desc
+    //       }
+    //       this.dialog.open(AlgorithmConfigurationDialogComponent, dialogConfig);
+    //     }
+
+    //   }
+    // )
+  }
+
 
 }
 

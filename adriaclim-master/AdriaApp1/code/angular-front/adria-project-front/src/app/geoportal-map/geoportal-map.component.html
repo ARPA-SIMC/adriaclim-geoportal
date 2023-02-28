@@ -2,54 +2,36 @@
 
   <div fxFlex class="toolbar">
     <mat-toolbar color="primary">
-      <!-- <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <span>My App</span>
-      <span class="example-spacer"></span>
-      <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-        <mat-icon>favorite</mat-icon>
-      </button>
-      <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-        <mat-icon>share</mat-icon>
-      </button> -->
-      <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 100%;">
 
-        <div fxFlex="30">
-          <span *ngIf="selData.get('dataSetSel')?.value">Form: {{selData.get("dataSetSel")?.value.name}}</span>
-        </div>
+      <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 100%;">
 
         <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
           #menuTrigger="matMenuTrigger"
           [matMenuTriggerFor]="myMenu1">	<mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
         </button>
-          <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
 
         <mat-menu #myMenu1="matMenu">
           <ng-template matMenuContent>
-
-            <!-- <span>CIAO</span>
-            <button>BOTTONE</button>
-            <mat-radio-button>RADIO BUTTON</mat-radio-button>
-            <mat-selection-list>
-              <mat-list-option value="si">
-                Si
-              </mat-list-option>
-              <mat-list-option value="no">
-                No
-              </mat-list-option>
-            </mat-selection-list> -->
 
             <form [formGroup]="selData">
 
               <mat-radio-group formControlName="dataSetSel">
 
                 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-                  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                  <mat-tree-node *matTreeNodeDef="let node; let lastItem = last" matTreeNodePadding>
 
-                    <!-- {{node.name["dataset_id"] | json}} -->
                     <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio">
-                      <mat-radio-button [value]="node" (change)="getMeta(node.name['dataset_id'])">{{node.name["title"]}}</mat-radio-button>
+                      <div fxFlex fxLayout="column" fxLayoutAlign="center start" style="max-width: none !important; width: fit-content;">
+                        <div fxFlex fxLayout="row" fxLayoutAlign="center center" style="max-width: none !important; width: fit-content;">
+                          <button
+                            matTooltip="Info about the layer"
+                            matTooltipPosition="left"><mat-icon fxFlex="90" [ngStyle]="{'color': 'blue'}" (click)="openTableDialog(node.name['dataset_id'], node.name['title'])">info</mat-icon></button>
+                          <mat-radio-button fxFlex [value]="node" (change)="getMeta(node.name['dataset_id'])">{{node.name["title"]}}</mat-radio-button>
+
+                        </div>
+                        <mat-divider style="width: 100%; margin: 10px 0px;" *ngIf="!lastItem"></mat-divider>
+
+                      </div>
                     </ng-container>
 
                     <ng-template #noRadio>
@@ -99,6 +81,7 @@
         <mat-menu #myMenu2="matMenu">
           <ng-template matMenuContent>
             <button mat-menu-item>A 1</button>
+            <mat-divider></mat-divider>
             <button mat-menu-item>A 2</button>
             <button mat-menu-item>A 3</button>
           </ng-template>
@@ -129,8 +112,10 @@
           <div fxFlex="100" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
 
               <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
-              <button><mat-icon [ngStyle]="{'color': 'blue'}" (click)="cliccami()">info</mat-icon></button>
-              <button><mat-icon [ngStyle]="{'color': 'red'}" (click)="cliccami()">delete</mat-icon></button>
+              <button
+                matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}" (click)="openTableDialog()">info</mat-icon></button>
+              <button
+                matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}" (click)="deleteLayer()">delete</mat-icon></button>
 
 
               <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">

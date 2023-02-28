@@ -1,0 +1,43 @@
+<form [formGroup]="form">
+
+  <h1 mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1>
+  <!-- <div *ngIf="success; else ok"> -->
+  <div *ngIf="success">
+    <div mat-dialog-content>
+
+      <!-- <div>
+        <mat-form-field appearance="fill">
+          <mat-label>Select type</mat-label>
+          <mat-select formControlName="cod">
+            <mat-option *ngFor="let a of algoType" [value]="a.cod_algo_type">
+              {{a.des_algo_type}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div> -->
+      <!-- <span>PROVA</span>
+      <input type="text"> -->
+
+      <div #metadataTable>
+        <mat-spinner></mat-spinner>
+      </div>
+
+    </div>
+
+    <mat-dialog-actions fxLayoutAlign="center center">
+
+      <!-- <button fxFlex="22" mat-raised-button color="primary" (click)="save()">Save</button> -->
+      <button fxFlex="22" mat-raised-button color="accent" (click)="close()">Cancel</button>
+
+    </mat-dialog-actions>
+  </div>
+
+
+  <!-- <ng-template #ok>
+    <h2 mat-dialog-title>{{description}}</h2>
+    <mat-dialog-actions>
+      <button mat-raised-button color="primary" (click)="close()">Ok</button>
+    </mat-dialog-actions>
+  </ng-template> -->
+
+</form>
