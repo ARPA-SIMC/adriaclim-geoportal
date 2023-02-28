@@ -7,7 +7,7 @@ import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource } from
 import * as L from 'leaflet';
 import { latLng, marker, Marker, icon } from 'leaflet';
 import { map } from 'rxjs';
-import * as poly from '../../assets/geojson/gj.json';
+import * as poly from '../../assets/geojson/geojson.json';
 
 
 /**
@@ -148,7 +148,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
-      // console.log("FEATURE =", f);
+      console.log("FEATURE =", f);
       if(f.properties.popupContent !== "") {
 
         f.geometry.coordinates.forEach(c => {
@@ -183,6 +183,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngOnInit(): Promise<void> {
 
     // await this.initMap();
+    console.log("POLYGON =", this.polygon.features);
+    console.log("PROVA");
 
   }
 
@@ -206,9 +208,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  addPolygons() {
+  // addPolygons() {
 
-  }
+  // }
 
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
@@ -320,7 +322,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
           });
-          
+
           console.log("TREE DATA =", TREE_DATA);
           this.dataSource.data = TREE_DATA;
       },
@@ -386,7 +388,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     //NOT WORKING!!
     let layer_to_attach={
-      layer_name: L.tileLayer.wms( 
+      layer_name: L.tileLayer.wms(
       'http://localhost:8000/test/layers2d',{
       attribution: this.metadata[0][6],
       bgcolor: '0x808080',
@@ -404,7 +406,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   layer_to_attach.layer_name.addTo(this.map);
 
-    
+
 
     // this.httpClient.get('http://localhost:8000/test/layers2d?', {
     //   attribution: this.metadata[0][6],

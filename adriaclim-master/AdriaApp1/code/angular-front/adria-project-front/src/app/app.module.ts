@@ -97,6 +97,6 @@ import {CdkMenuModule} from '@angular/cdk/menu';
   providers: [
     MatMenuTrigger
   ],
-  bootstrap: [AppComponent, GeoportalMapComponent]
+  bootstrap: [AppComponent]
 })
 export class AppModule { }
