@@ -10,6 +10,7 @@ import { latLng, marker, Marker, icon } from 'leaflet';
 import { map } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
+import * as _ from 'lodash';
 
 
 /**
@@ -127,16 +128,35 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   dataInd: any;
 
   selData: FormGroup;
+  selectedDate: FormGroup;
+  variableGroup: FormGroup;
+  nodeSelected: any;
 
   metadata: any;
+  dateStart: any;
+  dateEnd: any;
+  variableArray: [] = [];
 
   ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
   legendLayer_src: any;
   datasetLayer: any;
 
+  navigateDateLeftYear = false;
+  navigateDateRightYear = false;
+  navigateDateLeftMonth = false;
+  navigateDateRightMonth = false;
+  navigateDateLeftSeason = false;
+  navigateDateRightSeason = false;
+
   constructor(private httpClient: HttpClient, private dialog: MatDialog) {
     this.selData = new FormGroup({
       dataSetSel: new FormControl()
+    });
+    this.selectedDate = new FormGroup({
+      dateSel: new FormControl()
+    });
+    this.variableGroup = new FormGroup({
+      variableControl: new FormControl()
     });
 
     this.getInd();
@@ -304,6 +324,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // console.log('IND: ', res);
 
         this.dataInd = res.ind;
+        // console.log("INDICATORI =", this.dataInd);
+
 
         this.dataInd.forEach((ind: any) => {
           let indicatori = TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
@@ -343,9 +365,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  getMeta(idMeta: any) {
+  getMeta(idMeta: any, controlDate?: any) {
     if(this.legendLayer_src) {
-      this.deleteLayer();
+      this.deleteLayer(idMeta);
 
     }
     this.httpClient.post('http://localhost:8000/test/metadata', {
@@ -354,7 +376,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         // console.log('METADATA: ', res);
         this.metadata = res;
-        this.getLayers(idMeta);
+        if(controlDate === "ok") {
+
+          this.getLayers(idMeta, controlDate);
+        }
+        else {
+          this.getLayers(idMeta);
+        }
       },
       error: (msg: any) => {
         // console.log('METADATA ERROR: ', msg);
@@ -364,13 +392,137 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  getLayers(idMeta: any) {
+  getSelectedNode(node: any) {
+    console.log("NODE =", node.name.variable_names);
+    this.variableArray = node.name.variable_names.split(" ");
+    console.log("VARIABLE ARRAY =", this.variableArray);
+
+  }
+
+  // myFilter (d: Date | null, dateStart: any, dateEnd: any): boolean {
+  //   const date = (d || new Date());
+  //   console.log("DATE ==", date);
+  //   console.log("DATE START ==", dateStart);
+  //   console.log("DATE END ==", dateEnd);
+
+  //   return date >= dateStart && date <= dateEnd;
+  // };
+
+  changeDate(arrow: any) {
+
+    if(arrow === "leftAll") {
+      this.selectedDate.get("dateSel")?.setValue(this.dateStart);
+    }
+    else if(arrow === "rightAll") {
+      this.selectedDate.get("dateSel")?.setValue(this.dateEnd);
+    }
+
+    if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+      if(arrow === "left") {
+
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        if((selD.getFullYear()-1) < this.dateStart.getFullYear()){
+          this.navigateDateLeftYear = true;
+        }else{
+          selD.setFullYear(selD.getFullYear() - 1);
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftYear = false;
+        }
+      }
+      else if(arrow === "right") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        if((selD.getFullYear() + 1) > this.dateEnd.getFullYear()){
+          this.navigateDateRightYear = true;
+        }else{
+          selD.setFullYear(selD.getFullYear() + 1);
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateRightYear = false;
+        }
+
+      }
+    }
+    else if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
+      if(arrow === "left") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        selD.setMonth(selD.getMonth() - 1);
+        if(selD < this.dateStart){
+          this.navigateDateLeftMonth = true;
+        }else{
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+        }
+      }
+      else if(arrow === "right") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        selD.setMonth(selD.getMonth() + 1);
+        if(selD > this.dateStart){
+          this.navigateDateRightMonth = true;
+        }else{
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateRightMonth = false;
+        }
+      }
+    }
+    else if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
+      if(arrow === "left") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        if(selD.getMonth() === 0) {
+          selD.setMonth(9);
+          selD.setFullYear(selD.getFullYear() - 1);
+          if(selD < this.dateStart){
+            this.navigateDateLeftSeason = true;
+          }else{
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftSeason = false;
+          }
+        }
+        else {
+          selD.setMonth(selD.getMonth() - 3);
+          if(selD < this.dateStart){
+            this.navigateDateLeftSeason = true;
+          }else{
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftSeason = false;
+          }
+        }
+
+      }
+      else if(arrow === "right") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        if(selD.getMonth() === 9) {
+          selD.setMonth(0);
+          selD.setFullYear(selD.getFullYear() + 1);
+          if (selD > this.dateEnd){
+            this.navigateDateRightSeason = true;
+          }else{
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateRightSeason = false;
+          }
+
+        }
+        else {
+          selD.setMonth(selD.getMonth() + 3);
+          if (selD > this.dateEnd){
+            this.navigateDateRightSeason = true;
+          }else{
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateRightSeason = false;
+          }
+
+        }
+      }
+    }
+  }
+
+  dateFilter = (date: Date | null): boolean => {return true;}
+
+  getLayers(idMeta: any, controlDate?: any) {
 
     let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
 
-    // console.log("METADATAaaaa ==", this.metadata);
+    console.log("METADATAaaaa ==", this.metadata);
     // d.setUTCSeconds
     // console.log("METADATA 2 ==", this.metadata[0][2]);
 
@@ -385,7 +537,60 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let date_end=new Date(0);
     date_end.setUTCSeconds(seconds_epoch_end.trim());
 
-    let time = this.formatDate(date_start);
+    this.dateStart = date_start;
+    this.dateEnd = date_end;
+    // console.log("DATE START ==", date_start);
+    // console.log("DATE END ==", date_end);
+
+    this.dateFilter = (date:Date | null) : boolean =>{
+      if(date) {
+        if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+          //FUNZIONA PERO BOH.........
+          return date.getMonth() === this.dateEnd.getMonth() &&
+                 date.getDate()  === this.dateEnd.getDate() &&
+                 date.getFullYear() >= this.dateStart.getFullYear() &&
+                 date.getFullYear() <= this.dateEnd.getFullYear()
+        }
+        if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
+          //FUNZIONA PERO BOH.........
+          return date.getDate()  === this.dateEnd.getDate() &&
+                 date.getFullYear() >= this.dateStart.getFullYear() &&
+                 date.getFullYear() <= this.dateEnd.getFullYear()
+        }
+        if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
+          //FUNZIONA PERO BOH.........
+          //SAME DAY AND 3 MONTHS DIFFERENCE BETWEEN DAYS!
+          return date.getDate()  === this.dateEnd.getDate() &&
+                 ((this.dateEnd.getMonth()+1) - (date.getMonth()+1)) % 3 === 0 &&
+                 date.getFullYear() >= this.dateStart.getFullYear() &&
+                 date.getFullYear() <= this.dateEnd.getFullYear()
+        }else{
+          return date >= this.dateStart && date <= this.dateEnd;
+        }
+      }
+      else {
+        return true;
+      }
+    }
+    // this.myFilter(this.selectedDate.get("dateSel")?.value);
+
+
+    let time;
+    if(controlDate === "ok") {
+      let tmp = this.selectedDate.get("dateSel")?.value;
+      time = this.formatDate(tmp);
+      console.log("TIME OK ==", time);
+
+    }
+    else {
+      this.selectedDate.get("dateSel")?.setValue(date_end);
+      time = this.formatDate(date_end);
+      console.log("TIME NO ==", time);
+    }
+
+
+
+    // let time = this.formatDate(date_end);
     let layer_name = this.metadata[0][4]
 
     this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
@@ -411,6 +616,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     };
 
 
+    //Quando cambia la data cambiare anche la legenda!
 
 
     this.datasetLayer = layer_to_attach.layer_name.addTo(this.map);
@@ -506,9 +712,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  deleteLayer() {
+  deleteLayer(idMeta: string) {
     this.legendLayer_src = null;
-    this.selData.reset();
+    if(idMeta !== this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      this.selData.reset();
+
+    }
+
     this.map.removeLayer(this.datasetLayer);
   }
 

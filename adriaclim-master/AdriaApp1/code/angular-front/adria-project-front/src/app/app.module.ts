@@ -20,7 +20,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
 import {MatTreeModule} from '@angular/material/tree';
 import {MatRadioModule} from '@angular/material/radio';
-import {MatNativeDateModule} from '@angular/material/core';
+import {MatNativeDateModule, MAT_DATE_LOCALE} from '@angular/material/core';
 
 import {CdkListboxModule} from '@angular/cdk/listbox';
 import {PortalModule} from '@angular/cdk/portal';
@@ -35,6 +35,8 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   declarations: [
@@ -75,10 +77,13 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatProgressSpinnerModule,
     MatDividerModule,
     MatTooltipModule,
+    MatDatepickerModule,
+    MatInputModule,
 
   ],
   providers: [
-    MatMenuTrigger
+    MatMenuTrigger,
+    {provide: MAT_DATE_LOCALE, useValue: 'en-GB'}
   ],
   bootstrap: [AppComponent]
 })

@@ -10,7 +10,7 @@
           [matMenuTriggerFor]="myMenu1">	<mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
         </button>
 
-        <mat-menu #myMenu1="matMenu">
+        <mat-menu #myMenu1="matMenu" class="menu">
           <ng-template matMenuContent>
 
             <form [formGroup]="selData">
@@ -26,7 +26,7 @@
                           <button
                             matTooltip="Info about the layer"
                             matTooltipPosition="left"><mat-icon fxFlex="90" [ngStyle]="{'color': 'blue'}" (click)="openTableDialog(node.name['dataset_id'], node.name['title'])">info</mat-icon></button>
-                          <mat-radio-button fxFlex [value]="node" (change)="getMeta(node.name['dataset_id'])">{{node.name["title"]}}</mat-radio-button>
+                          <mat-radio-button fxFlex [value]="node" (change)="getMeta(node.name['dataset_id']); getSelectedNode(node)">{{node.name["title"]}}</mat-radio-button>
 
                         </div>
                         <mat-divider style="width: 100%; margin: 10px 0px;" *ngIf="!lastItem"></mat-divider>
@@ -80,11 +80,29 @@
 
         <mat-menu #myMenu2="matMenu">
           <ng-template matMenuContent>
-            <button mat-menu-item>A 1</button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item>A 2</button>
-            <button mat-menu-item>A 3</button>
+            <form [formGroup]="variableGroup">
+              <ng-container *ngIf="variableArray.length > 0; else noVariable">
+                <ng-container *ngFor="let v of variableArray; let lastItem = last">
+
+                  <button mat-menu-item>{{v}}</button>
+                  <mat-divider *ngIf="!lastItem"></mat-divider>
+                </ng-container>
+
+              </ng-container>
+              <ng-template #noVariable>
+                <span>First select dataset</span>
+              </ng-template>
+
+
+
+            </form>
+              <!-- <ng-container *ngFor="let v of variableArray"> -->
+            <!-- </ng-container> -->
+              <!-- <button mat-menu-item>A 2</button>
+                <button mat-menu-item>A 3</button> -->
+
           </ng-template>
+
         </mat-menu>
 
         <button mat-icon-button><mat-icon> place</mat-icon></button>
@@ -97,7 +115,10 @@
             <button mat-menu-item>A 2</button>
             <button mat-menu-item>A 3</button>
           </mat-expansion-panel> -->
-    </div>
+      </div>
+      <!-- <div fxFlex *ngIf="selectedDate.get('dateSel')?.value">
+        {{selectedDate.get("dateSel")?.value}}
+      </div> -->
     </mat-toolbar>
   </div>
 
@@ -109,19 +130,47 @@
         </mat-card-header>
         <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center">
           <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
-          <div fxFlex="100" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
+            <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
 
-              <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
-              <button
-                matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}" (click)="openTableDialog()">info</mat-icon></button>
-              <button
-                matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}" (click)="deleteLayer()">delete</mat-icon></button>
+                <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
+                <button
+                  matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}" (click)="openTableDialog()">info</mat-icon></button>
+                <button
+                  matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}" (click)="deleteLayer(selData.get('datSetSel')?.value.name.dataset_id)">delete</mat-icon></button>
 
 
-              <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
-                <mat-list-option fxFlex="100" fxLayoutAlign="start center" [value]="elem" *ngFor="let elem of dataInd">{{elem.title}}</mat-list-option>
-              </mat-selection-list> -->
-          </div>
+                <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
+                  <mat-list-option fxFlex="100" fxLayoutAlign="start center" [value]="elem" *ngFor="let elem of dataInd">{{elem.title}}</mat-list-option>
+                </mat-selection-list> -->
+            </div>
+
+            <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center">
+              <form [formGroup]="selectedDate" fxFlex="50">
+                <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker">
+                  <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center">
+                    <mat-label>DD/MM/YYYY</mat-label>
+                    <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" formControlName="dateSel" fxFlex>
+                    <!-- <mat-hint>DD/MM/YYYY</mat-hint> -->
+                    <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+                    <mat-datepicker #datepicker>
+                      <mat-datepicker-actions>
+                        <button mat-button matDatepickerCancel>Cancel</button>
+                        <button mat-raised-button color="primary" matDatepickerApply (click)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">Apply</button>
+                      </mat-datepicker-actions>
+                    </mat-datepicker>
+                  </mat-form-field>
+
+                </div>
+              </form>
+              <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
+                <!-- DA FARE!! -->
+                <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
+                <button mat-icon-button fxFlex (click)="changeDate('left')"><mat-icon>navigate_before</mat-icon></button>
+                <button mat-icon-button fxFlex (click)="changeDate('right')"><mat-icon>navigate_next</mat-icon></button>
+                <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
+
+              </div>
+            </div>
             <!-- </div> -->
           </mat-card-content>
         </mat-card>

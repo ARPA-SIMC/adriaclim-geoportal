@@ -25,6 +25,7 @@
     "leaflet": "^1.9.3",
     "leaflet-polylinedecorator": "^1.6.0",
     "leaflet-rotatedmarker": "^0.2.0",
+    "lodash": "^4.17.21",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"
@@ -35,6 +36,7 @@
     "@angular/compiler-cli": "^15.1.0",
     "@types/jasmine": "~4.3.0",
     "@types/leaflet": "^1.9.1",
+    "@types/lodash": "^4.14.191",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",

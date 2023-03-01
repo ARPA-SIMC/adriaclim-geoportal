@@ -14,6 +14,7 @@ from AdriaProject.settings import ERDDAP_URL
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.core import serializers
+from asgiref.sync import sync_to_async
 
 
 
@@ -278,7 +279,9 @@ def getPluto(request):
     # return HttpResponse(provaJson, status=200)
 
 @api_view(['GET', 'POST'])
+
 def getInd(request):
+    # sync_to_async(allFunctions.getIndicators(),thread_sensitive = True)
     ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator")
     data = [model_to_dict(i) for i in ind]
     # indSer = serializers.serialize('json', data)
@@ -288,9 +291,7 @@ def getInd(request):
 @api_view(['GET', 'POST'])
 def getMetadataNew(request):
     idMeta = request.data.get('idMeta')
-    print("ID METADATA ==", idMeta)
     metadata=allFunctions.getMetadata(idMeta)
-    print("METADATA ==", metadata)
     # data = [model_to_dict(m) for m in metadata]
     # metaSer = serializers.serialize('json', metadata)
     # print("SERIALIZER ==", metaSer)

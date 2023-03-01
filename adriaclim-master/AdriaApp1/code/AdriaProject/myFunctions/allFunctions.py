@@ -547,6 +547,7 @@ def getIndicators():
   indicator_list = []
   dataset_list = []
   scale_list = []
+  print("Time to finish first read_csv getIndicators() ========= {:.2f} seconds".format(time.time()-start_time))
   df1 = df.replace(np.nan, "", regex=True)
   all_indicators = Indicator.objects.all()
   all_indicators.delete()

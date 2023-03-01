@@ -156,25 +156,29 @@
 * CSS FOR MAT TREE
 */
 
-::ng-deep .mat-tree {
+::ng-deep .menu .mat-tree {
 	width: fit-content !important;
 }
 
-::ng-deep .mat-mdc-menu-content {
+::ng-deep .menu .mat-mdc-menu-content {
 	display: inline-table !important;
   max-width: none !important;
+  min-width: 20vw !important;
   width: fit-content !important;
 }
 
-::ng-deep .mat-mdc-menu-panel {
+::ng-deep .menu .mat-mdc-menu-panel {
   max-width: none !important;
   width: fit-content !important;
 }
 
-::ng-deep .cdk-overlay-pane {
+::ng-deep .menu .cdk-overlay-pane {
   max-width: none !important;
   width: fit-content !important;
 }
 
+::ng-deep .form-datepicker .mat-mdc-form-field-subscript-wrapper {
+  width: 0 !important;
+}
 
 
