@@ -142,11 +142,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   datasetLayer: any;
 
   navigateDateLeftYear = false;
-  navigateDateRightYear = false;
+  navigateDateRightYear = true;
   navigateDateLeftMonth = false;
-  navigateDateRightMonth = false;
+  navigateDateRightMonth = true;
   navigateDateLeftSeason = false;
-  navigateDateRightSeason = false;
+  navigateDateRightSeason = true;
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog) {
     this.selData = new FormGroup({
@@ -408,35 +408,88 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   //   return date >= dateStart && date <= dateEnd;
   // };
 
+  lastday(y:any,m:any){
+    console.log("LAST DAY ==", new Date(y, m + 1, 0).getDate());
+
+    return  new Date(y, m + 1, 0).getDate();
+  }
+
   changeDate(arrow: any) {
+    // let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+    // console.log("LEFT DATE ==", this.selectedDate.get("dateSel")?.value.getTime());
+    // console.log("LEFT DATE CLONE ==", selD.getTime());
+
+    // console.log("DATE START ==", this.dateStart.getTime());
+    // if(selD.getTime() === this.dateStart.getTime()) {
+
+
+    //   this.navigateDateLeftYear = true;
+    // }
+    // else if(selD.getTime() === this.dateEnd.getTime()) {
+    //   this.navigateDateRightYear = true;
+    // }
 
     if(arrow === "leftAll") {
       this.selectedDate.get("dateSel")?.setValue(this.dateStart);
+      //leftAll is clicked so we disable left button and enable the right ones
+      this.navigateDateLeftYear = true;
+      this.navigateDateRightYear = false;
+      this.navigateDateRightMonth = false;
+      this.navigateDateRightSeason = false;
+      this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
     }
     else if(arrow === "rightAll") {
+      //rightAll is clicked so we disable right button and enable the left ones
       this.selectedDate.get("dateSel")?.setValue(this.dateEnd);
+      this.navigateDateRightYear = true;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+      this.navigateDateLeftMonth = false;
+      this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
     }
-
+/**
+ * GET LAYER 3D
+ */
+/**
+ * SLIDER
+ */
     if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
       if(arrow === "left") {
 
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        if((selD.getFullYear()-1) < this.dateStart.getFullYear()){
+        if((selD.getFullYear()-1 ) === this.dateStart.getFullYear()){
+          //it is the first year visible so after setting the new value we disable the left button
+          selD.setFullYear(selD.getFullYear() - 1);
+          this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = true;
+          this.navigateDateRightYear = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
         }else{
           selD.setFullYear(selD.getFullYear() - 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
         }
       }
       else if(arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        if((selD.getFullYear() + 1) > this.dateEnd.getFullYear()){
+        if((selD.getFullYear() + 1) === this.dateEnd.getFullYear()){
+          selD.setFullYear(selD.getFullYear() + 1);
+          this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = true;
+          this.navigateDateLeftYear = false;
+          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
         }else{
           selD.setFullYear(selD.getFullYear() + 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
         }
 
       }
@@ -444,22 +497,70 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     else if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
       if(arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        selD.setMonth(selD.getMonth() - 1);
-        if(selD < this.dateStart){
+
+        let d1 = _.cloneDeep(selD);
+        d1.setDate(d1.getDate() + 1);
+        if(selD === this.dateStart){
+          if((d1.getDate() + 1) === 1){
+            selD.setDate(this.lastday(d1.getFullYear(),d1.getMonth()))
+          }
+          selD.setMonth(selD.getMonth() - 1);
+          this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftMonth = true;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
         }else{
+
+          if((d1.getDate() + 1) === 1){
+            selD.setDate(this.lastday(d1.getFullYear(),d1.getMonth()))
+          }
+          selD.setMonth(selD.getMonth() - 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
         }
       }
       else if(arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        selD.setMonth(selD.getMonth() + 1);
-        if(selD > this.dateStart){
-          this.navigateDateRightMonth = true;
+        // console.log("SELD DATE +1 =", selD.setDate(selD.getDate() + 1));
+        // console.log("SELD DATE =", selD.getDate());
+        let d1 = _.cloneDeep(selD);
+        d1.setDate(d1.getDate() + 1);
+        if(selD === this.dateEnd){
+          console.log("IF DATE START");
+          if(d1.getDate() === 1){
+            selD.setDate(this.lastday(d1.getFullYear(),d1.getMonth()))
+            selD.setMonth(d1.getMonth());
+            this.selectedDate.get("dateSel")?.setValue(selD);
+          }
+          else {
+            selD.setMonth(selD.getMonth() + 1);
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateRightMonth = true;
+            this.navigateDateLeftMonth = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+
+          }
         }else{
-          this.selectedDate.get("dateSel")?.setValue(selD);
-          this.navigateDateRightMonth = false;
+          console.log("ELSE DATE START");
+
+          if(d1.getDate() === 1){
+            selD.setDate(this.lastday(d1.getFullYear(),d1.getMonth()))
+            selD.setMonth(d1.getMonth());
+            this.selectedDate.get("dateSel")?.setValue(selD);
+          }
+          else {
+            selD.setMonth(selD.getMonth() + 1);
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+          }
         }
       }
     }
@@ -518,7 +619,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   getLayers(idMeta: any, controlDate?: any) {
 
-    let d = new Date()
+    //let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
 
@@ -531,16 +632,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let seconds_epoch_start = seconds_epoch[0];
 
     let seconds_epoch_end = seconds_epoch[1];
+    console.log("SECONDS EPOCH START ==", seconds_epoch_start);
+    console.log("SECONDS EPOCH END ==", seconds_epoch_end);
+
 
     let date_start=new Date(0);
     date_start.setUTCSeconds(seconds_epoch_start);
     let date_end=new Date(0);
     date_end.setUTCSeconds(seconds_epoch_end.trim());
+    date_start.setHours(date_start.getHours() - 1)
+    date_end.setHours(date_end.getHours() - 1)
+    console.log("DATE START ==", date_start);
+    console.log("DATE END ==", date_end);
 
     this.dateStart = date_start;
     this.dateEnd = date_end;
-    // console.log("DATE START ==", date_start);
-    // console.log("DATE END ==", date_end);
 
     this.dateFilter = (date:Date | null) : boolean =>{
       if(date) {
@@ -599,6 +705,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //if num_parameters.length > 3, layers3D!!!
     let num_parameters=this.metadata[0][1].split(", ");
 
+    /**
+     * CONTROLLO, quando si seleziona l'indicatore di default prendiamo metadata[0][4] invece quando selezioniamo una variabile inseriamo il nome della variabile
+     * al posto di metadata[0][4] sia in layer_to_attach che in legendLayer_src
+     */
     let layer_to_attach = {
       layer_name: L.tileLayer.wms(
       'http://localhost:8000/test/layers2d',{

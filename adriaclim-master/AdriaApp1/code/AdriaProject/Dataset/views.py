@@ -279,10 +279,10 @@ def getPluto(request):
     # return HttpResponse(provaJson, status=200)
 
 @api_view(['GET', 'POST'])
-
 def getInd(request):
     # sync_to_async(allFunctions.getIndicators(),thread_sensitive = True)
-    ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator")
+    # ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator")
+    ind = Indicator.objects.all()
     data = [model_to_dict(i) for i in ind]
     # indSer = serializers.serialize('json', data)
     # indJson = json.loads(indSer)

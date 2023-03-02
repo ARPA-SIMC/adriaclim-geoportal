@@ -515,7 +515,7 @@ def getTitle():
   start_time = time.time()
   print("Started getTitle()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
-  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
+  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=0,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
                                                            "Dataset ID"],
@@ -539,7 +539,7 @@ def getIndicators():
   start_time = time.time()
   print("Started getIndicators()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
-  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=None,sep=",",names=["griddap","subset","tabledap","Make A Graph",
+  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=0,sep=",",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
                                                            "Dataset ID"],
@@ -552,7 +552,7 @@ def getIndicators():
   all_indicators = Indicator.objects.all()
   all_indicators.delete()
   for index,row in df1.iterrows():
-     if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
+     if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets" and (re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)):
       #if the dataset_id starts with indicat...For now we assume that indicators have this thing in common......
       #we found an indicator so we need to explore its metadata!
       adriaclim_scale = None
@@ -619,10 +619,10 @@ def getIndicators():
         adriaclim_type="UNKNOWN"
 
       if adriaclim_dataset is None:
-        if re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE):
-          adriaclim_dataset="indicator"
-        else:
-          adriaclim_dataset="no"
+        # if re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE):
+        adriaclim_dataset="indicator"
+        # else:
+        #   adriaclim_dataset="no"
 
       if adriaclim_timeperiod is None:
         # if re.search("^yearly*",row["Title"]):

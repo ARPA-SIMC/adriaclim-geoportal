@@ -149,7 +149,7 @@
                 <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker">
                   <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center">
                     <mat-label>DD/MM/YYYY</mat-label>
-                    <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" formControlName="dateSel" fxFlex>
+                    <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart" [max]="dateEnd" formControlName="dateSel" fxFlex>
                     <!-- <mat-hint>DD/MM/YYYY</mat-hint> -->
                     <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
                     <mat-datepicker #datepicker>
@@ -165,8 +165,8 @@
               <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
                 <!-- DA FARE!! -->
                 <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
-                <button mat-icon-button fxFlex (click)="changeDate('left')"><mat-icon>navigate_before</mat-icon></button>
-                <button mat-icon-button fxFlex (click)="changeDate('right')"><mat-icon>navigate_next</mat-icon></button>
+                <button mat-icon-button fxFlex (click)="changeDate('left')" [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason"><mat-icon>navigate_before</mat-icon></button>
+                <button mat-icon-button fxFlex (click)="changeDate('right')" [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason"><mat-icon>navigate_next</mat-icon></button>
                 <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
 
               </div>
