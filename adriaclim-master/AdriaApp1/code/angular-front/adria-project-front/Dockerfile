@@ -1,4 +1,4 @@
-FROM node:19.6
+# FROM node:19.6
 
 # #Create a directory where our app will be placed
 # RUN mkdir -p /usr/src/app

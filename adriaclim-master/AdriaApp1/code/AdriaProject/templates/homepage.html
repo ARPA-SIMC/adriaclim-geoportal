@@ -583,6 +583,13 @@
           }
 
           */
+
+        //GET ALL NODES
+         $.ajax({
+            type:"GET",
+            url:"myFunctions/getAllDatasets",
+            contentType:"application/json"
+          })
          //GET ALL TITLES!
           $.ajax({
                   type:'GET',
@@ -598,6 +605,7 @@
             contentType:"application/json"
           })
 
+  
  
 
           //display and hide accordion in panel if you click on #name

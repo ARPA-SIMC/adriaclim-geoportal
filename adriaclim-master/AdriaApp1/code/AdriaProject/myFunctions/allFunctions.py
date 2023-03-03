@@ -15,6 +15,7 @@ import time
 from django.contrib import messages
 from AdriaProject.settings import ERDDAP_URL
 from django.core.cache import cache
+from asgiref.sync import sync_to_async
  
 htmlGetMetadata = """<style>
 @import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
@@ -511,6 +512,126 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
   
   return url
 
+def getAllDatasets():
+  start_time = time.time()
+  print("Started getAllDatasets()")
+  url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
+  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=0,sep=",",names=["griddap","subset","tabledap","Make A Graph",
+                                                           "wms","files","Title","Summary","FGDC","ISO 19115",
+                                                           "Info","Background Info","RSS","Email","Institution",
+                                                           "Dataset ID"],
+                  na_values="Value not available")
+  node_list = []
+  dataset_list = []
+  scale_list = []
+  print("Time to finish first read_csv getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
+  df1 = df.replace(np.nan, "", regex=True)
+  all_datasets = Node.objects.all()
+  all_datasets.delete()
+  for index,row in df1.iterrows():
+     if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
+      #We take every datasets to fill the full list!
+      
+      adriaclim_scale = None
+      adriaclim_dataset = None
+      adriaclim_timeperiod = None
+      adriaclim_model = None
+      adriaclim_type = None
+      institution = "UNKNOWN"
+      time_start = None
+      time_end = None
+
+      variables = 0
+      variable_names = ""
+      dimensions = 0
+      dimension_names = ""
+
+      node_id = row["Dataset ID"]
+      metadata_url = row["Info"]
+      tabledap_url = row["tabledap"]
+      griddap_url = row["griddap"]
+      get_info = pd.read_csv(download_with_cache_as_csv(row["Info"]), header=None, sep=",",
+                            names=["Row Type", "Variable Name", "Attribute Name", "Data Type", "Value"]).fillna("nan")
+      for index1, row1 in get_info.iterrows():
+        #now we create our datasets that we put in our db 
+        if row1["Row Type"] == "dimension":
+           if dimensions > 0:
+             dimension_names = dimension_names + " "
+           dimensions = dimensions+1
+           dimension_names = dimension_names+row1["Variable Name"]
+
+        if row1["Row Type"] == "variable":
+           if variables > 0:
+             variable_names = variable_names + " "
+           variables = variables+1
+           variable_names = variable_names+row1["Variable Name"]
+
+        if row1["Attribute Name"] == "adriaclim_dataset":
+          adriaclim_dataset = row1["Value"]
+        if row1["Attribute Name"] == "adriaclim_model":
+          adriaclim_model = row1["Value"]
+        if row1["Attribute Name"] == "adriaclim_scale":
+          adriaclim_scale = row1["Value"]
+        if row1["Attribute Name"]  == "adriaclim_timeperiod":
+          adriaclim_timeperiod = row1["Value"]
+        if row1["Attribute Name"] == "adriaclim_type":
+          adriaclim_type = row1["Value"]
+        if row1["Attribute Name"] == "title":
+          title = row1["Value"]
+        if row1["Attribute Name"] == "institution":
+          institution = row1["Value"]
+        if row1["Attribute Name"] == "time_coverage_start":
+          time_start = row1["Value"]
+        if row1["Attribute Name"] == "time_coverage_end":
+          time_end = row1["Value"]
+
+      #is_indicator it is used to check if it the dataset is an indicator!
+      is_indicator =  re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)
+      
+      if adriaclim_scale is None:
+        adriaclim_scale = "UNKNOWN"
+
+      if adriaclim_model is None:
+        adriaclim_model="UNKNOWN"
+
+      if adriaclim_type is None:
+        adriaclim_type="UNKNOWN"
+
+      if adriaclim_dataset is None:
+        if is_indicator:
+          adriaclim_dataset = "indicator"
+        else:
+          adriaclim_dataset="no"
+
+      if adriaclim_timeperiod is None:
+        if "yearly" in row["Title"].lower():
+          adriaclim_timeperiod = "yearly"
+        if "monthly" in row["Title"].lower():
+          adriaclim_timeperiod = "monthly"
+        if "seasonal" in row["Title"].lower():
+          adriaclim_timeperiod = "seasonal"
+
+      if adriaclim_timeperiod is None:
+        if is_indicator:
+          adriaclim_timeperiod = "yearly"
+        else:
+           adriaclim_timeperiod = "UNKNOWN"
+      
+      if time_start is not None and time_end is not None:
+        new_node = Node(id = node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
+                                  adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
+                                  adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
+                                  time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
+                                  dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
+                                  wms_url=row["wms"])
+        new_node.save()
+        node_list.append(new_node.title)
+        dataset_list.append(adriaclim_dataset)
+        scale_list.append(adriaclim_scale)
+  
+  print("Time to finish getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
+  return [node_list,dataset_list,scale_list]
+   
 def getTitle():
   start_time = time.time()
   print("Started getTitle()")
@@ -524,12 +645,9 @@ def getTitle():
   
 
   df1 = df.replace(np.nan, "", regex=True)
-  allNodes=Node.objects.all()
-  allNodes.delete()
+
   for index,row in df1.iterrows():
       if row["Title"]!="* The List of All Active Datasets in this ERDDAP *" and row["wms"]!="wms" and not re.search("^indicat*",row["Dataset ID"]):
-        n1=Node(id=row["Dataset ID"],title=row["Title"],metadata_url=row["Info"],griddap_url=row["griddap"],wms=row["wms"],institution=row["Institution"])
-        n1.save()
         titleList.append(row["Title"])
   
   print("Time to finish getTitle() ========= {:.2f} seconds".format(time.time()-start_time))

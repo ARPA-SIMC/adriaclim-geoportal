@@ -181,4 +181,21 @@
   width: 0 !important;
 }
 
+::ng-deep .menu-var .mat-mdc-form-field-bottom-align::before {
+  display: none !important;
+}
 
+::ng-deep .menu-var .mdc-text-field {
+  border-bottom-right-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  // max-width: none !important;
+  width: fit-content !important;
+}
+
+::ng-deep .toolbar-buttons .mat-mdc-raised-button {
+  height: 100% !important;
+  font-size: medium !important;
+}

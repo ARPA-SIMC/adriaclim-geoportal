@@ -115,6 +115,10 @@ def getHighTemp(request):
     result=allFunctions.getHighTemperature()
     return JsonResponse({'result':result})
 
+def getAllDatasets(request):
+    allNodes = allFunctions.getAllDatasets()
+    return JsonResponse({'allNodes':allNodes})
+
 def getTitle(request):
     titles=allFunctions.getTitle()
     return JsonResponse({'title':titles})
@@ -287,6 +291,16 @@ def getInd(request):
     # indSer = serializers.serialize('json', data)
     # indJson = json.loads(indSer)
     return JsonResponse({"ind": data})
+
+@api_view(['GET', 'POST'])
+def getAllNodes(request):
+    # sync_to_async(allFunctions.getIndicators(),thread_sensitive = True)
+    # ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator")
+    all_nodes = Node.objects.all()
+    data = [model_to_dict(i) for i in all_nodes]
+    # indSer = serializers.serialize('json', data)
+    # indJson = json.loads(indSer)
+    return JsonResponse({"nodes": data})
 
 @api_view(['GET', 'POST'])
 def getMetadataNew(request):
