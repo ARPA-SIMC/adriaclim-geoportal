@@ -18,14 +18,23 @@
         <form [formGroup]="selData">
           <mat-radio-group formControlName="dataSetSel">
 
-            <mat-menu #myMenu2="matMenu" class="menu">
+            <mat-menu #myMenu2="matMenu" class="menu-full-list">
               <ng-template matMenuContent>
                 <!-- <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season"> -->
-                <mat-radio-button class="example-radio-button" *ngFor="let n of dataAllNodes" [value]="n">
-                  {{n.name["title"]}}
-                </mat-radio-button>
+                <div fxFlex fxLayout="column" fxLayoutAlign="center start">
+                  <ng-container *ngFor="let n of dataAllNodes">
+                    <div fxFlex fxLayout="row" fxLayoutAlign="center center">
+                    <mat-radio-button fxFlex class="example-radio-button" [value]="n">
+                      {{n.title}}
+                    </mat-radio-button>
+                    </div>
+                    <mat-divider style="width: 100%; margin: 10px 0px;"></mat-divider>
+
+                  </ng-container>
+
+                </div>
               </ng-template>
-              
+
             </mat-menu>
 
             <mat-menu #myMenu1="matMenu" class="menu">
@@ -78,7 +87,7 @@
                 </mat-tree-node>
 
               </mat-tree>
-              
+
               <!-- <button mat-menu-item>A 1</button>
                 <button mat-menu-item>A 2</button>
                 <button mat-menu-item>A 3</button> -->
@@ -95,11 +104,11 @@
           <form [formGroup]="variableGroup">
             <ng-container *ngIf="variableArray.length > 0; else noVariable">
               <!-- <ng-container *ngFor="let v of variableArray; let lastItem = last">
-  
+
                 <button mat-menu-item>{{v}}</button>
                 <mat-divider *ngIf="!lastItem"></mat-divider>
               </ng-container> -->
-  
+
               <mat-form-field appearance="fill">
                 <mat-label>Select variable</mat-label>
                 <mat-select formControlName="variableControl" (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">
@@ -109,8 +118,8 @@
                 </mat-select>
               </mat-form-field>
             </ng-container>
-  
-  
+
+
             <ng-template #noVariable>
               <!-- <span>First select dataset</span> -->
               <mat-form-field appearance="fill">
@@ -122,7 +131,7 @@
                 </mat-select>
               </mat-form-field>
             </ng-template>
-  
+
           </form>
 
         </div>

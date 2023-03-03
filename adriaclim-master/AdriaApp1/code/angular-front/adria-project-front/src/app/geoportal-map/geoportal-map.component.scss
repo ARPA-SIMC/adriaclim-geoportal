@@ -177,8 +177,27 @@
   width: fit-content !important;
 }
 
+// ::ng-deep .menu-full-list .cdk-overlay-pane {
+//   max-width: none !important;
+//   width: 30% !important;
+// }
+
+// ::ng-deep .menu-full-list .cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-panel {
+//   width: 100% !important;
+// }
+
+::ng-deep .mat-mdc-menu-panel {
+  max-width: none !important;
+  width: fit-content !important;
+}
+
 ::ng-deep .form-datepicker .mat-mdc-form-field-subscript-wrapper {
   width: 0 !important;
+}
+
+::ng-deep .menu-full-list {
+  max-width: none !important;
+  width: 500px !important;
 }
 
 ::ng-deep .menu-var .mat-mdc-form-field-bottom-align::before {
@@ -190,10 +209,10 @@
   border-bottom-left-radius: 4px !important;
 }
 
-::ng-deep .cdk-overlay-pane {
-  // max-width: none !important;
-  width: fit-content !important;
-}
+// ::ng-deep .cdk-overlay-pane {
+//   // max-width: none !important;
+//   width: fit-content !important;
+// }
 
 ::ng-deep .toolbar-buttons .mat-mdc-raised-button {
   height: 100% !important;
