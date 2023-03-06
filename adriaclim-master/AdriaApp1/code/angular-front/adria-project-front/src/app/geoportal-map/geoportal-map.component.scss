@@ -1,8 +1,3 @@
-// .main-container {
-//   // position: relative;
-//   // height: 100%;
-//   // width: 100%;
-// }
 .overlay-buttons-top-map {
   position: absolute;
   top: 80px;
@@ -83,18 +78,19 @@
 * END CSS FOR MAP
 */
 
-::ng-deep .mat-mdc-menu-panel {
-  max-width: none !important;
+/**
+* CSS FOR MAT TREE
+*/
+::ng-deep .menu {
+  max-width: 35vw !important;
+  min-width: 20vw !important;
+  width: fit-content !important;
+  overflow: auto !important;
 }
+/**
+* END CSS FOR MAT TREE
+*/
 
-::ng-deep .mat-mdc-menu-content {
-  width: 400px !important;
-  overflow: none !important;
-}
-
-// ::ng-deep .mdc-radio{
-//   display: none !important;
-// }
 
 /**
 * REMOVE ICONS FROM LIST
@@ -104,26 +100,6 @@
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
-
-// ::ng-deep .mdc-list-item--with-trailing-radio {
-//   margin-left: 0 !important;
-//   margin-right: 0 !important;
-// }
-
-// ::ng-deep .mdc-list-item-end {
-//   margin-left: 0 !important;
-//   margin-right: 0 !important;
-// }
-
-// ::ng-deep .mdc-list .mdc-list-item .mdc-line{
-//   word-wrap: break-word;
-//  white-space: pre-wrap;
-// }
-
-// ::ng-deep .mdc-line{
-//   word-wrap: break-word !important;
-//   white-space: pre-wrap !important;
-// }
 
 ::ng-deep .mdc-list-item__primary-text {
   word-wrap: break-word !important;
@@ -147,57 +123,16 @@
   padding-bottom: 5px !important;
 }
 
-// ::ng-deep .edit-icon-size button {
-//   padding: 1px 1px !important;
-//   border-width: 1px !important;
-// }
-
-/**
-* CSS FOR MAT TREE
-*/
-
-::ng-deep .menu .mat-tree {
-	width: fit-content !important;
-}
-
-::ng-deep .menu .mat-mdc-menu-content {
-	display: inline-table !important;
-  max-width: none !important;
-  min-width: 20vw !important;
-  width: fit-content !important;
-}
-
-::ng-deep .menu .mat-mdc-menu-panel {
-  max-width: none !important;
-  width: fit-content !important;
-}
-
-::ng-deep .menu .cdk-overlay-pane {
-  max-width: none !important;
-  width: fit-content !important;
-}
-
-// ::ng-deep .menu-full-list .cdk-overlay-pane {
-//   max-width: none !important;
-//   width: 30% !important;
-// }
-
-// ::ng-deep .menu-full-list .cdk-overlay-pane .mat-mdc-menu-panel .mat-mdc-menu-panel {
-//   width: 100% !important;
-// }
-
-::ng-deep .mat-mdc-menu-panel {
-  max-width: none !important;
-  width: fit-content !important;
-}
 
 ::ng-deep .form-datepicker .mat-mdc-form-field-subscript-wrapper {
   width: 0 !important;
 }
 
 ::ng-deep .menu-full-list {
-  max-width: none !important;
-  width: 500px !important;
+  max-width: 35vw !important;
+  min-width: 20vw !important;
+  width: fit-content !important;
+  overflow: auto !important;
 }
 
 ::ng-deep .menu-var .mat-mdc-form-field-bottom-align::before {
@@ -209,12 +144,11 @@
   border-bottom-left-radius: 4px !important;
 }
 
-// ::ng-deep .cdk-overlay-pane {
-//   // max-width: none !important;
-//   width: fit-content !important;
-// }
-
 ::ng-deep .toolbar-buttons .mat-mdc-raised-button {
   height: 100% !important;
   font-size: medium !important;
+}
+
+.font-weight-bold {
+  font-weight: bold !important;
 }

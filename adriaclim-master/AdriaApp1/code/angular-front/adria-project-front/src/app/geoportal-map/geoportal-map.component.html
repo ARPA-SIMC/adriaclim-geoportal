@@ -1,3 +1,8 @@
+<style>
+  .font-weight-bold {
+  font-weight: bold;
+}
+</style>
 <div class="main-content" fxFlex fxLayout="column">
 
   <div fxFlex class="toolbar">
@@ -22,11 +27,18 @@
               <ng-template matMenuContent>
                 <!-- <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season"> -->
                 <div fxFlex fxLayout="column" fxLayoutAlign="center start">
-                  <ng-container *ngFor="let n of dataAllNodes">
+                  <div fxFlex fxLayout="row" fxLayoutAlign="center center" (click)="$event.stopPropagation();">
+                    <mat-form-field class="example-full-width">
+
+                      <input type="text" matInput formControlName="searchText">
+                    </mat-form-field>
+                    {{selData.get("searchText")?.value | json}}
+                  </div>
+                  <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value" appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true">
                     <div fxFlex fxLayout="row" fxLayoutAlign="center center">
-                    <mat-radio-button fxFlex class="example-radio-button" [value]="n">
-                      {{n.title}}
-                    </mat-radio-button>
+                      <mat-radio-button fxFlex class="example-radio-button" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
+                        {{n.name.title}}
+                      </mat-radio-button>
                     </div>
                     <mat-divider style="width: 100%; margin: 10px 0px;"></mat-divider>
 

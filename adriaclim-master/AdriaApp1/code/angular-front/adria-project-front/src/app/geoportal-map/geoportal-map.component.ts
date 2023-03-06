@@ -13,7 +13,6 @@ import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-ma
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-
 /**
  * Food data with nested structure.
  * Each node has a name and an optional list of children.
@@ -127,7 +126,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   polygon = poly;
 
   dataInd: any;
-  dataAllNodes: any;
+  dataAllNodes: any[] = [];
 
   selData: FormGroup;
   selectedDate: FormGroup;
@@ -152,7 +151,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog) {
     this.selData = new FormGroup({
-      dataSetSel: new FormControl()
+      dataSetSel: new FormControl(),
+      searchText: new FormControl()
     });
     this.selectedDate = new FormGroup({
       dateSel: new FormControl()
@@ -313,8 +313,24 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpClient.post('http://localhost:8000/test/allNodes',{
     }).subscribe({
       next:(res:any) =>{
-        console.log("RES ALL NODES ==", res.nodes);
-        this.dataAllNodes = res.nodes;
+        res.nodes.forEach((node:any)=>{
+
+          this.dataAllNodes.push(
+            {name: node}
+          );
+
+        });
+
+        this.dataAllNodes.sort((o1, o2) => {
+          if (o1.name.title > o2.name.title) {
+            return 1;
+          }
+          if (o1.name.title < o2.name.title) {
+            return -1;
+          }
+          return 0;
+        })
+
       },
       error: (msg: any) => {
         console.log('ALL NODES ERROR: ',msg);
@@ -382,8 +398,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getMeta(idMeta: any, controlDate?: any) {
-    
-    
+
+    console.log("ID METADATA =", idMeta);
+    console.log("CONTROL DATE =", controlDate);
+
 
     if(this.legendLayer_src) {
       this.deleteLayer(idMeta);
@@ -412,11 +430,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getSelectedNode(node: any) {
-    console.log("NODE =", node.name.variable_names);
+    // console.log("NODE =", node.name.variable_names);
     this.variableArray = node.name.variable_names.split(" ");
-    console.log("COSA C'E' QUI ==", this.selData.get("dataSetSel")?.value);
+    // console.log("COSA C'E' QUI ==", this.selData.get("dataSetSel")?.value);
     // this.variableGroup.get("variableControl")?.setValue()
-    console.log("VARIABLE ARRAY =", this.variableArray);
+    // console.log("VARIABLE ARRAY =", this.variableArray);
 
   }
 
@@ -439,14 +457,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
  addRealMonth(d:any,months:any) {
     var fm = moment(d).add(months, 'M');
     var fmEnd = moment(fm).endOf('month');
-    return d.date() != fm.date() && fm.isSame(fmEnd.format('YYYY-MM-DD')) ? fm.add(1, 'd') : fm;  
+    return d.date() != fm.date() && fm.isSame(fmEnd.format('YYYY-MM-DD')) ? fm.add(1, 'd') : fm;
   }
 
   //subtractRealMonth will return the real month before!
   subtractRealMonth(d:any, months: any) {
     var fm = moment(d).subtract(months, 'M');
     var fmEnd = moment(fm).endOf('month');
-    return d.date() != fm.date() && fm.isSame(fmEnd.format('YYYY-MM-DD')) ? fm.add(1, 'd') : fm;  
+    return d.date() != fm.date() && fm.isSame(fmEnd.format('YYYY-MM-DD')) ? fm.add(1, 'd') : fm;
   }
 
   subtractLastDayMonth(d:any,months:any){
@@ -465,10 +483,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       return false;
     }
   }
-  
+
 
   changeDate(arrow: any) {
-    
+
     // let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
     // console.log("LEFT DATE ==", this.selectedDate.get("dateSel")?.value.getTime());
     // console.log("LEFT DATE CLONE ==", selD.getTime());
@@ -585,7 +603,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateLeftSeason = false;
             this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
           }
-           
+
 
         } else{
           //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!
@@ -617,7 +635,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         }
       }
       else if(arrow === "right") {
-        
+
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         let d1 = _.cloneDeep(selD);
         if(this.isLastDayOfMonth(d1)){
@@ -648,7 +666,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
           }
-           
+
 
         } else{
           //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!
@@ -703,7 +721,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightSeason = false;
               this.navigateDateRightYear = false;
               this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
-              
+
             }else{
               selD = d2;
               this.selectedDate.get("dateSel")?.setValue(selD);
@@ -744,7 +762,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
             }
           }
-        
+
         //} //CHECK PER VEDERE SE ERAVAMO A GENNAIO CHE POSSIAMO TOGLIERE!!!
 
         // else {
@@ -907,7 +925,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }
 
     if(this.selectedDate.get("dateSel")?.value === this.dateEnd) {
-      
+
       this.navigateDateLeftYear = false;
       this.navigateDateRightYear = true;
       this.navigateDateLeftMonth = false;
@@ -915,18 +933,18 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateLeftSeason = false;
       this.navigateDateRightSeason = true;
     }
-  
+
     if(!this.variableGroup.get("variableControl")?.value) {
       this.variableGroup.get("variableControl")?.setValue(this.metadata[0][4]);
 
     }
     console.log("VARIABILE SELEZIONATA ==", this.variableGroup.get("variableControl")?.value);
     console.log("METADATA 0 4 ==", this.metadata[0][4]);
-    
-    
+
+
 
     // let time = this.formatDate(date_end);
-    let layer_name = this.variableGroup.get("variableControl")?.value;  
+    let layer_name = this.variableGroup.get("variableControl")?.value;
 
     this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
 

@@ -37,12 +37,16 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import { FilterPipe } from './geoportal-map/filter-full-list/filter.pipe';
+import { HighlightDirective } from './geoportal-map/filter-full-list/highlight.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     GeoportalMapComponent,
     GeoportalMapDialogComponent,
+    FilterPipe, //added pipe filter
+    HighlightDirective //added directive highlight
   ],
   imports: [
     BrowserModule,
