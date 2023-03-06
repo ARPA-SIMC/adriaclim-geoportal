@@ -40,13 +40,14 @@ import { MatInputModule } from '@angular/material/input';
 import { FilterPipe } from './geoportal-map/filter-full-list/filter.pipe';
 import { HighlightDirective } from './geoportal-map/filter-full-list/highlight.pipe';
 
+
 @NgModule({
   declarations: [
     AppComponent,
     GeoportalMapComponent,
     GeoportalMapDialogComponent,
     FilterPipe, //added pipe filter
-    HighlightDirective //added directive highlight
+    HighlightDirective, //added directive highlight
   ],
   imports: [
     BrowserModule,

@@ -131,12 +131,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   selData: FormGroup;
   selectedDate: FormGroup;
   variableGroup: FormGroup;
+  activeLayersGroup: FormGroup;
   nodeSelected: any;
 
   metadata: any;
   dateStart: any;
   dateEnd: any;
   variableArray: [] = [];
+  activeLayersArray: any[] = [];
 
   ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
   legendLayer_src: any;
@@ -159,6 +161,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     });
     this.variableGroup = new FormGroup({
       variableControl: new FormControl(null)
+    });
+
+    this.activeLayersGroup = new FormGroup({
+      activeLayersControl: new FormControl(null)
     });
 
     this.getInd();
@@ -397,10 +403,37 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  getMeta(idMeta: any, controlDate?: any) {
+  addToActiveLayers(node: any) {
+    // this.selData.get("dataSetSel")?.value
+    // if(this.selData.get("dataSetSel")?.value) {
+    this.activeLayersArray.push(node);
+    this.activeLayersGroup.get("activeLayersControl")?.setValue(node);
+    console.log("Added layer====",node);
+    // }
+  }
 
-    console.log("ID METADATA =", idMeta);
-    console.log("CONTROL DATE =", controlDate);
+  selActiveLayer(event: any) {
+    console.log("SELECTED LAYER =", event.value);
+    let metaId: any;
+    if(event.value.dataset_id) {
+      /**
+      *  controllare anche qui!
+      */
+
+      metaId = event.value.dataset_id;
+
+    }
+    else if(event.value.id) {
+      /**
+       * constrollare qui con console.log
+       */
+      metaId = event.value.id;
+    }
+    this.getSelectedNode(event.value);
+    this.getMeta(metaId, "ok");
+  }
+
+  getMeta(idMeta: any, controlDate?: any) {
 
 
     if(this.legendLayer_src) {
@@ -413,6 +446,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         // console.log('METADATA: ', res);
         this.metadata = res;
+
         if(controlDate === "ok") {
 
           this.getLayers(idMeta, controlDate);
@@ -430,8 +464,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getSelectedNode(node: any) {
+    console.log("NODE =", node);
+
     // console.log("NODE =", node.name.variable_names);
-    this.variableArray = node.name.variable_names.split(" ");
+    if(node.name) {
+      this.variableArray = node.name.variable_names.split(" ");
+      console.log("NODE NAME ==", this.variableArray);
+
+    }
+    else if(node.variable_names) {
+      console.log("Entro quiiiiiiiii")
+      this.variableArray = node.variable_names.split(" ");
+      console.log("Stampo variable array=",this.variableArray);
+    }
+    this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
     // console.log("COSA C'E' QUI ==", this.selData.get("dataSetSel")?.value);
     // this.variableGroup.get("variableControl")?.setValue()
     // console.log("VARIABLE ARRAY =", this.variableArray);
@@ -934,10 +980,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateRightSeason = true;
     }
 
+    //se non è settata setta a this.metadata[0][4], se viene cambiata prendila da variable group
+    //se cambio layer, cambiano le variabili quindi settare di nuovo a this.metadata
     if(!this.variableGroup.get("variableControl")?.value) {
       this.variableGroup.get("variableControl")?.setValue(this.metadata[0][4]);
 
     }
+    // else {
+    //   this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
+    // }
     console.log("VARIABILE SELEZIONATA ==", this.variableGroup.get("variableControl")?.value);
     console.log("METADATA 0 4 ==", this.metadata[0][4]);
 
@@ -1076,6 +1127,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     }
 
+    // this.datasetSelected.forEach((dataset:any)=>{
+    //   if()
+    // });
+
     this.map.removeLayer(this.datasetLayer);
   }
 
@@ -1177,6 +1232,4 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
 }
-
-
 

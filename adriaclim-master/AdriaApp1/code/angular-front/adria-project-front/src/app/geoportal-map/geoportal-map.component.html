@@ -27,16 +27,24 @@
               <ng-template matMenuContent>
                 <!-- <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season"> -->
                 <div fxFlex fxLayout="column" fxLayoutAlign="center start">
-                  <div fxFlex fxLayout="row" fxLayoutAlign="center center" (click)="$event.stopPropagation();">
-                    <mat-form-field class="example-full-width">
-
+                  <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center" (click)="$event.stopPropagation();">
+                    <mat-form-field class="example-full-width" color="primary" appearance="outline">
+                      <mat-label fxFlex="80">Filter title or institution</mat-label>
+                      <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
                       <input type="text" matInput formControlName="searchText">
+                      <button matSuffix mat-icon-button aria-label="Clear">
+                        <mat-icon>search</mat-icon>
+                      </button>
                     </mat-form-field>
-                    {{selData.get("searchText")?.value | json}}
+                    <!-- {{selData.get("searchText")?.value | json}} -->
                   </div>
-                  <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value" appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true">
+                  <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value">
+                  <!-- <ng-container *ngFor="let n of dataAllNodes | highlight: selData.get('searchText')?.value"> -->
                     <div fxFlex fxLayout="row" fxLayoutAlign="center center">
-                      <mat-radio-button fxFlex class="example-radio-button" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
+                      <!-- <mat-radio-button fxFlex class="example-radio-button"  appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
+                        {{n.name.title}}
+                      </mat-radio-button> -->
+                      <mat-radio-button fxFlex class="example-radio-button" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n); addToActiveLayers(n.name)">
                         {{n.name.title}}
                       </mat-radio-button>
                     </div>
@@ -61,7 +69,7 @@
                         <button
                           matTooltip="Info about the layer"
                           matTooltipPosition="left"><mat-icon fxFlex="90" [ngStyle]="{'color': 'blue'}" (click)="openTableDialog(node.name['dataset_id'], node.name['title'])">info</mat-icon></button>
-                        <mat-radio-button fxFlex [value]="node" (change)="getMeta(node.name['dataset_id']); getSelectedNode(node)">{{node.name["title"]}}</mat-radio-button>
+                        <mat-radio-button fxFlex [value]="node" (change)="getMeta(node.name['dataset_id']); getSelectedNode(node); addToActiveLayers(node.name)">{{node.name["title"]}}</mat-radio-button>
 
                       </div>
                       <mat-divider style="width: 100%; margin: 10px 0px;" *ngIf="!lastItem"></mat-divider>
@@ -185,11 +193,28 @@
           <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
             <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
 
-                <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
-                <button
-                  matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}" (click)="openTableDialog()">info</mat-icon></button>
-                <button
-                  matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}" (click)="deleteLayer(selData.get('datSetSel')?.value.name.dataset_id)">delete</mat-icon></button>
+              <div fxFlex="20" fxLayout="row" class="menu-var" fxLayoutAlign="center center">
+                <form [formGroup]="activeLayersGroup">
+
+                    <mat-form-field appearance="fill">
+                      <mat-label>Select Layers</mat-label>
+                      <!-- <mat-select formControlName="activeLayersControl" (selectionChange)="getMeta(activeLayersGroup.get('activeLayersControl')?.value.name.dataset_id, 'ok')"> -->
+                      <mat-select formControlName="activeLayersControl" (selectionChange)="selActiveLayer($event)">
+                        <mat-option *ngFor="let a of activeLayersArray" [value]="a">
+                          {{a.title}}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                </form>
+
+              </div>
+
+              <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
+              <button
+                matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}" (click)="openTableDialog()">info</mat-icon></button>
+              <button
+                matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}" (click)="deleteLayer(selData.get('datSetSel')?.value.name.dataset_id)">delete</mat-icon></button>
 
 
                 <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">

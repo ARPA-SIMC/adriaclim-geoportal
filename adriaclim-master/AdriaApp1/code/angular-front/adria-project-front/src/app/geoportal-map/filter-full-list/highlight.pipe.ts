@@ -11,10 +11,12 @@ export class HighlightDirective implements OnChanges {
 
   constructor(private el: ElementRef, private renderer: Renderer2) {
     // this.content = this.content.name.title;
+
+
    }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.content.name.title) {
+    if (!this.content) {
       return;
     }
 
@@ -22,14 +24,16 @@ export class HighlightDirective implements OnChanges {
       this.renderer.setProperty(
         this.el.nativeElement,
         'title',
-        this.content.name.title
+        this.content
       );
     }
 
     if (!this.searchedWord || !this.searchedWord.length || !this.classToApply) {
-      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', this.content.name.title);
+      this.renderer.setProperty(this.el.nativeElement, 'innerHTML', this.content);
       return;
     }
+
+
 
     this.renderer.setProperty(
       this.el.nativeElement,
@@ -40,13 +44,8 @@ export class HighlightDirective implements OnChanges {
 
   getFormattedText() {
     const re = new RegExp(`(${this.searchedWord})`, 'gi');
-    console.log("TEST SONO QUI DENTRO IN GET FORMATTED TEXT! ")
-    console.log("RE: " + re);
-    console.log("CONTENT NAME TITLE: " + this.content.name.title);
+    let rep = this.content.replace(re, `<span style="${this.classToApply}">$1</span>`);
 
-    console.log("CLASS TO APPLY: " + this.classToApply);
-
-    return this.content.name.title.replace(re, `<span style="${this.classToApply}">$1</span>`);
-    // return this.content.name.title.replace(re, `<span style="font-weight: bold">$1</span>`);
+    return rep
   }
 }
