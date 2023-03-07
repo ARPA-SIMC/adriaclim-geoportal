@@ -39,6 +39,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { FilterPipe } from './geoportal-map/filter-full-list/filter.pipe';
 import { HighlightDirective } from './geoportal-map/filter-full-list/highlight.pipe';
+import {MatSliderModule} from '@angular/material/slider';
 
 
 @NgModule({
@@ -84,6 +85,7 @@ import { HighlightDirective } from './geoportal-map/filter-full-list/highlight.p
     MatTooltipModule,
     MatDatepickerModule,
     MatInputModule,
+    MatSliderModule
 
   ],
   providers: [

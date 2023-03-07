@@ -28,6 +28,13 @@ interface ExtendedWMSOptions extends L.TileLayerOptions {
   time?: string;
 }
 
+interface ExtraParams {
+  name: string;
+  minValue: number;
+  maxValue: number;
+  stepSize: number;
+}
+
 // const TREE_DATA: FoodNode[] = [
 //   {
 //     name: 'Fruit',
@@ -91,10 +98,6 @@ let TREE_DATA: FoodNode[] = [
       name: 'Numerical models',
       children: [],
     },
-    {
-      name: 'Full list',
-      children: [],
-    },
   ];
 
 /** Flat node with expandable and level information */
@@ -132,11 +135,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   selectedDate: FormGroup;
   variableGroup: FormGroup;
   activeLayersGroup: FormGroup;
+  sliderGroup: FormGroup;
   nodeSelected: any;
 
   metadata: any;
   dateStart: any;
   dateEnd: any;
+  extraParam!: ExtraParams;
+  isExtraParam!: boolean;
   variableArray: [] = [];
   activeLayersArray: any[] = [];
 
@@ -165,6 +171,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.activeLayersGroup = new FormGroup({
       activeLayersControl: new FormControl(null)
+    });
+
+    this.sliderGroup = new FormGroup({
+      sliderControl: new FormControl(null)
     });
 
     this.getInd();
@@ -218,7 +228,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     await this.initMap();
-
 
     // await this.initMap();
     // console.log("POLYGON =", this.polygon.features);
@@ -407,33 +416,58 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.selData.get("dataSetSel")?.value
     // if(this.selData.get("dataSetSel")?.value) {
     this.activeLayersArray.push(node);
-    this.activeLayersGroup.get("activeLayersControl")?.setValue(node);
-    console.log("Added layer====",node);
+    // this.activeLayersGroup.get("activeLayersControl")?.setValue(node);
+    this.selData.get("dataSetSel")?.setValue(node);
+    // console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
+
+    console.log("Added layer====", this.activeLayersArray);
     // }
   }
 
   selActiveLayer(event: any) {
     console.log("SELECTED LAYER =", event.value);
+    // this.selData.get("dataSetSel")?.setValue();
+    console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
+
     let metaId: any;
-    if(event.value.dataset_id) {
-      /**
-      *  controllare anche qui!
-      */
-
-      metaId = event.value.dataset_id;
+    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
 
     }
-    else if(event.value.id) {
-      /**
-       * constrollare qui con console.log
-       */
-      metaId = event.value.id;
+
+    else if(this.selData.get("dataSetSel")?.value.name.id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
+    // if(event.value.dataset_id) {
+    //   /**
+    //   *  controllare anche qui!
+    //   */
+
+    //   // console.log("sono in event.value.dataset_id");
+    //   metaId = event.value.dataset_id;
+    //   // console.log("DATASET_ID====",metaId);
+    //   // console.log("TITLE=====",event.value.title);
+    //   // console.log("TIME START======",event.value.time_start);
+    //   // console.log("TIME END======",event.value.time_end);
+
+    // }
+    // else if(event.value.id) {
+    //   /**
+    //    * constrollare qui con console.log
+    //    */
+    //   // console.log("sono in event.value.id");
+    //   metaId = event.value.id;
+    //   // console.log("DATASET_ID====",metaId);
+    //   // console.log("TITLE=====",event.value.title);
+
+    // }
+    console.log("METADATA ID =", metaId);
+
     this.getSelectedNode(event.value);
-    this.getMeta(metaId, "ok");
+    this.getMeta(metaId);
   }
 
-  getMeta(idMeta: any, controlDate?: any) {
+  getMeta(idMeta: any, controlDate?: any, controlExtra?: any) {
 
 
     if(this.legendLayer_src) {
@@ -446,10 +480,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         // console.log('METADATA: ', res);
         this.metadata = res;
+        console.log("METADATA =", this.metadata);
 
         if(controlDate === "ok") {
 
-          this.getLayers(idMeta, controlDate);
+          this.getLayers(idMeta, controlDate, controlExtra);
         }
         else {
           this.getLayers(idMeta);
@@ -464,37 +499,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getSelectedNode(node: any) {
-    console.log("NODE =", node);
 
-    // console.log("NODE =", node.name.variable_names);
     if(node.name) {
       this.variableArray = node.name.variable_names.split(" ");
-      console.log("NODE NAME ==", this.variableArray);
-
     }
     else if(node.variable_names) {
-      console.log("Entro quiiiiiiiii")
       this.variableArray = node.variable_names.split(" ");
-      console.log("Stampo variable array=",this.variableArray);
     }
     this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
-    // console.log("COSA C'E' QUI ==", this.selData.get("dataSetSel")?.value);
-    // this.variableGroup.get("variableControl")?.setValue()
-    // console.log("VARIABLE ARRAY =", this.variableArray);
 
   }
 
-  // myFilter (d: Date | null, dateStart: any, dateEnd: any): boolean {
-  //   const date = (d || new Date());
-  //   console.log("DATE ==", date);
-  //   console.log("DATE START ==", dateStart);
-  //   console.log("DATE END ==", dateEnd);
-
-  //   return date >= dateStart && date <= dateEnd;
-  // };
 
   lastday(y:any,m:any){
-    console.log("LAST DAY ==", new Date(y, m + 1, 0).getDate());
+    // console.log("LAST DAY ==", new Date(y, m + 1, 0).getDate());
 
     return  new Date(y, m + 1, 0).getDate();
   }
@@ -622,7 +640,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // console.log(selD);
         let d1 = _.cloneDeep(selD);
         if(this.isLastDayOfMonth(d1)){
-          console.log("ULTIMO GIORNO DEL MESEEEEEEEEEEEEE!");
         //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
           let d2 = _.cloneDeep(selD);
           d2 = this.subtractLastDayMonth(d2, 1);
@@ -685,7 +702,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         let d1 = _.cloneDeep(selD);
         if(this.isLastDayOfMonth(d1)){
-          console.log("ULTIMO GIORNO DEL MESEEEEEEEEEEEEE!");
         //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
           let d2 = _.cloneDeep(selD);
           d2 = this.addLastDayMonth(d2,1);
@@ -722,7 +738,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           if(d2.toString() === this.dateEnd.toString()){
             //ULTIMA DATA!
             selD = d2;
-            console.log(selD);
             this.selectedDate.get("dateSel")?.setValue(selD);
             this.navigateDateLeftMonth = false;
             this.navigateDateRightMonth = true;
@@ -892,13 +907,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   dateFilter = (date: Date | null): boolean => {return true;}
 
-  getLayers(idMeta: any, controlDate?: any) {
+  getLayers(idMeta: any, controlDate?: any, controlExtra?: any) {
 
     //let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
 
-    console.log("METADATAaaaa ==", this.metadata);
+    // console.log("METADATAaaaa ==", this.metadata);
     // d.setUTCSeconds
     // console.log("METADATA 2 ==", this.metadata[0][2]);
 
@@ -907,9 +922,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let seconds_epoch_start = seconds_epoch[0];
 
     let seconds_epoch_end = seconds_epoch[1];
-    console.log("SECONDS EPOCH START ==", seconds_epoch_start);
-    console.log("SECONDS EPOCH END ==", seconds_epoch_end);
-
 
     let date_start=new Date(0);
     date_start.setUTCSeconds(seconds_epoch_start);
@@ -922,6 +934,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.dateStart = date_start;
     this.dateEnd = date_end;
+    // console.log("SELECTED DATASET: ", this.selData.get('dataSetSel')?.value);
 
     this.dateFilter = (date:Date | null) : boolean =>{
       if(date) {
@@ -961,13 +974,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     if(controlDate === "ok") {
       let tmp = this.selectedDate.get("dateSel")?.value;
       time = this.formatDate(tmp);
-      console.log("TIME OK ==", time);
 
     }
     else {
       this.selectedDate.get("dateSel")?.setValue(date_end);
       time = this.formatDate(date_end);
-      console.log("TIME NO ==", time);
     }
 
     if(this.selectedDate.get("dateSel")?.value === this.dateEnd) {
@@ -986,74 +997,154 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.variableGroup.get("variableControl")?.setValue(this.metadata[0][4]);
 
     }
-    // else {
-    //   this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
-    // }
-    console.log("VARIABILE SELEZIONATA ==", this.variableGroup.get("variableControl")?.value);
-    console.log("METADATA 0 4 ==", this.metadata[0][4]);
 
 
 
-    // let time = this.formatDate(date_end);
     let layer_name = this.variableGroup.get("variableControl")?.value;
 
     this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
 
-    // console.log("TIME======== ",time);
+
     //if num_parameters.length > 3, layers3D!!!
     let num_parameters=this.metadata[0][1].split(", ");
-
-    /**
-     * CONTROLLO, quando si seleziona l'indicatore di default prendiamo metadata[0][4] invece quando selezioniamo una variabile inseriamo il nome della variabile
-     * al posto di metadata[0][4] sia in layer_to_attach che in legendLayer_src
-     */
-    let layer_to_attach = {
-      layer_name: L.tileLayer.wms(
-      'http://localhost:8000/test/layers2d',{
-      attribution: this.metadata[0][6],
-      bgcolor: '0x808080',
-      crs: L.CRS.EPSG4326,
-      format: 'image/png',
-      layers: idMeta +':'+layer_name,
-      styles: '',
-      time: time,
-      transparent: true,
-      version: '1.3.0',
-      opacity:0.7,
-      } as ExtendedWMSOptions)
-    };
+    let layer_to_attach : any;
 
 
-    //Quando cambia la data cambiare anche la legenda!
 
+    if(num_parameters.length <= 3){
+      this.isExtraParam = false;
+      //siamo nel caso di layers 2D!!!
+      layer_to_attach = {
+        layer_name: L.tileLayer.wms(
+        'http://localhost:8000/test/layers2d',{
+        attribution: this.metadata[0][6],
+        bgcolor: '0x808080',
+        crs: L.CRS.EPSG4326,
+        format: 'image/png',
+        layers: idMeta +':'+layer_name,
+        styles: '',
+        time: time,
+        transparent: true,
+        version: '1.3.0',
+        opacity:0.7,
+        } as ExtendedWMSOptions)
+      };
+
+      this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
+
+    }else{
+
+      //siamo nel caso di layers 3D!!
+      //di default gli assegniamo il minimo valore!
+      let min_max_value=this.metadata[0][0].split(",");
+      let name = num_parameters[1];
+      let min = Number(min_max_value[0]);
+      let max = Number(min_max_value[1]);
+      let step = Number(this.metadata[0][5].split("=")[1]);
+
+      //se non c'è ci sono questi due if, se c'è hai sempre
+      if(name === "depth"){
+        // this.extraParam.name = "elevation";
+        this.extraParam = {
+          name: "Elevation",
+          minValue: - max,
+          maxValue: - min,
+          stepSize: step,
+        };
+
+      }
+      else {
+        this.extraParam = {
+          name: 'Dim_' + name,
+          minValue: min,
+          maxValue: max,
+          stepSize: step,
+        };
+      }
+      if(controlExtra){
+        this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
+
+        layer_to_attach={
+          layer_name: L.tileLayer.wms(
+        'http://localhost:8000/test/layers3d/'+this.extraParam.name,{
+          attribution: this.metadata[0][6],
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: idMeta+':'+layer_name,
+          styles: '',
+          time: time,
+          [this.extraParam.name]: controlExtra,
+          transparent: true,
+          version: '1.3.0',
+          opacity:0.7,
+          } as ExtendedWMSOptions)
+        };
+
+        this.isExtraParam = true;
+        if(name === "depth"){
+          this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B("+(-controlExtra)+")%5D%5B%5D%5B%5D&.legend=Only";
+        }else{
+          this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B("+(controlExtra)+")%5D%5B%5D%5B%5D&.legend=Only";
+        }
+      }
+      else {
+        if(name === "depth"){
+          this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.maxValue);
+        }
+        else {
+          this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.minValue);
+        }
+
+
+        layer_to_attach={
+          layer_name: L.tileLayer.wms(
+        'http://localhost:8000/test/layers3d/'+this.extraParam.name,{
+          attribution: this.metadata[0][6],
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: idMeta+':'+layer_name,
+          styles: '',
+          time: time,
+          [this.extraParam.name]: this.sliderGroup.get('sliderControl')?.value,
+          transparent: true,
+          version: '1.3.0',
+          opacity:0.7,
+          } as ExtendedWMSOptions)
+        };
+
+        this.isExtraParam = true;
+        this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B("+this.sliderGroup.get('sliderControl')?.value+")%5D%5B%5D%5B%5D&.legend=Only";
+
+      }
+
+
+    }
 
     this.datasetLayer = layer_to_attach.layer_name.addTo(this.map);
 
 
+  }
 
+  sliderControl(event: any) {
+    let valueCustom = event.target.value;
+    let metaId: any;
+    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+    }
+    else if(this.selData.get("dataSetSel")?.value.name.id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.id;
+    }
+    this.getMeta(metaId, "ok", valueCustom);
+  }
 
-    // this.httpClient.get('http://localhost:8000/test/layers2d?', {
-    //   attribution: this.metadata[0][6],
-    //   bgcolor: '0x808080',
-    //   crs: L.CRS.EPSG4326,
-    //   format: 'image/png',
-    //   layers: idMeta +':'+ this.metadata[0][4],
-    //   styles: '',
-    //   time: time,
-    //   transparent: true,
-    //   version: '1.3.0',
-    //   opacity:0.7,
-    // }).subscribe({
-    //   next: (res: any) => {
-    //     console.log('LAYERS: ', res);
-    //     // let layer = L.tileLayer.wms(res.url, res.options);
-    //   },
-    //   error: (msg: any) => {
-    //     console.log('LAYERS ERROR: ', msg);
-    //   }
+  formatLabel(value: number): string {
+    if (value >= 1000) {
+      return Math.round(value / 1000) + 'k';
+    }
 
-    // });
-
+    return `${value}`;
   }
 
   landLayers() {
@@ -1120,18 +1211,83 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  deleteLayer(idMeta: string) {
+  deleteLayer(idMeta?: string) {
+    // console.log("SELECTED DATASET: ", this.selData.get('dataSetSel')?.value);
+    // console.log("ID META SOTTO SELECTED DATASET======",idMeta);
     this.legendLayer_src = null;
-    if(idMeta !== this.selData.get("dataSetSel")?.value.name.dataset_id) {
-      this.selData.reset();
-
+    let metaId: any;
+    if(idMeta) {
+      metaId = idMeta;
     }
+    else {
+      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+        metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+      }
+      else if(this.selData.get("dataSetSel")?.value.name.id) {
+        metaId = this.selData.get("dataSetSel")?.value.name.id;
+      }
+    }
+    // if(this.selData.get('dataSetSel')?.value.name){
+    //   if(idMeta !== this.selData.get("dataSetSel")?.value.name.dataset_id) {
+    //     console.log("RESET DATASET NAME");
 
-    // this.datasetSelected.forEach((dataset:any)=>{
-    //   if()
-    // });
+    //     this.selData.reset();
+
+    //   }
+
+    // }
+
+    // else if(idMeta !== this.selData.get("dataSetSel")?.value.dataset_id) {
+    //   console.log("RESET DATASET NO NAME");
+
+    //   this.selData.reset();
+    // }
+
 
     this.map.removeLayer(this.datasetLayer);
+
+  }
+
+  deleteElActiveLayers() {
+
+    let metaId: any;
+    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+    }
+    else if(this.selData.get("dataSetSel")?.value.name.id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.id;
+    }
+
+    this.activeLayersArray.forEach((layer:any, i: number)=>{
+      if(layer.name.dataset_id === metaId){
+        //rimuovi array nel caso di layer da lista dataset
+        this.activeLayersArray.splice(i,1);
+      }else if(layer.name.id === metaId){
+        //rimuovi array nel caso di layer da full list
+        this.activeLayersArray.splice(i,1);
+      }
+    });
+    if(this.activeLayersArray.length >=1 ){
+      this.selData.get("dataSetSel")?.setValue(this.activeLayersArray[this.activeLayersArray.length-1]);
+      // if(this.selData.get("dataSetSel")?.value) {
+      //   this.getMeta();
+      // }
+      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+        metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+      }
+      else if(this.selData.get("dataSetSel")?.value.name.id) {
+        metaId = this.selData.get("dataSetSel")?.value.name.id;
+      }
+      this.getSelectedNode(this.selData.get("dataSetSel")?.value);
+      this.getMeta(metaId);
+    }
+    else {
+      this.selData.reset();
+      this.variableArray = [];
+    }
+    console.log("SEL DATA", this.selData.get("dataSetSel")?.value);
+
+
   }
 
   formatDate(date: any) {
@@ -1190,7 +1346,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   openTableDialog(idMeta?: string, title?: string) {
-    console.log("DATASET ID PER DIALOG ===", this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.dataset_id : idMeta);
+    let dataId: any;
+    if(!idMeta){
+      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+        dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+      }
+      else if(this.selData.get("dataSetSel")?.value.name.id) {
+        dataId = this.selData.get("dataSetSel")?.value.name.id;
+      }
+    }
+
 
     const dialogConfig = new MatDialogConfig();
 
@@ -1199,7 +1364,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     dialogConfig.data = {
       success: true,
-      datasetId: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.dataset_id : idMeta,
+      datasetId: this.selData.get("dataSetSel")?.value ? dataId : idMeta,
       datasetName: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.title : title,
     };
 

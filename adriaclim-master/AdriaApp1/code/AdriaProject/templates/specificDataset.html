@@ -19,23 +19,9 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
-      <td>CDI</td>
-      <td>String</td>
-      <td>Climate Data Interface version 1.9.8 (https://mpimet.mpg.de/cdi)</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
       <td>cdm_data_type</td>
       <td>String</td>
       <td>Grid</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>CDO</td>
-      <td>String</td>
-      <td>Climate Data Operators version 1.9.8 (https://mpimet.mpg.de/cdo)</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -47,23 +33,44 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
+      <td>creator_name</td>
+      <td>String</td>
+      <td>IPSL</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>creator_type</td>
+      <td>String</td>
+      <td>institution</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
       <td>Easternmost_Easting</td>
       <td>double</td>
-      <td>21.98158</td>
+      <td>36.25</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>file_name</td>
+      <td>String</td>
+      <td>MED8_1m_grid_T.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_max</td>
       <td>double</td>
-      <td>46.97328</td>
+      <td>45.81253</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_min</td>
       <td>double</td>
-      <td>37.00147</td>
+      <td>30.26666</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -77,21 +84,21 @@
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_max</td>
       <td>double</td>
-      <td>21.98158</td>
+      <td>36.25</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_min</td>
       <td>double</td>
-      <td>10.0168</td>
+      <td>-2.0</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_resolution</td>
       <td>double</td>
-      <td>0.062316562500000006</td>
+      <td>0.125</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -105,14 +112,14 @@
       <td>NC_GLOBAL</td>
       <td>history</td>
       <td>String</td>
-      <td>Wed Feb 01 10:51:26 2023: cdo merge adriaclim_WRF_cdd_anomaly_monthly.nc adriaclim_WRF_csu_anomaly_monthly.nc adriaclim_WRF_cwd_anomaly_monthly.nc adriaclim_WRF_hwdi_anomaly_monthly.nc adriaclim_WRF_r95p_anomaly_monthly.nc adriaclim_WRF_r95ptot_anomaly_monthly.nc adriaclim_WRF_rx1day_anomaly_monthly.nc adriaclim_WRF_rx5day_anomaly_monthly.nc adriaclim_WRF_sdii_anomaly_monthly.nc adriaclim_WRF_su_anomaly_monthly.nc adriaclim_WRF_tg_anomaly_monthly.nc adriaclim_WRF_tr_anomaly_monthly.nc adriaclim_WRF_txn_anomaly_monthly.nc adriaclim_WRF_txx_anomaly_monthly.nc adriaclim_WRF_anomaly_monthly.nc</td>
+      <td>Wed Dec  1 21:47:18 2021: ncks -A -v lat lat2.nc 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:17 2021: ncks -A -v lon lon2.nc 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:17 2021: ncrename -O -d x,lon -d y,lat 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:17 2021: ncks -O -x -v nav_lon,nav_lat 2005/MED8_1m_grid_T_new.nc.2005 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:16 2021: ncatted -O -a valid_max,deptht,o,f,4100.163 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:16 2021: ncks -A -v deptht CNRS_IPSL_MedCordex_new/NEMOMED8_deptht.nc 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:15 2021: ncks -d x,87,393 /data/inputs/metocean/historical/model/ocean/IPSL/MedCordex/historical/oce_regional/2005/MED8_1m_grid_T.nc.2005 2005/MED8_1m_grid_T_new.nc.2005\nMon Jan  9 21:16:33 2017: ncks -A -v deptht ../NEMOMED8_deptht.nc MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:32 2017: ncks -A tmp.nc MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:31 2017: ncrename -v time_counter,time MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:31 2017: ncrename -d time_counter,time MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:30 2017: ncrcat tmp.nc.200501 tmp.nc.200502 tmp.nc.200503 tmp.nc.200504 tmp.nc.200505 tmp.nc.200506 tmp.nc.200507 tmp.nc.200508 tmp.nc.200509 tmp.nc.200510 tmp.nc.200511 tmp.nc.200512 MED8_1m_grid_T.nc.2005</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>history_of_appended_files</td>
       <td>String</td>
-      <td>Thu Dec 22 16:13:06 2022: Appended file lat1.nc had following "history" attribute:\nThu Dec 22 16:13:03 2022: ncrename -O -d south_north,lat lat1.nc\nThu Dec 22 16:13:03 2022: ncwa -a west_east lat.nc lat1.nc\nThu Dec 22 16:13:03 2022: ncks -v XLAT adriaclim_WRF_cdd_hist_monthly_1991_2020.nc lat.nc\nIndicator provided by CMCC Foundation\nThu Dec 22 16:13:06 2022: Appended file lon1.nc had following "history" attribute:\nThu Dec 22 16:13:03 2022: ncrename -O -d west_east,lon lon1.nc\nThu Dec 22 16:13:03 2022: ncwa -a south_north lon.nc lon1.nc\nThu Dec 22 16:13:03 2022: ncks -v XLONG adriaclim_WRF_cdd_hist_monthly_1991_2020.nc lon.nc\nIndicator provided by CMCC Foundation</td>
+      <td>Fri Nov 26 17:35:53 2021: Appended file CNRS_IPSL_MedCordex_new/NEMOMED8_deptht.nc had following "history" attribute:\nWed Nov 30 23:21:08 2011: ncks -v deptht data_1m_potential_temperature_nomask.nc /home/rech/ces/rces111/deptht.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -126,14 +133,21 @@
       <td>NC_GLOBAL</td>
       <td>institution</td>
       <td>String</td>
-      <td>???</td>
+      <td>IPSL</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>keywords</td>
       <td>String</td>
-      <td>5-days, 95th, above, all, amount, below, bounds, calculated, cdd, celsius, consecutive, consecutive_dry_days_index_per_time_period, consecutive_summer_days_index_per_time_period, consecutive_wet_days_index_per_time_period, coordinate, csu, cwd, daily, data, day, days, defined, degree, degrees, dry, due, five, given, greatest, heat, heat_wave_duration_index_wrt_mean_of_reference_period, heat_waves_per_time_period, index, intensity, intervals, least, local, maximum, mean, meteorology, minimum, more, moving, nights, number, number_of_cdd_periods_with_more_than_5days_per_time_period, number_of_csu_periods_with_more_than_5days_per_time_period, number_of_cwd_periods_with_more_than_5days_per_time_period, one, over, per, percent, percentage, percentile, period, periods, precipitation, precipitation_percent_due_to_R95p_days, rain, rainfall, reference, rx1day, rx5day, simple, simple_daily_intensity_index_per_time_period, source, statistics, sum, summer, summer_days_index_per_time_period, temperature, temperatures, than, time, total, tropical, tropical_nights_index_per_time_period, txn, txx, vale, value, very, very_wet_days_wrt_95th_percentile_of_reference_period, waves, wet, where, window, with, wrt, year</td>
+      <td>data, density, deptht, earth, Earth Science &gt; Oceans &gt; Salinity/Density &gt; Salinity, ipsl, local, ocean, oceans, practical, salinity, science, sea, sea_water_practical_salinity, seawater, source, temperature, time, vosaline, votemper, water</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>keywords_vocabulary</td>
+      <td>String</td>
+      <td>GCMD Science Keywords</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -147,14 +161,28 @@
       <td>NC_GLOBAL</td>
       <td>NCO</td>
       <td>String</td>
-      <td>netCDF Operators version 4.8.1 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
+      <td>netCDF Operators version 4.9.3 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>nco_openmp_thread_number</td>
+      <td>int</td>
+      <td>1</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Northernmost_Northing</td>
       <td>double</td>
-      <td>46.97328</td>
+      <td>45.81253</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>production</td>
+      <td>String</td>
+      <td>An IPSL model</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -168,7 +196,7 @@
       <td>NC_GLOBAL</td>
       <td>Southernmost_Northing</td>
       <td>double</td>
-      <td>37.00147</td>
+      <td>30.26666</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -182,42 +210,49 @@
       <td>NC_GLOBAL</td>
       <td>summary</td>
       <td>String</td>
-      <td>AdriaClim Indicators | adriaclim_WRF | monthly | anomaly</td>
+      <td>Temperature (historical, month)</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_end</td>
       <td>String</td>
-      <td>2036-01-15T21:00:00Z</td>
+      <td>2005-11-20T00:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_start</td>
       <td>String</td>
-      <td>2036-01-15T21:00:00Z</td>
+      <td>1969-12-30T00:00:00Z</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>TimeStamp</td>
+      <td>String</td>
+      <td>2017-JAN-08 20:35:27 GMT+0100</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>title</td>
       <td>String</td>
-      <td>AdriaClim Indicators | adriaclim_WRF | monthly | anomaly</td>
+      <td>Temperature (historical, month)</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Westernmost_Easting</td>
       <td>double</td>
-      <td>10.0168</td>
+      <td>-2.0</td>
     </tr>
     <tr>
       <td>dimension</td>
       <td>time</td>
       <td>Value not available</td>
       <td>double</td>
-      <td>nValues=1, onlyValue=2036-01-15T21:00:00Z</td>
+      <td>nValues=432, evenlySpaced=false, averageSpacing=30 days 9h 58m 3s</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -231,7 +266,7 @@
       <td>time</td>
       <td>actual_range</td>
       <td>double</td>
-      <td>2.0840436E9, 2.0840436E9</td>
+      <td>-172800.0, 1.1324448E9</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -245,7 +280,7 @@
       <td>time</td>
       <td>calendar</td>
       <td>String</td>
-      <td>proleptic_gregorian</td>
+      <td>noleap</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -259,7 +294,7 @@
       <td>time</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Time</td>
+      <td>Time axis</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -278,16 +313,128 @@
     <tr>
       <td>attribute</td>
       <td>time</td>
+      <td>title</td>
+      <td>String</td>
+      <td>Time</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>time</td>
       <td>units</td>
       <td>String</td>
       <td>seconds since 1970-01-01T00:00:00Z</td>
     </tr>
     <tr>
       <td>dimension</td>
+      <td>depth</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>nValues=43, evenlySpaced=false, averageSpacing=97.54840476190475</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>_CoordinateAxisType</td>
+      <td>String</td>
+      <td>Height</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>_CoordinateZisPositive</td>
+      <td>String</td>
+      <td>down</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>actual_range</td>
+      <td>float</td>
+      <td>3.13, 4100.163</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>axis</td>
+      <td>String</td>
+      <td>Z</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Location</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>Depth</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>nav_model</td>
+      <td>String</td>
+      <td>Default grid</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>positive</td>
+      <td>String</td>
+      <td>down</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>source_name</td>
+      <td>String</td>
+      <td>deptht</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>standard_name</td>
+      <td>String</td>
+      <td>depth</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>title</td>
+      <td>String</td>
+      <td>deptht</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>units</td>
+      <td>String</td>
+      <td>m</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>valid_max</td>
+      <td>float</td>
+      <td>4100.163</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>depth</td>
+      <td>valid_min</td>
+      <td>float</td>
+      <td>3.13</td>
+    </tr>
+    <tr>
+      <td>dimension</td>
       <td>latitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=217, evenlySpaced=false, averageSpacing=0.04616578703703706</td>
+      <td>nValues=160, evenlySpaced=false, averageSpacing=0.09777276729559749</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -301,7 +448,7 @@
       <td>latitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>37.00147, 46.97328</td>
+      <td>30.26666, 45.81253</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -309,6 +456,13 @@
       <td>axis</td>
       <td>String</td>
       <td>Y</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>latitude</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>x: mean</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -327,6 +481,13 @@
     <tr>
       <td>attribute</td>
       <td>latitude</td>
+      <td>nav_model</td>
+      <td>String</td>
+      <td>Default grid</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>latitude</td>
       <td>standard_name</td>
       <td>String</td>
       <td>latitude</td>
@@ -339,11 +500,25 @@
       <td>degrees_north</td>
     </tr>
     <tr>
+      <td>attribute</td>
+      <td>latitude</td>
+      <td>valid_max</td>
+      <td>float</td>
+      <td>45.812534</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>latitude</td>
+      <td>valid_min</td>
+      <td>float</td>
+      <td>23.00636</td>
+    </tr>
+    <tr>
       <td>dimension</td>
       <td>longitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=193, evenlySpaced=true, averageSpacing=0.062316562500000006</td>
+      <td>nValues=307, evenlySpaced=true, averageSpacing=0.125</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -357,7 +532,7 @@
       <td>longitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>10.0168, 21.98158</td>
+      <td>-2.0, 36.25</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -365,6 +540,13 @@
       <td>axis</td>
       <td>String</td>
       <td>X</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>longitude</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>y: mean</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -383,6 +565,13 @@
     <tr>
       <td>attribute</td>
       <td>longitude</td>
+      <td>nav_model</td>
+      <td>String</td>
+      <td>Default grid</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>longitude</td>
       <td>standard_name</td>
       <td>String</td>
       <td>longitude</td>
@@ -395,1131 +584,102 @@
       <td>degrees_east</td>
     </tr>
     <tr>
+      <td>attribute</td>
+      <td>longitude</td>
+      <td>valid_max</td>
+      <td>float</td>
+      <td>36.25</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>longitude</td>
+      <td>valid_min</td>
+      <td>float</td>
+      <td>-2.0</td>
+    </tr>
+    <tr>
       <td>variable</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
+      <td>votemper</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>time, latitude, longitude</td>
+      <td>time, depth, latitude, longitude</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
-      <td>cell_methods</td>
+      <td>votemper</td>
+      <td>associate</td>
       <td>String</td>
-      <td>time: mean</td>
+      <td>time_counter deptht nav_lat nav_lon</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
+      <td>votemper</td>
       <td>colorBarMaximum</td>
       <td>double</td>
-      <td>100.0</td>
+      <td>40.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
+      <td>votemper</td>
       <td>colorBarMinimum</td>
       <td>double</td>
-      <td>0.0</td>
+      <td>-10.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Consecutive dry days is the greatest number of consecutive days per time period with daily precipitation amount  below 1 mm. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
-      <td>missing_value</td>
+      <td>votemper</td>
+      <td>interval_operation</td>
       <td>float</td>
-      <td>Value not available</td>
+      <td>1200.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>consecutive_dry_days_index_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>Value not available</td>
+      <td>votemper</td>
+      <td>interval_write</td>
       <td>float</td>
-      <td>time, latitude, longitude</td>
+      <td>2678400.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Number of cdd periods in given time period with more than 5 days. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cdd_periods_with_more_than_5days_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Consecutive summer days index is the greatest number of consecutive summer days in a given time period. Summer days is the number of days where maximum of temperature is above 25 degree Celsius. The time period should be defined by the bounds of the time</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_summer_days_index_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Number of csu periods in given time period with more than 5 days. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Consecutive wet days is the greatest number of consecutive days per time period with daily precipitation above 1 mm. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>consecutive_wet_days_index_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Number of cwd periods in given time period with more than 5 days. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>number_of_cwd_periods_with_more_than_5days_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>This is the number of days per time period where in intervals of at least 6 consecutive days the daily maximum temperature is more than 5 degrees above a reference value. The reference value is calculated  as the mean of maximum temperatures of a five day</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>heat_waves_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Number of heat waves per time period. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>heat_waves_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Meteorology</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>This is the percent of time per time period of wet days (daily sum at least 1 mm / day) where daily precipitation amount of a wet day is above a reference value. The reference value is calculated  as the 95th percentile of all wet days of a given 30 year</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>very_wet_days_wrt_95th_percentile_of_reference_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>Percent</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>5.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Percentage of  total  precipitation amount per time period  due to  very_wet_days_wrt_95th_percentile_of_reference_period. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>precipitation_percent_due_to_R95p_days</td>
-      <td>units</td>
-      <td>String</td>
-      <td>Percent</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>rx1day</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>Times: sum</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>description</td>
-      <td>String</td>
-      <td>BIAS CORRECTED 6 HOUR CUMULATED TOTAL RAINFALL</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Meteorology</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Maximum of one day precipitation amount in a given time period.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx1day</td>
-      <td>units</td>
-      <td>String</td>
-      <td>mm</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>rx5day</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>Times: sum</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>description</td>
-      <td>String</td>
-      <td>BIAS CORRECTED 6 HOUR CUMULATED TOTAL RAINFALL</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Meteorology</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Maximum of 5-days moving window precipitation amount in a given time period.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>rx5day</td>
-      <td>units</td>
-      <td>String</td>
-      <td>mm</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>50.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Simple daily intensity index is the mean of precipitation amount on wet days. A wet day is a day with precipitation sum of at least 1 mm. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>simple_daily_intensity_index_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>mm</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Summer days index is the number of days where maximum of temperature is above 25 degree Celsius. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>summer_days_index_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>tg</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>Times: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>313.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>263.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>description</td>
-      <td>String</td>
-      <td>BIAS CORRECTED TEMP at 2 M</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
+      <td>votemper</td>
       <td>ioos_category</td>
       <td>String</td>
       <td>Temperature</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>tg</td>
+      <td>votemper</td>
       <td>long_name</td>
-      <td>String</td>
-      <td>mean of mean daily temperature over the period</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tg</td>
-      <td>units</td>
-      <td>String</td>
-      <td>degree_K</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>time: mean</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>100.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Statistics</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Tropical nights index is the number of days where minimum of temperature is above 20 degree Celsius. The time period should be defined by the bounds of the time coordinate.</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>tropical_nights_index_per_time_period</td>
-      <td>units</td>
-      <td>String</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>txn</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>Times: maximum</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>313.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>263.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
-      <td>description</td>
-      <td>String</td>
-      <td>BIAS CORRECTED TEMP at 2 M</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
-      <td>ioos_category</td>
       <td>String</td>
       <td>Temperature</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>txn</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>minimum vale of daily maximum temperature over the period</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txn</td>
+      <td>votemper</td>
       <td>missing_value</td>
       <td>float</td>
-      <td>Value not available</td>
+      <td>9.96921E36</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>txn</td>
+      <td>votemper</td>
+      <td>online_operation</td>
+      <td>String</td>
+      <td>ave(x)</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>votemper</td>
+      <td>short_name</td>
+      <td>String</td>
+      <td>votemper</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>votemper</td>
       <td>units</td>
       <td>String</td>
-      <td>degree_K</td>
-    </tr>
-    <tr>
-      <td>variable</td>
-      <td>txx</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>time, latitude, longitude</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>Times: maximum</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>313.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>colorBarMinimum</td>
-      <td>double</td>
-      <td>263.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>description</td>
-      <td>String</td>
-      <td>BIAS CORRECTED TEMP at 2 M</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Temperature</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>maximum value of daily maximum temperature over the period</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>Value not available</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>txx</td>
-      <td>units</td>
-      <td>String</td>
-      <td>degree_K</td>
+      <td>degree_C</td>
     </tr>
   </tbody>
 </table>

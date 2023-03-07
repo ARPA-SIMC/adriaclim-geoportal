@@ -101,7 +101,7 @@ export class GeoportalMapDialogComponent {
       idMeta: this.datasetId
     }
     this.httpClient.post('http://localhost:8000/test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
-      console.log('METADATA TABLE =', response);
+      // console.log('METADATA TABLE =', response);
       this.myDiv.nativeElement.innerHTML = response;
     });
 

@@ -1,23 +1,24 @@
 <style>
   .font-weight-bold {
-  font-weight: bold;
-}
+    font-weight: bold;
+  }
 </style>
 <div class="main-content" fxFlex fxLayout="column">
 
   <div fxFlex class="toolbar">
     <mat-toolbar color="primary">
 
-      <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 85%;" class="toolbar-buttons">
+      <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 85%;"
+        class="toolbar-buttons">
 
         <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
-          #menuTrigger="matMenuTrigger"
-          [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span class="text-menu"> Full list </span>
+          #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span
+            class="text-menu"> Full list </span>
         </button>
 
         <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
-          #menuTrigger="matMenuTrigger"
-          [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
+          #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span
+            class="text-menu"> Dataset </span>
         </button>
 
         <form [formGroup]="selData">
@@ -27,7 +28,8 @@
               <ng-template matMenuContent>
                 <!-- <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season"> -->
                 <div fxFlex fxLayout="column" fxLayoutAlign="center start">
-                  <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center" (click)="$event.stopPropagation();">
+                  <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center"
+                    (click)="$event.stopPropagation();">
                     <mat-form-field class="example-full-width" color="primary" appearance="outline">
                       <mat-label fxFlex="80">Filter title or institution</mat-label>
                       <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
@@ -39,12 +41,13 @@
                     <!-- {{selData.get("searchText")?.value | json}} -->
                   </div>
                   <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value">
-                  <!-- <ng-container *ngFor="let n of dataAllNodes | highlight: selData.get('searchText')?.value"> -->
+                    <!-- <ng-container *ngFor="let n of dataAllNodes | highlight: selData.get('searchText')?.value"> -->
                     <div fxFlex fxLayout="row" fxLayoutAlign="center center">
                       <!-- <mat-radio-button fxFlex class="example-radio-button"  appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
                         {{n.name.title}}
                       </mat-radio-button> -->
-                      <mat-radio-button fxFlex class="example-radio-button" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n); addToActiveLayers(n.name)">
+                      <mat-radio-button fxFlex class="example-radio-button" [value]="n"
+                        (change)="getMeta(n.name.id); getSelectedNode(n); addToActiveLayers(n)">
                         {{n.name.title}}
                       </mat-radio-button>
                     </div>
@@ -60,55 +63,50 @@
             <mat-menu #myMenu1="matMenu" class="menu">
               <ng-template matMenuContent>
 
-              <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-                <mat-tree-node *matTreeNodeDef="let node; let lastItem = last" matTreeNodePadding>
+                <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+                  <mat-tree-node *matTreeNodeDef="let node; let lastItem = last" matTreeNodePadding>
 
-                  <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio">
-                    <div fxFlex fxLayout="column" fxLayoutAlign="center start" style="max-width: none !important; width: fit-content;">
-                      <div fxFlex fxLayout="row" fxLayoutAlign="center center" style="max-width: none !important; width: fit-content;">
-                        <button
-                          matTooltip="Info about the layer"
-                          matTooltipPosition="left"><mat-icon fxFlex="90" [ngStyle]="{'color': 'blue'}" (click)="openTableDialog(node.name['dataset_id'], node.name['title'])">info</mat-icon></button>
-                        <mat-radio-button fxFlex [value]="node" (change)="getMeta(node.name['dataset_id']); getSelectedNode(node); addToActiveLayers(node.name)">{{node.name["title"]}}</mat-radio-button>
+                    <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio">
+                      <div fxFlex fxLayout="column" fxLayoutAlign="center start"
+                        style="max-width: none !important; width: fit-content;">
+                        <div fxFlex fxLayout="row" fxLayoutAlign="center center"
+                          style="max-width: none !important; width: fit-content;">
+                          <button matTooltip="Info about the layer" matTooltipPosition="left"><mat-icon fxFlex="90"
+                              [ngStyle]="{'color': 'blue'}"
+                              (click)="openTableDialog(node.name['dataset_id'], node.name['title'])">info</mat-icon></button>
+                          <mat-radio-button fxFlex [value]="node"
+                            (change)="getMeta(node.name['dataset_id']); getSelectedNode(node); addToActiveLayers(node)">{{node.name["title"]}}</mat-radio-button>
+
+                        </div>
+                        <mat-divider style="width: 100%; margin: 10px 0px;" *ngIf="!lastItem"></mat-divider>
 
                       </div>
-                      <mat-divider style="width: 100%; margin: 10px 0px;" *ngIf="!lastItem"></mat-divider>
+                    </ng-container>
 
-                    </div>
-                  </ng-container>
+                    <ng-template #noRadio>
+                      <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+                        <mat-icon class="mat-icon-rtl-mirror">
+                          {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                        </mat-icon>
+                      </button>
+                      {{node.name}}
+                    </ng-template>
 
-                  <ng-template #noRadio>
-                    <button
-                      mat-icon-button
-                      matTreeNodeToggle
-                      [attr.aria-label]="'Toggle ' + node.name"
-                    >
+                  </mat-tree-node>
+
+                  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
                       <mat-icon class="mat-icon-rtl-mirror">
                         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                       </mat-icon>
                     </button>
                     {{node.name}}
-                  </ng-template>
 
-                </mat-tree-node>
+                  </mat-tree-node>
 
-                <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-                    <button
-                    mat-icon-button
-                    matTreeNodeToggle
-                    [attr.aria-label]="'Toggle ' + node.name"
-                    >
-                    <mat-icon class="mat-icon-rtl-mirror">
-                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                    </mat-icon>
-                  </button>
-                  {{node.name}}
+                </mat-tree>
 
-                </mat-tree-node>
-
-              </mat-tree>
-
-              <!-- <button mat-menu-item>A 1</button>
+                <!-- <button mat-menu-item>A 1</button>
                 <button mat-menu-item>A 2</button>
                 <button mat-menu-item>A 3</button> -->
               </ng-template>
@@ -119,7 +117,7 @@
         <!-- <button fxFlex="20" mat-raised-button color="warn"
           #menuTrigger="matMenuTrigger"
           [matMenuTriggerFor]="myMenu2"> <span class="text-menu"> Variable </span></button> -->
-          <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
+        <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
         <div fxFlex="20" fxLayout="row" class="menu-var" fxLayoutAlign="center center">
           <form [formGroup]="variableGroup">
             <ng-container *ngIf="variableArray.length > 0; else noVariable">
@@ -131,7 +129,8 @@
 
               <mat-form-field appearance="fill">
                 <mat-label>Select variable</mat-label>
-                <mat-select formControlName="variableControl" (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">
+                <mat-select formControlName="variableControl"
+                  (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">
                   <mat-option *ngFor="let v of variableArray" [value]="v">
                     {{v}}
                   </mat-option>
@@ -168,7 +167,7 @@
 
         <button mat-icon-button><mat-icon> place</mat-icon></button>
 
-          <!-- <mat-expansion-panel class="expansion-panel-class" #panel (mouseenter)="panel.open()" (mouseleave)="panel.close()">
+        <!-- <mat-expansion-panel class="expansion-panel-class" #panel (mouseenter)="panel.open()" (mouseleave)="panel.close()">
             <mat-expansion-panel-header>
             HEAD
             </mat-expansion-panel-header>
@@ -191,72 +190,111 @@
         </mat-card-header>
         <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center">
           <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
-            <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
+          <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
 
-              <div fxFlex="20" fxLayout="row" class="menu-var" fxLayoutAlign="center center">
-                <form [formGroup]="activeLayersGroup">
+            <div fxFlex fxLayout="row" class="menu-var" fxLayoutAlign="center center">
+              <form [formGroup]="selData" fxFlex>
 
-                    <mat-form-field appearance="fill">
-                      <mat-label>Select Layers</mat-label>
-                      <!-- <mat-select formControlName="activeLayersControl" (selectionChange)="getMeta(activeLayersGroup.get('activeLayersControl')?.value.name.dataset_id, 'ok')"> -->
-                      <mat-select formControlName="activeLayersControl" (selectionChange)="selActiveLayer($event)">
-                        <mat-option *ngFor="let a of activeLayersArray" [value]="a">
-                          {{a.title}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
+                <mat-form-field appearance="fill" fxFlex>
+                  <mat-label>Select Layers</mat-label>
+                  <!-- <mat-select formControlName="activeLayersControl" (selectionChange)="getMeta(activeLayersGroup.get('activeLayersControl')?.value.name.dataset_id, 'ok')"> -->
+                  <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)">
+                    <mat-option *ngFor="let a of activeLayersArray" [value]="a">
+                      {{a.name.title}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
 
-                </form>
+              </form>
 
-              </div>
+            </div>
+            <div fxFlex="25" fxLayout="row" fxLayoutAlign="space-evenly center">
+              <button fxFlex="40" matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}"
+                  (click)="openTableDialog()">info</mat-icon>
+              </button>
+              <button fxFlex="40" matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}"
+                  (click)="deleteLayer(); deleteElActiveLayers()">delete</mat-icon>
+              </button>
 
-              <span>{{selData.get("dataSetSel")?.value.name.title}}</span>
-              <button
-                matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}" (click)="openTableDialog()">info</mat-icon></button>
-              <button
-                matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}" (click)="deleteLayer(selData.get('datSetSel')?.value.name.dataset_id)">delete</mat-icon></button>
+            </div>
+            <!-- {{selData.get("dataSetSel")?.value | json}} -->
+            <!-- <span>{{selData.get("dataSetSel")?.value.name.title}}</span> -->
 
 
-                <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
+            <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
                   <mat-list-option fxFlex="100" fxLayoutAlign="start center" [value]="elem" *ngFor="let elem of dataInd">{{elem.title}}</mat-list-option>
                 </mat-selection-list> -->
-            </div>
+          </div>
 
-            <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center">
-              <form [formGroup]="selectedDate" fxFlex="50">
-                <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker">
-                  <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center">
-                    <mat-label>DD/MM/YYYY</mat-label>
-                    <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart" [max]="dateEnd" formControlName="dateSel" fxFlex>
-                    <!-- <mat-hint>DD/MM/YYYY</mat-hint> -->
-                    <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
-                    <mat-datepicker #datepicker>
-                      <mat-datepicker-actions>
-                        <button mat-button matDatepickerCancel>Cancel</button>
-                        <button mat-raised-button color="primary" matDatepickerApply (click)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">Apply</button>
-                      </mat-datepicker-actions>
-                    </mat-datepicker>
-                  </mat-form-field>
-
-                </div>
-              </form>
-              <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
-                <!-- DA FARE!! -->
-                <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
-                <button mat-icon-button fxFlex (click)="changeDate('left')" [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason"><mat-icon>navigate_before</mat-icon></button>
-                <button mat-icon-button fxFlex (click)="changeDate('right')" [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason"><mat-icon>navigate_next</mat-icon></button>
-                <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
+          <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center">
+            <form [formGroup]="selectedDate" fxFlex="50">
+              <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker">
+                <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center">
+                  <mat-label>DD/MM/YYYY</mat-label>
+                  <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart"
+                    [max]="dateEnd" formControlName="dateSel" fxFlex>
+                  <!-- <mat-hint>DD/MM/YYYY</mat-hint> -->
+                  <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+                  <mat-datepicker #datepicker>
+                    <mat-datepicker-actions>
+                      <button mat-button matDatepickerCancel>Cancel</button>
+                      <button mat-raised-button color="primary" matDatepickerApply
+                        (click)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">Apply</button>
+                    </mat-datepicker-actions>
+                  </mat-datepicker>
+                </mat-form-field>
 
               </div>
+            </form>
+            <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
+              <!-- DA FARE!! -->
+              <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
+              <button mat-icon-button fxFlex (click)="changeDate('left')"
+                [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason"><mat-icon>navigate_before</mat-icon></button>
+              <button mat-icon-button fxFlex (click)="changeDate('right')"
+                [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason"><mat-icon>navigate_next</mat-icon></button>
+              <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
+
             </div>
-            <!-- </div> -->
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </ng-container>
+          </div>
+
+          <div fxFlex="90" style="margin: 10px 0px 5px 0px; height: fit-content;" fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtraParam">
+            <form [formGroup]="sliderGroup" fxFlex fxLayout="column" style="width: 100%;" fxLayoutAlign="center center">
+              <div class="example-label-container" style="width: 80%;" fxLayout="row" fxLayoutAlign="space-between center">
+                <label fxFlex fxLayoutAlign="center center" id="example-name-label" class="example-name-label">{{extraParam.name}}</label>
+                <!-- <label class="example-value-label">{{value}}</label> -->
+                <!-- <label fxFlex fxLayoutAlign="center center" class="example-value-label">5</label> -->
+              </div>
+              <!-- [disabled]="disabled" -->
+              <mat-slider
+                  style="width: 80%;"
+                  class="example-margin"
+                  [max]="extraParam.maxValue"
+                  [min]="extraParam.minValue"
+                  [step]="extraParam.stepSize"
+                  discrete
+                  showTickMarks
+                  [displayWith]="formatLabel">
+                <input matSliderThumb formControlName="sliderControl" (mouseup)="sliderControl($event)">
+                <!-- <input matSliderThumb (mouseup)="sliderControl($event)"> -->
+              </mat-slider>
+
+            </form>
+            <!-- <mat-slider style="width: 80%;"
+                class="example-margin"
+                [displayWith]="formatLabel"
+                >
+              <input matSliderThumb>
+            </mat-slider> -->
+          </div>
+          <!-- </div> -->
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
 
   <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-image">
-        <img [src]="legendLayer_src">
+    <img [src]="legendLayer_src">
   </div>
 
 
@@ -268,4 +306,3 @@
   </div>
   <!-- END MAP -->
 </div>
-
