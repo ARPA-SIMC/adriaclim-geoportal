@@ -948,18 +948,45 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
           //FUNZIONA PERO BOH.........
           //GESTIRE ULTIMO GIORNO DEL MESE!
-          return date.getDate()  === this.dateEnd.getDate() &&
-                 date.getFullYear() >= this.dateStart.getFullYear() &&
-                 date.getFullYear() <= this.dateEnd.getFullYear()
+          let d1 = _.cloneDeep(this.dateEnd);
+          if(this.isLastDayOfMonth(d1)){
+            //ULTIMO GIORNO DEL MESE CASISTICA
+            //mi prendi quelli di tutti i mesi precedenti e dell'ultimo giorno
+            let d2 = _.cloneDeep(date);
+            if(d2<=this.dateEnd && d2>=this.dateStart && this.isLastDayOfMonth(d2)){
+              return true;
+            }else{
+              return false;
+            }       
+          }else{
+              return date.getDate()  === this.dateEnd.getDate() &&
+                    date.getFullYear() >= this.dateStart.getFullYear() &&
+                    date.getFullYear() <= this.dateEnd.getFullYear()
+            }
         }
         if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
           //FUNZIONA PERO BOH.........
           //SAME DAY AND 3 MONTHS DIFFERENCE BETWEEN DAYS!
-          return date.getDate()  === this.dateEnd.getDate() &&
-                 ((this.dateEnd.getMonth()+1) - (date.getMonth()+1)) % 3 === 0 &&
-                 date.getFullYear() >= this.dateStart.getFullYear() &&
-                 date.getFullYear() <= this.dateEnd.getFullYear()
+          //GESTIRE ULTIMO GIORNO DEL MESE
+          let d1 = _.cloneDeep(this.dateEnd);
+          if(this.isLastDayOfMonth(d1)){
+            //ULTIMO GIORNO DEL MESE CASISTICA
+            //mi prendi quelli di tutte le stagioni precedenti e dell'ultimo giorno
+            let d2 = _.cloneDeep(date);
+            if(d2<=this.dateEnd && d2>=this.dateStart && ((this.dateEnd.getMonth()+1) - (d2.getMonth()+1)) % 3 === 0 && this.isLastDayOfMonth(d2)){
+              return true;
+            }else{
+              return false;
+            } 
+          }else{  
+            return date.getDate()  === this.dateEnd.getDate() &&
+                  ((this.dateEnd.getMonth()+1) - (date.getMonth()+1)) % 3 === 0 &&
+                  date.getFullYear() >= this.dateStart.getFullYear() &&
+                  date.getFullYear() <= this.dateEnd.getFullYear();
+          }
+        
         }else{
+          //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
         }
       }
