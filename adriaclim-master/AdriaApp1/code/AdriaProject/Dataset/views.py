@@ -147,7 +147,10 @@ def getDataTable(request,dataset_id,layer_name,time_start,time_finish,latitude,l
     data=allFunctions.getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
     headers=[col for col in data.fieldnames]
     out=[[row[h] for h in headers] for row in data]
-    return render(request,"getData.html",{"data":out,"headers":headers})
+    #return render(request,"getData.html",{"data":out,"headers":headers})
+    return HttpResponse(render(request,"getData.html",{"data":out,"headers":headers}))
+
+
 
 def getDataTableIndicator(request,dataset_id,layer_name,time_start,time_finish,lat_min,lat_max,long_min,long_max,num_parameters,range_value):
     data=allFunctions.getDataTableIndicator(dataset_id,layer_name,time_start,time_finish,lat_min,lat_max,long_min,long_max,num_parameters,range_value)
@@ -403,3 +406,23 @@ def get_metadata_table(request):
     dataset_id = request.data.get("idMeta")
     metadata=allFunctions.getMetadataOfASpecificDataset(dataset_id)
     return HttpResponse(metadata)
+
+@api_view(['GET','POST'])
+def getDataTableNew(request):
+    dataset_id = request.data.get("idMeta")
+    latitude = request.data.get("lat")
+    longitude = request.data.get("lng")
+    time_start = request.data.get("dateStart")
+    time_finish = request.data.get("dateEnd")
+    layer_name = request.data.get("variable")
+    num_parameters = request.data.get("dimensions")
+    range_value = request.data.get("range")
+    
+    data=allFunctions.getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
+    # headers=[col for col in data.fieldnames]
+    print("data =", data)
+    print("TYPE DATA =", type(data))
+    # out=[[row[h] for h in headers] for row in data]
+    #return render(request,"getData.html",{"data":out,"headers":headers})
+    return JsonResponse({"data":data})
+    # return HttpResponse(render(request,"getData.html",{"data":out,"headers":headers}))

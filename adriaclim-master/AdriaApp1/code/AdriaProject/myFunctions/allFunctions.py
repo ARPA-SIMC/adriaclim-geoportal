@@ -12,6 +12,8 @@ import os
 import re
 import io
 import time
+import json
+import requests
 from django.contrib import messages
 from AdriaProject.settings import ERDDAP_URL
 from django.core.cache import cache
@@ -335,7 +337,7 @@ def download_with_cache_as_csv(u):
       return None
 
 def getIndicator(id):
-  q = Indicator.objects.filter(dataset_id=id)
+  q = Node.objects.filter(id=id)
   if q.count()==0:
     return None
   else:
@@ -391,7 +393,17 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
   di = getIndicatorDimensions(ind)
   va = getIndicatorVariables(ind)
 
+  print("DIIII")
+  print(di)
+
+  print("VAAAAA")
+  print(va)
+
   tipo = getIndicatorDataFormat(ind)
+
+  print("TIPOOOO")
+  print(tipo)
+  
   griddap = (tipo == "griddap")
   
   if griddap and onlyFirstVariable and va.count()>1:
@@ -540,6 +552,10 @@ def getAllDatasets():
       institution = "UNKNOWN"
       time_start = None
       time_end = None
+      lat_min = None
+      lat_max = None
+      lng_min = None
+      lng_max = None
 
       variables = 0
       variable_names = ""
@@ -584,6 +600,14 @@ def getAllDatasets():
           time_start = row1["Value"]
         if row1["Attribute Name"] == "time_coverage_end":
           time_end = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lat_min":
+          lat_min = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lat_max":
+          lat_max = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lon_min":
+          lng_min = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lon_max":
+          lng_max = row1["Value"]
 
       #is_indicator it is used to check if it the dataset is an indicator!
       is_indicator =  re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)
@@ -621,7 +645,7 @@ def getAllDatasets():
         new_node = Node(id = node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
                                   adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
                                   adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
-                                  time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
+                                  lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
                                   dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
                                   wms_url=row["wms"])
         new_node.save()
@@ -681,6 +705,10 @@ def getIndicators():
       institution = "UNKNOWN"
       time_start = None
       time_end = None
+      lat_min = None
+      lat_max = None
+      lng_min = None
+      lng_max = None
 
       variables = 0
       variable_names = ""
@@ -726,6 +754,14 @@ def getIndicators():
           time_start = row1["Value"]
         if row1["Attribute Name"] == "time_coverage_end":
           time_end = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lat_min":
+          lat_min = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lat_max":
+          lat_max = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lon_min":
+          lng_min = row1["Value"]
+        if row1["Attribute Name"] == "geospatial_lon_max":
+          lng_max = row1["Value"]
 
       if adriaclim_scale is None:
         adriaclim_scale="large"
@@ -762,7 +798,7 @@ def getIndicators():
         new_indicator = Indicator(dataset_id = dataset_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
                                   adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
                                   adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
-                                  time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
+                                  lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
                                   dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
                                   wms_url=row["wms"])
         new_indicator.save()
@@ -962,24 +998,27 @@ def getDataTableIndicator(dataset_id,layer_name,time_start,time_finish,lat_start
                             longMin=long_start,latMax=lat_end,longMax=long_end,num_parameters=num_parameters,range_value=range_value)
     print(url)
     url = getIndicatorQueryUrl(dataset_id,False,False,latitude=latitude,longitude=longitude,
-                               timeMin=time_start,timeMax=time_finish,range=range_value,format="csv")
+                               timeMin=time_start,timeMax=time_finish,range=range_value,format="json")
     #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
-    url_open = urllib.request.urlopen(url)
-    csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',')  
-    return csvfile
+    r = requests.get(url=url)
+    # csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',') 
+    data = r.json()
+    return data
 
 def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
 
-    url = getIndicatorQueryUrl(dataset_id,False,False,latitude=latitude,longitude=longitude,
-                               timeMin=time_start,timeMax=time_finish,range=range_value,format="csv")
-    #if(num_parameters>3):
-    #  url=ERDDAP_URL+"/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
-    #else:
-    #   url=ERDDAP_URL+"/griddap/"+dataset_id+".csv?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
+    # url = getIndicatorQueryUrl(dataset_id,False,False,latitude=latitude,longitude=longitude,
+    #                            timeMin=time_start,timeMax=time_finish,range=range_value,format="json")
+    if num_parameters > 3:
+      url=ERDDAP_URL+"/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
+    else:
+      url = ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
+      
     #https://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
-    url_open = urllib.request.urlopen(url)
-    csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',')  
-    return csvfile
+    r = requests.get(url=url)
+    # csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',') 
+    data = r.json() 
+    return data
 
 def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value,is_indicator,lat_start,long_start,lat_end,long_end, **kwargs):
   

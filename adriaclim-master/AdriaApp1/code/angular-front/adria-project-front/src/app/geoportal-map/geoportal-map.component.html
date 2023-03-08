@@ -182,6 +182,54 @@
     </mat-toolbar>
   </div>
 
+  <!-- MAT MENU PER TOOLS -->
+  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools">
+    <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+        #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuTools">
+      <mat-icon> list_alt</mat-icon>
+      <span class="text-menu"> Tools </span>
+    </button>
+
+    <mat-menu #myMenuTools="matMenu" class="menu-tools">
+      <ng-template matMenuContent>
+        <div fxFlex fxLayout="column" fxLayoutAlign="center start">
+          <div>
+            <button mat-icon-button matTooltip="Select a single point on the map" matTooltipPosition="right" (click)="pointSelect()"><mat-icon> place</mat-icon></button>
+          </div>
+          <div>
+            <button mat-icon-button matTooltip="Select all points in one of the areas shown" (click)="polygonSelect()" matTooltipPosition="right"><mat-icon>touch_app</mat-icon></button>
+          </div>
+
+        </div>
+      </ng-template>
+
+    </mat-menu>
+  </div>
+  <!-- MAT MENU PER SCELTA POLIGONI -->
+  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-polygon">
+    <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+        #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuPolygon">
+      <mat-icon> list_alt</mat-icon>
+      <span class="text-menu"> Areas </span>
+    </button>
+
+    <!--Modifichiamo dopo!-->
+    <mat-menu #myMenuPolygon="matMenu" class="polygon-tools">
+      <ng-template matMenuContent>
+        <div fxFlex fxLayout="column" fxLayoutAlign="center start">
+          <div>
+            <button mat-icon-button matTooltip="Select a single point on the map" matTooltipPosition="right"><mat-icon> place</mat-icon></button>
+          </div>
+          <div>
+            <button mat-icon-button matTooltip="Select all points in one of the areas shown" matTooltipPosition="right"><mat-icon>touch_app</mat-icon></button>
+          </div>
+
+        </div>
+      </ng-template>
+
+    </mat-menu>
+  </div>
+
   <ng-container *ngIf="selData.get('dataSetSel')?.value">
     <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map">
       <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center">

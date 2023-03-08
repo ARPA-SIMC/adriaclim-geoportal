@@ -1,6 +1,7 @@
 <form [formGroup]="form">
 
-  <h1 mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1>
+  <h1 *ngIf="!description" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1>
+  <h1 *ngIf="description" mat-dialog-title class="title-dialog-bold">{{description}}</h1>
   <!-- <div *ngIf="success; else ok"> -->
   <div *ngIf="success">
     <div mat-dialog-content>
@@ -18,9 +19,49 @@
       <!-- <span>PROVA</span>
       <input type="text"> -->
 
-      <div #metadataTable>
+      <div #metadataTable *ngIf="!openGraph; else graph">
         <mat-spinner></mat-spinner>
       </div>
+
+      <ng-template #graph>
+        <div #graphDiv>
+          <mat-spinner *ngIf="!description && spinnerLoading"></mat-spinner>
+          <table mat-table [dataSource]="dataSource">
+
+            <!-- Position Column -->
+            <ng-container matColumnDef="time">
+              <th mat-header-cell *matHeaderCellDef> Time </th>
+              <td mat-cell *matCellDef="let element"> {{element[0]}} </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="latitude">
+              <th mat-header-cell *matHeaderCellDef> Latitude </th>
+              <td mat-cell *matCellDef="let element"> {{element[1]}} </td>
+            </ng-container>
+
+            <!-- Weight Column -->
+            <ng-container matColumnDef="longitude">
+              <th mat-header-cell *matHeaderCellDef> Longitude </th>
+              <td mat-cell *matCellDef="let element"> {{element[2]}} </td>
+            </ng-container>
+
+            <!-- Symbol Column -->
+            <ng-container matColumnDef="wind10m">
+              <th mat-header-cell *matHeaderCellDef> Wind 10 m/s </th>
+              <td mat-cell *matCellDef="let element"> {{element[3]}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                         showFirstLastButtons
+                         aria-label="Select page of periodic elements">
+          </mat-paginator>
+        </div>
+      </ng-template>
 
     </div>
 

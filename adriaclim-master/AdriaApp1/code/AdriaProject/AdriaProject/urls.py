@@ -38,8 +38,11 @@ urlpatterns = [
     path('getWindArrows/<str:datasetId1>/<str:datasetId2>/<str:layer_name1>/<str:date_start1>/<int:num_param1>/<int:range_value1>/<str:layer_name2>/<str:date_start2>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param2>/<int:range_value2>',data_views.getWindArrows),
     path('allDatasets',data_views.allDatasets),
     path('getMetadata/<str:dataset_id>',data_views.getMetadataUrl),
+
     path('getDataTable/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataTable),
+    
     path('getDataTableIndicator/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:lat_min>/<str:lat_max>/<str:long_min>/<str:long_max>/<int:num_parameters>/<int:range_value>',data_views.getDataTableIndicator),
+    
     path('getDataGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
     '<str:longitude1>/<int:num_parameters>/<int:range_value>/<str:is_indicator>/<str:latMin>/'+
     '<str:longMin>/<str:latMax>/<str:longMax>/',data_views.getDataGraphic),
@@ -94,7 +97,8 @@ urlpatterns = [
     path('test/layers3d/<str:parameter>',data_views.layers3DNew),
     path("test/addOverlays/<str:dataset_id>",data_views.overlaysNew),
     path("test/metadataTable",data_views.get_metadata_table),
- 
+    path("test/dataGraphTable",data_views.getDataTableNew),
+  
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

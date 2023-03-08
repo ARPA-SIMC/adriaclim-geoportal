@@ -1,17 +1,15 @@
-import { FlatTreeControl, NestedTreeControl } from '@angular/cdk/tree';
+import { FlatTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
+import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import * as L from 'leaflet';
-import { latLng, marker, Marker, icon } from 'leaflet';
-import { map } from 'rxjs';
-import * as poly from '../../assets/geojson/geojson.json';
-import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import * as poly from '../../assets/geojson/geojson.json';
+import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 
 /**
  * Food data with nested structure.
@@ -128,6 +126,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   polygon = poly;
 
+  allPolygons : any[] = [];
+
   dataInd: any;
   dataAllNodes: any[] = [];
 
@@ -145,6 +145,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   isExtraParam!: boolean;
   variableArray: [] = [];
   activeLayersArray: any[] = [];
+
+  pointBoolean = false;
+
+  coordOnClick = {};
 
   ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
   legendLayer_src: any;
@@ -210,6 +214,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // console.log("POLYGON =", polyg[0]);
 
         let pol = L.polygon(polyg[0]).addTo(this.map);
+        this.allPolygons.push(pol);
         polyg = [];
       }
     });
@@ -248,7 +253,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     tiles.addTo(this.map);
 
     // assegno la funzione al click sulla mappa per generare il marker
-    this.map.on('click', this.onMapClick.bind(this));
+    // if(this.pointBoolean === true) {
+    //   this.map.on('click', this.onMapClick.bind(this));
+
+    // }
 
     // ASSEGNO DEI VALORI E GENERO UN POLIGONO
 
@@ -257,11 +265,44 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   // addPolygons() {
 
+  pointSelect() {
+    // if(this.pointBoolean === false) {
+      // this.pointBoolean = true;
+      this.map.on('click', this.onMapClick.bind(this));
+    // }
+
+    // this.initMap();
+  }
+
+  polygonSelect() {
+    this.map.on('click', this.onPolygonClick.bind(this));
+  }
+
   // }
+  onPolygonClick = (e: L.LeafletMouseEvent) => {
+    this.map.off('click');
+    if(this.activeLayersArray.length === 0){
+        //hai cliccato il bottone e un punto ma non ci sono layer attivi
+        //WARNING!
+
+    }else{
+      console.log("EVENT POLYGON =", e);
+      this.allPolygons.forEach((pol:any)=>{
+        if(pol.getBounds().contains(e.latlng)){
+          console.log("The polygon is rullo di tamburi",pol);
+        }
+      });
+      var label = e.target.options.label;
+      var content = e.target.options.popup;
+      var otherStuff = e.target.options.otherStuff;
+      alert("Clicked on polygon with label:" +label +" and content:" +content +". Also otherStuff set to:" +otherStuff);
+    }
+  }
 
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
-    // console.log("EVENT ON CLICK =", e);
+    // this.pointBoolean = false;
+    this.map.off('click');
 
     // imposto la lat e long del marker e le dimensioni della sua icona
     // METODO 1
@@ -273,7 +314,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //     iconUrl: 'marker-icon.png',
     //   })
     // }).addTo(this.map);
-
+    console.log("LAT========",e.latlng.lat);
+    console.log("LONG===========",e.latlng.lng);
+    this.coordOnClick = {
+      lat: e.latlng.lat,
+      lng: e.latlng.lng
+    }
+    console.log("COORDINATE ON CLICK =", this.coordOnClick);
+    this.openGraphDialog();
+    // this.pointBoolean = false;
     // METODO 2
     const marker = L.marker(e.latlng, {
       icon: L.icon({
@@ -283,13 +332,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       })
     });
     marker.on('click', this.onMarkerClick.bind(this));
-    marker.addTo(this.map);
-    this.markers.push(marker);
-    // this.markersLayer.addLayer(marker);
-    // this.markersLayer.addTo(this.map);
-
     // console.log("MARKER =", marker);
-    // console.log("MAP =", this.map);
+
+    // marker.addTo(this.map);
+    this.markers.push(marker);
+
   }
 
 
@@ -957,7 +1004,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               return true;
             }else{
               return false;
-            }       
+            }
           }else{
               return date.getDate()  === this.dateEnd.getDate() &&
                     date.getFullYear() >= this.dateStart.getFullYear() &&
@@ -977,14 +1024,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               return true;
             }else{
               return false;
-            } 
-          }else{  
+            }
+          }else{
             return date.getDate()  === this.dateEnd.getDate() &&
                   ((this.dateEnd.getMonth()+1) - (date.getMonth()+1)) % 3 === 0 &&
                   date.getFullYear() >= this.dateStart.getFullYear() &&
                   date.getFullYear() <= this.dateEnd.getFullYear();
           }
-        
+
         }else{
           //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
@@ -1398,30 +1445,53 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
 
-    // dialogRef.afterClosed().subscribe(
-    //   async data => {
-    //     if(data == "ok") {
-    //       // this.getAlgoConfig();
-    //       dialogConfig.data = {
-    //         success: false,
-    //         description: "Operation successful"
-    //       }
-    //       this.dialog.open(AlgorithmConfigurationDialogComponent, dialogConfig);
-    //     }
-    //     else if(data.id == "exists") {
-    //       console.log("DATA =", data);
-
-    //       dialogConfig.data = {
-    //         success: false,
-    //         description: data.desc
-    //       }
-    //       this.dialog.open(AlgorithmConfigurationDialogComponent, dialogConfig);
-    //     }
-
-    //   }
-    // )
   }
 
+  openGraphDialog() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
 
+    let dataId: any;
+    if(this.selData.get("dataSetSel")?.value) {
+      console.log("DATASET SELEZIONATO", this.selData.get("dataSetSel")?.value.name);
+
+      // CASO DATASET SELEZIONATO
+      let title = this.selData.get("dataSetSel")?.value.name.title;
+
+      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+        dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+      }
+      else if(this.selData.get("dataSetSel")?.value.name.id) {
+        dataId = this.selData.get("dataSetSel")?.value.name.id;
+
+      }
+
+      dialogConfig.data = {
+        success: true,
+        datasetId: dataId,
+        // datasetName: title,
+        dataset: this.selData.get("dataSetSel")?.value.name,
+        latlng: this.coordOnClick,
+        dateStart: this.dateStart,
+        dateEnd: this.dateEnd,
+        variable: this.variableGroup.get("variableControl")?.value,
+        range: this.sliderGroup.get("sliderControl")?.value,
+        openGraph: true,
+      };
+
+    }
+    else {
+      //CASO DATASET NON SELEZIONATO
+      dialogConfig.data = {
+        success: true,
+        description: "Select a dataset to visualize the graph",
+        openGraph: true,
+      };
+    }
+
+    const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
+
+  }
 }
 

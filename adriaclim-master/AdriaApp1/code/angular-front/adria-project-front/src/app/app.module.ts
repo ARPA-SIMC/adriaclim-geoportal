@@ -40,7 +40,8 @@ import { MatInputModule } from '@angular/material/input';
 import { FilterPipe } from './geoportal-map/filter-full-list/filter.pipe';
 import { HighlightDirective } from './geoportal-map/filter-full-list/highlight.pipe';
 import {MatSliderModule} from '@angular/material/slider';
-
+import {MatTableModule} from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -85,7 +86,9 @@ import {MatSliderModule} from '@angular/material/slider';
     MatTooltipModule,
     MatDatepickerModule,
     MatInputModule,
-    MatSliderModule
+    MatSliderModule,
+    MatTableModule,
+    MatPaginatorModule
 
   ],
   providers: [

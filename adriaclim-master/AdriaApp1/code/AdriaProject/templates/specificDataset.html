@@ -49,28 +49,28 @@
       <td>NC_GLOBAL</td>
       <td>Easternmost_Easting</td>
       <td>double</td>
-      <td>36.25</td>
+      <td>180.4572</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>file_name</td>
       <td>String</td>
-      <td>MED8_1m_grid_T.nc</td>
+      <td>sechiba_out.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_max</td>
       <td>double</td>
-      <td>45.81253</td>
+      <td>90.0</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_min</td>
       <td>double</td>
-      <td>30.26666</td>
+      <td>-90.0</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -84,21 +84,14 @@
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_max</td>
       <td>double</td>
-      <td>36.25</td>
+      <td>180.4572</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_min</td>
       <td>double</td>
-      <td>-2.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>geospatial_lon_resolution</td>
-      <td>double</td>
-      <td>0.125</td>
+      <td>-171.2326</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -112,14 +105,7 @@
       <td>NC_GLOBAL</td>
       <td>history</td>
       <td>String</td>
-      <td>Wed Dec  1 21:47:18 2021: ncks -A -v lat lat2.nc 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:17 2021: ncks -A -v lon lon2.nc 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:17 2021: ncrename -O -d x,lon -d y,lat 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:17 2021: ncks -O -x -v nav_lon,nav_lat 2005/MED8_1m_grid_T_new.nc.2005 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:16 2021: ncatted -O -a valid_max,deptht,o,f,4100.163 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:16 2021: ncks -A -v deptht CNRS_IPSL_MedCordex_new/NEMOMED8_deptht.nc 2005/MED8_1m_grid_T_new.nc.2005\nWed Dec  1 21:47:15 2021: ncks -d x,87,393 /data/inputs/metocean/historical/model/ocean/IPSL/MedCordex/historical/oce_regional/2005/MED8_1m_grid_T.nc.2005 2005/MED8_1m_grid_T_new.nc.2005\nMon Jan  9 21:16:33 2017: ncks -A -v deptht ../NEMOMED8_deptht.nc MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:32 2017: ncks -A tmp.nc MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:31 2017: ncrename -v time_counter,time MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:31 2017: ncrename -d time_counter,time MED8_1m_grid_T.nc.2005\nMon Jan  9 21:16:30 2017: ncrcat tmp.nc.200501 tmp.nc.200502 tmp.nc.200503 tmp.nc.200504 tmp.nc.200505 tmp.nc.200506 tmp.nc.200507 tmp.nc.200508 tmp.nc.200509 tmp.nc.200510 tmp.nc.200511 tmp.nc.200512 MED8_1m_grid_T.nc.2005</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>history_of_appended_files</td>
-      <td>String</td>
-      <td>Fri Nov 26 17:35:53 2021: Appended file CNRS_IPSL_MedCordex_new/NEMOMED8_deptht.nc had following "history" attribute:\nWed Nov 30 23:21:08 2011: ncks -v deptht data_1m_potential_temperature_nomask.nc /home/rech/ces/rces111/deptht.nc</td>
+      <td>Mon Jan  9 21:18:46 2017: ncatted -a _FillValue,vegetfrac,o,f,1.0e+20 vegetfrac.nc\nMon Jan  9 21:18:46 2017: ncatted -a missing_value,vegetfrac,o,f,1.0e+20 vegetfrac.nc\nMon Jan  9 21:18:46 2017: ncrcat tmp_vegetfrac_2005.nc vegetfrac.nc\nMon Jan  9 21:18:44 2017: ncks sechiba.nc.2005 -v vegetfrac,time,time_bnds tmp_vegetfrac_2005.nc\nMon Jan  9 21:18:43 2017: ncks -A tmp.nc sechiba.nc.2005\nMon Jan  9 21:18:43 2017: ncrename -d time_counter,time sechiba.nc.2005\nMon Jan  9 21:18:42 2017: ncrcat tmp_01.nc tmp_02.nc tmp_03.nc tmp_04.nc tmp_05.nc tmp_06.nc tmp_07.nc tmp_08.nc tmp_09.nc tmp_10.nc tmp_11.nc tmp_12.nc sechiba.nc.2005\nMon Jan  9 21:18:34 2017: ncks -x -v t_ave_02678400,t_t_max_02678400,t_t_min_02678400 tmp_01.nc tmp.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -140,14 +126,7 @@
       <td>NC_GLOBAL</td>
       <td>keywords</td>
       <td>String</td>
-      <td>data, density, deptht, earth, Earth Science &gt; Oceans &gt; Salinity/Density &gt; Salinity, ipsl, local, ocean, oceans, practical, salinity, science, sea, sea_water_practical_salinity, seawater, source, temperature, time, vosaline, votemper, water</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>keywords_vocabulary</td>
-      <td>String</td>
-      <td>GCMD Science Keywords</td>
+      <td>biology, data, fraction, ipsl, local, source, time, veget, vegetation, vegetfrac</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -161,7 +140,7 @@
       <td>NC_GLOBAL</td>
       <td>NCO</td>
       <td>String</td>
-      <td>netCDF Operators version 4.9.3 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
+      <td>4.4.2</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -175,7 +154,7 @@
       <td>NC_GLOBAL</td>
       <td>Northernmost_Northing</td>
       <td>double</td>
-      <td>45.81253</td>
+      <td>90.0</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -196,7 +175,7 @@
       <td>NC_GLOBAL</td>
       <td>Southernmost_Northing</td>
       <td>double</td>
-      <td>30.26666</td>
+      <td>-90.0</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -210,7 +189,7 @@
       <td>NC_GLOBAL</td>
       <td>summary</td>
       <td>String</td>
-      <td>Temperature (historical, month)</td>
+      <td>Vegetation types (historical, mon)</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -231,21 +210,21 @@
       <td>NC_GLOBAL</td>
       <td>TimeStamp</td>
       <td>String</td>
-      <td>2017-JAN-08 20:35:27 GMT+0100</td>
+      <td>2017-JAN-08 20:35:25 GMT+0100</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>title</td>
       <td>String</td>
-      <td>Temperature (historical, month)</td>
+      <td>Vegetation types (historical, mon)</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Westernmost_Easting</td>
       <td>double</td>
-      <td>-2.0</td>
+      <td>-171.2326</td>
     </tr>
     <tr>
       <td>dimension</td>
@@ -294,7 +273,7 @@
       <td>time</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Time axis</td>
+      <td>Time</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -313,128 +292,72 @@
     <tr>
       <td>attribute</td>
       <td>time</td>
-      <td>title</td>
-      <td>String</td>
-      <td>Time</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>time</td>
       <td>units</td>
       <td>String</td>
       <td>seconds since 1970-01-01T00:00:00Z</td>
     </tr>
     <tr>
       <td>dimension</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=43, evenlySpaced=false, averageSpacing=97.54840476190475</td>
+      <td>nValues=13, evenlySpaced=true, averageSpacing=1.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
-      <td>_CoordinateAxisType</td>
-      <td>String</td>
-      <td>Height</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
-      <td>_CoordinateZisPositive</td>
-      <td>String</td>
-      <td>down</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>3.13, 4100.163</td>
+      <td>1.0, 13.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>axis</td>
       <td>String</td>
       <td>Z</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>ioos_category</td>
       <td>String</td>
-      <td>Location</td>
+      <td>Biology</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Depth</td>
+      <td>Vegetation types</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
-      <td>nav_model</td>
-      <td>String</td>
-      <td>Default grid</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
-      <td>positive</td>
-      <td>String</td>
-      <td>down</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
-      <td>source_name</td>
-      <td>String</td>
-      <td>deptht</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
-      <td>standard_name</td>
-      <td>String</td>
-      <td>depth</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>title</td>
       <td>String</td>
-      <td>deptht</td>
+      <td>veget</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
-      <td>units</td>
-      <td>String</td>
-      <td>m</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>valid_max</td>
       <td>float</td>
-      <td>4100.163</td>
+      <td>13.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>depth</td>
+      <td>veget</td>
       <td>valid_min</td>
       <td>float</td>
-      <td>3.13</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <td>dimension</td>
       <td>latitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=160, evenlySpaced=false, averageSpacing=0.09777276729559749</td>
+      <td>nValues=121, evenlySpaced=false, averageSpacing=-1.5</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -448,7 +371,7 @@
       <td>latitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>30.26666, 45.81253</td>
+      <td>-90.0, 90.0</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -456,13 +379,6 @@
       <td>axis</td>
       <td>String</td>
       <td>Y</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>latitude</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>x: mean</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -504,21 +420,21 @@
       <td>latitude</td>
       <td>valid_max</td>
       <td>float</td>
-      <td>45.812534</td>
+      <td>90.0</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>latitude</td>
       <td>valid_min</td>
       <td>float</td>
-      <td>23.00636</td>
+      <td>-90.0</td>
     </tr>
     <tr>
       <td>dimension</td>
       <td>longitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=307, evenlySpaced=true, averageSpacing=0.125</td>
+      <td>nValues=200, evenlySpaced=false, averageSpacing=1.7672854271356784</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -532,7 +448,7 @@
       <td>longitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>-2.0, 36.25</td>
+      <td>-171.2326, 180.4572</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -540,13 +456,6 @@
       <td>axis</td>
       <td>String</td>
       <td>X</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>longitude</td>
-      <td>cell_methods</td>
-      <td>String</td>
-      <td>y: mean</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -588,98 +497,98 @@
       <td>longitude</td>
       <td>valid_max</td>
       <td>float</td>
-      <td>36.25</td>
+      <td>180.45724</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>longitude</td>
       <td>valid_min</td>
       <td>float</td>
-      <td>-2.0</td>
+      <td>-171.2326</td>
     </tr>
     <tr>
       <td>variable</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>time, depth, latitude, longitude</td>
+      <td>time, veget, latitude, longitude</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>1.0E20</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>vegetfrac</td>
       <td>associate</td>
       <td>String</td>
-      <td>time_counter deptht nav_lat nav_lon</td>
+      <td>t_ave_02678400 veget nav_lat nav_lon</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>colorBarMaximum</td>
       <td>double</td>
-      <td>40.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>colorBarMinimum</td>
       <td>double</td>
-      <td>-10.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>interval_operation</td>
       <td>float</td>
-      <td>1200.0</td>
+      <td>1800.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>interval_write</td>
       <td>float</td>
       <td>2678400.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>ioos_category</td>
       <td>String</td>
-      <td>Temperature</td>
+      <td>Biology</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Temperature</td>
+      <td>Fraction of vegetation</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>missing_value</td>
       <td>float</td>
-      <td>9.96921E36</td>
+      <td>1.0E20</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>online_operation</td>
       <td>String</td>
-      <td>ave(x)</td>
+      <td>ave(scatter(X))</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>votemper</td>
+      <td>vegetfrac</td>
       <td>short_name</td>
       <td>String</td>
-      <td>votemper</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>votemper</td>
-      <td>units</td>
-      <td>String</td>
-      <td>degree_C</td>
+      <td>vegetfrac</td>
     </tr>
   </tbody>
 </table>
