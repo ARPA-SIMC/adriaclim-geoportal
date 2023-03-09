@@ -1117,7 +1117,7 @@ def packageGraphData(allData,**kwargs):
         return out
     
   for n in range(len(values)):
-    dictKey = layerName[n]+"_"+str(lats[n])+"_"+str(longs[n])
+    dictKey = layerName[n]
     dictValue = None
     if dictKey in data:
       dictValue = data[dictKey]

@@ -1470,7 +1470,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       dialogConfig.data = {
         success: true,
         datasetId: dataId,
-        // datasetName: title,
+        datasetName: title,
         dataset: this.selData.get("dataSetSel")?.value.name,
         latlng: this.coordOnClick,
         dateStart: this.dateStart,

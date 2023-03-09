@@ -12,7 +12,8 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class GeoportalMapDialogComponent implements AfterViewInit {
 
-  displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
+  // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
+  displayedColumns: string[] = [];
   dataSource: any;
 
   spinnerLoading = true;
@@ -148,26 +149,22 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       variable: this.variable,
       range: this.range? this.range : null
     }
-    console.log('DATA =', data);
-    console.log("TYPE IDMETA =", typeof this.datasetId);
-    console.log("TYPE DIMENSIONS =", typeof this.dataset.dimensions);
-    console.log("TYPE LAT =", typeof this.latlng.lat);
-    console.log("TYPE LNG =", typeof this.latlng.lng);
-    console.log("TYPE DATESTART =", typeof this.dateStart);
-    console.log("TYPE DATEEND =", typeof this.dateEnd);
-    console.log("TYPE VARIABLE =", typeof this.variable);
-    console.log("TYPE RANGE =", typeof this.range);
 
 
 
     this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
-    console.log("GRAPH RESPONSE =", response);
+
     this.spinnerLoading = false;
     if(typeof response === 'string') {
       response = JSON.parse(response);
     }
     this.dataTable = response;
-    console.log("LET'S WHAT WE GOT========",this.dataTable.data.table.rows);
+    this.displayedColumns = this.dataTable.data.table.columnNames;
+    let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+    if (dim_unit){
+      this.displayedColumns[this.displayedColumns.length-1] = this.displayedColumns[this.displayedColumns.length-1] + " " + dim_unit;
+    }
+
     this.dataSource = new MatTableDataSource<any>(this.dataTable.data.table.rows);
     this.dataSource.paginator = this.paginator;
 

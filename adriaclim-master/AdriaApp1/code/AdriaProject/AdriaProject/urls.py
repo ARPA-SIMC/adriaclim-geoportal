@@ -50,6 +50,7 @@ urlpatterns = [
     path('getDataGraphicNew/<str:dataset_id>/<str:layer_name>/<str:operation>/<str:context>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
     '<str:longitude>/<int:range_value>/<str:latMin>/'+
     '<str:longMin>/<str:latMax>/<str:longMax>/',data_views.getDataGraphicNew),
+
     path('getDataGraphicCsv/<str:dataset_id>/<str:layer_name>/<str:operation>/<str:context>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
     '<str:longitude>/<int:range_value>/<str:latMin>/'+
     '<str:longMin>/<str:latMax>/<str:longMax>/',data_views.getDataGraphicCsv),
@@ -98,6 +99,7 @@ urlpatterns = [
     path("test/addOverlays/<str:dataset_id>",data_views.overlaysNew),
     path("test/metadataTable",data_views.get_metadata_table),
     path("test/dataGraphTable",data_views.getDataTableNew),
+    path("test/dataGraphCanvas",data_views.getDataGraphicNewCanvas),
   
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

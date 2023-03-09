@@ -4,3 +4,18 @@
   text-align: center;
   color: rgb(13,193,213);
 }
+
+::ng-deep .tab-graph {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+:ng-deep .canvas-graph {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+::ng-deep .tab-group {
+  width: 80vw !important;
+  height: fit-content !important;
+}

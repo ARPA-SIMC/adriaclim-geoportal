@@ -42,6 +42,9 @@ import { HighlightDirective } from './geoportal-map/filter-full-list/highlight.p
 import {MatSliderModule} from '@angular/material/slider';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatTabsModule} from '@angular/material/tabs';
+import { CanvasGraphComponent } from './geoportal-map/canvas-graph/canvas-graph.component';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 @NgModule({
   declarations: [
@@ -50,6 +53,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
     GeoportalMapDialogComponent,
     FilterPipe, //added pipe filter
     HighlightDirective, //added directive highlight
+    CanvasGraphComponent
   ],
   imports: [
     BrowserModule,
@@ -70,6 +74,9 @@ import {MatPaginatorModule} from '@angular/material/paginator';
     MatListModule,
     MatTreeModule,
     MatRadioModule,
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    }),
 
     MatNativeDateModule,
     CdkListboxModule,
@@ -88,7 +95,8 @@ import {MatPaginatorModule} from '@angular/material/paginator';
     MatInputModule,
     MatSliderModule,
     MatTableModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatTabsModule
 
   ],
   providers: [
