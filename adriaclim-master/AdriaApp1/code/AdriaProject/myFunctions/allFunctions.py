@@ -376,7 +376,8 @@ def getVariableAliases(variable):
     return ["plev","range"]
   if variable=="plev":
     return ["depth","range"]
-  return []
+  else:
+    return [variable,"range"]
 
 def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
   if type(ind) == str:
@@ -440,6 +441,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
         query = query + "):1:("
 
+        
         if d in kwargs and not (d+"Max") in kwargs:
           query = query + kwargs[d]
         elif (d+"Max") in kwargs:
@@ -612,7 +614,11 @@ def getAllDatasets():
       #is_indicator it is used to check if it the dataset is an indicator!
       is_indicator =  re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)
       
-      if adriaclim_scale is None:
+      if is_indicator and (adriaclim_scale != "pilot" and adriaclim_scale != "local"):
+        adriaclim_scale = "large"
+
+
+      if adriaclim_scale is None and not is_indicator:
         adriaclim_scale = "UNKNOWN"
 
       if adriaclim_model is None:
@@ -763,7 +769,7 @@ def getIndicators():
         if row1["Attribute Name"] == "geospatial_lon_max":
           lng_max = row1["Value"]
 
-      if adriaclim_scale is None:
+      if adriaclim_scale is None or (adriaclim_scale != "pilot" and adriaclim_scale != "local") : 
         adriaclim_scale="large"
 
       if adriaclim_model is None:

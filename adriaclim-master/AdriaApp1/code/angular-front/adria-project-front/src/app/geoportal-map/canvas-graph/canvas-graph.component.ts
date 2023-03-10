@@ -83,6 +83,12 @@ export class CanvasGraphComponent implements OnInit {
       this.dataRes.allData[name].forEach((element: any) => {
         element.x = this.formatDate(new Date(element.x));
         element.y = Number(element.y);
+        // if(element.y > 10000) {
+        //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
+        // }
+        // else if(element.y < 0.001) {
+        //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
+        // }
       });
 
       // const yMax = 500;
@@ -114,6 +120,19 @@ export class CanvasGraphComponent implements OnInit {
           // },
           tooltip: {
             trigger: 'axis',
+            formatter: (paramsFormatter: any) => {
+
+                const tooltipHTML = paramsFormatter.map((param: any) => {
+                  let value = param.value;
+                  if (value > 10000 || value < 0.001 && value !== 0) {
+                    value = value.toExponential().replace(/e\+?/, ' x 10^');
+                  }
+                  return `${param.marker} ${param.seriesName}: ${value}`;
+                }).join('<br>');
+
+                return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+
+            },
             transitionDuration: 0.2,
             axisPointer: {
               type: 'cross',
