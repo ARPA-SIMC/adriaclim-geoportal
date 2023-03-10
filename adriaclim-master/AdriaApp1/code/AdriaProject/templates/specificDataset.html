@@ -28,7 +28,7 @@
       <td>NC_GLOBAL</td>
       <td>Conventions</td>
       <td>String</td>
-      <td>CF-1.6, COARDS, ACDD-1.3</td>
+      <td>COARDS, CF-1.6, ACDD-1.3</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -50,13 +50,6 @@
       <td>Easternmost_Easting</td>
       <td>double</td>
       <td>180.4572</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>file_name</td>
-      <td>String</td>
-      <td>sechiba_out.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -105,14 +98,14 @@
       <td>NC_GLOBAL</td>
       <td>history</td>
       <td>String</td>
-      <td>Mon Jan  9 21:18:46 2017: ncatted -a _FillValue,vegetfrac,o,f,1.0e+20 vegetfrac.nc\nMon Jan  9 21:18:46 2017: ncatted -a missing_value,vegetfrac,o,f,1.0e+20 vegetfrac.nc\nMon Jan  9 21:18:46 2017: ncrcat tmp_vegetfrac_2005.nc vegetfrac.nc\nMon Jan  9 21:18:44 2017: ncks sechiba.nc.2005 -v vegetfrac,time,time_bnds tmp_vegetfrac_2005.nc\nMon Jan  9 21:18:43 2017: ncks -A tmp.nc sechiba.nc.2005\nMon Jan  9 21:18:43 2017: ncrename -d time_counter,time sechiba.nc.2005\nMon Jan  9 21:18:42 2017: ncrcat tmp_01.nc tmp_02.nc tmp_03.nc tmp_04.nc tmp_05.nc tmp_06.nc tmp_07.nc tmp_08.nc tmp_09.nc tmp_10.nc tmp_11.nc tmp_12.nc sechiba.nc.2005\nMon Jan  9 21:18:34 2017: ncks -x -v t_ave_02678400,t_t_max_02678400,t_t_min_02678400 tmp_01.nc tmp.nc</td>
+      <td>Mon Jan  9 21:20:01 2017: ncrcat tmp_wind10m_2005.nc wind10m.nc\nMon Jan  9 21:19:59 2017: ncks histmth.nc.2005 -v wind10m,time,time_bnds tmp_wind10m_2005.nc\nMon Jan  9 21:19:58 2017: ncks -A tmp.nc histmth.nc.2005\nMon Jan  9 21:19:58 2017: ncrcat tmp_01.nc tmp_02.nc tmp_03.nc tmp_04.nc tmp_05.nc tmp_06.nc tmp_07.nc tmp_08.nc tmp_09.nc tmp_10.nc tmp_11.nc tmp_12.nc histmth.nc.2005</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>infoUrl</td>
       <td>String</td>
-      <td>???</td>
+      <td>https://www.ipsl.fr</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -126,7 +119,14 @@
       <td>NC_GLOBAL</td>
       <td>keywords</td>
       <td>String</td>
-      <td>biology, data, fraction, ipsl, local, source, time, veget, vegetation, vegetfrac</td>
+      <td>10-m, atmosphere, atmospheric, coordonnees, data, earth, Earth Science &gt; Atmosphere &gt; Atmospheric Winds &gt; Surface Winds, fichier, ipsl, pression, science, speed, surface, time, wind, wind10m, wind_speed, winds</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>keywords_vocabulary</td>
+      <td>String</td>
+      <td>GCMD Science Keywords</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -134,6 +134,13 @@
       <td>license</td>
       <td>String</td>
       <td>The data may be used and redistributed for free but is not intended\nfor legal use, since it may contain inaccuracies. Neither the data\nContributor, ERD, NOAA, nor the United States Government, nor any\nof their employees or contractors, makes any warranty, express or\nimplied, including warranties of merchantability and fitness for a\nparticular purpose, or assumes any legal liability for the accuracy,\ncompleteness, or usefulness, of this information.</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>model</td>
+      <td>String</td>
+      <td>Modele de circulation generale</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -155,13 +162,6 @@
       <td>Northernmost_Northing</td>
       <td>double</td>
       <td>90.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>production</td>
-      <td>String</td>
-      <td>An IPSL model</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -189,7 +189,7 @@
       <td>NC_GLOBAL</td>
       <td>summary</td>
       <td>String</td>
-      <td>Vegetation types (historical, mon)</td>
+      <td>10-m wind speed (historical, mon)</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -208,16 +208,9 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
-      <td>TimeStamp</td>
-      <td>String</td>
-      <td>2017-JAN-08 20:35:25 GMT+0100</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
       <td>title</td>
       <td>String</td>
-      <td>Vegetation types (historical, mon)</td>
+      <td>10-m wind speed (historical, mon)</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -273,7 +266,7 @@
       <td>time</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Time</td>
+      <td>time counter</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -295,62 +288,6 @@
       <td>units</td>
       <td>String</td>
       <td>seconds since 1970-01-01T00:00:00Z</td>
-    </tr>
-    <tr>
-      <td>dimension</td>
-      <td>veget</td>
-      <td>Value not available</td>
-      <td>float</td>
-      <td>nValues=13, evenlySpaced=true, averageSpacing=1.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>actual_range</td>
-      <td>float</td>
-      <td>1.0, 13.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>axis</td>
-      <td>String</td>
-      <td>Z</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>ioos_category</td>
-      <td>String</td>
-      <td>Biology</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>long_name</td>
-      <td>String</td>
-      <td>Vegetation types</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>title</td>
-      <td>String</td>
-      <td>veget</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>valid_max</td>
-      <td>float</td>
-      <td>13.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>veget</td>
-      <td>valid_min</td>
-      <td>float</td>
-      <td>1.0</td>
     </tr>
     <tr>
       <td>dimension</td>
@@ -397,13 +334,6 @@
     <tr>
       <td>attribute</td>
       <td>latitude</td>
-      <td>nav_model</td>
-      <td>String</td>
-      <td>Default grid</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>latitude</td>
       <td>standard_name</td>
       <td>String</td>
       <td>latitude</td>
@@ -414,20 +344,6 @@
       <td>units</td>
       <td>String</td>
       <td>degrees_north</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>latitude</td>
-      <td>valid_max</td>
-      <td>float</td>
-      <td>90.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>latitude</td>
-      <td>valid_min</td>
-      <td>float</td>
-      <td>-90.0</td>
     </tr>
     <tr>
       <td>dimension</td>
@@ -474,13 +390,6 @@
     <tr>
       <td>attribute</td>
       <td>longitude</td>
-      <td>nav_model</td>
-      <td>String</td>
-      <td>Default grid</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>longitude</td>
       <td>standard_name</td>
       <td>String</td>
       <td>longitude</td>
@@ -493,102 +402,53 @@
       <td>degrees_east</td>
     </tr>
     <tr>
-      <td>attribute</td>
-      <td>longitude</td>
-      <td>valid_max</td>
-      <td>float</td>
-      <td>180.45724</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>longitude</td>
-      <td>valid_min</td>
-      <td>float</td>
-      <td>-171.2326</td>
-    </tr>
-    <tr>
       <td>variable</td>
-      <td>vegetfrac</td>
+      <td>wind10m</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>time, veget, latitude, longitude</td>
+      <td>time, latitude, longitude</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>_FillValue</td>
-      <td>float</td>
-      <td>1.0E20</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>associate</td>
-      <td>String</td>
-      <td>t_ave_02678400 veget nav_lat nav_lon</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>vegetfrac</td>
+      <td>wind10m</td>
       <td>colorBarMaximum</td>
       <td>double</td>
-      <td>1.0</td>
+      <td>15.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>vegetfrac</td>
+      <td>wind10m</td>
       <td>colorBarMinimum</td>
       <td>double</td>
       <td>0.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>interval_operation</td>
-      <td>float</td>
-      <td>1800.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>interval_write</td>
-      <td>float</td>
-      <td>2678400.0</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>vegetfrac</td>
+      <td>wind10m</td>
       <td>ioos_category</td>
       <td>String</td>
-      <td>Biology</td>
+      <td>Wind</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>vegetfrac</td>
+      <td>wind10m</td>
       <td>long_name</td>
       <td>String</td>
-      <td>Fraction of vegetation</td>
+      <td>10-m wind speed</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>missing_value</td>
-      <td>float</td>
-      <td>1.0E20</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>online_operation</td>
+      <td>wind10m</td>
+      <td>standard_name</td>
       <td>String</td>
-      <td>ave(scatter(X))</td>
+      <td>wind_speed</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>vegetfrac</td>
-      <td>short_name</td>
+      <td>wind10m</td>
+      <td>units</td>
       <td>String</td>
-      <td>vegetfrac</td>
+      <td>m/s</td>
     </tr>
   </tbody>
 </table>

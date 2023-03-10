@@ -14,7 +14,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
-  dataSource: any;
+  dataSource : any;
 
   spinnerLoading = true;
 
@@ -89,6 +89,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
     else {
       this.getGraphTable();
+
     }
     // this.getAlgoType();
   }
@@ -138,6 +139,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   }
 
   getGraphTable() {
+
     this.spinnerLoading = true;
     let data = {
       idMeta: this.datasetId,
@@ -159,14 +161,80 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       response = JSON.parse(response);
     }
     this.dataTable = response;
+
     this.displayedColumns = this.dataTable.data.table.columnNames;
     let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
     if (dim_unit){
       this.displayedColumns[this.displayedColumns.length-1] = this.displayedColumns[this.displayedColumns.length-1] + " " + dim_unit;
     }
+    // this.dataTable.data.table.forEach((el: any) => {
+      let objArr: any = {};
+      let arr1: any = [];
+      // console.log("K = ", k);
 
-    this.dataSource = new MatTableDataSource<any>(this.dataTable.data.table.rows);
-    this.dataSource.paginator = this.paginator;
+      this.dataTable.data.table.rows.forEach((arr: any) => {
+        objArr = {};
+
+        this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
+      // for(let key of this.dataTable.data.table.columnNames) {
+        // if(key === "columnNames") {
+            // const k = this.dataTable.data.table[key]
+            console.log("KEY = ", key);
+            // for(let attr in k) {
+              // const a = k[attr];
+              // key.forEach((a: any, ind: number) => {
+
+                console.log("ATTR = ", key);
+                // arr[ind] = {[a]: arr[ind]}
+                console.log("ARR IND = ", arr[i]);
+                // arr[a] = arr[ind];
+                objArr[key] = arr[i];
+                // arr1.push(objArr);
+                // arr.splice(ind, 1);
+                console.log("OBJ ARR = ", objArr);
+                // arr =  {...arr};
+
+                // console.log("ARR2 = ", arr);
+
+                // arr[ind].forEach((arrInd: any) => {
+
+                //   arr[ind][a] = arrInd;
+                //   // console.log("ARR IND = ", arr[ind]);
+
+                // });
+                // arr[ind].map((el: any) => {
+                //   // console.log("EL = ", el);
+
+                //     arr[ind] = {[a]: el}
+                //     console.log("ARR MAP = ", arr);
+
+                // })
+              // });
+              // console.log("A = ", a);
+
+
+
+        // console.log("ARR FOR = ", arr);
+
+      // };
+
+    })
+    arr1.push(objArr);
+
+  });
+    this.dataTable.data.table.rows = [...arr1];
+    // this.dataTable.data.table.rows.forEach((element: any) => {
+      // });
+    console.log("DATA TABLE = ", this.dataTable);
+    if(this.dataTable.data.table.rows.length > 0) {
+      this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
+      console.log("DATA SOURCE = ", this.dataSource);
+
+      this.dataSource.paginator = this.paginator;
+      console.log("DATA SOURCE PAGINATOR = ", this.dataSource.paginator);
+
+    }
+
 
     // this.graph.nativeElement.innerHTML = response;
 
