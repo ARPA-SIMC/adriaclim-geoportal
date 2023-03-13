@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
@@ -14,11 +15,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
-  dataSource : any;
+  dataSource : MatTableDataSource<any> = new MatTableDataSource();
 
   spinnerLoading = true;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // @ViewChild(MatPaginator) paginator!: MatPaginator;
+  private paginator!: MatPaginator;
   dataTable: any;
 
   form!: FormGroup;
@@ -26,7 +28,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   // create: boolean;
   success: boolean;
   // content = {};
-  element: any;
+  // element: any;
   datasetId: string;
   datasetName: string;
   openGraph: any;
@@ -37,12 +39,111 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   dateEnd: any;
   variable: any;
   range: any;
+  arrayVariable: any;
+
+  start: any;
+  end: any;
+
+  typeOfExport = [
+    {
+      type: ".csv",
+      label: ".csv - Download a ISO-8859-1 comma-separated text table (line 1: names; line 2: units; ISO 8601 times).",
+    },
+    {
+      type: ".json",
+      label: ".json - View a table-like UTF-8 JSON file (missing value = 'null'; times are ISO 8601 strings).",
+    },
+    {
+      type: ".largePdf",
+      label: ".largePdf - View a large .pdf image file with a graph or map.",
+    },
+    {
+      type: ".largePng",
+      label: ".largePng - View a large .png image file with a graph or map.",
+    },
+    {
+      type: ".mat",
+      label: ".mat - Download a MATLAB binary file.",
+    },
+    {
+      type:".nccsv",
+      label:".nccsv - Download a NetCDF-3-like 7-bit ASCII NCCSV .csv file with COARDS/CF/ACDD metadata."
+    },
+    {
+      type: ".pdf",
+      label: ".pdf - View a standard, medium-sized .pdf image file with a graph or map.",
+    },
+    {
+      type: ".png",
+      label: ".png - View a standard, medium-sized .png image file with a graph or map.",
+    },
+    {
+      type: ".smallPdf",
+      label: ".smallPdf - View a small .pdf image file with a graph or map.",
+    },
+    {
+      type: ".transparentPng",
+      label: ".transparentPng - View a .png image file (just the data, without axes, landmask, or legend).",
+    },
+  ]
+
+  optionsGraph = [
+    {
+      label: "Default Graph",
+      value: "default"
+    },
+    {
+      label: "Annual Cycle",
+      value: "annual"
+    },
+    {
+      label: "Maximum Value (Moment By Moment)",
+      value: "max"
+    },
+    {
+      label: "Minimum Value (Moment By Moment)",
+      value: "min"
+    },
+    {
+      label: "Mean Value (Moment By Moment)",
+      value: "avg"
+    },
+    {
+      label: "10th Percentile",
+      value: "percentile_10"
+    },
+    {
+      label: "90th Percentile",
+      value: "percentile_90"
+    },
+    {
+      label: "Median",
+      value: "median"
+    }
+  ]
+
+  formatDate(d:any){
+    let month = d.getMonth() + 1
+    let day = d.getDate()
+    let year = d.getFullYear()
+    return day + "/" + month + "/" + year;
+  }
+
+  // bypass ngIf for paginator
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    // console.log("paginator", mp);
+
+    this.paginator = mp;
+    this.setDataSourceAttributes();
+
+  }
 
   algoType: any;
   @ViewChild('metadataTable') myDiv!: ElementRef;
   @ViewChild('graphDiv') graph!: ElementRef;
 
     constructor(
+        public datePipe: DatePipe,
         private httpClient: HttpClient,
         private fb: FormBuilder,
         private dialogRef: MatDialogRef<GeoportalMapDialogComponent>,
@@ -52,7 +153,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
         this.success = data.success;
         // this.create = data.create;
         // this.content = data.content;
-        this.element = data.element;
+        // this.element = data.element;
         this.datasetId = data.datasetId;
         this.datasetName = data.datasetName;
         this.openGraph = data.openGraph;
@@ -62,29 +163,49 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
         this.dateStart = data.dateStart;
         this.dateEnd = data.dateEnd;
         this.variable = data.variable;
+        this.arrayVariable = data.arrayVariable;
         this.range = data.range;
+        // this.start = this.dateStart.getTime();
+        // this.end = this.dateEnd.getTime();
+        this.form = this.fb.group({
+          // cod: new FormControl(this.element.cod_algo_type),
+          cod: new FormControl(null),
+          operationSel: new FormControl("default"),
+          typeSel: new FormControl("csv"),
+          minSlider: new FormControl(this.dateStart),
+          maxSlider: new FormControl(this.dateEnd),
 
-        if(this.element) {
-          this.form = this.fb.group({
-            // cod: new FormControl(this.element.cod_algo_type),
-            cod: new FormControl(null),
-          })
-        }
-        else {
-          this.form = this.fb.group({
-            cod: new FormControl(null),
-            // des: new FormControl(null),
-            // ord: new FormControl(null)
-          })
-        }
+        })
+
+
+        // if(this.element) {
+
+        // }
+        // else {
+        //   this.form = this.fb.group({
+        //     cod: new FormControl(null),
+        //     operationSel: new FormControl("default"),
+
+        //     // des: new FormControl(null),
+        //     // ord: new FormControl(null)
+        //   })
+        // }
 
     }
+
+  // bypass ngIf for paginator
+  setDataSourceAttributes() {
+    this.dataSource.paginator = this.paginator;
+
+  }
+
   ngAfterViewInit(): void {
   }
 
   ngOnInit() {
     if(!this.openGraph) {
       this.getMetadataTable();
+      // this.setDataSourceAttributes();
 
     }
     else {
@@ -105,12 +226,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   // }
 
   save() {
-    if(this.element) {
-      // this.updateAlgoConfig();
-    }
-    else {
-      // this.createAlgoConfig();
-    }
+    // if(this.element) {
+    //   // this.updateAlgoConfig();
+    // }
+    // else {
+    //   // this.createAlgoConfig();
+    // }
     // this.dialogRef.close("ok");
   }
 
@@ -124,15 +245,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     idMeta: this.datasetId
   }
   this.httpClient.post('http://localhost:8000/test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
-    // console.log('METADATA TABLE =', response);
-    // if(this.myDiv) {
     this.myDiv.nativeElement.innerHTML = response;
-
-    // }
-    // else {
-
-    // this.graph.nativeElement.innerHTML = response;
-    // }
   });
 
 
@@ -176,122 +289,40 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
         objArr = {};
 
         this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
-      // for(let key of this.dataTable.data.table.columnNames) {
-        // if(key === "columnNames") {
-            // const k = this.dataTable.data.table[key]
-            console.log("KEY = ", key);
-            // for(let attr in k) {
-              // const a = k[attr];
-              // key.forEach((a: any, ind: number) => {
-
-                console.log("ATTR = ", key);
-                // arr[ind] = {[a]: arr[ind]}
-                console.log("ARR IND = ", arr[i]);
-                // arr[a] = arr[ind];
                 objArr[key] = arr[i];
-                // arr1.push(objArr);
-                // arr.splice(ind, 1);
-                console.log("OBJ ARR = ", objArr);
-                // arr =  {...arr};
-
-                // console.log("ARR2 = ", arr);
-
-                // arr[ind].forEach((arrInd: any) => {
-
-                //   arr[ind][a] = arrInd;
-                //   // console.log("ARR IND = ", arr[ind]);
-
-                // });
-                // arr[ind].map((el: any) => {
-                //   // console.log("EL = ", el);
-
-                //     arr[ind] = {[a]: el}
-                //     console.log("ARR MAP = ", arr);
-
-                // })
-              // });
-              // console.log("A = ", a);
-
-
-
-        // console.log("ARR FOR = ", arr);
-
-      // };
 
     })
     arr1.push(objArr);
 
   });
     this.dataTable.data.table.rows = [...arr1];
-    // this.dataTable.data.table.rows.forEach((element: any) => {
-      // });
-    console.log("DATA TABLE = ", this.dataTable);
+
     if(this.dataTable.data.table.rows.length > 0) {
       this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
-      console.log("DATA SOURCE = ", this.dataSource);
+      // bypass ngIf for paginator
+      this.setDataSourceAttributes();
+      console.log("paginator", this.paginator);
 
-      this.dataSource.paginator = this.paginator;
-      console.log("DATA SOURCE PAGINATOR = ", this.dataSource.paginator);
 
     }
-
-
-    // this.graph.nativeElement.innerHTML = response;
 
   });
 
   }
 
-  // updateAlgoConfig() {
-  //   this.httpService.post("adminAlgorithmConfiguration", {
-  //     call: "editAlgoConfig",
-  //     pkClient: this.element.cod_config,
-  //     pkCodAlgoType: this.element.cod_algo_type,
-  //     codAlgoType: this.form.get("cod")?.value,
-  //     // des: this.form.get("des")?.value,
-  //     // ord: this.form.get("ord")?.value
-  //   }).subscribe({
-  //     next: (res: any) => {
-  //       console.log("OK =", res);
-  //       this.dialogRef.close("ok");
+  exportData(typeSel:any){
+    //if this.dimensions === 3:
+    //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+    //let erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + "/" + typeSel + "?" + this.variable + "%5B(" + this.dateStart + "):1:(" + this.dateEnd +")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng +"):1:(" + this.latlng.lng +")%5D"
+    //else:
+    //caso parametro aggiuntivo
+    //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+    //erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + "/" + typeSel + "?" + this.variable + "%5B(" + this.dateStart + "):1:(" + this.dateEnd +")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng +"):1:(" + this.latlng.lng +")%5D"
+    //
+    //
+    //
 
-  //     },
-  //     error: (error: any) => {
-  //       console.log("ERROR =", error);
-  //       this.description = error.error;
-  //       let obj = {
-  //         id: "exists",
-  //         desc: this.description
-  //       };
-  //       this.dialogRef.close(obj);
-  //     }
-  //   });
-  // }
-
-  // createAlgoConfig() {
-  //   this.httpService.post("adminAlgorithmConfiguration", {
-  //     call: "createAlgoConfig",
-  //     codConfig: this.codConfig,
-  //     codAlgoType: this.form.get("cod")?.value,
-  //     // des: this.form.get("des")?.value,
-  //     // ord: this.form.get("ord")?.value
-  //   }).subscribe({
-  //     next: (res: any) => {
-  //       console.log("OK =", res);
-  //       this.dialogRef.close("ok");
-
-  //     },
-  //     error: (error: any) => {
-  //       console.log("ERROR =", error);
-  //       this.description = error.error;
-  //       let obj = {
-  //         id: "exists",
-  //         desc: this.description
-  //       };
-  //       this.dialogRef.close(obj);
-  //     }
-  //   });
-  // }
+  }
 
 
 }

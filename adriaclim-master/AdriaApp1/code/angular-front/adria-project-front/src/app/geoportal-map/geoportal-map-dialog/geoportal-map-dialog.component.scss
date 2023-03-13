@@ -19,3 +19,18 @@
   width: 80vw !important;
   height: fit-content !important;
 }
+
+::ng-deep .export-tab {
+  max-width: 10vw !important;
+  width: fit-content !important;
+  height: fit-content !important;
+}
+
+::ng-deep .menu-var .mat-mdc-form-field-bottom-align::before {
+  display: none !important;
+}
+
+::ng-deep .menu-var .mdc-text-field {
+  border-bottom-right-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}

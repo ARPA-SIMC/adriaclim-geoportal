@@ -19,6 +19,48 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
+      <td>adriaclim_dataset</td>
+      <td>String</td>
+      <td>indicator</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_model</td>
+      <td>String</td>
+      <td>MedCordex</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_scale</td>
+      <td>String</td>
+      <td>adriatic</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_timeperiod</td>
+      <td>String</td>
+      <td>yearly</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_type</td>
+      <td>String</td>
+      <td>anomaly</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>CDI</td>
+      <td>String</td>
+      <td>Climate Data Interface version 1.9.8 (https://mpimet.mpg.de/cdi)</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
       <td>cdm_data_type</td>
       <td>String</td>
       <td>Grid</td>
@@ -26,44 +68,44 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
+      <td>CDO</td>
+      <td>String</td>
+      <td>Climate Data Operators version 1.9.8 (https://mpimet.mpg.de/cdo)</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
       <td>Conventions</td>
       <td>String</td>
-      <td>COARDS, CF-1.6, ACDD-1.3</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>creator_name</td>
-      <td>String</td>
-      <td>IPSL</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>creator_type</td>
-      <td>String</td>
-      <td>institution</td>
+      <td>CF-1.6, COARDS, ACDD-1.3</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Easternmost_Easting</td>
       <td>double</td>
-      <td>180.4572</td>
+      <td>21.66346</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_max</td>
       <td>double</td>
-      <td>90.0</td>
+      <td>46.88878</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_min</td>
       <td>double</td>
-      <td>-90.0</td>
+      <td>37.28878</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>geospatial_lat_resolution</td>
+      <td>double</td>
+      <td>0.2999999999999998</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -77,14 +119,21 @@
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_max</td>
       <td>double</td>
-      <td>180.4572</td>
+      <td>21.66346</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_min</td>
       <td>double</td>
-      <td>-171.2326</td>
+      <td>10.24039</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>geospatial_lon_resolution</td>
+      <td>double</td>
+      <td>0.3461536363636364</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -98,28 +147,28 @@
       <td>NC_GLOBAL</td>
       <td>history</td>
       <td>String</td>
-      <td>Mon Jan  9 21:20:01 2017: ncrcat tmp_wind10m_2005.nc wind10m.nc\nMon Jan  9 21:19:59 2017: ncks histmth.nc.2005 -v wind10m,time,time_bnds tmp_wind10m_2005.nc\nMon Jan  9 21:19:58 2017: ncks -A tmp.nc histmth.nc.2005\nMon Jan  9 21:19:58 2017: ncrcat tmp_01.nc tmp_02.nc tmp_03.nc tmp_04.nc tmp_05.nc tmp_06.nc tmp_07.nc tmp_08.nc tmp_09.nc tmp_10.nc tmp_11.nc tmp_12.nc histmth.nc.2005</td>
+      <td>Fri Feb 03 13:04:30 2023: cdo merge MedCordex_CNRS-IPSL_csu_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_fg_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_hwdi_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_su_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_tg_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_tr_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_txn_anomaly_yearly_2021_2050vs1981_2010.nc MedCordex_CNRS-IPSL_txx_anomaly_yearly_2021_2050vs1981_2010.nc merged/MedCordex_CNRS-IPSL_anomaly_yearly_2021_2050vs1981_2010.nc</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>infoUrl</td>
       <td>String</td>
-      <td>https://www.ipsl.fr</td>
+      <td>https://cmcc.it</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>institution</td>
       <td>String</td>
-      <td>IPSL</td>
+      <td>CMCC</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>keywords</td>
       <td>String</td>
-      <td>10-m, atmosphere, atmospheric, coordonnees, data, earth, Earth Science &gt; Atmosphere &gt; Atmospheric Winds &gt; Surface Winds, fichier, ipsl, pression, science, speed, surface, time, wind, wind10m, wind_speed, winds</td>
+      <td>10-m, above, atmosphere, atmospheric, bounds, calculated, celsius, consecutive, consecutive_summer_days_index_per_time_period, coordinate, csu, daily, data, day, days, defined, degree, degrees, earth, Earth Science &gt; Atmosphere &gt; Atmospheric Winds &gt; Surface Winds, five, given, greatest, heat, heat_wave_duration_index_wrt_mean_of_reference_period, heat_waves_per_time_period, index, intervals, least, local, maximum, mean, minimum, more, nights, number, number_of_csu_periods_with_more_than_5days_per_time_period, over, per, period, periods, reference, science, source, speed, statistics, summer, summer_days_index_per_time_period, surface, temperature, temperatures, than, time, tropical, tropical_nights_index_per_time_period, txn, txx, vale, value, waves, where, wind, wind_speed, winds, with</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -138,30 +187,16 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
-      <td>model</td>
-      <td>String</td>
-      <td>Modele de circulation generale</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
       <td>NCO</td>
       <td>String</td>
-      <td>4.4.2</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
-      <td>nco_openmp_thread_number</td>
-      <td>int</td>
-      <td>1</td>
+      <td>netCDF Operators version 4.8.1 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Northernmost_Northing</td>
       <td>double</td>
-      <td>90.0</td>
+      <td>46.88878</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -175,7 +210,7 @@
       <td>NC_GLOBAL</td>
       <td>Southernmost_Northing</td>
       <td>double</td>
-      <td>-90.0</td>
+      <td>37.28878</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -189,42 +224,42 @@
       <td>NC_GLOBAL</td>
       <td>summary</td>
       <td>String</td>
-      <td>10-m wind speed (historical, mon)</td>
+      <td>AdriaClim Indicators | MedCordex_IPSL | yearly | anomaly 2021_2050vs1981_2010</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_end</td>
       <td>String</td>
-      <td>2005-11-20T00:00:00Z</td>
+      <td>2020-01-01T00:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_start</td>
       <td>String</td>
-      <td>1969-12-30T00:00:00Z</td>
+      <td>2020-01-01T00:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>title</td>
       <td>String</td>
-      <td>10-m wind speed (historical, mon)</td>
+      <td>AdriaClim Indicators | MedCordex_IPSL | yearly | anomaly 2021_2050vs1981_2010</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Westernmost_Easting</td>
       <td>double</td>
-      <td>-171.2326</td>
+      <td>10.24039</td>
     </tr>
     <tr>
       <td>dimension</td>
       <td>time</td>
       <td>Value not available</td>
       <td>double</td>
-      <td>nValues=432, evenlySpaced=false, averageSpacing=30 days 9h 58m 3s</td>
+      <td>nValues=1, onlyValue=2020-01-01T00:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -238,7 +273,7 @@
       <td>time</td>
       <td>actual_range</td>
       <td>double</td>
-      <td>-172800.0, 1.1324448E9</td>
+      <td>1.5778368E9, 1.5778368E9</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -252,7 +287,7 @@
       <td>time</td>
       <td>calendar</td>
       <td>String</td>
-      <td>noleap</td>
+      <td>365_day</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -266,7 +301,7 @@
       <td>time</td>
       <td>long_name</td>
       <td>String</td>
-      <td>time counter</td>
+      <td>Time</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -294,7 +329,7 @@
       <td>latitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=121, evenlySpaced=false, averageSpacing=-1.5</td>
+      <td>nValues=33, evenlySpaced=true, averageSpacing=-0.2999999999999998</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -308,7 +343,7 @@
       <td>latitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>-90.0, 90.0</td>
+      <td>37.28878, 46.88878</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -350,7 +385,7 @@
       <td>longitude</td>
       <td>Value not available</td>
       <td>float</td>
-      <td>nValues=200, evenlySpaced=false, averageSpacing=1.7672854271356784</td>
+      <td>nValues=34, evenlySpaced=true, averageSpacing=0.3461536363636364</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -364,7 +399,7 @@
       <td>longitude</td>
       <td>actual_range</td>
       <td>float</td>
-      <td>-171.2326, 180.4572</td>
+      <td>10.24039, 21.66346</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -403,52 +438,570 @@
     </tr>
     <tr>
       <td>variable</td>
-      <td>wind10m</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
       <td>Value not available</td>
       <td>float</td>
       <td>time, latitude, longitude</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>wind10m</td>
-      <td>colorBarMaximum</td>
-      <td>double</td>
-      <td>15.0</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>Value not available</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>wind10m</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
       <td>colorBarMinimum</td>
       <td>double</td>
       <td>0.0</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>wind10m</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Statistics</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>Consecutive summer days index is the greatest number of consecutive summer days in a given time period. Summer days is the number of days where maximum of temperature is above 25 degree Celsius. The time period should be defined by the bounds of the time</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>consecutive_summer_days_index_per_time_period</td>
+      <td>missing_value</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Statistics</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>Number of csu periods in given time period with more than 5 days. The time period should be defined by the bounds of the time coordinate.</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>missing_value</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>number_of_csu_periods_with_more_than_5days_per_time_period</td>
+      <td>units</td>
+      <td>String</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>fg</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>fg</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>fg</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>fg</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>fg</td>
       <td>ioos_category</td>
       <td>String</td>
       <td>Wind</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>wind10m</td>
+      <td>fg</td>
       <td>long_name</td>
       <td>String</td>
       <td>10-m wind speed</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>wind10m</td>
+      <td>fg</td>
       <td>standard_name</td>
       <td>String</td>
       <td>wind_speed</td>
     </tr>
     <tr>
       <td>attribute</td>
-      <td>wind10m</td>
+      <td>fg</td>
       <td>units</td>
       <td>String</td>
-      <td>m/s</td>
+      <td>m s-1</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Statistics</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>This is the number of days per time period where in intervals of at least 6 consecutive days the daily maximum temperature is more than 5 degrees above a reference value. The reference value is calculated  as the mean of maximum temperatures of a five day</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>missing_value</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_wave_duration_index_wrt_mean_of_reference_period</td>
+      <td>units</td>
+      <td>String</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>heat_waves_per_time_period</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Statistics</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>Number of heat waves per time period. The time period should be defined by the bounds of the time coordinate.</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>missing_value</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>heat_waves_per_time_period</td>
+      <td>units</td>
+      <td>String</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Statistics</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>Summer days index is the number of days where maximum of temperature is above 25 degree Celsius. The time period should be defined by the bounds of the time coordinate.</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>summer_days_index_per_time_period</td>
+      <td>missing_value</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>tg</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tg</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tg</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>313.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tg</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>263.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tg</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Temperature</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tg</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>mean of mean daily temperature over the period</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tg</td>
+      <td>units</td>
+      <td>String</td>
+      <td>degree_K</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>_FillValue</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: mean</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Statistics</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>Tropical nights index is the number of days where minimum of temperature is above 20 degree Celsius. The time period should be defined by the bounds of the time coordinate.</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>missing_value</td>
+      <td>float</td>
+      <td>Value not available</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>tropical_nights_index_per_time_period</td>
+      <td>units</td>
+      <td>String</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>txn</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txn</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: minimum</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txn</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>313.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txn</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>263.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txn</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Temperature</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txn</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>minimum vale of daily maximum temperature over the period</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txn</td>
+      <td>units</td>
+      <td>String</td>
+      <td>degree_K</td>
+    </tr>
+    <tr>
+      <td>variable</td>
+      <td>txx</td>
+      <td>Value not available</td>
+      <td>float</td>
+      <td>time, latitude, longitude</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txx</td>
+      <td>cell_methods</td>
+      <td>String</td>
+      <td>time: maximum</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txx</td>
+      <td>colorBarMaximum</td>
+      <td>double</td>
+      <td>313.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txx</td>
+      <td>colorBarMinimum</td>
+      <td>double</td>
+      <td>263.0</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txx</td>
+      <td>ioos_category</td>
+      <td>String</td>
+      <td>Temperature</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txx</td>
+      <td>long_name</td>
+      <td>String</td>
+      <td>maximum value of daily maximum temperature over the period</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>txx</td>
+      <td>units</td>
+      <td>String</td>
+      <td>degree_K</td>
     </tr>
   </tbody>
 </table>

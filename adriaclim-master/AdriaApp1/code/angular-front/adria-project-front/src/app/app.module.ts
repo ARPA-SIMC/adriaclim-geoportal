@@ -45,6 +45,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTabsModule} from '@angular/material/tabs';
 import { CanvasGraphComponent } from './geoportal-map/canvas-graph/canvas-graph.component';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -101,7 +102,9 @@ import { NgxEchartsModule } from 'ngx-echarts';
   ],
   providers: [
     MatMenuTrigger,
-    {provide: MAT_DATE_LOCALE, useValue: 'en-GB'}
+    {provide: MAT_DATE_LOCALE, useValue: 'en-GB'},
+    DatePipe,
+
   ],
   bootstrap: [AppComponent]
 })

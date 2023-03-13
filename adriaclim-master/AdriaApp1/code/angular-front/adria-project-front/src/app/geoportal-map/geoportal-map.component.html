@@ -63,19 +63,20 @@
             <mat-menu #myMenu1="matMenu" class="menu">
               <ng-template matMenuContent>
 
-                <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+                <mat-tree [dataSource]="dataAllNodesTree" [treeControl]="treeControl">
                   <mat-tree-node *matTreeNodeDef="let node; let lastItem = last" matTreeNodePadding>
 
-                    <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio">
+                    <!-- <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio"> -->
+                    <ng-container *ngIf="node.expandable === false; else noRadio">
                       <div fxFlex fxLayout="column" fxLayoutAlign="center start"
                         style="max-width: none !important; width: fit-content;">
                         <div fxFlex fxLayout="row" fxLayoutAlign="center center"
                           style="max-width: none !important; width: fit-content;">
                           <button matTooltip="Info about the layer" matTooltipPosition="left"><mat-icon fxFlex="90"
                               [ngStyle]="{'color': 'blue'}"
-                              (click)="openTableDialog(node.name['dataset_id'], node.name['title'])">info</mat-icon></button>
+                              (click)="openTableDialog(node.name['id'], node.name['title'])">info</mat-icon></button>
                           <mat-radio-button fxFlex [value]="node"
-                            (change)="getMeta(node.name['dataset_id']); getSelectedNode(node); addToActiveLayers(node)">{{node.name["title"]}}</mat-radio-button>
+                            (change)="getMeta(node.name['id']); getSelectedNode(node); addToActiveLayers(node)">{{node.name["title"]}}</mat-radio-button>
 
                         </div>
                         <mat-divider style="width: 100%; margin: 10px 0px;" *ngIf="!lastItem"></mat-divider>
@@ -118,7 +119,7 @@
           #menuTrigger="matMenuTrigger"
           [matMenuTriggerFor]="myMenu2"> <span class="text-menu"> Variable </span></button> -->
         <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
-        <div fxFlex="20" fxLayout="row" class="menu-var" fxLayoutAlign="center center">
+        <div fxFlex="20" fxLayout="row" class="menu-var" LayoutAlign="center center">
           <form [formGroup]="variableGroup">
             <ng-container *ngIf="variableArray.length > 0; else noVariable">
               <!-- <ng-container *ngFor="let v of variableArray; let lastItem = last">
@@ -130,8 +131,8 @@
               <mat-form-field appearance="fill">
                 <mat-label>Select variable</mat-label>
                 <mat-select formControlName="variableControl"
-                  (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">
-                  <mat-option *ngFor="let v of variableArray" [value]="v">
+                  (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">
+                  <mat-option *ngFor="let v of variableArray" [value]="v" class="variable-select">
                     {{v}}
                   </mat-option>
                 </mat-select>
@@ -287,7 +288,7 @@
                     <mat-datepicker-actions>
                       <button mat-button matDatepickerCancel>Cancel</button>
                       <button mat-raised-button color="primary" matDatepickerApply
-                        (click)="getMeta(selData.get('dataSetSel')?.value.name.dataset_id, 'ok')">Apply</button>
+                        (click)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">Apply</button>
                     </mat-datepicker-actions>
                   </mat-datepicker>
                 </mat-form-field>
@@ -297,10 +298,11 @@
             <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
               <!-- DA FARE!! -->
               <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
+              <!-- dateStart: {{dateStart}} dateEnd: {{dateEnd}} -->
               <button mat-icon-button fxFlex (click)="changeDate('left')"
-                [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason"><mat-icon>navigate_before</mat-icon></button>
+                [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason || dateStart?.toString() === dateEnd?.toString()"><mat-icon>navigate_before</mat-icon></button>
               <button mat-icon-button fxFlex (click)="changeDate('right')"
-                [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason"><mat-icon>navigate_next</mat-icon></button>
+                [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason || dateStart === dateEnd"><mat-icon>navigate_next</mat-icon></button>
               <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
 
             </div>

@@ -27,11 +27,25 @@
       <ng-template #graph>
         <div #graphDiv *ngIf="!description">
           <mat-spinner *ngIf="spinnerLoading"></mat-spinner>
+
+
+          <!-- <ng-container *ngIf="!spinnerLoading"> -->
           <mat-tab-group *ngIf="!spinnerLoading" class="tab-group">
+
             <mat-tab label="Graph" class="tab-graph">
+              <div>
+                <!-- <h4>Select graph</h4> -->
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Select graph</mat-label>
+                  <mat-select formControlName="operationSel">
+                    <mat-option *ngFor="let o of optionsGraph" [value]="o.value">{{o.label}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <app-canvas-graph class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [operation]="form.get('operationSel')?.value" [context]="'one'"></app-canvas-graph>
               <!-- <ng-template matTabContent> -->
 
-              <app-canvas-graph class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [operation]="'default'" [context]="'one'"></app-canvas-graph>
             <!-- </ng-template> -->
             </mat-tab>
             <mat-tab label="Table">
@@ -48,44 +62,59 @@
               </table>
 
               <mat-paginator [pageSizeOptions]="[10, 20, 30]"
-                             showFirstLastButtons
-                             aria-label="Select page of periodic elements">
+                            showFirstLastButtons
+                            aria-label="Select page of periodic elements">
 
               </mat-paginator>
 
             </mat-tab>
-            <mat-tab label="Export">
-              <form>
+            <mat-tab label="Export" fxFlex fxLayout="row" fxLayoutAlign="center center" class="export-tab">
+              <div fxFlex fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="margin-top: 20px;">
 
-                <div>
-                  <mat-slider min="200" max="500">
-                    <input value="300" matSliderStartThumb>
-                    <input value="400" matSliderEndThumb>
+                <div fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;">
+                  <div class="example-label-container" fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
+                    <div fxFlex fxLayoutAlign="center center">
+                      <label id="example-name-label" class="example-name-label">Min: </label>
+                      <label class="example-value-label">{{form.get("minSlider")?.value | date: 'dd/MM/yyyy'}}</label>
+
+                    </div>
+                    <div fxFlex fxLayoutAlign="center center">
+                      <label id="example-name-label" class="example-name-label">Max: </label>
+                      <!-- <label class="example-value-label">{{value}}</label> -->
+                      <label class="example-value-label">{{form.get("maxSlider")?.value | date: 'dd/MM/yyyy'}}</label>
+
+                    </div>
+                  </div>
+                  <mat-slider [min]="start" [max]="end" fxFlex="80">
+                    <input matSliderStartThumb formControlName="minSlider">
+                    <input matSliderEndThumb formControlName="maxSlider">
                   </mat-slider>
                 </div>
-                <div>
+                <div class="menu-var">
                   <h4>Basic mat-select</h4>
                   <mat-form-field appearance="fill">
-                    <mat-label>Favorite food</mat-label>
+                    <mat-label>Select type</mat-label>
                     <mat-select>
-                      <!-- <mat-option *ngFor="let food of foods" [value]="food.value"> -->
-                      <!-- <mat-option>
-                        {{food.viewValue}}
-                      </mat-option> -->
-                      <mat-option>
-                        option 1
-                      </mat-option>
-                      <mat-option>
-                        option 2
-                      </mat-option>
+                      <mat-option *ngFor="let v of arrayVariable" [value]="v">{{v}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <button mat-raised-button>Export</button>
-              </form>
+                <div class="menu-var">
+                  <h4>File Type:</h4>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Select the type of file</mat-label>
+                    <mat-select formControlName="typeSel">
+                      <mat-option *ngFor="let t of typeOfExport" [value]="t.type">{{t.label}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <button mat-raised-button color="primary" (click)="exportData(form.get('typeSel')?.value)">Export</button>
+              </div>
 
             </mat-tab>
           </mat-tab-group>
+          <!-- </ng-container> -->
+
         </div>
       </ng-template>
 

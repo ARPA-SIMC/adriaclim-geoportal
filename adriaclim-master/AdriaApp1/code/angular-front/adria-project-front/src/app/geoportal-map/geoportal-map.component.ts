@@ -4,6 +4,7 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import * as L from 'leaflet';
 import * as _ from 'lodash';
@@ -53,41 +54,42 @@ interface ExtraParams {
 //   },
 // ];
 
+
 let TREE_DATA: FoodNode[] = [
     {
       name: 'Observations',
-      childVisible: false,
+      // childVisible: false,
       children: [],
     },
     {
       name: 'Indicators',
-      childVisible: true,
+      // childVisible: true,
       children: [
         {
           name: 'Large scale',
-          childVisible: true,
+          // childVisible: true,
           children: [
-            {name: 'Yearly', childVisible: true, children: []},
-            {name: 'Monthly', childVisible: false, children: []},
-            {name: 'Seasonal', childVisible: false, children: []}
+            {name: 'Yearly', children: []},
+            {name: 'Monthly', children: []},
+            {name: 'Seasonal', children: []}
           ],
         },
         {
           name: 'Pilot scale',
-          childVisible: true,
+          // childVisible: true,
           children: [
-            {name: 'Yearly', childVisible: false, children: []},
-            {name: 'Monthly', childVisible: false, children: []},
-            {name: 'Seasonal', childVisible: false, children: []}
+            {name: 'Yearly', children: []},
+            {name: 'Monthly', children: []},
+            {name: 'Seasonal', children: []}
           ],
         },
         {
           name: 'Local scale',
-          childVisible: true,
+          // childVisible: true,
           children: [
-            {name: 'Yearly', childVisible: false, children: []},
-            {name: 'Monthly', childVisible: false, children: []},
-            {name: 'Seasonal', childVisible: false, children: []}
+            {name: 'Yearly', children: []},
+            {name: 'Monthly', children: []},
+            {name: 'Seasonal', children: []}
           ],
         },
       ],
@@ -97,6 +99,7 @@ let TREE_DATA: FoodNode[] = [
       children: [],
     },
   ];
+
 
 /** Flat node with expandable and level information */
 interface ExampleFlatNode {
@@ -108,7 +111,13 @@ interface ExampleFlatNode {
 @Component({
   selector: 'app-geoportal-map',
   templateUrl: './geoportal-map.component.html',
-  styleUrls: ['./geoportal-map.component.scss']
+  styleUrls: ['./geoportal-map.component.scss'],
+  providers: [
+    {
+      provide: MAT_SELECT_CONFIG,
+      useValue: { overlayPanelClass: 'select-overlay-pane' }
+    }
+  ]
 })
 export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
@@ -146,6 +155,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   variableArray: [] = [];
   activeLayersArray: any[] = [];
 
+
   pointBoolean = false;
 
   coordOnClick = {};
@@ -181,7 +191,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       sliderControl: new FormControl(null)
     });
 
-    this.getInd();
+    // this.getInd();
     this.getAllNodes();
     // this.dataSource.data = TREE_DATA;
 
@@ -375,13 +385,87 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpClient.post('http://localhost:8000/test/allNodes',{
     }).subscribe({
       next:(res:any) =>{
+
         res.nodes.forEach((node:any)=>{
 
-          this.dataAllNodes.push(
-            {name: node}
-          );
+          //riempiamo tree con tutti i nodi
+          if (node.adriaclim_dataset === "indicator"){
+            let indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0]
+            console.log("INDICATORI =", indicatori);
 
-        });
+            let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+            let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+            if(time?.children?.findIndex(elInd => elInd.name === node.title) === -1) {
+              time?.children?.push({
+                name: node
+              });
+              time?.children?.sort((o1:any, o2:any) => {
+                if (o1.name.title > o2.name.title) {
+                  return 1;
+                }
+                if (o1.name.title < o2.name.title) {
+                  return -1;
+                }
+                return 0;
+              })
+              // time.childVisible = true;
+            }
+          }
+          else if (node.adriaclim_dataset === "model"){
+            let modelli = TREE_DATA.filter((models: any) => models.name === "Numerical models")[0]
+            if(modelli?.children?.findIndex(elModel => elModel.name === node.title) === -1){
+              modelli?.children?.push({
+                name: node
+              });
+              modelli?.children?.sort((o1: any, o2: any) => {
+                if (o1.name.title > o2.name.title) {
+                  return 1;
+                }
+                if (o1.name.title < o2.name.title) {
+                  return -1;
+                }
+                return 0;
+              })
+            }
+          }
+          else if (node.adriaclim_dataset === "observation"){
+            let observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0]
+            console.log("OBSERVATION =", observation);
+
+            if(observation?.children?.findIndex(elObs => elObs.name === node.title) === -1){
+              observation?.children?.push({
+                name: node
+              });
+              observation?.children?.sort((o1: any, o2: any) => {
+
+
+                if (o1.name.title > o2.name.title) {
+                  return 1;
+                }
+                if (o1.name.title < o2.name.title) {
+                  return -1;
+                }
+                return 0;
+              })
+
+            }
+
+          }
+
+
+
+
+          // let observations = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0]
+
+            this.dataAllNodes.push(
+              {name: node}
+            );
+
+          });
+
+
+          this.dataAllNodesTree.data = TREE_DATA;
+
 
         this.dataAllNodes.sort((o1, o2) => {
           if (o1.name.title > o2.name.title) {
@@ -400,26 +484,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     })
   }
 
-  getInd() {
-    // this.httpClient.post('http://localhost:8000/test/ind', {
-    // }).pipe(map((res: any) => res.json())).subscribe({
-    //   next(res) {
-    //     console.log('IND: ', res);
-    //     this.dataInd = res;
-    //   },
-    //   error(msg) {
-    //     console.log('IND ERROR: ', msg);
-    //   }
 
-    // });
+
+  getInd() {
     this.httpClient.post('http://localhost:8000/test/ind', {
     }).subscribe({
       next: (res: any) => {
-        // console.log('IND: ', res);
 
         this.dataInd = res.ind;
-        // console.log("INDICATORI =", this.dataInd);
-
 
         this.dataInd.forEach((ind: any) => {
           let indicatori = TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
@@ -429,30 +501,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             time?.children?.push({
               name: ind
             });
-            time.childVisible = true;
+            // time.childVisible = true;
           }
-
-            // console.log("INDICATORI ESISTE");
-            // console.log("TREE DATA =", indicatori);
-            // console.log("TREE DATA =", scale);
-            // console.log("TREE DATA =", time);
-
-
-          // TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
-          //   .children?.filter((sca: any) => sca.name.toLowerCase().includes(ind.adriaclim_scale.toLowerCase()))[0]
-          //   .children?.filter((time: any) => time.name.toLowerCase().includes(ind.adriaclim_timeperiod.toLowerCase()))[0].children?.push({
-          //     name: ind.title
-          //   })
-
-
 
           });
 
-          // console.log("TREE DATA =", TREE_DATA);
           this.dataSource.data = TREE_DATA;
       },
       error: (msg: any) => {
-        // console.log('IND ERROR: ', msg);
+        console.log('IND ERROR: ', msg);
       }
 
     });
@@ -611,6 +668,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // else if(selD.getTime() === this.dateEnd.getTime()) {
     //   this.navigateDateRightYear = true;
     // }
+    let metaId: any;
+    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+
+    }
+
+    else if(this.selData.get("dataSetSel")?.value.name.id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.id;
+    }
+
+
 
     if(arrow === "leftAll") {
       this.selectedDate.get("dateSel")?.setValue(this.dateStart);
@@ -621,7 +689,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateRightSeason = false;
       this.navigateDateLeftMonth = false;
       this.navigateDateLeftSeason = false;
-      this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+      this.getMeta(metaId,"ok");
     }
     else if(arrow === "rightAll") {
       //rightAll is clicked so we disable right button and enable the left ones
@@ -632,14 +700,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateLeftMonth = false;
       this.navigateDateRightMonth = false;
       this.navigateDateRightSeason = false;
-      this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+      this.getMeta(metaId,"ok");
     }
-/**
- * GET LAYER 3D
- */
-/**
- * SLIDER
- */
+    /**
+     * GET LAYER 3D
+     */
+    /**
+     * SLIDER
+     */
     if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
       if(arrow === "left") {
 
@@ -652,7 +720,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.navigateDateRightYear = false;
           this.navigateDateRightMonth = false;
           this.navigateDateRightSeason = false;
-          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+          this.getMeta(metaId,"ok");
         }else{
           selD.setFullYear(selD.getFullYear() - 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
@@ -660,7 +728,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.navigateDateRightYear = false;
           this.navigateDateRightMonth = false;
           this.navigateDateRightSeason = false;
-          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+          this.getMeta(metaId,"ok");
         }
       }
       else if(arrow === "right") {
@@ -670,13 +738,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = true;
           this.navigateDateLeftYear = false;
-          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+          this.getMeta(metaId,"ok");
         }else{
           selD.setFullYear(selD.getFullYear() + 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = false;
           this.navigateDateLeftYear = false;
-          this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+          this.getMeta(metaId,"ok");
         }
 
       }
@@ -701,7 +769,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -711,7 +779,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+            this.getMeta(metaId,"ok");
           }
 
 
@@ -730,7 +798,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+            this.getMeta(metaId,"ok");
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -740,7 +808,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+            this.getMeta(metaId,"ok");
           }
         }
       }
@@ -763,7 +831,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -773,7 +841,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightMonth = false;
             this.navigateDateRightSeason = false;
             this.navigateDateRightYear = false;
-            this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+            this.getMeta(metaId,"ok");
           }
 
 
@@ -792,7 +860,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+            this.getMeta(metaId,"ok");
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -802,7 +870,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightMonth = false;
             this.navigateDateRightSeason = false;
             this.navigateDateRightYear = false;
-            this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+            this.getMeta(metaId,"ok");
           }
         }
       }
@@ -828,7 +896,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightMonth = false;
               this.navigateDateRightSeason = false;
               this.navigateDateRightYear = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
 
             }else{
               selD = d2;
@@ -839,7 +907,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightMonth = false;
               this.navigateDateRightSeason = false;
               this.navigateDateRightYear = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
             }
 
           }else{
@@ -857,7 +925,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = true;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
             }else{
               selD = d2;
               this.selectedDate.get("dateSel")?.setValue(selD);
@@ -867,7 +935,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
             }
           }
 
@@ -906,7 +974,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId, "ok");
             }else{
               selD = d2;
               this.selectedDate.get("dateSel")?.setValue(selD);
@@ -916,7 +984,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+              this.getMeta(metaId,"ok");
             }
           }else{
              //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!
@@ -933,7 +1001,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                 this.navigateDateRightYear = false;
                 this.navigateDateLeftYear = false;
                 this.navigateDateLeftSeason = false;
-                this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+                this.getMeta(metaId,"ok");
              }else{
                 selD = d2;
                 this.selectedDate.get("dateSel")?.setValue(selD);
@@ -943,13 +1011,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                 this.navigateDateRightYear = false;
                 this.navigateDateLeftYear = false;
                 this.navigateDateLeftSeason = false;
-                this.getMeta(this.selData.get("dataSetSel")?.value.name.dataset_id,"ok");
+                this.getMeta(metaId,"ok");
               }
           }
 
         //}
       } //FINE ELSE IF RIGHT
     } // FINE SEASONAL
+    if(this.dateStart?.toString() === this.dateEnd?.toString()) {
+      this.navigateDateLeftYear = true;
+      this.navigateDateRightYear = true;
+      this.navigateDateLeftMonth = true;
+      this.navigateDateRightMonth = true;
+      this.navigateDateLeftSeason = true;
+      this.navigateDateRightSeason = true;
+    }
   } //FINE CHANGE DATE
 
   dateFilter = (date: Date | null): boolean => {return true;}
@@ -1412,6 +1488,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   );
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
 
   hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
@@ -1476,6 +1553,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         dateStart: this.dateStart,
         dateEnd: this.dateEnd,
         variable: this.variableGroup.get("variableControl")?.value,
+        arrayVariable: this.variableArray,
         range: this.sliderGroup.get("sliderControl")?.value,
         openGraph: true,
       };

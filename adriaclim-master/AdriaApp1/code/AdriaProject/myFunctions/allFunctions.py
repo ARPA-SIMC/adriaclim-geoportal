@@ -388,22 +388,14 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
   if "format" in kwargs:
     url = url + "." + kwargs["format"]
 
-  print ("URL!!!!")
-  print (url)
+
 
   di = getIndicatorDimensions(ind)
   va = getIndicatorVariables(ind)
 
-  print("DIIII")
-  print(di)
-
-  print("VAAAAA")
-  print(va)
 
   tipo = getIndicatorDataFormat(ind)
 
-  print("TIPOOOO")
-  print(tipo)
   
   griddap = (tipo == "griddap")
   
@@ -485,7 +477,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
               query = query + "&" + d + "%3C=" + kwargs[al]
             elif (al+"Max") in kwargs:
               query = query + "&" + d + "%3C=" + kwargs[al+"Max"]
-  print(url+query)
+  
   return url+query
 
 def getIndicatorQueryUrlPoint(ind, onlyFirstVariable, skipDimensions, lat, lon, time, range, **kwargs):  
@@ -1028,8 +1020,6 @@ def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude
 
 def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value,is_indicator,lat_start,long_start,lat_end,long_end, **kwargs):
   
-  print("long_end="+long_end)
-
   onlyone = 0
   cache = 0
   if "context" in kwargs and kwargs["context"]=="one":
@@ -1102,6 +1092,7 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
     output = None
     if "output" in kwargs:
       output = kwargs["output"]
+ 
     return packageGraphData(processOperation(operation,values,dates,unit,layerName,lats,longs),output=output)
 
 def packageGraphData(allData,**kwargs):
@@ -1141,6 +1132,7 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
   if operation=="default":
     return [values,dates,unit,layerName,lats,longs]
   values2=[]
+
   dates2=[]
   layerName2=[]
   lats2 = []
@@ -1158,7 +1150,6 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       dat = "0000-"+mon+"-01T00:00:00Z"
       vals = []
       for n in range(len(values)):
-        print (dates[n])
         if pattern.match(dates[n]).group(1)!=mon:
           continue
         vals.append(values[n])
@@ -1180,7 +1171,6 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       lastDate = dates[n]
       
     elif lastDate!=dates[n]:
-
       dates2.insert(i,lastDate)
       lats2.insert(i,0)
       longs2.insert(i,0)
@@ -1189,6 +1179,7 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       i+=1
       lastDate = dates[n]
       vals = []
+
     vals.append(values[n])
   if lastDate is not None:
       dates2.insert(i,lastDate)
@@ -1197,12 +1188,15 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       layerName2.insert(i,layerName[0])
       values2.insert(i,aggregateGraphicValues(operation,vals))
       i+=1
+    
+ 
   return [values2,dates2,unit,layerName2,lats2,longs2]
 
 def aggregateGraphicValues(operation,vals):
 
   if vals is None:
     return None
+  
 
   if operation=="median":
     vals.sort()

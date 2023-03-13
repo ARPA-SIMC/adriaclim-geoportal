@@ -180,6 +180,17 @@
   border-bottom-left-radius: 4px !important;
 }
 
+// ::ng-deep .menu-var {
+//   width: fit-content !important;
+//   max-width: none !important;
+// }
+
+::ng-deep .select-overlay-pane {
+  // background-color: coral !important;
+  width: fit-content !important;
+  max-width: none !important;
+}
+
 ::ng-deep .toolbar-buttons .mat-mdc-raised-button {
   height: 100% !important;
   font-size: medium !important;

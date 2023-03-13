@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { EChartsOption } from 'echarts';
 
 @Component({
@@ -7,7 +7,7 @@ import { EChartsOption } from 'echarts';
   templateUrl: './canvas-graph.component.html',
   styleUrls: ['./canvas-graph.component.scss']
 })
-export class CanvasGraphComponent implements OnInit {
+export class CanvasGraphComponent implements OnInit, OnChanges {
   isLoading!: boolean;
   @Input() idMeta: any;
   @Input() dataset: any;
@@ -26,6 +26,7 @@ export class CanvasGraphComponent implements OnInit {
   @Input() operation: any;
   @Input() context: any;
 
+  months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul","Aug", "Sep", "Oct", "Nov", "Dec"];
   chartOption: EChartsOption = {};
 
 //   chart: any;
@@ -36,18 +37,29 @@ export class CanvasGraphComponent implements OnInit {
 
   constructor(private httpClient: HttpClient) { }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    this.getDataGraph();
+
+  }
+
   ngOnInit() {
     this.isLoading = true;
     this.getDataGraph();
   }
 
-  formatDate(d:any){
-	let month = d.getMonth() + 1
-	let day = d.getDate()
-	let year = d.getFullYear()
 
-	return day + "/" + month + "/" + year
+
+formatDate(d:any){
+  if(this.operation === "annual"){
+    return this.months[d.getMonth()];
+  }else{
+    let month = d.getMonth() + 1
+    let day = d.getDate()
+    let year = d.getFullYear()
+
+    return day + "/" + month + "/" + year;
   }
+}
 
   getDataGraph() {
 
@@ -201,5 +213,6 @@ export class CanvasGraphComponent implements OnInit {
   onChartEvent(event: any, type: string) {
     console.log('chart event:', type, event);
   }
+
 
 }
