@@ -75,19 +75,40 @@
                   <div class="example-label-container" fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
                     <div fxFlex fxLayoutAlign="center center">
                       <label id="example-name-label" class="example-name-label">Min: </label>
-                      <label class="example-value-label">{{form.get("minSlider")?.value | date: 'dd/MM/yyyy'}}</label>
+                      <label class="example-value-label">{{form.get("minSliderDate")?.value | date: 'dd/MM/yyyy'}}</label>
 
                     </div>
                     <div fxFlex fxLayoutAlign="center center">
                       <label id="example-name-label" class="example-name-label">Max: </label>
                       <!-- <label class="example-value-label">{{value}}</label> -->
-                      <label class="example-value-label">{{form.get("maxSlider")?.value | date: 'dd/MM/yyyy'}}</label>
+                      <label class="example-value-label">{{form.get("maxSliderDate")?.value | date: 'dd/MM/yyyy'}}</label>
 
                     </div>
                   </div>
-                  <mat-slider [min]="start" [max]="end" fxFlex="80">
-                    <input matSliderStartThumb formControlName="minSlider">
-                    <input matSliderEndThumb formControlName="maxSlider">
+                  <mat-slider [min]="dateStart.getTime()" [max]="dateEnd.getTime()" [step]="stepMilliseconds" fxFlex="80">
+                    <input matSliderStartThumb formControlName="minSliderDate">
+                    <input matSliderEndThumb (input)="funzioneProva($event)">
+                  </mat-slider>
+                  {{form.get("maxSliderDate")?.value | json}}
+                </div>
+
+                <div *ngIf="dataset.dimensions > 3" fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;">
+                  <div class="example-label-container" fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
+                    <div fxFlex fxLayoutAlign="center center">
+                      <label id="example-name-label" class="example-name-label">Min range: </label>
+                      <label class="example-value-label">{{this.form.get("minSliderRange")?.value | number : '1.0-2' : 'fr'}}</label>
+
+                    </div>
+                    <div fxFlex fxLayoutAlign="center center">
+                      <label id="example-name-label" class="example-name-label">Max range: </label>
+                      <!-- <label class="example-value-label">{{value}}</label> -->
+                      <label class="example-value-label">{{this.form.get("maxSliderRange")?.value | number : '1.0-2' : 'fr'}}</label>
+
+                    </div>
+                  </div>
+                  <mat-slider [min]="extraParamExport.minValue" [max]="extraParamExport.maxValue" [step]="extraParamExport.stepSize" fxFlex="80">
+                    <input matSliderStartThumb formControlName="minSliderRange">
+                    <input matSliderEndThumb formControlName="maxSliderRange">
                   </mat-slider>
                 </div>
                 <div class="menu-var">
@@ -108,7 +129,8 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <button mat-raised-button color="primary" (click)="exportData(form.get('typeSel')?.value)">Export</button>
+                <!-- <button mat-raised-button color="primary" (click)="exportData(form.get('typeSel')?.value)">Export</button> -->
+                <button mat-raised-button color="primary" (click)="exportData(this.form.get('typeSel')?.value)">Export</button>
               </div>
 
             </mat-tab>

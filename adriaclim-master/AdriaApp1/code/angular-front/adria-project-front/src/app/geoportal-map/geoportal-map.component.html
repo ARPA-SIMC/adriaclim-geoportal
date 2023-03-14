@@ -128,11 +128,11 @@
                 <mat-divider *ngIf="!lastItem"></mat-divider>
               </ng-container> -->
 
-              <mat-form-field appearance="fill">
+              <mat-form-field appearance="fill" class="prova-form">
                 <mat-label>Select variable</mat-label>
-                <mat-select formControlName="variableControl"
+                <mat-select formControlName="variableControl" class="prova-select"
                   (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">
-                  <mat-option *ngFor="let v of variableArray" [value]="v" class="variable-select">
+                  <mat-option *ngFor="let v of variableArray" [value]="v" class="prova-option">
                     {{v}}
                   </mat-option>
                 </mat-select>
@@ -319,9 +319,9 @@
               <mat-slider
                   style="width: 80%;"
                   class="example-margin"
-                  [max]="extraParam.maxValue"
-                  [min]="extraParam.minValue"
-                  [step]="extraParam.stepSize"
+                  [max]="extraParam.maxValue.toFixed(4)"
+                  [min]="extraParam.minValue.toFixed(4)"
+                  [step]="extraParam.stepSize.toFixed(4)"
                   discrete
                   showTickMarks
                   [displayWith]="formatLabel">

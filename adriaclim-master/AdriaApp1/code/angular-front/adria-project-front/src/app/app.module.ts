@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -46,6 +46,11 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { CanvasGraphComponent } from './geoportal-map/canvas-graph/canvas-graph.component';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { DatePipe } from '@angular/common';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+registerLocaleData(localeFr);
+registerLocaleData(localeIt);
 
 @NgModule({
   declarations: [
@@ -103,6 +108,8 @@ import { DatePipe } from '@angular/common';
   providers: [
     MatMenuTrigger,
     {provide: MAT_DATE_LOCALE, useValue: 'en-GB'},
+    {provide: LOCALE_ID, useValue: 'fr-FR'},
+    {provide: LOCALE_ID, useValue: 'it-IT'},
     DatePipe,
 
   ],

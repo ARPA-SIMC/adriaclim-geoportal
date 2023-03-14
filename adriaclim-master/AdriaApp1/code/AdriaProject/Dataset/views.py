@@ -417,11 +417,8 @@ def getDataTableNew(request):
     layer_name = request.data.get("variable")
     num_parameters = request.data.get("dimensions")
     range_value = request.data.get("range")
-    
     data=allFunctions.getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
     # headers=[col for col in data.fieldnames]
-    print("data =", data)
-    print("TYPE DATA =", type(data))
     # out=[[row[h] for h in headers] for row in data]
     #return render(request,"getData.html",{"data":out,"headers":headers})
     return JsonResponse({"data":data})

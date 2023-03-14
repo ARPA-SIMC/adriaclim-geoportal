@@ -876,12 +876,12 @@ def getMetadataTime1(dataset_id):
                 if row1["Row Type"] == "attribute" and row1["Attribute Name"] == "institution":
                     attribution_layer = row1["Value"]
 
-                if row1["Row Type"] == "attribute" and row1["Variable Name"] != "time" and row1["Row Type"] == "attribute" and row1["Variable Name"] != "Times" and row1[
+                if row1["Row Type"] == "attribute" and row1["Variable Name"] != "time" and row1["Variable Name"] != "Times" and row1[
                     "Variable Name"] != "latitude" and row1[
                     "Variable Name"] != "longitude" and row1["Attribute Name"] == "actual_range":
                     values_others = row1["Value"]
 
-                if row1["Row Type"] == "dimension" and row1["Variable Name"] != "time" and row1["Row Type"] == "attribute" and row1["Variable Name"] != "Times" and row1[
+                if row1["Row Type"] == "dimension" and row1["Variable Name"] != "time" and row1["Variable Name"] != "Times" and row1[
                     "Variable Name"] != "latitude" and row1[
                     "Variable Name"] != "longitude":
                     dimensions += ", " + row1["Variable Name"]

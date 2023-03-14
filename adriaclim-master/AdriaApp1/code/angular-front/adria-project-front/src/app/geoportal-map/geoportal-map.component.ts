@@ -151,6 +151,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   dateStart: any;
   dateEnd: any;
   extraParam!: ExtraParams;
+  extraParamExport!: ExtraParams;
   isExtraParam!: boolean;
   variableArray: [] = [];
   activeLayersArray: any[] = [];
@@ -200,28 +201,22 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngAfterViewInit(): Promise<void> {
 
     // this.landLayers();
-    // console.log("POLYGON JSON =", this.polygon);
-    // console.log("POL ==", this.polygon.features[0].geometry.coordinates[0]);
 
     // let geo = L.geoJSON(this.polygon).addTo(this.map);
 
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
-      // console.log("FEATURE =", f);
       if(f.properties.popupContent !== "") {
 
         f.geometry.coordinates.forEach(c => {
-          // console.log("COORDINATE =", c);
           c.forEach(coord => {
             coord.reverse();
-            // console.log("COORDINATE 2 =", coord);
           });
 
           polyg.push(c);
           // poligon = L.polygon(c);
         });
-        // console.log("POLYGON =", polyg[0]);
 
         let pol = L.polygon(polyg[0]).addTo(this.map);
         this.allPolygons.push(pol);
@@ -245,8 +240,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     await this.initMap();
 
     // await this.initMap();
-    // console.log("POLYGON =", this.polygon.features);
-    // console.log("PROVA");
 
   }
 
@@ -296,10 +289,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         //WARNING!
 
     }else{
-      console.log("EVENT POLYGON =", e);
+      // console.log("EVENT POLYGON =", e);
       this.allPolygons.forEach((pol:any)=>{
         if(pol.getBounds().contains(e.latlng)){
-          console.log("The polygon is rullo di tamburi",pol);
+          // console.log("The polygon is rullo di tamburi",pol);
         }
       });
       var label = e.target.options.label;
@@ -324,13 +317,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //     iconUrl: 'marker-icon.png',
     //   })
     // }).addTo(this.map);
-    console.log("LAT========",e.latlng.lat);
-    console.log("LONG===========",e.latlng.lng);
     this.coordOnClick = {
       lat: e.latlng.lat,
       lng: e.latlng.lng
     }
-    console.log("COORDINATE ON CLICK =", this.coordOnClick);
     this.openGraphDialog();
     // this.pointBoolean = false;
     // METODO 2
@@ -342,7 +332,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       })
     });
     marker.on('click', this.onMarkerClick.bind(this));
-    // console.log("MARKER =", marker);
 
     // marker.addTo(this.map);
     this.markers.push(marker);
@@ -352,14 +341,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   onMarkerClick(event: any) {
     const marker = event.target;
-    // console.log("MARKER CLICKED =", marker);
 
     this.map.removeLayer(marker);
     this.markers = this.markers.filter(m => m !== marker);
   }
 
   openMyMenu(menuTrigger: MatMenuTrigger) {
-    // console.log("MENU TRIGGER =", menuTrigger);
 
     // menuTrigger.openMenu();
     menuTrigger.openMenu();
@@ -373,10 +360,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpClient.post('http://localhost:8000/test/pluto', {
     }).subscribe({
       next(position) {
-        // console.log('PLUTO: ', position);
       },
       error(msg) {
-        // console.log('PLUTO ERROR: ', msg);
       }
     });
   }
@@ -390,9 +375,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           //riempiamo tree con tutti i nodi
           if (node.adriaclim_dataset === "indicator"){
-            let indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0]
-            console.log("INDICATORI =", indicatori);
-
+            let indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0];
             let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
             let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
             if(time?.children?.findIndex(elInd => elInd.name === node.title) === -1) {
@@ -429,9 +412,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             }
           }
           else if (node.adriaclim_dataset === "observation"){
-            let observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0]
-            console.log("OBSERVATION =", observation);
-
+            let observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
             if(observation?.children?.findIndex(elObs => elObs.name === node.title) === -1){
               observation?.children?.push({
                 name: node
@@ -522,16 +503,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.activeLayersArray.push(node);
     // this.activeLayersGroup.get("activeLayersControl")?.setValue(node);
     this.selData.get("dataSetSel")?.setValue(node);
-    // console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
 
     console.log("Added layer====", this.activeLayersArray);
     // }
   }
 
   selActiveLayer(event: any) {
-    console.log("SELECTED LAYER =", event.value);
-    // this.selData.get("dataSetSel")?.setValue();
-    console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
+    // console.log("SELECTED LAYER =", event.value);
+    // // this.selData.get("dataSetSel")?.setValue();
+    // console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
 
     let metaId: any;
     if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
@@ -547,25 +527,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //   *  controllare anche qui!
     //   */
 
-    //   // console.log("sono in event.value.dataset_id");
     //   metaId = event.value.dataset_id;
-    //   // console.log("DATASET_ID====",metaId);
-    //   // console.log("TITLE=====",event.value.title);
-    //   // console.log("TIME START======",event.value.time_start);
-    //   // console.log("TIME END======",event.value.time_end);
 
     // }
     // else if(event.value.id) {
     //   /**
     //    * constrollare qui con console.log
     //    */
-    //   // console.log("sono in event.value.id");
     //   metaId = event.value.id;
-    //   // console.log("DATASET_ID====",metaId);
-    //   // console.log("TITLE=====",event.value.title);
 
     // }
-    console.log("METADATA ID =", metaId);
 
     this.getSelectedNode(event.value);
     this.getMeta(metaId);
@@ -582,7 +553,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       idMeta: idMeta
     }).subscribe({
       next: (res: any) => {
-        // console.log('METADATA: ', res);
         this.metadata = res;
         console.log("METADATA =", this.metadata);
 
@@ -595,7 +565,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         }
       },
       error: (msg: any) => {
-        // console.log('METADATA ERROR: ', msg);
+        console.log('METADATA ERROR: ', msg);
       }
 
     });
@@ -616,7 +586,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   lastday(y:any,m:any){
-    // console.log("LAST DAY ==", new Date(y, m + 1, 0).getDate());
 
     return  new Date(y, m + 1, 0).getDate();
   }
@@ -655,19 +624,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   changeDate(arrow: any) {
 
-    // let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-    // console.log("LEFT DATE ==", this.selectedDate.get("dateSel")?.value.getTime());
-    // console.log("LEFT DATE CLONE ==", selD.getTime());
-
-    // console.log("DATE START ==", this.dateStart.getTime());
-    // if(selD.getTime() === this.dateStart.getTime()) {
-
-
-    //   this.navigateDateLeftYear = true;
-    // }
-    // else if(selD.getTime() === this.dateEnd.getTime()) {
-    //   this.navigateDateRightYear = true;
-    // }
     let metaId: any;
     if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
       metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
@@ -752,7 +708,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     else if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
       if(arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        // console.log(selD);
         let d1 = _.cloneDeep(selD);
         if(this.isLastDayOfMonth(d1)){
         //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
@@ -1036,9 +991,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
 
-    // console.log("METADATAaaaa ==", this.metadata);
     // d.setUTCSeconds
-    // console.log("METADATA 2 ==", this.metadata[0][2]);
 
     let seconds_epoch = this.metadata[0][2].split(",");
 
@@ -1052,12 +1005,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     date_end.setUTCSeconds(seconds_epoch_end.trim());
     date_start.setHours(date_start.getHours() - 1)
     date_end.setHours(date_end.getHours() - 1)
-    console.log("DATE START ==", date_start);
-    console.log("DATE END ==", date_end);
 
     this.dateStart = date_start;
     this.dateEnd = date_end;
-    // console.log("SELECTED DATASET: ", this.selData.get('dataSetSel')?.value);
 
     this.dateFilter = (date:Date | null) : boolean =>{
       if(date) {
@@ -1202,6 +1152,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           stepSize: step,
         };
 
+        this.extraParamExport = {
+          name: "Depth",
+          minValue: min,
+          maxValue: max,
+          stepSize: step,
+        }
+
       }
       else {
         this.extraParam = {
@@ -1210,6 +1167,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           maxValue: max,
           stepSize: step,
         };
+
+        this.extraParamExport = {
+          name: "Dim_" + name,
+          minValue: min,
+          maxValue: max,
+          stepSize: step,
+        }
       }
       if(controlExtra){
         this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
@@ -1362,8 +1326,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   deleteLayer(idMeta?: string) {
-    // console.log("SELECTED DATASET: ", this.selData.get('dataSetSel')?.value);
-    // console.log("ID META SOTTO SELECTED DATASET======",idMeta);
     this.legendLayer_src = null;
     let metaId: any;
     if(idMeta) {
@@ -1377,21 +1339,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         metaId = this.selData.get("dataSetSel")?.value.name.id;
       }
     }
-    // if(this.selData.get('dataSetSel')?.value.name){
-    //   if(idMeta !== this.selData.get("dataSetSel")?.value.name.dataset_id) {
-    //     console.log("RESET DATASET NAME");
 
-    //     this.selData.reset();
-
-    //   }
-
-    // }
-
-    // else if(idMeta !== this.selData.get("dataSetSel")?.value.dataset_id) {
-    //   console.log("RESET DATASET NO NAME");
-
-    //   this.selData.reset();
-    // }
 
 
     this.map.removeLayer(this.datasetLayer);
@@ -1435,8 +1383,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.selData.reset();
       this.variableArray = [];
     }
-    console.log("SEL DATA", this.selData.get("dataSetSel")?.value);
-
 
   }
 
@@ -1531,7 +1477,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let dataId: any;
     if(this.selData.get("dataSetSel")?.value) {
-      console.log("DATASET SELEZIONATO", this.selData.get("dataSetSel")?.value.name);
 
       // CASO DATASET SELEZIONATO
       let title = this.selData.get("dataSetSel")?.value.name.title;
@@ -1556,6 +1501,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         arrayVariable: this.variableArray,
         range: this.sliderGroup.get("sliderControl")?.value,
         openGraph: true,
+        extraParamExport: this.extraParamExport,
       };
 
     }

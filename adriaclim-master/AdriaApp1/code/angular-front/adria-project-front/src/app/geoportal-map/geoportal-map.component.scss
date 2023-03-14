@@ -186,9 +186,9 @@
 // }
 
 ::ng-deep .select-overlay-pane {
-  // background-color: coral !important;
   width: fit-content !important;
-  max-width: none !important;
+  max-width: 300px !important;
+  word-break: break-all !important;
 }
 
 ::ng-deep .toolbar-buttons .mat-mdc-raised-button {
