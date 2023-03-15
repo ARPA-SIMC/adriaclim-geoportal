@@ -1006,16 +1006,20 @@ def getDataTableIndicator(dataset_id,layer_name,time_start,time_finish,lat_start
 def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
 
     # url = getIndicatorQueryUrl(dataset_id,False,False,latitude=latitude,longitude=longitude,
+    #
     #                            timeMin=time_start,timeMax=time_finish,range=range_value,format="json")
+
     if num_parameters > 3:
-      url=ERDDAP_URL+"/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
+      url= ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
     else:
       url = ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
       
     #https://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
     r = requests.get(url=url)
+    
     # csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',') 
     data = r.json() 
+    print("DATA==========",data)
     return data
 
 def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value,is_indicator,lat_start,long_start,lat_end,long_end, **kwargs):

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { EChartsOption } from 'echarts';
 
 @Component({
@@ -25,6 +25,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   // @Input() lngMax: any;
   @Input() operation: any;
   @Input() context: any;
+  @Output() dataTimeExport = new EventEmitter<any>();
 
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul","Aug", "Sep", "Oct", "Nov", "Dec"];
   chartOption: EChartsOption = {};
@@ -44,7 +45,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.isLoading = true;
-    this.getDataGraph();
+    // this.getDataGraph();
   }
 
 
@@ -66,7 +67,7 @@ formatDate(d:any){
     let data = {
 		idMeta: this.idMeta,
 		variable: this.variable,
-		range: this.range,
+		range: this.range? Math.abs(this.range) : null,
 		operation: this.operation,
 		context: this.context,
 		dimensions: this.dataset.dimensions,
@@ -91,6 +92,7 @@ formatDate(d:any){
         response = JSON.parse(response);
       }
       this.dataRes = response;
+
 	    let name = this.dataRes.allData.entries[0];
       this.dataRes.allData[name].forEach((element: any) => {
         element.x = this.formatDate(new Date(element.x));
@@ -205,6 +207,7 @@ formatDate(d:any){
 
     //   };
       console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
+      this.dataTimeExport.emit(this.dataRes.allData[name]);
 
 
     });

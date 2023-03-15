@@ -316,7 +316,8 @@
                 <!-- <label fxFlex fxLayoutAlign="center center" class="example-value-label">5</label> -->
               </div>
               <!-- [disabled]="disabled" -->
-              <mat-slider
+              <ngx-slider [(value)]="value" [options]="options" (userChangeEnd)="sliderControl($event)"></ngx-slider>
+              <!-- <mat-slider
                   style="width: 80%;"
                   class="example-margin"
                   [max]="extraParam.maxValue.toFixed(4)"
@@ -326,8 +327,7 @@
                   showTickMarks
                   [displayWith]="formatLabel">
                 <input matSliderThumb formControlName="sliderControl" (mouseup)="sliderControl($event)">
-                <!-- <input matSliderThumb (mouseup)="sliderControl($event)"> -->
-              </mat-slider>
+              </mat-slider> -->
 
             </form>
             <!-- <mat-slider style="width: 80%;"

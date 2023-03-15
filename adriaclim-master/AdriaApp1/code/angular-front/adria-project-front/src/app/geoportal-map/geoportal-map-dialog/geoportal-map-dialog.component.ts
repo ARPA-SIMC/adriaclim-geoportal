@@ -7,8 +7,10 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 // import * as saveAs from 'file-saver';
-import {saveAs} from 'file-saver';
+import { saveAs } from 'file-saver';
+import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
+import { MatSliderChange } from '@angular/material/slider';
 
 @Component({
   selector: 'app-geoportal-map-dialog',
@@ -47,10 +49,26 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   range: any;
   arrayVariable: any;
   extraParamExport: any;
-
+  dataOutputGraph: any[] = [];
+  stepDateExport: any;
+  stepSizeExport: any;
+  dataMinExport: any;
+  dataMaxExport: any;
+  minValue: any;
+  maxValue: any;
 
   minRange: any;
   maxRange: any;
+
+  options: Options = {
+    floor: 0,
+    ceil: 100,
+  };
+
+  optionsExtra: Options = {
+    floor: 0,
+    ceil: 100,
+  };
 
   start: any;
   end: any;
@@ -156,13 +174,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     return first_part + second_part;
   }
 
-  daysToMilliseconds(days:any) {
-    return days * 24 * 60 * 60 * 1000;
-  }
-
-  hoursToMilliseconds(h:any) {
-    return h * 60 * 60 * 1000;
-  }
 
   // bypass ngIf for paginator
   @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
@@ -204,53 +215,51 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     this.extraParamExport = data.extraParamExport;
     // this.start = this.dateStart.getTime();
     // this.end = this.dateEnd.getTime();
-    this.stepDate = this.dataset.adriaclim_timeperiod;
-    // if(this.stepDate === "monthly"){
-    //   //step di un mese
-    //   this.stepDate = this.daysToMilliseconds(30);
+    if (this.dataset) {
 
-    // }else if(this.stepDate === "day" || this.stepDate === "daily"){
-    //   //step di un giorno.......
-    //   this.stepDate = this.daysToMilliseconds(1);
+      this.stepDate = this.dataset.adriaclim_timeperiod;
+    }
 
-
-    // }else if(this.stepDate === "yearly"){
-    //   //step di un anno
-    //   this.stepDate = this.daysToMilliseconds(365);
-
-    // }else if(this.stepDate === "seasonal"){
-    //   //step di tre mesi
-    //   this.stepDate = this.daysToMilliseconds(90);
-
-    // }else{
-    //   //step di tre ore/sei ore ecc.
-    //   console.log("TRE ORE,6 ....=",this.stepDate);
-    //   //let stepHours = this.stepDate.split("h")[0];
-    //   this.stepDate = this.hoursToMilliseconds(stepHours);
-
-    // }
-    console.log("DATASET", this.dataset);
+    //console.log("DATASET", this.dataset);
     this.form = this.fb.group({
       // cod: new FormControl(this.element.cod_algo_type),
       cod: new FormControl(null),
       operationSel: new FormControl("default"),
       typeSel: new FormControl("csv"),
-      minSliderDate: new FormControl(this.dateStart),
-      maxSliderDate: new FormControl(this.dateEnd),
+      // minSliderDate: new FormControl(this.dateStart),
+      // maxSliderDate: new FormControl(this.dateEnd),
       // minSlider
     })
     if (this.dataset) {
       if (this.dataset.dimensions > 3) {
+        this.minRange = this.extraParamExport.minValue.toFixed(4);
+        this.maxRange = this.extraParamExport.maxValue.toFixed(4);
+        this.optionsExtra = {
+          floor: this.extraParamExport.minValue,
+          ceil: this.extraParamExport.maxValue,
+          step: this.extraParamExport.stepSize.toFixed(4),
+          draggableRange: true,
+          noSwitching: true,
+          translate: (value: number, label: LabelType): string => {
+            if (value > 10000 || value < 0.001 && value !== 0) {
+              return value.toExponential().replace(/e\+?/, ' x 10^');
+            }else{
+              return value.toString();
+            }
+          },
+          // combineLabels: (minValue: number, maxValue: number): string => {
+
+          // }
+        };
         this.form = this.fb.group({
           // cod: new FormControl(this.element.cod_algo_type),
           cod: new FormControl(null),
           operationSel: new FormControl("default"),
           typeSel: new FormControl("csv"),
-          minSliderDate: new FormControl(this.dateStart),
-          maxSliderDate: new FormControl(this.dateEnd),
-          minSliderRange: new FormControl(this.extraParamExport.minValue),
-          maxSliderRange: new FormControl(this.extraParamExport.maxValue),
-          // minSlider
+          // minSliderDate: new FormControl(this.dateStart),
+          // maxSliderDate: new FormControl(this.dateEnd),
+          // minSliderRange: new FormControl(this.extraParamExport.minValue),
+          // maxSliderRange: new FormControl(this.extraParamExport.maxValue),
         })
 
       }
@@ -258,54 +267,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
   }
 
-  funzioneProva(event: any) {
-    console.log("event target value", event.target.value);
-    console.log("stepDate", this.stepDate);
-    this.stepMilliseconds = this.daysToMilliseconds(30);
-    // this.form.get("maxSliderDate")?.setValue(5);
-    // this.form.get("maxSliderDate")?.value.getTime();
-    // console.log("MAX SLIDER DATE", this.form.get("maxSliderDate")?.value);
 
-    if(event.target.value < this.form.get("maxSliderDate")?.value.getTime()) {
-
-      let parse = new Date(Number(event.target.value));
-      console.log("PARSE MIN", parse);
-      // parse.setDate(1);
-      // parse.setMonth(parse.getMonth() - 1);
-      // console.log("PARSE MIN TO STRING", parse.toString());
-      this.form.get("maxSliderDate")?.setValue(parse);
-
-    }
-    else if(event.target.value > this.form.get("maxSliderDate")?.value.getTime()) {
-      let parse = new Date(Number(event.target.value));
-      console.log("PARSE MIN", parse);
-      // parse.setDate(1);
-      // parse.setMonth(parse.getMonth() + 1);
-      // console.log("PARSE MIN TO STRING", parse.toString());
-      this.form.get("maxSliderDate")?.setValue(parse);
-    }
-
-    // if(this.stepDate === "monthly"){
-    //   //step di un mese
-    //   if(this.form.get("maxSliderDate")?.value){
-
-    //   }
-    // }else if(this.stepDate === "day" || this.stepDate === "daily"){
-    //   //step di un giorno.......
-
-    // }else if(this.stepDate === "yearly"){
-    //   //step di un anno
-
-    // }else if(this.stepDate === "seasonal"){
-    //   //step di tre mesi
-
-    // }else{
-    //   //step di tre ore/sei ore ecc.
-    //   // let stepHours = this.stepDate.split("h")[0];
-
-
-    // }
-  }
 
   // bypass ngIf for paginator
   setDataSourceAttributes() {
@@ -324,7 +286,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
     else {
       this.getGraphTable();
-
     }
     // this.getAlgoType();
   }
@@ -366,76 +327,79 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   }
 
   getGraphTable() {
-
-    this.spinnerLoading = true;
-    let data = {
-      idMeta: this.datasetId,
-      dimensions: this.dataset.dimensions,
-      lat: this.latlng.lat,
-      lng: this.latlng.lng,
-      dateStart: this.dateStart,
-      dateEnd: this.dateEnd,
-      variable: this.variable,
-      range: this.range ? this.range : null
-    }
-
-    this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
-
-      this.spinnerLoading = false;
-      if (typeof response === 'string') {
-        response = JSON.parse(response);
+    if (this.dataset) {
+      this.spinnerLoading = true;
+      let data = {
+        idMeta: this.datasetId,
+        dimensions: this.dataset.dimensions,
+        lat: this.latlng.lat,
+        lng: this.latlng.lng,
+        dateStart: this.dateStart,
+        dateEnd: this.dateEnd,
+        variable: this.variable,
+        range: this.range ? Math.abs(this.range) : null
       }
-      this.dataTable = response;
 
-      this.displayedColumns = this.dataTable.data.table.columnNames;
-      let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
-      if (dim_unit) {
-        this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-      }
-      // this.dataTable.data.table.forEach((el: any) => {
-      let objArr: any = {};
-      let arr1: any = [];
-      // console.log("K = ", k);
+      console.log("RANGE IN GETGRAPHTABLE======",this.range);
 
-      this.dataTable.data.table.rows.forEach((arr: any) => {
-        objArr = {};
+      this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
 
-        this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
-          objArr[key] = arr[i];
+        this.spinnerLoading = false;
+        if (typeof response === 'string') {
+          response = JSON.parse(response);
+        }
+        this.dataTable = response;
+        console.log("datatable=======",this.dataTable);
 
-        })
-        arr1.push(objArr);
+        this.displayedColumns = this.dataTable.data.table.columnNames;
+        let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+        if (dim_unit) {
+          this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
+        }
+        // this.dataTable.data.table.forEach((el: any) => {
+        let objArr: any = {};
+        let arr1: any = [];
+        // console.log("K = ", k);
+
+        this.dataTable.data.table.rows.forEach((arr: any) => {
+          objArr = {};
+
+          this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
+            objArr[key] = arr[i];
+
+          })
+          arr1.push(objArr);
+
+        });
+        this.dataTable.data.table.rows = [...arr1];
+
+        if (this.dataTable.data.table.rows.length > 0) {
+          this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
+          // bypass ngIf for paginator
+          this.setDataSourceAttributes();
+
+
+        }
 
       });
-      this.dataTable.data.table.rows = [...arr1];
-
-      if (this.dataTable.data.table.rows.length > 0) {
-        this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
-        // bypass ngIf for paginator
-        this.setDataSourceAttributes();
-
-
-      }
-
-    });
-
+    }
   }
 
-  exportData(typeSel:any){
+  exportData(typeSel: any) {
 
     //COSI FUNZIONA ORA PERò BOH.......
-    let erddapUrl : any;
+    let erddapUrl: any;
 
-    if(this.dataset.dimensions === 3){
-    //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId  + typeSel + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) +")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng +"):1:(" + this.latlng.lng +")%5D"
+    if (this.dataset.dimensions === 3) {
+      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?" + this.variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
     }
-    else{
-       //caso parametro aggiuntivo
-       let rangeMin = this.form.get('minSliderRange')?.value;
-       let rangeMax = this.form.get('maxSliderRange')?.value;
+    else {
+      //caso parametro aggiuntivo
+      let rangeMin = this.minRange;
+      let rangeMax = this.maxRange;
       //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId +  typeSel + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) +")%5D%5B(" + rangeMin + "):1:(" + rangeMax +")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng +"):1:(" + this.latlng.lng +")%5D"
+      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?" + this.variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
     }
 
     const link = document.createElement('a');
@@ -451,7 +415,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
 
   downloadFile(url: any): any {
-    console.log("QUI CI ENRO");
+    //console.log("QUI CI ENRO");
     // const headerDict = {
     //   'Access-Control-Allow-Origin': '*',
     // }
@@ -460,9 +424,13 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     //   responseType: 'blob'
     // };
 
-    return this.httpClient.get(url, {responseType:'blob',headers:{'Access-Control-Allow-Origin': '*',
-                                                                  "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
-                                                                  "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"}});
+    return this.httpClient.get(url, {
+      responseType: 'blob', headers: {
+        'Access-Control-Allow-Origin': '*',
+        "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"
+      }
+    });
   }
 
   download() {
@@ -481,7 +449,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     console.log("ERDDAP URL", erddapUrl);
 
     this.downloadFile(erddapUrl).subscribe((response: any) => {
-      console.log("Before blob===========",response);
+      console.log("Before blob===========", response);
       let blob: any = new Blob([response], { type: 'text/json' });
       // const url= window.URL.createObjectURL(blob);
       //window.open(url);
@@ -496,7 +464,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       console.log("DOWNLOAD CLICK QUI");
 
     }), (error: any) => console.log('Error downloading the file'),
-    () => console.info('File downloaded successfully');
+      () => console.info('File downloaded successfully');
   }
 
 
@@ -517,17 +485,50 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       console.log("RESPONSE DOWNLOAD", response);
 
       let blob: any = new Blob([response], { type: 'text/json; charset=utf-8' });
-      const url= window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
       saveAs(blob, "employees.json");
     }),
 
-    (error: any) => console.log('Error downloading the file'),
-    () => console.info('File downloaded successfully');
+      (error: any) => console.log('Error downloading the file'),
+      () => console.info('File downloaded successfully');
 
 
   }
 
 
+  addDataTimeExport(graph: any) {
+    // Array di timestamp a partire dalle date presenti in 'graph'
+    const timestampArray = graph.map((element: any) => {
+      const dateParts = element.x.split('/');
+      const date = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
+      return date;
+    });
+
+    // Salva la data minima e massima del grafico
+    // this.dataMinExport = new Date(Math.min(...timestampArray));
+    // this.dataMaxExport = new Date(Math.max(...timestampArray));
+
+    //this.minValue = timestampArray[0].getTime();
+    this.minValue = timestampArray[0].getTime();
+    this.maxValue = timestampArray[timestampArray.length - 1].getTime();
+
+    this.options = {
+      floor: this.dateStart.getTime(),
+      ceil: this.dateEnd.getTime(),
+      draggableRange: true,
+      noSwitching: true,
+      stepsArray: timestampArray.map((date: Date) => {
+        return { value: date.getTime() };
+      }),
+      translate: (value: number, label: LabelType): string => {
+        return new Date(value).toLocaleDateString('it-IT');
+      },
+      // combineLabels: (minValue: number, maxValue: number): string => {
+
+      // }
+    };
+
+  }
 
 }
 

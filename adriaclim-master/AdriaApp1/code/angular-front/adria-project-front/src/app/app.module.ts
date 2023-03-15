@@ -47,6 +47,7 @@ import { CanvasGraphComponent } from './geoportal-map/canvas-graph/canvas-graph.
 import { NgxEchartsModule } from 'ngx-echarts';
 import { DatePipe } from '@angular/common';
 import { registerLocaleData } from '@angular/common';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 registerLocaleData(localeFr);
@@ -102,7 +103,8 @@ registerLocaleData(localeIt);
     MatSliderModule,
     MatTableModule,
     MatPaginatorModule,
-    MatTabsModule
+    MatTabsModule,
+    NgxSliderModule
 
   ],
   providers: [

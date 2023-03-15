@@ -1,3 +1,4 @@
+import { Options } from '@angular-slider/ngx-slider';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
@@ -155,6 +156,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   isExtraParam!: boolean;
   variableArray: [] = [];
   activeLayersArray: any[] = [];
+
+  value: any;
+  valueCustom: any;
+  options: Options = {
+    floor: 0,
+    ceil: 100,
+    step: 1,
+  };
 
 
   pointBoolean = false;
@@ -645,7 +654,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateRightSeason = false;
       this.navigateDateLeftMonth = false;
       this.navigateDateLeftSeason = false;
-      this.getMeta(metaId,"ok");
+      this.getMeta(metaId,"ok",this.valueCustom);
     }
     else if(arrow === "rightAll") {
       //rightAll is clicked so we disable right button and enable the left ones
@@ -656,7 +665,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateLeftMonth = false;
       this.navigateDateRightMonth = false;
       this.navigateDateRightSeason = false;
-      this.getMeta(metaId,"ok");
+      this.getMeta(metaId,"ok",this.valueCustom);
     }
     /**
      * GET LAYER 3D
@@ -676,7 +685,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.navigateDateRightYear = false;
           this.navigateDateRightMonth = false;
           this.navigateDateRightSeason = false;
-          this.getMeta(metaId,"ok");
+          this.getMeta(metaId,"ok",this.valueCustom);
         }else{
           selD.setFullYear(selD.getFullYear() - 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
@@ -684,7 +693,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.navigateDateRightYear = false;
           this.navigateDateRightMonth = false;
           this.navigateDateRightSeason = false;
-          this.getMeta(metaId,"ok");
+          this.getMeta(metaId,"ok",this.valueCustom);
         }
       }
       else if(arrow === "right") {
@@ -694,13 +703,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = true;
           this.navigateDateLeftYear = false;
-          this.getMeta(metaId,"ok");
+          this.getMeta(metaId,"ok",this.valueCustom);
         }else{
           selD.setFullYear(selD.getFullYear() + 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = false;
           this.navigateDateLeftYear = false;
-          this.getMeta(metaId,"ok");
+          this.getMeta(metaId,"ok",this.valueCustom);
         }
 
       }
@@ -724,7 +733,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -734,7 +743,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok");
+            this.getMeta(metaId,"ok",this.valueCustom);
           }
 
 
@@ -753,7 +762,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok");
+            this.getMeta(metaId,"ok",this.valueCustom);
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -763,7 +772,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok");
+            this.getMeta(metaId,"ok",this.valueCustom);
           }
         }
       }
@@ -786,7 +795,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -796,7 +805,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightMonth = false;
             this.navigateDateRightSeason = false;
             this.navigateDateRightYear = false;
-            this.getMeta(metaId,"ok");
+            this.getMeta(metaId,"ok",this.valueCustom);
           }
 
 
@@ -815,7 +824,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok");
+            this.getMeta(metaId,"ok",this.valueCustom);
           }else{
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -825,7 +834,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightMonth = false;
             this.navigateDateRightSeason = false;
             this.navigateDateRightYear = false;
-            this.getMeta(metaId,"ok");
+            this.getMeta(metaId,"ok",this.valueCustom);
           }
         }
       }
@@ -851,7 +860,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightMonth = false;
               this.navigateDateRightSeason = false;
               this.navigateDateRightYear = false;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
 
             }else{
               selD = d2;
@@ -862,7 +871,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightMonth = false;
               this.navigateDateRightSeason = false;
               this.navigateDateRightYear = false;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
             }
 
           }else{
@@ -880,7 +889,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = true;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
             }else{
               selD = d2;
               this.selectedDate.get("dateSel")?.setValue(selD);
@@ -890,7 +899,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
             }
           }
 
@@ -929,7 +938,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(metaId, "ok");
+              this.getMeta(metaId, "ok",this.valueCustom);
             }else{
               selD = d2;
               this.selectedDate.get("dateSel")?.setValue(selD);
@@ -939,7 +948,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.navigateDateRightYear = false;
               this.navigateDateLeftYear = false;
               this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok");
+              this.getMeta(metaId,"ok",this.valueCustom);
             }
           }else{
              //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!
@@ -956,7 +965,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                 this.navigateDateRightYear = false;
                 this.navigateDateLeftYear = false;
                 this.navigateDateLeftSeason = false;
-                this.getMeta(metaId,"ok");
+                this.getMeta(metaId,"ok",this.valueCustom);
              }else{
                 selD = d2;
                 this.selectedDate.get("dateSel")?.setValue(selD);
@@ -966,7 +975,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                 this.navigateDateRightYear = false;
                 this.navigateDateLeftYear = false;
                 this.navigateDateLeftSeason = false;
-                this.getMeta(metaId,"ok");
+                this.getMeta(metaId,"ok",this.valueCustom);
               }
           }
 
@@ -1175,6 +1184,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           stepSize: step,
         }
       }
+      // if(this.value this.extraParam.maxValue){
+      console.log("CONSTROL EXTRA: ", controlExtra);
+      this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
+
+      this.options = {
+        floor: this.extraParam.minValue,
+        ceil: this.extraParam.maxValue,
+        step: Number(this.extraParam.stepSize.toFixed(4)),
+      };
       if(controlExtra){
         this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
 
@@ -1242,7 +1260,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   sliderControl(event: any) {
-    let valueCustom = event.target.value;
+    console.log("EVENTO SLIDERRRRRRRRR =", event.value);
+    this.valueCustom = event.value;
     let metaId: any;
     if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
       metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
@@ -1250,7 +1269,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     else if(this.selData.get("dataSetSel")?.value.name.id) {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
-    this.getMeta(metaId, "ok", valueCustom);
+    this.getMeta(metaId, "ok", this.valueCustom);
   }
 
   formatLabel(value: number): string {
@@ -1499,7 +1518,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         dateEnd: this.dateEnd,
         variable: this.variableGroup.get("variableControl")?.value,
         arrayVariable: this.variableArray,
-        range: this.sliderGroup.get("sliderControl")?.value,
+        range: this.value,
         openGraph: true,
         extraParamExport: this.extraParamExport,
       };
