@@ -383,19 +383,27 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
   if type(ind) == str:
     ind = getIndicator(ind)
 
+  # print("INDICATOR ========",ind)
   url = getIndicatorBaseUrl(ind)
 
+  # print("URL ========",url)
   if "format" in kwargs:
     url = url + "." + kwargs["format"]
 
-
+  print("URL DOPO FORMAT==========",url)
 
   di = getIndicatorDimensions(ind)
+
+  print("IND DIMENSIONS======",di)
   va = getIndicatorVariables(ind)
 
+  print("IND VARIABLES=========",va)
 
   tipo = getIndicatorDataFormat(ind)
+  
 
+#QUI CI ARRIVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  print("ARRIVA AL CONTROLLO GRIDDAP E TABLEDAP")
   
   griddap = (tipo == "griddap")
   
@@ -404,6 +412,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
   if griddap and "variable" in kwargs:
     va = [kwargs["variable"]]  
+  
+  print("VARIABLE AFTER IF GRIDDAP============",va)
  
   if skipDimensions:
     di = []
@@ -425,6 +435,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
           query = query + kwargs[d+"Min"]
         else:
           alias = getVariableAliases(d)
+          print("ALIAS=============",alias)
           for al in alias:
             if al in kwargs:
               query = query + kwargs[al]
@@ -433,6 +444,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
         query = query + "):1:("
 
+        print("QUERY========",query)
         
         if d in kwargs and not (d+"Max") in kwargs:
           query = query + kwargs[d]
@@ -440,6 +452,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
           query = query + kwargs[d+"Max"]
         else:
           alias = getVariableAliases(d)
+          print("SECONDA ALIAS=====",alias)
           for al in alias:
             if al in kwargs:
               query = query + kwargs[al]
@@ -447,6 +460,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
               query = query + kwargs[al+"Max"]
 
         query = query + ")%5D"
+    print("FINE GRIDDAP QUERY========",query)
   else:
     for v in va:
       if query != "?":
@@ -454,6 +468,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
       query = query + v
     
     for d in va:
+      if d != "Indicator":
         if d in kwargs and not (d+"Min") in kwargs:
           query = query + "&" + d + "%3E=" + kwargs[d]
         elif (d+"Min") in kwargs:
@@ -477,7 +492,11 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
               query = query + "&" + d + "%3C=" + kwargs[al]
             elif (al+"Max") in kwargs:
               query = query + "&" + d + "%3C=" + kwargs[al+"Max"]
+    
+    print("FINE TABLEDAP")
   
+  print("URL + QUERY =",url+query)
+  #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/EOBS_a583_d8f2_21c0.json?very_wet_days_wrt_95th_percentile_of_reference_period%5B(2020-12-31T00:00:00Z):1:(2020-12-31T00:00:00Z)%5D%5B(46.94985982579791):1:(46.94985982579791)%5D%5B(21.94986030317809):1:(21.94986030317809)%5D
   return url+query
 
 def getIndicatorQueryUrlPoint(ind, onlyFirstVariable, skipDimensions, lat, lon, time, range, **kwargs):  
@@ -495,6 +514,8 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
       url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latitude"] +"&latitude%3C=" + kwargs["latitude"] + "&longitude%3E=" + kwargs["longitude"] + "&longitude%3C=" + kwargs["longitude"]
 
   elif is_indicator == "true" and is_graph and not is_annual:
+        #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
+        #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
       url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latMin"] +"&latitude%3C=" + kwargs["latMax"] + "&longitude%3E=" + kwargs["longMin"] + "&longitude%3C=" + kwargs["longMax"]
 
   elif is_indicator == "false" and is_graph and is_annual == False:
@@ -1004,15 +1025,17 @@ def getDataTableIndicator(dataset_id,layer_name,time_start,time_finish,lat_start
     return data
 
 def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
+  
+    url = getIndicatorQueryUrl(dataset_id,False,False,latitude=str(latitude),longitude=str(longitude),
+    
+                               timeMin=str(time_start),timeMax=str(time_finish),range=str(range_value),format="json")
+    print("URL SUPER FUNZIONE =", url)
+    # urlTabledap = https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
 
-    # url = getIndicatorQueryUrl(dataset_id,False,False,latitude=latitude,longitude=longitude,
-    #
-    #                            timeMin=time_start,timeMax=time_finish,range=range_value,format="json")
-
-    if num_parameters > 3:
-      url= ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
-    else:
-      url = ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
+    # if num_parameters > 3:
+    #   url= ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(range_value)+"):1:("+str(range_value)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
+    # else:
+    #   url = ERDDAP_URL + "/griddap/"+dataset_id+".json?"+layer_name+"%5B("+str(time_start)+"):1:("+str(time_finish)+")%5D%5B("+str(latitude)+"):1:("+str(latitude)+")%5D%5B("+str(longitude)+"):1:("+str(longitude)+")%5D"
       
     #https://erddap-dev.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(13):1:(13.0)%5D%5B(-90):1:(-90.0)%5D%5B(180.45724):1:(180.4572)%5D
     r = requests.get(url=url)
@@ -1490,16 +1513,16 @@ def percentileFunction(arr,percentile):
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,is_indicator):
  url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,date_start=date_start,latitude_start=latitude_start,latitude_end=latitude_end,
                         longitude_start=longitude_start,longitude_end=longitude_end,num_param=num_param,range_value=range_value)
+ print("URL DATA VECTORIAL========",url)
  df = pd.read_csv(url, dtype='unicode')
  allData=[]
  values=[]
  lat_coordinates=[]
  long_coordinates=[]
- value_min=0.0
- value_max=0.0
+ 
  i=0
  for index,row in df.iterrows():
-          values.insert(i,row[layer_name])
+          values.insert(i,float(row[layer_name]))
           lat_coordinates.insert(i,row["latitude"])
           long_coordinates.insert(i,row["longitude"])          
           i+=1
@@ -1507,11 +1530,8 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
  del lat_coordinates[0]
  del long_coordinates[0]
 
- for value in values:
-   if float(value)<value_min:
-     value_min=float(value)
-   elif float(value)>value_max:
-     value_max=float(value)
+ value_min = min(values)
+ value_max = max(values)
 
 
  allData=[values,lat_coordinates,long_coordinates,value_min,value_max]

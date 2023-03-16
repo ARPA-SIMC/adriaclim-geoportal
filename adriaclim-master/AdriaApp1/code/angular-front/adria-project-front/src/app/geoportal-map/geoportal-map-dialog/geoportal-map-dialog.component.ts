@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -11,11 +11,18 @@ import { saveAs } from 'file-saver';
 import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
 import { MatSliderChange } from '@angular/material/slider';
+import { MAT_SELECT_CONFIG } from '@angular/material/select';
 
 @Component({
   selector: 'app-geoportal-map-dialog',
   templateUrl: './geoportal-map-dialog.component.html',
-  styleUrls: ['./geoportal-map-dialog.component.scss']
+  styleUrls: ['./geoportal-map-dialog.component.scss'],
+  providers: [
+    {
+      provide: MAT_SELECT_CONFIG,
+      useValue: { overlayPanelClass: 'select-overlay-pane-dialog' }
+    }
+  ]
 })
 export class GeoportalMapDialogComponent implements AfterViewInit {
 
@@ -225,7 +232,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       // cod: new FormControl(this.element.cod_algo_type),
       cod: new FormControl(null),
       operationSel: new FormControl("default"),
-      typeSel: new FormControl("csv"),
+      typeSel: new FormControl(this.typeOfExport[0].type),
+      varSelected: new FormControl(null, Validators.required),
       // minSliderDate: new FormControl(this.dateStart),
       // maxSliderDate: new FormControl(this.dateEnd),
       // minSlider
@@ -251,16 +259,18 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
           // }
         };
-        this.form = this.fb.group({
-          // cod: new FormControl(this.element.cod_algo_type),
-          cod: new FormControl(null),
-          operationSel: new FormControl("default"),
-          typeSel: new FormControl("csv"),
-          // minSliderDate: new FormControl(this.dateStart),
-          // maxSliderDate: new FormControl(this.dateEnd),
-          // minSliderRange: new FormControl(this.extraParamExport.minValue),
-          // maxSliderRange: new FormControl(this.extraParamExport.maxValue),
-        })
+
+        // this.form = this.fb.group({
+        //   // cod: new FormControl(this.element.cod_algo_type),
+        //   cod: new FormControl(null),
+        //   operationSel: new FormControl("default"),
+        //   typeSel: new FormControl("csv"),
+        //   // minSliderDate: new FormControl(this.dateStart),
+        //   // maxSliderDate: new FormControl(this.dateEnd),
+        //   // minSliderRange: new FormControl(this.extraParamExport.minValue),
+        //   // maxSliderRange: new FormControl(this.extraParamExport.maxValue),
+        // })
+
 
       }
 
@@ -385,30 +395,60 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
   }
 
+  createErddapUrl() {
+    let prova: any[] = [];
+    this.form.get("varSelected")?.value.map((el: any) => {
+      prova = el;
+    })
+    console.log("PROVA = ", prova);
+    console.log("PROVA FORM = ", this.form.get("varSelected")?.value);
+
+  }
+
   exportData(typeSel: any) {
 
     //COSI FUNZIONA ORA PERò BOH.......
-    let erddapUrl: any;
+    let erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
+    //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
 
-    if (this.dataset.dimensions === 3) {
-      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?" + this.variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-    }
-    else {
-      //caso parametro aggiuntivo
-      let rangeMin = this.minRange;
-      let rangeMax = this.maxRange;
-      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?" + this.variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-    }
+    //consecutive_dry_days_index_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D,number_of_cdd_periods_with_more_than_5days_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
 
-    const link = document.createElement('a');
-    link.setAttribute('target', '_self');
-    link.setAttribute('href', erddapUrl);
-    link.setAttribute('download', `${this.datasetId}${typeSel}`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    let variable: any;
+    this.form.get("varSelected")?.value.map((el: any, index: number) => {
+
+      if(index === this.form.get("varSelected")?.value.length || index === 0) {
+        variable = el;
+      }
+      else {
+
+        variable =  "," + el;
+
+      }
+
+      //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
+
+      if (this.dataset.dimensions === 3) {
+        //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+        erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+      }
+      else {
+        //caso parametro aggiuntivo
+        let rangeMin = this.minRange;
+        let rangeMax = this.maxRange;
+        //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+        erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+      }
+
+    });
+
+
+      const link = document.createElement('a');
+      link.setAttribute('target', '_self');
+      link.setAttribute('href', erddapUrl);
+      link.setAttribute('download', `${this.datasetId}${typeSel}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
 
   }
@@ -529,6 +569,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     };
 
   }
+
+
 
 }
 

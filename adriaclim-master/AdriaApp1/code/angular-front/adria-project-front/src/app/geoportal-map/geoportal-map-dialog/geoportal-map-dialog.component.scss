@@ -34,3 +34,9 @@
   border-bottom-right-radius: 4px !important;
   border-bottom-left-radius: 4px !important;
 }
+
+::ng-deep .select-overlay-pane-dialog {
+  width: fit-content !important;
+  max-width: 300px !important;
+  word-break: break-all !important;
+}

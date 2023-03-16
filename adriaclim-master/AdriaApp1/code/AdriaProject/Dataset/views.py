@@ -227,6 +227,7 @@ def getMedianaGraphic(request,dataset_id,layer_name,time_start,time_finish,latit
     allData=allFunctions.percentile(0.5,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value,is_indicator,latMin,longMin,latMax,longMax)
     return JsonResponse({'allData':allData})
 
+
 def getDataVectorial(request,dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,is_indicator):
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,is_indicator)
     return JsonResponse({'dataVect':dataVect})
@@ -442,3 +443,27 @@ def getDataGraphicNewCanvas(request):
     context = request.data.get("context") #one or poylgon
     allData = allFunctions.getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
     return JsonResponse({'allData':allData})
+
+@api_view(['GET','POST'])
+def getDataVectorialNew(request):
+    dataset = request.data.get("dataset")
+    print("DATASET:",dataset)
+    print("DATASET ID:",dataset.get('id'))
+    dataset_id = dataset.get('id')
+    date_start = dataset.get('time_start')
+    variableSplitted = dataset.get('variable_names').split(" ")
+    print("VARIABLE SPLITTED = ", variableSplitted)
+    for index, v in enumerate(variableSplitted):
+        if index == len(variableSplitted)-1:
+          print("INDEX:",index)
+          print("V:",v)
+          layer_name = v
+    # layer_name = dataset.get('variable_names').split(" ")[len(dataset.get('variable_names'))-1]
+    print("LAYER NAME:",layer_name)
+    num_param = dataset.get('variables')
+    lat_min = dataset.get('lat_min')
+    lat_max = dataset.get('lat_max')
+    lng_min = dataset.get('lng_min')
+    lng_max = dataset.get('lng_max')
+    dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,date_start,lat_min,lat_max,lng_min,lng_max,num_param,0,"true")
+    return JsonResponse({'dataVect':dataVect})

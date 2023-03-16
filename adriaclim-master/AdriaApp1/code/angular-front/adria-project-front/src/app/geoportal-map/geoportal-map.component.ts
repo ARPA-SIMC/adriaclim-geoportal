@@ -57,49 +57,49 @@ interface ExtraParams {
 
 
 let TREE_DATA: FoodNode[] = [
-    {
-      name: 'Observations',
-      // childVisible: false,
-      children: [],
-    },
-    {
-      name: 'Indicators',
-      // childVisible: true,
-      children: [
-        {
-          name: 'Large scale',
-          // childVisible: true,
-          children: [
-            {name: 'Yearly', children: []},
-            {name: 'Monthly', children: []},
-            {name: 'Seasonal', children: []}
-          ],
-        },
-        {
-          name: 'Pilot scale',
-          // childVisible: true,
-          children: [
-            {name: 'Yearly', children: []},
-            {name: 'Monthly', children: []},
-            {name: 'Seasonal', children: []}
-          ],
-        },
-        {
-          name: 'Local scale',
-          // childVisible: true,
-          children: [
-            {name: 'Yearly', children: []},
-            {name: 'Monthly', children: []},
-            {name: 'Seasonal', children: []}
-          ],
-        },
-      ],
-    },
-    {
-      name: 'Numerical models',
-      children: [],
-    },
-  ];
+  {
+    name: 'Observations',
+    // childVisible: false,
+    children: [],
+  },
+  {
+    name: 'Indicators',
+    // childVisible: true,
+    children: [
+      {
+        name: 'Large scale',
+        // childVisible: true,
+        children: [
+          { name: 'Yearly', children: [] },
+          { name: 'Monthly', children: [] },
+          { name: 'Seasonal', children: [] }
+        ],
+      },
+      {
+        name: 'Pilot scale',
+        // childVisible: true,
+        children: [
+          { name: 'Yearly', children: [] },
+          { name: 'Monthly', children: [] },
+          { name: 'Seasonal', children: [] }
+        ],
+      },
+      {
+        name: 'Local scale',
+        // childVisible: true,
+        children: [
+          { name: 'Yearly', children: [] },
+          { name: 'Monthly', children: [] },
+          { name: 'Seasonal', children: [] }
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Numerical models',
+    children: [],
+  },
+];
 
 
 /** Flat node with expandable and level information */
@@ -128,15 +128,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   map!: L.Map;
   // centroid: L.LatLngExpression = [41.9027835, 12.4963655]; // Roma
   center: L.LatLngExpression = [42.744388161339, 12.0809380292276]; // Centro Italia
-  zoom = 7;
+  zoom = 6;
 
-  markersLayer: L.LayerGroup = L.layerGroup(); // crea un nuovo layerGroup vuoto
+  markersLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
+  rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
+  // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
   markers: L.Marker[] = [];
 
   polygon = poly;
 
-  allPolygons : any[] = [];
+  allPolygons: any[] = [];
 
   dataInd: any;
   dataAllNodes: any[] = [];
@@ -216,7 +218,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
-      if(f.properties.popupContent !== "") {
+      if (f.properties.popupContent !== "") {
 
         f.geometry.coordinates.forEach(c => {
           c.forEach(coord => {
@@ -279,8 +281,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   pointSelect() {
     // if(this.pointBoolean === false) {
-      // this.pointBoolean = true;
-      this.map.on('click', this.onMapClick.bind(this));
+    // this.pointBoolean = true;
+    this.map.on('click', this.onMapClick.bind(this));
     // }
 
     // this.initMap();
@@ -293,21 +295,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   // }
   onPolygonClick = (e: L.LeafletMouseEvent) => {
     this.map.off('click');
-    if(this.activeLayersArray.length === 0){
-        //hai cliccato il bottone e un punto ma non ci sono layer attivi
-        //WARNING!
+    if (this.activeLayersArray.length === 0) {
+      //hai cliccato il bottone e un punto ma non ci sono layer attivi
+      //WARNING!
 
-    }else{
+    } else {
       // console.log("EVENT POLYGON =", e);
-      this.allPolygons.forEach((pol:any)=>{
-        if(pol.getBounds().contains(e.latlng)){
+      this.allPolygons.forEach((pol: any) => {
+        if (pol.getBounds().contains(e.latlng)) {
           // console.log("The polygon is rullo di tamburi",pol);
         }
       });
       var label = e.target.options.label;
       var content = e.target.options.popup;
       var otherStuff = e.target.options.otherStuff;
-      alert("Clicked on polygon with label:" +label +" and content:" +content +". Also otherStuff set to:" +otherStuff);
+      alert("Clicked on polygon with label:" + label + " and content:" + content + ". Also otherStuff set to:" + otherStuff);
     }
   }
 
@@ -335,9 +337,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // METODO 2
     const marker = L.marker(e.latlng, {
       icon: L.icon({
-          iconSize: [25, 41],
-          iconAnchor: [13, 41],
-          iconUrl: 'marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [13, 41],
+        iconUrl: 'marker-icon.png',
       })
     });
     marker.on('click', this.onMarkerClick.bind(this));
@@ -375,23 +377,23 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getAllNodes(){
-    this.httpClient.post('http://localhost:8000/test/allNodes',{
+  getAllNodes() {
+    this.httpClient.post('http://localhost:8000/test/allNodes', {
     }).subscribe({
-      next:(res:any) =>{
+      next: (res: any) => {
 
-        res.nodes.forEach((node:any)=>{
+        res.nodes.forEach((node: any) => {
 
           //riempiamo tree con tutti i nodi
-          if (node.adriaclim_dataset === "indicator"){
+          if (node.adriaclim_dataset === "indicator") {
             let indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0];
             let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
             let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-            if(time?.children?.findIndex(elInd => elInd.name === node.title) === -1) {
+            if (time?.children?.findIndex(elInd => elInd.name === node.title) === -1) {
               time?.children?.push({
                 name: node
               });
-              time?.children?.sort((o1:any, o2:any) => {
+              time?.children?.sort((o1: any, o2: any) => {
                 if (o1.name.title > o2.name.title) {
                   return 1;
                 }
@@ -403,9 +405,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               // time.childVisible = true;
             }
           }
-          else if (node.adriaclim_dataset === "model"){
+          else if (node.adriaclim_dataset === "model") {
             let modelli = TREE_DATA.filter((models: any) => models.name === "Numerical models")[0]
-            if(modelli?.children?.findIndex(elModel => elModel.name === node.title) === -1){
+            if (modelli?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
               modelli?.children?.push({
                 name: node
               });
@@ -420,9 +422,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               })
             }
           }
-          else if (node.adriaclim_dataset === "observation"){
+          else if (node.adriaclim_dataset === "observation") {
             let observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
-            if(observation?.children?.findIndex(elObs => elObs.name === node.title) === -1){
+            if (observation?.children?.findIndex(elObs => elObs.name === node.title) === -1) {
               observation?.children?.push({
                 name: node
               });
@@ -447,14 +449,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           // let observations = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0]
 
-            this.dataAllNodes.push(
-              {name: node}
-            );
+          this.dataAllNodes.push(
+            { name: node }
+          );
 
-          });
+        });
 
 
-          this.dataAllNodesTree.data = TREE_DATA;
+        this.dataAllNodesTree.data = TREE_DATA;
 
 
         this.dataAllNodes.sort((o1, o2) => {
@@ -469,7 +471,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
       },
       error: (msg: any) => {
-        console.log('ALL NODES ERROR: ',msg);
+        console.log('ALL NODES ERROR: ', msg);
       }
     })
   }
@@ -487,16 +489,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           let indicatori = TREE_DATA.filter((node: any) => node.name === "Indicators")[0]
           let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(ind.adriaclim_scale.toLowerCase()))[0];
           let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(ind.adriaclim_timeperiod.toLowerCase()))[0];
-          if(time?.children?.findIndex(title => title.name === ind.title) === -1) {
+          if (time?.children?.findIndex(title => title.name === ind.title) === -1) {
             time?.children?.push({
               name: ind
             });
             // time.childVisible = true;
           }
 
-          });
+        });
 
-          this.dataSource.data = TREE_DATA;
+        this.dataSource.data = TREE_DATA;
       },
       error: (msg: any) => {
         console.log('IND ERROR: ', msg);
@@ -523,12 +525,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
 
     let metaId: any;
-    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+    if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
       metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
 
     }
 
-    else if(this.selData.get("dataSetSel")?.value.name.id) {
+    else if (this.selData.get("dataSetSel")?.value.name.id) {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
     // if(event.value.dataset_id) {
@@ -554,7 +556,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   getMeta(idMeta: any, controlDate?: any, controlExtra?: any) {
 
 
-    if(this.legendLayer_src) {
+    if (this.legendLayer_src) {
       this.deleteLayer(idMeta);
 
     }
@@ -564,8 +566,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         this.metadata = res;
         console.log("METADATA =", this.metadata);
+        if(this.markersLayer)
 
-        if(controlDate === "ok") {
+        if (controlDate === "ok") {
 
           this.getLayers(idMeta, controlDate, controlExtra);
         }
@@ -583,10 +586,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   getSelectedNode(node: any) {
 
-    if(node.name) {
+    if (node.name) {
       this.variableArray = node.name.variable_names.split(" ");
     }
-    else if(node.variable_names) {
+    else if (node.variable_names) {
       this.variableArray = node.variable_names.split(" ");
     }
     this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
@@ -594,38 +597,38 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
 
-  lastday(y:any,m:any){
+  lastday(y: any, m: any) {
 
-    return  new Date(y, m + 1, 0).getDate();
+    return new Date(y, m + 1, 0).getDate();
   }
 
-//addRealMonth will return the real next month!
- addRealMonth(d:any,months:any) {
+  //addRealMonth will return the real next month!
+  addRealMonth(d: any, months: any) {
     var fm = moment(d).add(months, 'M');
     var fmEnd = moment(fm).endOf('month');
     return d.date() != fm.date() && fm.isSame(fmEnd.format('YYYY-MM-DD')) ? fm.add(1, 'd') : fm;
   }
 
   //subtractRealMonth will return the real month before!
-  subtractRealMonth(d:any, months: any) {
+  subtractRealMonth(d: any, months: any) {
     var fm = moment(d).subtract(months, 'M');
     var fmEnd = moment(fm).endOf('month');
     return d.date() != fm.date() && fm.isSame(fmEnd.format('YYYY-MM-DD')) ? fm.add(1, 'd') : fm;
   }
 
-  subtractLastDayMonth(d:any,months:any){
+  subtractLastDayMonth(d: any, months: any) {
     return moment(d).subtract(months, 'months').endOf('month').toDate();
   }
 
-  addLastDayMonth(d:any,months:any){
+  addLastDayMonth(d: any, months: any) {
     return moment(d).add(months, 'months').endOf('month').toDate();
   }
 
-  isLastDayOfMonth(d:any){
-    d.setDate(d.getDate()+1);
-    if (d.getDate() === 1){
+  isLastDayOfMonth(d: any) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDate() === 1) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
@@ -634,18 +637,18 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   changeDate(arrow: any) {
 
     let metaId: any;
-    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+    if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
       metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
 
     }
 
-    else if(this.selData.get("dataSetSel")?.value.name.id) {
+    else if (this.selData.get("dataSetSel")?.value.name.id) {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
 
 
 
-    if(arrow === "leftAll") {
+    if (arrow === "leftAll") {
       this.selectedDate.get("dateSel")?.setValue(this.dateStart);
       //leftAll is clicked so we disable left button and enable the right ones
       this.navigateDateLeftYear = true;
@@ -654,9 +657,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateRightSeason = false;
       this.navigateDateLeftMonth = false;
       this.navigateDateLeftSeason = false;
-      this.getMeta(metaId,"ok",this.valueCustom);
+      this.getMeta(metaId, "ok", this.valueCustom);
     }
-    else if(arrow === "rightAll") {
+    else if (arrow === "rightAll") {
       //rightAll is clicked so we disable right button and enable the left ones
       this.selectedDate.get("dateSel")?.setValue(this.dateEnd);
       this.navigateDateRightYear = true;
@@ -665,7 +668,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateLeftMonth = false;
       this.navigateDateRightMonth = false;
       this.navigateDateRightSeason = false;
-      this.getMeta(metaId,"ok",this.valueCustom);
+      this.getMeta(metaId, "ok", this.valueCustom);
     }
     /**
      * GET LAYER 3D
@@ -673,11 +676,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     /**
      * SLIDER
      */
-    if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
-      if(arrow === "left") {
+    if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+      if (arrow === "left") {
 
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        if((selD.getFullYear()-1 ) === this.dateStart.getFullYear()){
+        if ((selD.getFullYear() - 1) === this.dateStart.getFullYear()) {
           //it is the first year visible so after setting the new value we disable the left button
           selD.setFullYear(selD.getFullYear() - 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
@@ -685,56 +688,56 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.navigateDateRightYear = false;
           this.navigateDateRightMonth = false;
           this.navigateDateRightSeason = false;
-          this.getMeta(metaId,"ok",this.valueCustom);
-        }else{
+          this.getMeta(metaId, "ok", this.valueCustom);
+        } else {
           selD.setFullYear(selD.getFullYear() - 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = false;
           this.navigateDateRightYear = false;
           this.navigateDateRightMonth = false;
           this.navigateDateRightSeason = false;
-          this.getMeta(metaId,"ok",this.valueCustom);
+          this.getMeta(metaId, "ok", this.valueCustom);
         }
       }
-      else if(arrow === "right") {
+      else if (arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        if((selD.getFullYear() + 1) === this.dateEnd.getFullYear()){
+        if ((selD.getFullYear() + 1) === this.dateEnd.getFullYear()) {
           selD.setFullYear(selD.getFullYear() + 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = true;
           this.navigateDateLeftYear = false;
-          this.getMeta(metaId,"ok",this.valueCustom);
-        }else{
+          this.getMeta(metaId, "ok", this.valueCustom);
+        } else {
           selD.setFullYear(selD.getFullYear() + 1);
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = false;
           this.navigateDateLeftYear = false;
-          this.getMeta(metaId,"ok",this.valueCustom);
+          this.getMeta(metaId, "ok", this.valueCustom);
         }
 
       }
     }
-    else if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
-      if(arrow === "left") {
+    else if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
+      if (arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         let d1 = _.cloneDeep(selD);
-        if(this.isLastDayOfMonth(d1)){
-        //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
+        if (this.isLastDayOfMonth(d1)) {
+          //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
           let d2 = _.cloneDeep(selD);
           d2 = this.subtractLastDayMonth(d2, 1);
-          d2.setHours(this.dateStart.getHours(),this.dateStart.getMinutes(),this.dateStart.getSeconds());
-          if(d2.toString() === this.dateStart.toString()){
-              //ULTIMO GIORNO DEL MESE E PRIMA DATA!
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = true;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok",this.valueCustom);
-          }else{
+          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+          if (d2.toString() === this.dateStart.toString()) {
+            //ULTIMO GIORNO DEL MESE E PRIMA DATA!
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = true;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
             this.navigateDateLeftMonth = false;
@@ -743,16 +746,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok",this.valueCustom);
+            this.getMeta(metaId, "ok", this.valueCustom);
           }
 
 
-        } else{
+        } else {
           //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!
           let d2 = _.cloneDeep(selD);
           d2 = this.subtractRealMonth(moment(d2), 1).toDate();
-          d2.setHours(this.dateStart.getHours(),this.dateStart.getMinutes(),this.dateStart.getSeconds());
-          if(d2.toString() === this.dateStart.toString()){
+          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+          if (d2.toString() === this.dateStart.toString()) {
             //ULTIMA DATA!
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -762,8 +765,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok",this.valueCustom);
-          }else{
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
             this.navigateDateLeftMonth = false;
@@ -772,31 +775,31 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok",this.valueCustom);
+            this.getMeta(metaId, "ok", this.valueCustom);
           }
         }
       }
-      else if(arrow === "right") {
+      else if (arrow === "right") {
 
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         let d1 = _.cloneDeep(selD);
-        if(this.isLastDayOfMonth(d1)){
-        //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
+        if (this.isLastDayOfMonth(d1)) {
+          //SIAMO ALL'ULTIMO GIORNO DEL MESE, GESTIRE QUESTO CASO
           let d2 = _.cloneDeep(selD);
-          d2 = this.addLastDayMonth(d2,1);
-          d2.setHours(this.dateEnd.getHours(),this.dateEnd.getMinutes(),this.dateEnd.getSeconds());
-          if(d2.toString() === this.dateEnd.toString()){
-              //ULTIMO GIORNO DEL MESE E PRIMA DATA!
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateRightMonth = true;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok",this.valueCustom);
-          }else{
+          d2 = this.addLastDayMonth(d2, 1);
+          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+          if (d2.toString() === this.dateEnd.toString()) {
+            //ULTIMO GIORNO DEL MESE E PRIMA DATA!
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = true;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
             this.navigateDateLeftMonth = false;
@@ -805,16 +808,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightMonth = false;
             this.navigateDateRightSeason = false;
             this.navigateDateRightYear = false;
-            this.getMeta(metaId,"ok",this.valueCustom);
+            this.getMeta(metaId, "ok", this.valueCustom);
           }
 
 
-        } else{
+        } else {
           //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!
           let d2 = _.cloneDeep(selD);
           d2 = this.addRealMonth(moment(d2), 1).toDate();
-          d2.setHours(this.dateEnd.getHours(),this.dateEnd.getMinutes(),this.dateEnd.getSeconds());
-          if(d2.toString() === this.dateEnd.toString()){
+          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+          if (d2.toString() === this.dateEnd.toString()) {
             //ULTIMA DATA!
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
@@ -824,8 +827,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightYear = false;
             this.navigateDateLeftYear = false;
             this.navigateDateLeftSeason = false;
-            this.getMeta(metaId,"ok",this.valueCustom);
-          }else{
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
             selD = d2;
             this.selectedDate.get("dateSel")?.setValue(selD);
             this.navigateDateLeftMonth = false;
@@ -834,74 +837,74 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateRightMonth = false;
             this.navigateDateRightSeason = false;
             this.navigateDateRightYear = false;
-            this.getMeta(metaId,"ok",this.valueCustom);
+            this.getMeta(metaId, "ok", this.valueCustom);
           }
         }
       }
     }
-    else if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
-      if(arrow === "left") {
+    else if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
+      if (arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         //if(selD.getMonth() === 0) { //NON VA FATTO QUESTO CHECK!!!!
-          // selD.setMonth(9);
-          // selD.setFullYear(selD.getFullYear() - 1);
-          let d1 = _.cloneDeep(selD);
-          if(this.isLastDayOfMonth(d1)){
-            //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
-            let d2 = _.cloneDeep(selD);
-            d2 = this.subtractLastDayMonth(d2,3);
-            d2.setHours(this.dateStart.getHours(),this.dateStart.getMinutes(),this.dateStart.getSeconds());
-            if(d2 <= this.dateStart) {
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = true;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.getMeta(metaId,"ok",this.valueCustom);
+        // selD.setMonth(9);
+        // selD.setFullYear(selD.getFullYear() - 1);
+        let d1 = _.cloneDeep(selD);
+        if (this.isLastDayOfMonth(d1)) {
+          //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
+          let d2 = _.cloneDeep(selD);
+          d2 = this.subtractLastDayMonth(d2, 3);
+          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+          if (d2 <= this.dateStart) {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = true;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
 
-            }else{
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = false;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.getMeta(metaId,"ok",this.valueCustom);
-            }
-
-          }else{
-            //NON SIAMO ALL'ULTIMO GIORNO DEL MESE
-            let d2 = _.cloneDeep(selD);
-            d2 = this.subtractRealMonth(moment(d2), 3).toDate();
-            d2.setHours(this.dateStart.getHours(),this.dateStart.getMinutes(),this.dateStart.getSeconds());
-            if(d2 <= this.dateStart){
-              //ULTIMA DATA!
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = true;
-              this.getMeta(metaId,"ok",this.valueCustom);
-            }else{
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok",this.valueCustom);
-            }
+          } else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
           }
+
+        } else {
+          //NON SIAMO ALL'ULTIMO GIORNO DEL MESE
+          let d2 = _.cloneDeep(selD);
+          d2 = this.subtractRealMonth(moment(d2), 3).toDate();
+          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+          if (d2 <= this.dateStart) {
+            //ULTIMA DATA!
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = true;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+        }
 
         //} //CHECK PER VEDERE SE ERAVAMO A GENNAIO CHE POSSIAMO TOGLIERE!!!
 
@@ -916,73 +919,73 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // }
 
       } //FINE ARROW LEFT!!
-      else if(arrow === "right") {
+      else if (arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         let d1 = _.cloneDeep(selD);
-       // if(selD.getMonth() === 9) { NON VA FATTO QUESTO CHECK!
+        // if(selD.getMonth() === 9) { NON VA FATTO QUESTO CHECK!
 
-          // selD.setMonth(0);
-          // selD.setFullYear(selD.getFullYear() + 1);
-          if(this.isLastDayOfMonth(d1)){
-            //SIAMO A RIGHT E ALL'ULTIMO GIORNO DEL MESE CASE!
-            let d2 = _.cloneDeep(selD);
-            d2 = this.addLastDayMonth(d2,3);
-            d2.setHours(this.dateEnd.getHours(),this.dateEnd.getMinutes(),this.dateEnd.getSeconds());
-            if(d2 >= this.dateEnd){
-               //ULTIMA DATA!
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = true;
-              this.navigateDateRightYear = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = false;
-              this.getMeta(metaId, "ok",this.valueCustom);
-            }else{
-              selD = d2;
-              this.selectedDate.get("dateSel")?.setValue(selD);
-              this.navigateDateLeftMonth = false;
-              this.navigateDateRightMonth = false;
-              this.navigateDateRightSeason = false;
-              this.navigateDateRightYear = false;
-              this.navigateDateLeftYear = false;
-              this.navigateDateLeftSeason = false;
-              this.getMeta(metaId,"ok",this.valueCustom);
-            }
-          }else{
-             //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!
-             let d2 = _.cloneDeep(selD);
-             d2 = this.addRealMonth(moment(d2), 3).toDate();
-             d2.setHours(this.dateEnd.getHours(),this.dateEnd.getMinutes(),this.dateEnd.getSeconds());
-             if(d2 >= this.dateEnd){
-                //ULTIMA DATA POSSIBILE
-                selD = d2;
-                this.selectedDate.get("dateSel")?.setValue(selD);
-                this.navigateDateLeftMonth = false;
-                this.navigateDateRightMonth = false;
-                this.navigateDateRightSeason = true;
-                this.navigateDateRightYear = false;
-                this.navigateDateLeftYear = false;
-                this.navigateDateLeftSeason = false;
-                this.getMeta(metaId,"ok",this.valueCustom);
-             }else{
-                selD = d2;
-                this.selectedDate.get("dateSel")?.setValue(selD);
-                this.navigateDateLeftMonth = false;
-                this.navigateDateRightMonth = false;
-                this.navigateDateRightSeason = false;
-                this.navigateDateRightYear = false;
-                this.navigateDateLeftYear = false;
-                this.navigateDateLeftSeason = false;
-                this.getMeta(metaId,"ok",this.valueCustom);
-              }
+        // selD.setMonth(0);
+        // selD.setFullYear(selD.getFullYear() + 1);
+        if (this.isLastDayOfMonth(d1)) {
+          //SIAMO A RIGHT E ALL'ULTIMO GIORNO DEL MESE CASE!
+          let d2 = _.cloneDeep(selD);
+          d2 = this.addLastDayMonth(d2, 3);
+          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+          if (d2 >= this.dateEnd) {
+            //ULTIMA DATA!
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = true;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
           }
+        } else {
+          //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!
+          let d2 = _.cloneDeep(selD);
+          d2 = this.addRealMonth(moment(d2), 3).toDate();
+          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+          if (d2 >= this.dateEnd) {
+            //ULTIMA DATA POSSIBILE
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = true;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          } else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+        }
 
         //}
       } //FINE ELSE IF RIGHT
     } // FINE SEASONAL
-    if(this.dateStart?.toString() === this.dateEnd?.toString()) {
+    if (this.dateStart?.toString() === this.dateEnd?.toString()) {
       this.navigateDateLeftYear = true;
       this.navigateDateRightYear = true;
       this.navigateDateLeftMonth = true;
@@ -992,7 +995,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }
   } //FINE CHANGE DATE
 
-  dateFilter = (date: Date | null): boolean => {return true;}
+  dateFilter = (date: Date | null): boolean => { return true; }
 
   getLayers(idMeta: any, controlDate?: any, controlExtra?: any) {
 
@@ -1008,9 +1011,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let seconds_epoch_end = seconds_epoch[1];
 
-    let date_start=new Date(0);
+    let date_start = new Date(0);
     date_start.setUTCSeconds(seconds_epoch_start);
-    let date_end=new Date(0);
+    let date_end = new Date(0);
     date_end.setUTCSeconds(seconds_epoch_end.trim());
     date_start.setHours(date_start.getHours() - 1)
     date_end.setHours(date_end.getHours() - 1)
@@ -1018,56 +1021,56 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.dateStart = date_start;
     this.dateEnd = date_end;
 
-    this.dateFilter = (date:Date | null) : boolean =>{
-      if(date) {
-        if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+    this.dateFilter = (date: Date | null): boolean => {
+      if (date) {
+        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
           //FUNZIONA PERO BOH.........
           return date.getMonth() === this.dateEnd.getMonth() &&
-                 date.getDate()  === this.dateEnd.getDate() &&
-                 date.getFullYear() >= this.dateStart.getFullYear() &&
-                 date.getFullYear() <= this.dateEnd.getFullYear()
+            date.getDate() === this.dateEnd.getDate() &&
+            date.getFullYear() >= this.dateStart.getFullYear() &&
+            date.getFullYear() <= this.dateEnd.getFullYear()
         }
-        if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
+        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
           //FUNZIONA PERO BOH.........
           //GESTIRE ULTIMO GIORNO DEL MESE!
           let d1 = _.cloneDeep(this.dateEnd);
-          if(this.isLastDayOfMonth(d1)){
+          if (this.isLastDayOfMonth(d1)) {
             //ULTIMO GIORNO DEL MESE CASISTICA
             //mi prendi quelli di tutti i mesi precedenti e dell'ultimo giorno
             let d2 = _.cloneDeep(date);
-            if(d2<=this.dateEnd && d2>=this.dateStart && this.isLastDayOfMonth(d2)){
+            if (d2 <= this.dateEnd && d2 >= this.dateStart && this.isLastDayOfMonth(d2)) {
               return true;
-            }else{
+            } else {
               return false;
             }
-          }else{
-              return date.getDate()  === this.dateEnd.getDate() &&
-                    date.getFullYear() >= this.dateStart.getFullYear() &&
-                    date.getFullYear() <= this.dateEnd.getFullYear()
-            }
+          } else {
+            return date.getDate() === this.dateEnd.getDate() &&
+              date.getFullYear() >= this.dateStart.getFullYear() &&
+              date.getFullYear() <= this.dateEnd.getFullYear()
+          }
         }
-        if(this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
+        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
           //FUNZIONA PERO BOH.........
           //SAME DAY AND 3 MONTHS DIFFERENCE BETWEEN DAYS!
           //GESTIRE ULTIMO GIORNO DEL MESE
           let d1 = _.cloneDeep(this.dateEnd);
-          if(this.isLastDayOfMonth(d1)){
+          if (this.isLastDayOfMonth(d1)) {
             //ULTIMO GIORNO DEL MESE CASISTICA
             //mi prendi quelli di tutte le stagioni precedenti e dell'ultimo giorno
             let d2 = _.cloneDeep(date);
-            if(d2<=this.dateEnd && d2>=this.dateStart && ((this.dateEnd.getMonth()+1) - (d2.getMonth()+1)) % 3 === 0 && this.isLastDayOfMonth(d2)){
+            if (d2 <= this.dateEnd && d2 >= this.dateStart && ((this.dateEnd.getMonth() + 1) - (d2.getMonth() + 1)) % 3 === 0 && this.isLastDayOfMonth(d2)) {
               return true;
-            }else{
+            } else {
               return false;
             }
-          }else{
-            return date.getDate()  === this.dateEnd.getDate() &&
-                  ((this.dateEnd.getMonth()+1) - (date.getMonth()+1)) % 3 === 0 &&
-                  date.getFullYear() >= this.dateStart.getFullYear() &&
-                  date.getFullYear() <= this.dateEnd.getFullYear();
+          } else {
+            return date.getDate() === this.dateEnd.getDate() &&
+              ((this.dateEnd.getMonth() + 1) - (date.getMonth() + 1)) % 3 === 0 &&
+              date.getFullYear() >= this.dateStart.getFullYear() &&
+              date.getFullYear() <= this.dateEnd.getFullYear();
           }
 
-        }else{
+        } else {
           //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
         }
@@ -1080,7 +1083,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
     let time;
-    if(controlDate === "ok") {
+    if (controlDate === "ok") {
       let tmp = this.selectedDate.get("dateSel")?.value;
       time = this.formatDate(tmp);
 
@@ -1090,7 +1093,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       time = this.formatDate(date_end);
     }
 
-    if(this.selectedDate.get("dateSel")?.value === this.dateEnd) {
+    if (this.selectedDate.get("dateSel")?.value === this.dateEnd) {
 
       this.navigateDateLeftYear = false;
       this.navigateDateRightYear = true;
@@ -1102,7 +1105,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     //se non è settata setta a this.metadata[0][4], se viene cambiata prendila da variable group
     //se cambio layer, cambiano le variabili quindi settare di nuovo a this.metadata
-    if(!this.variableGroup.get("variableControl")?.value) {
+    if (!this.variableGroup.get("variableControl")?.value) {
       this.variableGroup.get("variableControl")?.setValue(this.metadata[0][4]);
 
     }
@@ -1111,150 +1114,158 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let layer_name = this.variableGroup.get("variableControl")?.value;
 
-    this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
 
 
     //if num_parameters.length > 3, layers3D!!!
-    let num_parameters=this.metadata[0][1].split(", ");
-    let layer_to_attach : any;
+    let num_parameters = this.metadata[0][1].split(", ");
+    let layer_to_attach: any;
 
 
-
-    if(num_parameters.length <= 3){
-      this.isExtraParam = false;
-      //siamo nel caso di layers 2D!!!
-      layer_to_attach = {
-        layer_name: L.tileLayer.wms(
-        'http://localhost:8000/test/layers2d',{
-        attribution: this.metadata[0][6],
-        bgcolor: '0x808080',
-        crs: L.CRS.EPSG4326,
-        format: 'image/png',
-        layers: idMeta +':'+layer_name,
-        styles: '',
-        time: time,
-        transparent: true,
-        version: '1.3.0',
-        opacity:0.7,
-        } as ExtendedWMSOptions)
-      };
-
-      this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B%5D%5B%5D&.legend=Only";
-
-    }else{
-
-      //siamo nel caso di layers 3D!!
-      //di default gli assegniamo il minimo valore!
-      let min_max_value=this.metadata[0][0].split(",");
-      let name = num_parameters[1];
-      let min = Number(min_max_value[0]);
-      let max = Number(min_max_value[1]);
-      let step = Number(this.metadata[0][5].split("=")[1]);
-
-      //se non c'è ci sono questi due if, se c'è hai sempre
-      if(name === "depth"){
-        // this.extraParam.name = "elevation";
-        this.extraParam = {
-          name: "Elevation",
-          minValue: - max,
-          maxValue: - min,
-          stepSize: step,
-        };
-
-        this.extraParamExport = {
-          name: "Depth",
-          minValue: min,
-          maxValue: max,
-          stepSize: step,
-        }
-
-      }
-      else {
-        this.extraParam = {
-          name: 'Dim_' + name,
-          minValue: min,
-          maxValue: max,
-          stepSize: step,
-        };
-
-        this.extraParamExport = {
-          name: "Dim_" + name,
-          minValue: min,
-          maxValue: max,
-          stepSize: step,
-        }
-      }
-      // if(this.value this.extraParam.maxValue){
-      console.log("CONSTROL EXTRA: ", controlExtra);
-      this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
-
-      this.options = {
-        floor: this.extraParam.minValue,
-        ceil: this.extraParam.maxValue,
-        step: Number(this.extraParam.stepSize.toFixed(4)),
-      };
-      if(controlExtra){
-        this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
-
-        layer_to_attach={
-          layer_name: L.tileLayer.wms(
-        'http://localhost:8000/test/layers3d/'+this.extraParam.name,{
-          attribution: this.metadata[0][6],
-          bgcolor: '0x808080',
-          crs: L.CRS.EPSG4326,
-          format: 'image/png',
-          layers: idMeta+':'+layer_name,
-          styles: '',
-          time: time,
-          [this.extraParam.name]: controlExtra,
-          transparent: true,
-          version: '1.3.0',
-          opacity:0.7,
-          } as ExtendedWMSOptions)
-        };
-
-        this.isExtraParam = true;
-        if(name === "depth"){
-          this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B("+(-controlExtra)+")%5D%5B%5D%5B%5D&.legend=Only";
-        }else{
-          this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B("+(controlExtra)+")%5D%5B%5D%5B%5D&.legend=Only";
-        }
-      }
-      else {
-        if(name === "depth"){
-          this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.maxValue);
-        }
-        else {
-          this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.minValue);
-        }
-
-
-        layer_to_attach={
-          layer_name: L.tileLayer.wms(
-        'http://localhost:8000/test/layers3d/'+this.extraParam.name,{
-          attribution: this.metadata[0][6],
-          bgcolor: '0x808080',
-          crs: L.CRS.EPSG4326,
-          format: 'image/png',
-          layers: idMeta+':'+layer_name,
-          styles: '',
-          time: time,
-          [this.extraParam.name]: this.sliderGroup.get('sliderControl')?.value,
-          transparent: true,
-          version: '1.3.0',
-          opacity:0.7,
-          } as ExtendedWMSOptions)
-        };
-
-        this.isExtraParam = true;
-        this.legendLayer_src = this.ERDDAP_URL+"/griddap/"+idMeta+".png?"+layer_name+"%5B("+this.formatDate(time)+")%5D%5B("+this.sliderGroup.get('sliderControl')?.value+")%5D%5B%5D%5B%5D&.legend=Only";
-
-      }
-
+    if (this.selData.get("dataSetSel")?.value.name.tabledap_url !== "") {
+      this.getDataVectorialTabledap();
 
     }
+    else {
+      // this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
 
-    this.datasetLayer = layer_to_attach.layer_name.addTo(this.map);
+
+      if (num_parameters.length <= 3) {
+        this.isExtraParam = false;
+        //siamo nel caso di layers 2D!!!
+        layer_to_attach = {
+          layer_name: L.tileLayer.wms(
+            'http://localhost:8000/test/layers2d', {
+              attribution: this.metadata[0][6],
+              bgcolor: '0x808080',
+              crs: L.CRS.EPSG4326,
+              format: 'image/png',
+              layers: idMeta + ':' + layer_name,
+              styles: '',
+              time: time,
+              transparent: true,
+              version: '1.3.0',
+              opacity: 0.7,
+            } as ExtendedWMSOptions)
+        };
+
+        this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
+
+      } else {
+
+        //siamo nel caso di layers 3D!!
+        //di default gli assegniamo il minimo valore!
+        let min_max_value = this.metadata[0][0].split(",");
+        let name = num_parameters[1];
+        let min = Number(min_max_value[0]);
+        let max = Number(min_max_value[1]);
+        let step = Number(this.metadata[0][5].split("=")[1]);
+
+        //se non c'è ci sono questi due if, se c'è hai sempre
+        if (name === "depth") {
+          // this.extraParam.name = "elevation";
+          this.extraParam = {
+            name: "Elevation",
+            minValue: - max,
+            maxValue: - min,
+            stepSize: step,
+          };
+
+          this.extraParamExport = {
+            name: "Depth",
+            minValue: min,
+            maxValue: max,
+            stepSize: step,
+          }
+
+        }
+        else {
+          this.extraParam = {
+            name: 'Dim_' + name,
+            minValue: min,
+            maxValue: max,
+            stepSize: step,
+          };
+
+          this.extraParamExport = {
+            name: "Dim_" + name,
+            minValue: min,
+            maxValue: max,
+            stepSize: step,
+          }
+        }
+        // if(this.value this.extraParam.maxValue){
+        console.log("CONSTROL EXTRA: ", controlExtra);
+        this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
+
+        this.options = {
+          floor: this.extraParam.minValue,
+          ceil: this.extraParam.maxValue,
+          step: Number(this.extraParam.stepSize.toFixed(4)),
+        };
+        if (controlExtra) {
+          this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
+
+          layer_to_attach = {
+            layer_name: L.tileLayer.wms(
+              'http://localhost:8000/test/layers3d/' + this.extraParam.name, {
+                attribution: this.metadata[0][6],
+                bgcolor: '0x808080',
+                crs: L.CRS.EPSG4326,
+                format: 'image/png',
+                layers: idMeta + ':' + layer_name,
+                styles: '',
+                time: time,
+                [this.extraParam.name]: controlExtra,
+                transparent: true,
+                version: '1.3.0',
+                opacity: 0.7,
+              } as ExtendedWMSOptions)
+          };
+
+          this.isExtraParam = true;
+          if (name === "depth") {
+            this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B(" + (-controlExtra) + ")%5D%5B%5D%5B%5D&.legend=Only";
+          } else {
+            this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B(" + (controlExtra) + ")%5D%5B%5D%5B%5D&.legend=Only";
+          }
+        }
+        else {
+          if (name === "depth") {
+            this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.maxValue);
+          }
+          else {
+            this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.minValue);
+          }
+
+
+          layer_to_attach = {
+            layer_name: L.tileLayer.wms(
+              'http://localhost:8000/test/layers3d/' + this.extraParam.name, {
+                attribution: this.metadata[0][6],
+                bgcolor: '0x808080',
+                crs: L.CRS.EPSG4326,
+                format: 'image/png',
+                layers: idMeta + ':' + layer_name,
+                styles: '',
+                time: time,
+                [this.extraParam.name]: this.sliderGroup.get('sliderControl')?.value,
+                transparent: true,
+                version: '1.3.0',
+                opacity: 0.7,
+              } as ExtendedWMSOptions)
+          };
+
+          this.isExtraParam = true;
+          this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B(" + this.sliderGroup.get('sliderControl')?.value + ")%5D%5B%5D%5B%5D&.legend=Only";
+
+        }
+
+
+      }
+      this.datasetLayer = layer_to_attach.layer_name.addTo(this.map);
+    }
+
+
 
 
   }
@@ -1263,10 +1274,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     console.log("EVENTO SLIDERRRRRRRRR =", event.value);
     this.valueCustom = event.value;
     let metaId: any;
-    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+    if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
       metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
     }
-    else if(this.selData.get("dataSetSel")?.value.name.id) {
+    else if (this.selData.get("dataSetSel")?.value.name.id) {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
     this.getMeta(metaId, "ok", this.valueCustom);
@@ -1284,77 +1295,84 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let overlays = {
       Land: L.tileLayer.wms(
-      'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
-      bgcolor: '0x808080',
-      crs: L.CRS.EPSG4326,
-      format: 'image/png',
-      layers: 'Land',
-      styles: '',
-      transparent: true,
-      version: '1.3.0'} as ExtendedWMSOptions
+        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: 'Land',
+          styles: '',
+          transparent: true,
+          version: '1.3.0'
+        } as ExtendedWMSOptions
       ),
-    Coastlines: L.tileLayer.wms(
-      'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
-      bgcolor: '0x808080',
-      crs: L.CRS.EPSG4326,
-      format: 'image/png',
-      layers: 'Coastlines',
-      styles: '',
-      transparent: true,
-      version: '1.3.0'} as ExtendedWMSOptions
+      Coastlines: L.tileLayer.wms(
+        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: 'Coastlines',
+          styles: '',
+          transparent: true,
+          version: '1.3.0'
+        } as ExtendedWMSOptions
       ),
-    LakesAndRivers: L.tileLayer.wms(
-       'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
-      bgcolor: '0x808080',
-      crs: L.CRS.EPSG4326,
-      format: 'image/png',
-      layers: 'LakesAndRivers',
-      styles: '',
-      transparent: true,
-      version: '1.3.0'} as ExtendedWMSOptions
+      LakesAndRivers: L.tileLayer.wms(
+        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: 'LakesAndRivers',
+          styles: '',
+          transparent: true,
+          version: '1.3.0'
+        } as ExtendedWMSOptions
       ),
-    Nations: L.tileLayer.wms(
-       'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
-      bgcolor: '0x808080',
-      crs: L.CRS.EPSG4326,
-      format: 'image/png',
-      layers: 'Nations',
-      styles: '',
-      transparent: true,
-      version: '1.3.0'} as ExtendedWMSOptions
+      Nations: L.tileLayer.wms(
+        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: 'Nations',
+          styles: '',
+          transparent: true,
+          version: '1.3.0'
+        } as ExtendedWMSOptions
       ),
-    States: L.tileLayer.wms(
-      'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
-      bgcolor: '0x808080',
-      crs: L.CRS.EPSG4326,
-      format: 'image/png',
-      layers: 'States',
-      styles: '',
-      transparent: true,
-      version: '1.3.0'} as ExtendedWMSOptions
+      States: L.tileLayer.wms(
+        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+          bgcolor: '0x808080',
+          crs: L.CRS.EPSG4326,
+          format: 'image/png',
+          layers: 'States',
+          styles: '',
+          transparent: true,
+          version: '1.3.0'
+        } as ExtendedWMSOptions
       )
     };
 
-  let control_layers=L.control.layers().addTo(this.map);
-  control_layers.addOverlay(overlays.Land,"Land");
-  control_layers.addOverlay(overlays.Coastlines,"Coastlines");
-  control_layers.addOverlay(overlays.States,"States");
-  control_layers.addOverlay(overlays.Nations,"Nations");
-  control_layers.addOverlay(overlays.LakesAndRivers,"LakesAndRivers");
+    let control_layers = L.control.layers().addTo(this.map);
+    control_layers.addOverlay(overlays.Land, "Land");
+    control_layers.addOverlay(overlays.Coastlines, "Coastlines");
+    control_layers.addOverlay(overlays.States, "States");
+    control_layers.addOverlay(overlays.Nations, "Nations");
+    control_layers.addOverlay(overlays.LakesAndRivers, "LakesAndRivers");
 
   }
 
   deleteLayer(idMeta?: string) {
     this.legendLayer_src = null;
     let metaId: any;
-    if(idMeta) {
+    this.markersLayer.clearLayers();
+    this.rettangoliLayer.clearLayers();
+    if (idMeta) {
       metaId = idMeta;
     }
     else {
-      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
       }
-      else if(this.selData.get("dataSetSel")?.value.name.id) {
+      else if (this.selData.get("dataSetSel")?.value.name.id) {
         metaId = this.selData.get("dataSetSel")?.value.name.id;
       }
     }
@@ -1368,31 +1386,31 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   deleteElActiveLayers() {
 
     let metaId: any;
-    if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+    if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
       metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
     }
-    else if(this.selData.get("dataSetSel")?.value.name.id) {
+    else if (this.selData.get("dataSetSel")?.value.name.id) {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
 
-    this.activeLayersArray.forEach((layer:any, i: number)=>{
-      if(layer.name.dataset_id === metaId){
+    this.activeLayersArray.forEach((layer: any, i: number) => {
+      if (layer.name.dataset_id === metaId) {
         //rimuovi array nel caso di layer da lista dataset
-        this.activeLayersArray.splice(i,1);
-      }else if(layer.name.id === metaId){
+        this.activeLayersArray.splice(i, 1);
+      } else if (layer.name.id === metaId) {
         //rimuovi array nel caso di layer da full list
-        this.activeLayersArray.splice(i,1);
+        this.activeLayersArray.splice(i, 1);
       }
     });
-    if(this.activeLayersArray.length >=1 ){
-      this.selData.get("dataSetSel")?.setValue(this.activeLayersArray[this.activeLayersArray.length-1]);
+    if (this.activeLayersArray.length >= 1) {
+      this.selData.get("dataSetSel")?.setValue(this.activeLayersArray[this.activeLayersArray.length - 1]);
       // if(this.selData.get("dataSetSel")?.value) {
       //   this.getMeta();
       // }
-      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
       }
-      else if(this.selData.get("dataSetSel")?.value.name.id) {
+      else if (this.selData.get("dataSetSel")?.value.name.id) {
         metaId = this.selData.get("dataSetSel")?.value.name.id;
       }
       this.getSelectedNode(this.selData.get("dataSetSel")?.value);
@@ -1407,18 +1425,18 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   formatDate(date: any) {
     let d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
 
     if (month.length < 2)
-        month = '0' + month;
+      month = '0' + month;
     if (day.length < 2)
-        day = '0' + day;
+      day = '0' + day;
 
-    let first_part=[year, month, day].join('-');
-    let second_part="T00:00:00Z";
-    return first_part+second_part;
+    let first_part = [year, month, day].join('-');
+    let second_part = "T00:00:00Z";
+    return first_part + second_part;
   }
 
 
@@ -1463,11 +1481,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   openTableDialog(idMeta?: string, title?: string) {
     let dataId: any;
-    if(!idMeta){
-      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+    if (!idMeta) {
+      if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
       }
-      else if(this.selData.get("dataSetSel")?.value.name.id) {
+      else if (this.selData.get("dataSetSel")?.value.name.id) {
         dataId = this.selData.get("dataSetSel")?.value.name.id;
       }
     }
@@ -1495,15 +1513,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     dialogConfig.autoFocus = true;
 
     let dataId: any;
-    if(this.selData.get("dataSetSel")?.value) {
+    if (this.selData.get("dataSetSel")?.value) {
 
       // CASO DATASET SELEZIONATO
       let title = this.selData.get("dataSetSel")?.value.name.title;
 
-      if(this.selData.get("dataSetSel")?.value.name.dataset_id) {
+      if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
       }
-      else if(this.selData.get("dataSetSel")?.value.name.id) {
+      else if (this.selData.get("dataSetSel")?.value.name.id) {
         dataId = this.selData.get("dataSetSel")?.value.name.id;
 
       }
@@ -1536,5 +1554,52 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
 
   }
+
+  // PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
+  getDataVectorialTabledap() {
+    console.log("DATASET SELEZIONATO DENTRO VECTORIAL =", this.selData.get("dataSetSel")?.value);
+    this.httpClient.post('http://localhost:8000/test/dataVectorial', {
+      dataset: this.selData.get("dataSetSel")?.value.name,
+    }).subscribe({
+      next: (res: any) => {
+        console.log("RES =", res);
+        let allData = res['dataVect'];
+        let allLatCoordinates = allData[1];
+        let allLongCoordinates = allData[2];
+        let allValues = allData[0];
+        let value_min = allData[3];
+        let value_max = allData[4];
+        let bounds: any;
+        let rectangle: any;
+        // this.markersLayer = L.layerGroup();
+        // markersLayer: L.LayerGroup = L.layerGroup();
+        for (let i = 0; i < allLatCoordinates.length; i++) {
+
+
+          bounds = [[parseFloat(allLatCoordinates[i]) - 0.150002, parseFloat(allLongCoordinates[i]) - 0.1730774], [parseFloat(allLatCoordinates[i]) + 0.150002, parseFloat(allLongCoordinates[i]) + 0.1730774]];
+          // marker = L.marker(e.latlng, {
+          let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
+            icon: L.icon({
+              iconSize: [25, 41],
+              iconAnchor: [13, 41],
+              iconUrl: 'marker-icon.png',
+            })
+          });
+          this.markersLayer.addLayer(markerToAdd);
+          //varColor=getColor(allValues[i],value_min,value_max,colorMin,colorMid,colorMax);
+          //color: fillRectangleColor(varColor.r,varColor.g,varColor.b)
+          let rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, weight: 1 });
+          this.rettangoliLayer.addLayer(rectangle);
+        }
+        this.map.addLayer(this.markersLayer);
+        this.map.addLayer(this.rettangoliLayer);
+      },
+      error: (msg: any) => {
+        console.log('METADATA ERROR: ', msg);
+      }
+
+    });
+  }
+
 }
 
