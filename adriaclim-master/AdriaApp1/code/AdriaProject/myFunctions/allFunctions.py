@@ -507,7 +507,7 @@ def getIndicatorQueryUrlPoint(ind, onlyFirstVariable, skipDimensions, lat, lon, 
 def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
   if is_indicator == "true" and is_graph == False and is_annual == False:
   
-    
+    print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
     url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["date_start"] + "&time%3C=" + kwargs["date_start"]
   
   elif is_indicator == "true" and is_graph and is_annual:
@@ -1511,31 +1511,35 @@ def percentileFunction(arr,percentile):
         return arr[index_array-1]
 
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,is_indicator):
- url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,date_start=date_start,latitude_start=latitude_start,latitude_end=latitude_end,
+  #print("ARRIVO PRIMA DI URL_IS_IND")
+  url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,date_start=date_start,latitude_start=latitude_start,latitude_end=latitude_end,
                         longitude_start=longitude_start,longitude_end=longitude_end,num_param=num_param,range_value=range_value)
- print("URL DATA VECTORIAL========",url)
- df = pd.read_csv(url, dtype='unicode')
- allData=[]
- values=[]
- lat_coordinates=[]
- long_coordinates=[]
- 
- i=0
- for index,row in df.iterrows():
-          values.insert(i,float(row[layer_name]))
-          lat_coordinates.insert(i,row["latitude"])
-          long_coordinates.insert(i,row["longitude"])          
-          i+=1
- del values[0]
- del lat_coordinates[0]
- del long_coordinates[0]
+  print("URL DATA VECTORIAL========",url)
+  df = pd.read_csv(url, dtype='unicode')
+  allData=[]
+  values=[]
+  lat_coordinates=[]
+  long_coordinates=[]
 
- value_min = min(values)
- value_max = max(values)
+  i=0
+  for index,row in df.iterrows():
+    values.insert(i,row[layer_name])
+    lat_coordinates.insert(i,row["latitude"])
+    long_coordinates.insert(i,row["longitude"])          
+    i+=1
+  del values[0]
+  del lat_coordinates[0]
+  del long_coordinates[0]
+
+  [float(i) for i in values]
+
+  value_min = min(values)
+  value_max = max(values)
 
 
- allData=[values,lat_coordinates,long_coordinates,value_min,value_max]
- return allData
+  allData=[values,lat_coordinates,long_coordinates,value_min,value_max]
+
+  return allData
          
 
 

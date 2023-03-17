@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
+// import "leaflet/dist/leaflet.css";
 
 /**
  * Food data with nested structure.
@@ -158,6 +159,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   isExtraParam!: boolean;
   variableArray: [] = [];
   activeLayersArray: any[] = [];
+  legendNoWms: any;
+  style: any;
 
   value: any;
   valueCustom: any;
@@ -249,6 +252,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     await this.initMap();
+    console.log("LEGEND NO WMS =", this.legendNoWms)
 
     // await this.initMap();
 
@@ -556,7 +560,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   getMeta(idMeta: any, controlDate?: any, controlExtra?: any) {
 
 
-    if (this.legendLayer_src) {
+    if (this.legendLayer_src || this.legendNoWms) {
       this.deleteLayer(idMeta);
 
     }
@@ -1121,7 +1125,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let layer_to_attach: any;
 
 
-    if (this.selData.get("dataSetSel")?.value.name.tabledap_url !== "") {
+    if (this.selData.get("dataSetSel")?.value.name.wms_url === "") {
       this.getDataVectorialTabledap();
 
     }
@@ -1361,10 +1365,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   deleteLayer(idMeta?: string) {
-    this.legendLayer_src = null;
     let metaId: any;
-    this.markersLayer.clearLayers();
-    this.rettangoliLayer.clearLayers();
+    if(this.legendNoWms){
+      this.markersLayer.clearLayers();
+      this.rettangoliLayer.clearLayers();
+      this.map.removeControl(this.legendNoWms);
+    }
     if (idMeta) {
       metaId = idMeta;
     }
@@ -1377,9 +1383,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       }
     }
 
+    if(this.legendLayer_src) {
+      this.map.removeLayer(this.datasetLayer);
 
-
-    this.map.removeLayer(this.datasetLayer);
+    }
+    this.legendLayer_src = null;
 
   }
 
@@ -1557,9 +1565,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   // PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
   getDataVectorialTabledap() {
+    console.log("OOOOOOOOOOOOOOOOOOOO");
+
     console.log("DATASET SELEZIONATO DENTRO VECTORIAL =", this.selData.get("dataSetSel")?.value);
+    console.log("DATA NON FORMATTATA?",this.selectedDate.get("dateSel")?.value);
+    console.log("DATA FORMATTATA?",this.formatDate(this.selectedDate.get("dateSel")?.value));
+    let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
+    splittedVar = splittedVar[splittedVar.length - 1];
+
+
     this.httpClient.post('http://localhost:8000/test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
+      selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+      isIndicator: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? "false" : "true",
+      selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
         console.log("RES =", res);
@@ -1571,27 +1590,32 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         let value_max = allData[4];
         let bounds: any;
         let rectangle: any;
+        let value_mid: any;
+        if(parseFloat(value_min) < 0){
+          value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+         }else{
+         value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+         }
+        this.createLegend(parseFloat(value_min),parseFloat(value_max),value_mid);
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
         for (let i = 0; i < allLatCoordinates.length; i++) {
 
 
           bounds = [[parseFloat(allLatCoordinates[i]) - 0.150002, parseFloat(allLongCoordinates[i]) - 0.1730774], [parseFloat(allLatCoordinates[i]) + 0.150002, parseFloat(allLongCoordinates[i]) + 0.1730774]];
-          // marker = L.marker(e.latlng, {
-          let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
-            icon: L.icon({
-              iconSize: [25, 41],
-              iconAnchor: [13, 41],
-              iconUrl: 'marker-icon.png',
-            })
-          });
-          this.markersLayer.addLayer(markerToAdd);
-          //varColor=getColor(allValues[i],value_min,value_max,colorMin,colorMid,colorMax);
-          //color: fillRectangleColor(varColor.r,varColor.g,varColor.b)
-          let rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, weight: 1 });
+          // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
+          //   icon: L.icon({
+          //     iconSize: [25, 41],
+          //     iconAnchor: [13, 41],
+          //     iconUrl: 'marker-icon.png',
+          //   })
+          // });
+          // this.markersLayer.addLayer(markerToAdd);
+          let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
+          let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
           this.rettangoliLayer.addLayer(rectangle);
         }
-        this.map.addLayer(this.markersLayer);
+        //this.map.addLayer(this.markersLayer);
         this.map.addLayer(this.rettangoliLayer);
       },
       error: (msg: any) => {
@@ -1599,6 +1623,121 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       }
 
     });
+  }
+    //function to fill the color of the rectangles of vectorial layer
+  fillRectangleColor(r: any,g: any,b: any){
+    return "rgb("+r+","+g+","+b+")";
+  }
+  hexToRgb(hex:any) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m: any, r: any, g:any, b: any) {
+      return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+
+
+  getColor(v: any, min: any, max: any,colorMin: any,colorMid: any,colorMax: any) {
+
+    function getC(f: any, l: any, r: any) {
+        return {
+            r: Math.floor((1 - f) * l.r + f * r.r),
+            g: Math.floor((1 - f) * l.g + f * r.g),
+            b: Math.floor((1 - f) * l.b + f * r.b),
+        };
+    }
+    let left: any,
+        middle: any,
+        right: any,
+        mid: any;
+    if(colorMin===""){
+      left = { r: 0, g: 0, b: 255 },
+      middle = { r: 255, g: 255, b: 0 },
+      right = { r: 255, g: 0, b: 0 },
+      mid = (max - min) / 2;
+    }else{
+      left = { r: this.hexToRgb(colorMin)?.r, g: this.hexToRgb(colorMin)?.g, b: this.hexToRgb(colorMin)?.b },
+      middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
+      right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
+      mid = (max - min) / 2;
+    }
+    return v < min + mid ?
+    getC((v - min) / mid, left, middle) :
+    getC((v - min - mid) / mid, middle, right);
+}
+
+  // CREIAMO LA LEGENDA PER I NO WMS
+
+  createLegend(value_min: any, value_max: any, value_mid: any) {
+    let value_min_mid: any;
+    let value_mid_max : any;
+    this.legendNoWms = new L.Control({ position: "bottomleft" });
+    if(parseFloat(value_min) < 0) {
+
+      value_min_mid = Math.ceil((parseFloat(value_mid) - parseFloat(value_min)) / 2);
+      value_mid_max = Math.ceil((parseFloat(value_max) - parseFloat(value_mid)) / 2);
+    }
+    else {
+      value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
+      value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
+    }
+
+    let getColor = (v:any) => {
+          return v === value_min
+                  ? "#f44336"
+                  : v === value_min_mid
+                  ? "#e91e63"
+                  : v === value_mid
+                  ? "#9c27b0"
+                  : v === value_mid_max
+                  ? "#673ab7"
+                  : v === value_max
+                  ? "#3f51b5"
+                  : "#3f51b5";
+  }
+
+
+    // this.legendNoWms = new L.Control({ position: 'bottomright' });
+    console.log("value_min =", value_min);
+    console.log("value_mid =", value_mid);
+    console.log("value_max =", value_max);
+
+    this.legendNoWms.onAdd = (map: any) => {
+      let div = L.DomUtil.create('div', 'info legend');
+      let grades = [value_min, value_min_mid, value_mid, value_mid_max, value_max];
+      let labels = [];
+      let from: any;
+      let to: any;
+
+      for (let i = 0; i < grades.length; i++) {
+        from = grades[i];
+        to = grades[i + 1];
+        console.log("from =", from);
+        console.log("from + 1 =", (from + 1));
+        console.log("GET COLOR =", getColor(from));
+        console.log("GET COLOR + 1 =", getColor(from + 1));
+
+
+
+        labels.push(
+         "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '"></i> ' +
+          "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>");
+      }
+      // div.innerHTML = labels.join('<br>');
+      div.innerHTML = labels.join('');
+      return div;
+    };
+
+    this.legendNoWms.addTo(this.map);
+
+
   }
 
 }

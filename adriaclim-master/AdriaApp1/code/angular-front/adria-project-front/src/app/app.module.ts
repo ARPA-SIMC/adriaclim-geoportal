@@ -48,6 +48,8 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import { DatePipe } from '@angular/common';
 import { registerLocaleData } from '@angular/common';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { LeafletModule } from "@asymmetrik/ngx-leaflet";
+
 import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 registerLocaleData(localeFr);
@@ -84,6 +86,7 @@ registerLocaleData(localeIt);
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
     }),
+    LeafletModule,
 
     MatNativeDateModule,
     CdkListboxModule,

@@ -345,14 +345,15 @@
 
   <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-image">
     <ng-container *ngIf="this.selData.get('dataSetSel')?.value">
-      <ng-container *ngIf="legendLayer_src; else legendTabledap">
+      <!-- <ng-container *ngIf="legendLayer_src; else legendTabledap"> -->
+      <ng-container *ngIf="legendLayer_src">
         <img [src]="legendLayer_src">
 
       </ng-container>
-      <ng-template #legendTabledap>
+      <!-- <ng-template #legendTabledap>
         <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Google_URL_Shortener_Logo.png">
 
-      </ng-template>
+      </ng-template> -->
 
     </ng-container>
 

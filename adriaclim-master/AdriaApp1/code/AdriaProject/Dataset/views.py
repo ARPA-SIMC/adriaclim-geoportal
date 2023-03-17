@@ -450,20 +450,16 @@ def getDataVectorialNew(request):
     print("DATASET:",dataset)
     print("DATASET ID:",dataset.get('id'))
     dataset_id = dataset.get('id')
-    date_start = dataset.get('time_start')
-    variableSplitted = dataset.get('variable_names').split(" ")
-    print("VARIABLE SPLITTED = ", variableSplitted)
-    for index, v in enumerate(variableSplitted):
-        if index == len(variableSplitted)-1:
-          print("INDEX:",index)
-          print("V:",v)
-          layer_name = v
-    # layer_name = dataset.get('variable_names').split(" ")[len(dataset.get('variable_names'))-1]
+    sel_date = str(request.data.get('selDate'))
+    print("come mi arriva qui======",sel_date)
+    layer_name = request.data.get('selVar')
     print("LAYER NAME:",layer_name)
     num_param = dataset.get('variables')
     lat_min = dataset.get('lat_min')
     lat_max = dataset.get('lat_max')
     lng_min = dataset.get('lng_min')
     lng_max = dataset.get('lng_max')
-    dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,date_start,lat_min,lat_max,lng_min,lng_max,num_param,0,"true")
+    is_indicator = request.data.get('isIndicator')
+    print("IS INDICATOR:",is_indicator)
+    dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
     return JsonResponse({'dataVect':dataVect})
