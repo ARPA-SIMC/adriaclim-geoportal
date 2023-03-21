@@ -58,6 +58,7 @@ interface ExtraParams {
 
 
 let TREE_DATA: FoodNode[] = [
+  //i children di tutti sono riempiti in maniera dinamica con il metodo getAllNodes
   {
     name: 'Observations',
     // childVisible: false,
@@ -67,33 +68,34 @@ let TREE_DATA: FoodNode[] = [
     name: 'Indicators',
     // childVisible: true,
     children: [
-      {
-        name: 'Large scale',
-        // childVisible: true,
-        children: [
-          { name: 'Yearly', children: [] },
-          { name: 'Monthly', children: [] },
-          { name: 'Seasonal', children: [] }
-        ],
-      },
-      {
-        name: 'Pilot scale',
-        // childVisible: true,
-        children: [
-          { name: 'Yearly', children: [] },
-          { name: 'Monthly', children: [] },
-          { name: 'Seasonal', children: [] }
-        ],
-      },
-      {
-        name: 'Local scale',
-        // childVisible: true,
-        children: [
-          { name: 'Yearly', children: [] },
-          { name: 'Monthly', children: [] },
-          { name: 'Seasonal', children: [] }
-        ],
-      },
+      
+      // {
+      //   name: 'Large scale',
+      //   // childVisible: true,
+      //   children: [
+      //     { name: 'Yearly', children: [] },
+      //     { name: 'Monthly', children: [] },
+      //     { name: 'Seasonal', children: [] }
+      //   ],
+      // },
+      // {
+      //   name: 'Pilot scale',
+      //   // childVisible: true,
+      //   children: [
+      //     { name: 'Yearly', children: [] },
+      //     { name: 'Monthly', children: [] },
+      //     { name: 'Seasonal', children: [] }
+      //   ],
+      // },
+      // {
+      //   name: 'Local scale',
+      //   // childVisible: true,
+      //   children: [
+      //     { name: 'Yearly', children: [] },
+      //     { name: 'Monthly', children: [] },
+      //     { name: 'Seasonal', children: [] }
+      //   ],
+      // },
     ],
   },
   {
@@ -157,11 +159,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   extraParam!: ExtraParams;
   extraParamExport!: ExtraParams;
   isExtraParam!: boolean;
-  variableArray: [] = [];
+  variableArray: string[] = [];
   activeLayersArray: any[] = [];
   legendNoWms: any;
   style: any;
-
+  
   value: any;
   valueCustom: any;
   options: Options = {
@@ -170,6 +172,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     step: 1,
   };
 
+  isIndicator !: boolean;
 
   pointBoolean = false;
 
@@ -286,6 +289,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   pointSelect() {
     // if(this.pointBoolean === false) {
     // this.pointBoolean = true;
+    // }else{
+    //   this.pointBoolean = false;
+    // }
     this.map.on('click', this.onMapClick.bind(this));
     // }
 
@@ -301,20 +307,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.map.off('click');
     if (this.activeLayersArray.length === 0) {
       //hai cliccato il bottone e un punto ma non ci sono layer attivi
-      //WARNING!
+      this.openGraphDialog();
 
     } else {
-      // console.log("EVENT POLYGON =", e);
+      //console.log("EVENT POLYGON =", e);
+      //chiamare il backend prendendo tutti i punti e poi filtrare quelli che sono dentro il poligono
+      //è il modo più giusto?
       this.allPolygons.forEach((pol: any) => {
         if (pol.getBounds().contains(e.latlng)) {
-          // console.log("The polygon is rullo di tamburi",pol);
+          console.log("The polygon is rullo di tamburi",pol);
         }
       });
-      var label = e.target.options.label;
-      var content = e.target.options.popup;
-      var otherStuff = e.target.options.otherStuff;
-      alert("Clicked on polygon with label:" + label + " and content:" + content + ". Also otherStuff set to:" + otherStuff);
-    }
+      // alert("You must select a polygon!"); nel caso in cui non viene selezionato un poligono
+    } 
   }
 
   // metodo richiamato al click sulla mappa
@@ -391,13 +396,53 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           //riempiamo tree con tutti i nodi
           if (node.adriaclim_dataset === "indicator") {
             let indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0];
+            //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+            let scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+            if (indicatori?.children?.findIndex(scaleIndicator => scaleIndicator.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
+              indicatori?.children?.push({
+                name: scaleUpperCase,
+                children: []
+              });
+            }
+
+            //ordina in senso alfabetico la parte relativa agli scale del modello
+            indicatori?.children?.sort((o1: any, o2: any) => {
+              if (o1.name > o2.name) {
+                return 1; 
+              }     
+              if (o1.name < o2.name) {
+                return -1;
+              }
+              return 0;
+            })
+            
             let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+            let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+            if (scale?.children?.findIndex(timeInd => timeInd.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+              scale?.children?.push({
+                name: timeUpperCase,
+                children: []
+              });
+            }
+
+            //ordina in senso alfabetico la parte relativa ai timeperiod del modello
+          
+            scale?.children?.sort((o1: any, o2: any) => {
+              if (o1.name > o2.name) {
+                return 1; 
+              }     
+              if (o1.name < o2.name) {
+                return -1;
+              }
+              return 0;
+            })
+        
             let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-            if (time?.children?.findIndex(elInd => elInd.name === node.title) === -1) {
+            if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
               time?.children?.push({
                 name: node
               });
-              time?.children?.sort((o1: any, o2: any) => {
+              indicatori?.children?.sort((o1: any, o2: any) => {
                 if (o1.name.title > o2.name.title) {
                   return 1;
                 }
@@ -406,13 +451,54 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                 }
                 return 0;
               })
-              // time.childVisible = true;
             }
           }
           else if (node.adriaclim_dataset === "model") {
             let modelli = TREE_DATA.filter((models: any) => models.name === "Numerical models")[0]
-            if (modelli?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+            //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+            let scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+            if (modelli?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
               modelli?.children?.push({
+                name: scaleUpperCase,
+                children: []
+              });
+            }
+
+            //ordina in senso alfabetico la parte relativa agli scale del modello
+            modelli?.children?.sort((o1: any, o2: any) => {
+              if (o1.name > o2.name) {
+                return 1; 
+              }     
+              if (o1.name < o2.name) {
+                return -1;
+              }
+              return 0;
+            })
+            
+            let scale = modelli.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+            let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+            if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+              scale?.children?.push({
+                name: timeUpperCase,
+                children: []
+              });
+            }
+
+            //ordina in senso alfabetico la parte relativa ai timeperiod del modello
+          
+            scale?.children?.sort((o1: any, o2: any) => {
+              if (o1.name > o2.name) {
+                return 1; 
+              }     
+              if (o1.name < o2.name) {
+                return -1;
+              }
+              return 0;
+            })
+        
+            let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+            if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+              time?.children?.push({
                 name: node
               });
               modelli?.children?.sort((o1: any, o2: any) => {
@@ -428,13 +514,53 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
           else if (node.adriaclim_dataset === "observation") {
             let observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
-            if (observation?.children?.findIndex(elObs => elObs.name === node.title) === -1) {
-              observation?.children?.push({
-                name: node
-              });
+              //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+              let scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+              if (observation?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
+                observation?.children?.push({
+                  name: scaleUpperCase,
+                  children: []
+                });
+              }
+
+              //ordina in senso alfabetico la parte relativa agli scale di observations
               observation?.children?.sort((o1: any, o2: any) => {
+                if (o1.name > o2.name) {
+                  return 1; 
+                }     
+                if (o1.name < o2.name) {
+                  return -1;
+                }
+                return 0;
+              })
+              
+              let scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+              let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+              if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+                scale?.children?.push({
+                  name: timeUpperCase,
+                  children: []
+                });
+              }
 
+            //ordina in senso alfabetico la parte relativa ai timeperiod di observations
+            scale?.children?.sort((o1: any, o2: any) => {
+              if (o1.name > o2.name) {
+                return 1; 
+              }     
+              if (o1.name < o2.name) {
+                return -1;
+              }
+              return 0;
+            })
+              
+              let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+              if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+                time?.children?.push({
+                  name: node
+                });
 
+              observation?.children?.sort((o1: any, o2: any) => {
                 if (o1.name.title > o2.name.title) {
                   return 1;
                 }
@@ -447,10 +573,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             }
 
           }
-
-
-
-
           // let observations = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0]
 
           this.dataAllNodes.push(
@@ -481,7 +603,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
 
-
   getInd() {
     this.httpClient.post('http://localhost:8000/test/ind', {
     }).subscribe({
@@ -503,6 +624,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         });
 
         this.dataSource.data = TREE_DATA;
+        
       },
       error: (msg: any) => {
         console.log('IND ERROR: ', msg);
@@ -512,13 +634,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
+
+
   addToActiveLayers(node: any) {
     // this.selData.get("dataSetSel")?.value
     // if(this.selData.get("dataSetSel")?.value) {
     this.activeLayersArray.push(node);
     // this.activeLayersGroup.get("activeLayersControl")?.setValue(node);
     this.selData.get("dataSetSel")?.setValue(node);
-
+    this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
+    console.log("IS INDICATOR ==", this.isIndicator);
+    if(!this.isIndicator){
+      this.legendNoWms = undefined;
+    }
     console.log("Added layer====", this.activeLayersArray);
     // }
   }
@@ -570,7 +698,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         this.metadata = res;
         console.log("METADATA =", this.metadata);
-        if(this.markersLayer)
+        
 
         if (controlDate === "ok") {
 
@@ -595,6 +723,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }
     else if (node.variable_names) {
       this.variableArray = node.variable_names.split(" ");
+    }
+    this.isIndicator = node.name.griddap_url !== "" ? false : true;
+    if(this.isIndicator){
+      this.variableArray = this.variableArray.slice(-1);
     }
     this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
 
@@ -636,6 +768,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       return false;
     }
   }
+  
+  isAString(val:any): boolean { return typeof val === 'string'; }
 
 
   changeDate(arrow: any) {
@@ -1369,6 +1503,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     if(this.legendNoWms){
       this.markersLayer.clearLayers();
       this.rettangoliLayer.clearLayers();
+      this.isIndicator = false;
       this.map.removeControl(this.legendNoWms);
     }
     if (idMeta) {
@@ -1477,6 +1612,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     node => node.expandable,
     node => node.children,
   );
+  
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
@@ -1515,12 +1651,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  openGraphDialog() {
+  openGraphDialog(lat?:any,lng?:any) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
 
     let dataId: any;
+  
+
     if (this.selData.get("dataSetSel")?.value) {
 
       // CASO DATASET SELEZIONATO
@@ -1532,6 +1670,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       else if (this.selData.get("dataSetSel")?.value.name.id) {
         dataId = this.selData.get("dataSetSel")?.value.name.id;
 
+      }
+
+      if(lat){
+        this.coordOnClick = {"lat":lat,"lng":lng};
       }
 
       dialogConfig.data = {
@@ -1565,19 +1707,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   // PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
   getDataVectorialTabledap() {
-    console.log("OOOOOOOOOOOOOOOOOOOO");
-
-    console.log("DATASET SELEZIONATO DENTRO VECTORIAL =", this.selData.get("dataSetSel")?.value);
-    console.log("DATA NON FORMATTATA?",this.selectedDate.get("dateSel")?.value);
-    console.log("DATA FORMATTATA?",this.formatDate(this.selectedDate.get("dateSel")?.value));
+    
     let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
     splittedVar = splittedVar[splittedVar.length - 1];
-
-
+    //se isIndicator è true, allora si tratta di un tabledap, altrimenti è griddap
+    this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
+    
     this.httpClient.post('http://localhost:8000/test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-      isIndicator: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? "false" : "true",
+      isIndicator: this.isIndicator ? "true" : "false",
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
@@ -1600,23 +1739,37 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
         for (let i = 0; i < allLatCoordinates.length; i++) {
-
-
-          bounds = [[parseFloat(allLatCoordinates[i]) - 0.150002, parseFloat(allLongCoordinates[i]) - 0.1730774], [parseFloat(allLatCoordinates[i]) + 0.150002, parseFloat(allLongCoordinates[i]) + 0.1730774]];
-          // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
-          //   icon: L.icon({
-          //     iconSize: [25, 41],
-          //     iconAnchor: [13, 41],
-          //     iconUrl: 'marker-icon.png',
-          //   })
-          // });
-          // this.markersLayer.addLayer(markerToAdd);
+          if(this.isIndicator){
+            //tabledap case, with circle
+            let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
+            let markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],{radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b)});
+            // let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+            // this.rettangoliLayer.addLayer(rectangle);
+            this.markersLayer.addLayer(markerToAdd);
+            markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(markerToAdd.getLatLng().lat,markerToAdd.getLatLng().lng));
+            this.map.addLayer(this.markersLayer);
+          }else{
+            //griddap case with rectangle, NON SERVONO I MARKER!
+            bounds = [[parseFloat(allLatCoordinates[i]) - 0.150002, parseFloat(allLongCoordinates[i]) - 0.1730774], [parseFloat(allLatCoordinates[i]) + 0.150002, parseFloat(allLongCoordinates[i]) + 0.1730774]];
+            // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
+            //   // icon: L.icon({
+            //   //   iconSize: [25, 41],
+            //   //   iconAnchor: [13, 41],
+            //   //   iconUrl: 'marker-icon.png',
+            //   // })
+            // })
+                      //this.markersLayer.addLayer(markerToAdd);
           let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
+          
           let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
           this.rettangoliLayer.addLayer(rectangle);
+          this.map.addLayer(this.rettangoliLayer);
+          }
+          // markerToAdd.on('click',this.openGraphDialog.bind(this));
+
+          //this.markersLayer.addLayer(markerToAdd);
         }
-        //this.map.addLayer(this.markersLayer);
-        this.map.addLayer(this.rettangoliLayer);
+        
       },
       error: (msg: any) => {
         console.log('METADATA ERROR: ', msg);
@@ -1624,6 +1777,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     });
   }
+
     //function to fill the color of the rectangles of vectorial layer
   fillRectangleColor(r: any,g: any,b: any){
     return "rgb("+r+","+g+","+b+")";
@@ -1741,4 +1895,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
 }
+
+
+
+
+
+
+
+
+
+
 

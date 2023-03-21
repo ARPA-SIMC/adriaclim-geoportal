@@ -390,20 +390,18 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
   if "format" in kwargs:
     url = url + "." + kwargs["format"]
 
-  print("URL DOPO FORMAT==========",url)
+
 
   di = getIndicatorDimensions(ind)
 
-  print("IND DIMENSIONS======",di)
+ 
   va = getIndicatorVariables(ind)
 
-  print("IND VARIABLES=========",va)
 
   tipo = getIndicatorDataFormat(ind)
   
 
-#QUI CI ARRIVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-  print("ARRIVA AL CONTROLLO GRIDDAP E TABLEDAP")
+
   
   griddap = (tipo == "griddap")
   
@@ -413,7 +411,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
   if griddap and "variable" in kwargs:
     va = [kwargs["variable"]]  
   
-  print("VARIABLE AFTER IF GRIDDAP============",va)
+
  
   if skipDimensions:
     di = []
@@ -435,7 +433,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
           query = query + kwargs[d+"Min"]
         else:
           alias = getVariableAliases(d)
-          print("ALIAS=============",alias)
+          
           for al in alias:
             if al in kwargs:
               query = query + kwargs[al]
@@ -444,7 +442,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
         query = query + "):1:("
 
-        print("QUERY========",query)
+        
         
         if d in kwargs and not (d+"Max") in kwargs:
           query = query + kwargs[d]
@@ -452,7 +450,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
           query = query + kwargs[d+"Max"]
         else:
           alias = getVariableAliases(d)
-          print("SECONDA ALIAS=====",alias)
+          
           for al in alias:
             if al in kwargs:
               query = query + kwargs[al]
@@ -460,7 +458,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
               query = query + kwargs[al+"Max"]
 
         query = query + ")%5D"
-    print("FINE GRIDDAP QUERY========",query)
+   
   else:
     for v in va:
       if query != "?":
@@ -493,7 +491,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
             elif (al+"Max") in kwargs:
               query = query + "&" + d + "%3C=" + kwargs[al+"Max"]
     
-    print("FINE TABLEDAP")
+
   
   print("URL + QUERY =",url+query)
   #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/EOBS_a583_d8f2_21c0.json?very_wet_days_wrt_95th_percentile_of_reference_period%5B(2020-12-31T00:00:00Z):1:(2020-12-31T00:00:00Z)%5D%5B(46.94985982579791):1:(46.94985982579791)%5D%5B(21.94986030317809):1:(21.94986030317809)%5D
@@ -624,15 +622,19 @@ def getAllDatasets():
         if row1["Attribute Name"] == "geospatial_lon_max":
           lng_max = row1["Value"]
 
-      #is_indicator it is used to check if it the dataset is an indicator!
+      #is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
       is_indicator =  re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)
       
-      if is_indicator and (adriaclim_scale != "pilot" and adriaclim_scale != "local"):
+      if is_indicator and adriaclim_scale is None:
         adriaclim_scale = "large"
+
+      if adriaclim_timeperiod == "day":
+         adriaclim_timeperiod = "daily"
 
 
       if adriaclim_scale is None and not is_indicator:
         adriaclim_scale = "UNKNOWN"
+
 
       if adriaclim_model is None:
         adriaclim_model="UNKNOWN"
@@ -782,7 +784,9 @@ def getIndicators():
         if row1["Attribute Name"] == "geospatial_lon_max":
           lng_max = row1["Value"]
 
-      if adriaclim_scale is None or (adriaclim_scale != "pilot" and adriaclim_scale != "local") : 
+      # if adriaclim_scale is None or (adriaclim_scale != "pilot" and adriaclim_scale != "local") : 
+      #   adriaclim_scale="large"
+      if adriaclim_scale is None: 
         adriaclim_scale="large"
 
       if adriaclim_model is None:
@@ -986,12 +990,16 @@ def getMetadataOfASpecificDataset(dataset_id):
   is_indicator = False
   try:
     x=Node.objects.get(id=dataset_id)
-    df=pd.read_csv(x.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
-    df1=df.replace(np.nan,"Value not available",regex=True)
+    # url = x.metadata_url.replace(".csv",".json")
+    # r = requests.get(url=url)
+    # data = r.json()
+    # return data
+    df = pd.read_csv(x.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
+    df1 = df.replace(np.nan,"Value not available",regex=True)
     df1.to_html("./templates/specificDataset.html",index=False)
     with open("./templates/specificDataset.html") as file:
-        file=file.read()
-    file=file.replace("<table ","<table class='rwd-table'")
+        file = file.read()
+    file = file.replace("<table ","<table class='rwd-table'")
     return file
   except Node.DoesNotExist:
     is_indicator = True
@@ -999,12 +1007,16 @@ def getMetadataOfASpecificDataset(dataset_id):
   if is_indicator:
     try:
       indicator = Indicator.objects.get(pk=dataset_id)
-      df=pd.read_csv(indicator.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
-      df1=df.replace(np.nan,"Value not available",regex=True)
+      # url = indicator.metadata_url.replace(".csv",".json")
+      # r = requests.get(url=url)
+      # data = r.json()
+      # return data
+      df = pd.read_csv(indicator.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
+      df1 = df.replace(np.nan,"Value not available",regex=True)
       df1.to_html("./templates/specificDataset.html",index=False)
       with open("./templates/specificDataset.html") as file:
-          file=file.read()
-      file=file.replace("<table ","<table class='rwd-table'")
+          file = file.read()
+      file = file.replace("<table ","<table class='rwd-table'")
       return file
     except Indicator.DoesNotExist:
       return 

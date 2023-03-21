@@ -330,6 +330,89 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       idMeta: this.datasetId
     }
     this.httpClient.post('http://localhost:8000/test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
+    //   if (typeof response === 'string') {
+    //     response = JSON.parse(response);
+    //   }  
+    //   this.dataTable = response;
+    //   console.log("datatable=======",this.dataTable.metadata);
+    //   this.displayedColumns = this.dataTable.metadata.table.columnNames;
+    //   console.log("displayedColumns", this.displayedColumns);
+    //   let objArr: any = {};
+    //   let arr1: any = [];
+    //   // console.log("K = ", k);
+
+    //   this.dataTable.metadata.table.rows.forEach((arr: any) => {
+    //     objArr = {};
+
+    //     this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
+    //       objArr[key] = arr[i];
+
+    //     })
+    //     arr1.push(objArr);
+
+    //   });
+    //   this.dataTable.metadata.table.rows = [...arr1];
+
+    //   if (this.dataTable.metadata.table.rows.length > 0) {
+    //     this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
+    //     // bypass ngIf for paginator
+    //     this.setDataSourceAttributes();
+    //   }
+ 
+    //   console.log("this.dataSource", this.dataSource);
+
+    //   let htmlToAdd = `<table mat-table [dataSource]='${this.dataSource}'>`;
+    //   this.displayedColumns.forEach((column: any) => {
+    //     let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
+    //     this.dataTable.metadata.table.rows.forEach((row: any,index:number) => {
+    //       let element = this.dataTable.metadata.table.rows[index][column];
+    //       htmlToAdd += `<ng-container [matColumnDef]='${column}'>
+    //       <th mat-header-cell *matHeaderCellDef> ${columnToDisplay} </th>
+    //       <td mat-cell *matCellDef='let element'> ${element} </td>
+    //       </ng-container>`;
+    //     });
+   
+    //   });
+    //   htmlToAdd += `
+    //      <tr mat-header-row *matHeaderRowDef='${this.displayedColumns}'></tr>
+    //      <tr mat-row *matRowDef='let row; columns: ${this.displayedColumns};'></tr>
+    //      </table>
+  
+    //      <mat-paginator [pageSizeOptions]='[10, 20, 30]'
+    //                    showFirstLastButtons
+    //                   aria-label='Select page of periodic elements'>
+  
+    //   </mat-paginator>
+    //     `;
+      
+    //   //  this.displayedColumns.forEach((column: any) => {
+    //   //   let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
+    //   //   this.dataTable.metadata.table.rows.forEach((element: any) => {
+    //   //     htmlToAdd += `<ng-container [matColumnDef]='${column}'>
+    //   //       <th mat-header-cell *matHeaderCellDef> ${columnToDisplay} </th>
+    //   //       <td mat-cell *matCellDef='let element'> ${element[column]} </td>
+    //   //     </ng-container>`;
+    //   //   });
+    //   //  });
+    //   // this.displayedColumns.map((column: any) => {
+    //   //   let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
+    //   //   let element = this.dataSource.metadata.table.rows[][column]
+    //   //   htmlToAdd += `<ng-container [matColumnDef]='${column}'>
+    //   //     <th mat-header-cell *matHeaderCellDef> ${columnToDisplay} </th>
+    //   //     <td mat-cell *matCellDef='let element'> ${element}[${column}] </td>
+    //   //   </ng-container>`;
+    //   // })
+    // //   htmlToAdd += `
+    // //   <tr mat-header-row *matHeaderRowDef='${this.displayedColumns}'></tr>
+    // //   <tr mat-row *matRowDef='let row; columns: ${this.displayedColumns};'></tr>
+    // //   </table>
+
+    // //   <mat-paginator [pageSizeOptions]='[10, 20, 30]'
+    // //                 showFirstLastButtons
+    // //                 aria-label='Select page of periodic elements'>
+
+    // //   </mat-paginator>
+    // // `;
       this.myDiv.nativeElement.innerHTML = response;
     });
 
@@ -406,41 +489,57 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   }
 
   exportData(typeSel: any) {
-
+    let erddapUrl: any;
     //COSI FUNZIONA ORA PERò BOH.......
-    let erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
-    //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
+    if(this.dataset.griddap_url !== ""){
+         erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
+        //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
 
-    //consecutive_dry_days_index_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D,number_of_cdd_periods_with_more_than_5days_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
+        //consecutive_dry_days_index_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D,number_of_cdd_periods_with_more_than_5days_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
 
-    let variable: any;
-    this.form.get("varSelected")?.value.map((el: any, index: number) => {
+        let variable: any;
+        this.form.get("varSelected")?.value.map((el: any, index: number) => {
 
-      if(index === this.form.get("varSelected")?.value.length || index === 0) {
-        variable = el;
-      }
-      else {
+          if(index === this.form.get("varSelected")?.value.length || index === 0) {
+            variable = el;
+          }
+          else {
 
-        variable =  "," + el;
+            variable =  "," + el;
 
-      }
+          }
 
-      //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
+          //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
 
-      if (this.dataset.dimensions === 3) {
-        //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-        erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-      }
-      else {
-        //caso parametro aggiuntivo
-        let rangeMin = this.minRange;
-        let rangeMax = this.maxRange;
-        //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-        erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-      }
+          if (this.dataset.dimensions === 3) {
+            //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+            erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+          }
+          else {
+            //caso parametro aggiuntivo
+            let rangeMin = this.minRange;
+            let rangeMax = this.maxRange;
+            //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+            erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+          }
 
-    });
+        });
+    }else{
+      //caso tabledap, dobbiamo costruire il suo url!
+      //https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2022-11-09&time%3C=2022-11-16&latitude%3E=45.605&latitude%3C=45.605&longitude%3E=12.65&longitude%3C=12.65
+      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/" + this.datasetId + typeSel + "?";
+      let variable_names = this.dataset.variable_names.split(" ");
+  
+      variable_names.forEach((variable:any,index:any)=>{
+        if(index === variable_names.length-1){
+          erddapUrl += variable;
+        }else{
+          erddapUrl += variable + "%2C";
+        }
+      });
+      erddapUrl += "&time%3E=" + this.formatDateExport(this.minValue) + "&time%3C=" + this.formatDateExport(this.maxValue) + "&latitude%3E=" + this.latlng.lat + "&latitude%3C=" + this.latlng.lat + "&longitude%3E=" + this.latlng.lng + "&longitude%3C=" + this.latlng.lng;
 
+    }
 
       const link = document.createElement('a');
       link.setAttribute('target', '_self');
