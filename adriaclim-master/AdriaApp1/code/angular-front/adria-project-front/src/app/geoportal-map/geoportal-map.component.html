@@ -62,18 +62,18 @@
 
             <mat-menu #myMenu1="matMenu" class="menu">
               <div fxFlex fxLayout="column" fxLayoutAlign="center start">
-              <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center"
-                (click)="$event.stopPropagation();">
-                <mat-form-field class="example-full-width" color="primary" appearance="outline">
-                  <mat-label fxFlex="100">Filter title or institution</mat-label>
-                  <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
-                  <input type="text" matInput formControlName="searchText">
-                  <button matSuffix mat-icon-button aria-label="Clear">
-                    <mat-icon>search</mat-icon>
-                  </button>
-                </mat-form-field>
-                <!-- {{selData.get("searchText")?.value | json}} -->
-              </div>
+                <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center"
+                  (click)="$event.stopPropagation();">
+                  <mat-form-field class="example-full-width" color="primary" appearance="outline">
+                    <mat-label fxFlex="100">Filter title or institution</mat-label>
+                    <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
+                    <input type="text" matInput formControlName="searchTextDataset">
+                    <button matSuffix mat-icon-button aria-label="Clear">
+                      <mat-icon>search</mat-icon>
+                    </button>
+                  </mat-form-field>
+                  <!-- {{selData.get("searchText")?.value | json}} -->
+                </div>
               </div>
               <ng-template matMenuContent>
 
@@ -133,7 +133,7 @@
           #menuTrigger="matMenuTrigger"
           [matMenuTriggerFor]="myMenu2"> <span class="text-menu"> Variable </span></button> -->
         <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
-        
+
           <div fxFlex="20" fxLayout="row" class="menu-var" LayoutAlign="center center">
             <form [formGroup]="variableGroup">
               <ng-container *ngIf="variableArray.length > 0; else noVariable">
@@ -170,7 +170,7 @@
             </form>
 
           </div>
-      
+
         <!-- <mat-menu #myMenu2="matMenu">
           <ng-template matMenuContent>
               <ng-container *ngFor="let v of variableArray">

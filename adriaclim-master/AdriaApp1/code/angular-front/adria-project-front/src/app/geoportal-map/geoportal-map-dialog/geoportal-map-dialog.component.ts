@@ -192,7 +192,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   }
 
   algoType: any;
-  @ViewChild('metadataTable') myDiv!: ElementRef;
+  // @ViewChild('metadataTable') myDiv!: ElementRef;
   @ViewChild('graphDiv') graph!: ElementRef;
 
   constructor(
@@ -330,9 +330,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       idMeta: this.datasetId
     }
     this.httpClient.post('http://localhost:8000/test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
+
     //   if (typeof response === 'string') {
     //     response = JSON.parse(response);
-    //   }  
+    //   }
     //   this.dataTable = response;
     //   console.log("datatable=======",this.dataTable.metadata);
     //   this.displayedColumns = this.dataTable.metadata.table.columnNames;
@@ -358,7 +359,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     //     // bypass ngIf for paginator
     //     this.setDataSourceAttributes();
     //   }
- 
+
     //   console.log("this.dataSource", this.dataSource);
 
     //   let htmlToAdd = `<table mat-table [dataSource]='${this.dataSource}'>`;
@@ -371,20 +372,20 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     //       <td mat-cell *matCellDef='let element'> ${element} </td>
     //       </ng-container>`;
     //     });
-   
+
     //   });
     //   htmlToAdd += `
     //      <tr mat-header-row *matHeaderRowDef='${this.displayedColumns}'></tr>
     //      <tr mat-row *matRowDef='let row; columns: ${this.displayedColumns};'></tr>
     //      </table>
-  
+
     //      <mat-paginator [pageSizeOptions]='[10, 20, 30]'
     //                    showFirstLastButtons
     //                   aria-label='Select page of periodic elements'>
-  
+
     //   </mat-paginator>
     //     `;
-      
+
     //   //  this.displayedColumns.forEach((column: any) => {
     //   //   let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
     //   //   this.dataTable.metadata.table.rows.forEach((element: any) => {
@@ -413,7 +414,45 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
     // //   </mat-paginator>
     // // `;
-      this.myDiv.nativeElement.innerHTML = response;
+    this.spinnerLoading = false;
+        if (typeof response === 'string') {
+          response = JSON.parse(response);
+        }
+        this.dataTable = response;
+        console.log("datatable metadata=======",this.dataTable);
+
+        this.displayedColumns = this.dataTable.metadata.table.columnNames;
+        let dim_unit: any;
+
+        if (this.dataTable.metadata.table.columnUnits) {
+          dim_unit = this.dataTable.metadata.table.columnUnits[this.dataTable.metadata.table.columnUnits.length - 1];
+          this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
+        }
+        // this.dataTable.data.table.forEach((el: any) => {
+        let objArr: any = {};
+        let arr1: any = [];
+        // console.log("K = ", k);
+
+        this.dataTable.metadata.table.rows.forEach((arr: any) => {
+          objArr = {};
+
+          this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
+            objArr[key] = arr[i];
+
+          })
+          arr1.push(objArr);
+
+        });
+        this.dataTable.metadata.table.rows = [...arr1];
+
+        if (this.dataTable.metadata.table.rows.length > 0) {
+          this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
+          // bypass ngIf for paginator
+          this.setDataSourceAttributes();
+
+
+        }
+      // this.myDiv.nativeElement.innerHTML = response;
     });
 
 
@@ -442,7 +481,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
           response = JSON.parse(response);
         }
         this.dataTable = response;
-        console.log("datatable=======",this.dataTable);
+        console.log("datatable graph=======", this.dataTable);
 
         this.displayedColumns = this.dataTable.data.table.columnNames;
         let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
@@ -529,7 +568,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       //https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2022-11-09&time%3C=2022-11-16&latitude%3E=45.605&latitude%3C=45.605&longitude%3E=12.65&longitude%3C=12.65
       erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/" + this.datasetId + typeSel + "?";
       let variable_names = this.dataset.variable_names.split(" ");
-  
+
       variable_names.forEach((variable:any,index:any)=>{
         if(index === variable_names.length-1){
           erddapUrl += variable;

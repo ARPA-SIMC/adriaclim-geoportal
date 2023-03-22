@@ -403,11 +403,11 @@ def overlaysNew(request,dataset_id):
     return django_response
 
 @api_view(['GET','POST'])
-def get_metadata_table(request):
+def get_metadata_table(request):#*****************************************************************
     dataset_id = request.data.get("idMeta")
     metadata=allFunctions.getMetadataOfASpecificDataset(dataset_id)
-    # return JsonResponse({"metadata":metadata})
-    return HttpResponse(metadata)
+    return JsonResponse({"metadata":metadata})
+    # return HttpResponse(metadata)
 
 @api_view(['GET','POST'])
 def getDataTableNew(request):

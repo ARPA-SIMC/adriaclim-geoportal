@@ -990,34 +990,34 @@ def getMetadataOfASpecificDataset(dataset_id):
   is_indicator = False
   try:
     x=Node.objects.get(id=dataset_id)
-    # url = x.metadata_url.replace(".csv",".json")
-    # r = requests.get(url=url)
-    # data = r.json()
-    # return data
-    df = pd.read_csv(x.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
-    df1 = df.replace(np.nan,"Value not available",regex=True)
-    df1.to_html("./templates/specificDataset.html",index=False)
-    with open("./templates/specificDataset.html") as file:
-        file = file.read()
-    file = file.replace("<table ","<table class='rwd-table'")
-    return file
+    url = x.metadata_url.replace(".csv",".json")
+    r = requests.get(url=url)
+    data = r.json()
+    return data
+    # df = pd.read_csv(x.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
+    # df1 = df.replace(np.nan,"Value not available",regex=True)
+    # df1.to_html("./templates/specificDataset.html",index=False)
+    # with open("./templates/specificDataset.html") as file:
+    #     file = file.read()
+    # file = file.replace("<table ","<table class='rwd-table'")
+    # return file
   except Node.DoesNotExist:
     is_indicator = True
   
   if is_indicator:
     try:
       indicator = Indicator.objects.get(pk=dataset_id)
-      # url = indicator.metadata_url.replace(".csv",".json")
-      # r = requests.get(url=url)
-      # data = r.json()
-      # return data
-      df = pd.read_csv(indicator.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
-      df1 = df.replace(np.nan,"Value not available",regex=True)
-      df1.to_html("./templates/specificDataset.html",index=False)
-      with open("./templates/specificDataset.html") as file:
-          file = file.read()
-      file = file.replace("<table ","<table class='rwd-table'")
-      return file
+      url = indicator.metadata_url.replace(".csv",".json")
+      r = requests.get(url=url)
+      data = r.json()
+      return data
+      # df = pd.read_csv(indicator.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
+      # df1 = df.replace(np.nan,"Value not available",regex=True)
+      # df1.to_html("./templates/specificDataset.html",index=False)
+      # with open("./templates/specificDataset.html") as file:
+      #     file = file.read()
+      # file = file.replace("<table ","<table class='rwd-table'")
+      # return file
     except Indicator.DoesNotExist:
       return 
 

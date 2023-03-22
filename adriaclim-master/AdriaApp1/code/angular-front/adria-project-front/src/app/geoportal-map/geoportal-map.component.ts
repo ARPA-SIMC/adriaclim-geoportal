@@ -10,6 +10,7 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import * as L from 'leaflet';
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 // import "leaflet/dist/leaflet.css";
@@ -68,7 +69,7 @@ let TREE_DATA: FoodNode[] = [
     name: 'Indicators',
     // childVisible: true,
     children: [
-      
+
       // {
       //   name: 'Large scale',
       //   // childVisible: true,
@@ -163,7 +164,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   activeLayersArray: any[] = [];
   legendNoWms: any;
   style: any;
-  
+  markerToAdd: any;
+  circleMarkerArray : any[] = [];
+
   value: any;
   valueCustom: any;
   options: Options = {
@@ -177,6 +180,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   pointBoolean = false;
 
   coordOnClick = {};
+  filteredData: any;
 
   ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
   legendLayer_src: any;
@@ -192,7 +196,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   constructor(private httpClient: HttpClient, private dialog: MatDialog) {
     this.selData = new FormGroup({
       dataSetSel: new FormControl(),
-      searchText: new FormControl()
+      searchText: new FormControl(),
+      searchTextDataset: new FormControl(),
     });
     this.selectedDate = new FormGroup({
       dateSel: new FormControl()
@@ -212,6 +217,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.getInd();
     this.getAllNodes();
     // this.dataSource.data = TREE_DATA;
+
+    this.filteredData = this.dataAllNodesTree.data;
+
+    this.selData.get('searchTextDataset')?.valueChanges.pipe(
+      startWith(''),
+      debounceTime(500),
+      distinctUntilChanged(),
+      map((text: string) => this.applyFilter(text))
+    ).subscribe((filteredData: any) => {
+      this.filteredData = filteredData;
+    });
 
   }
 
@@ -256,10 +272,49 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngOnInit(): Promise<void> {
     await this.initMap();
     console.log("LEGEND NO WMS =", this.legendNoWms)
-
     // await this.initMap();
 
   }
+
+  //test
+// filteredTreeData: FoodNode[] = [];
+
+// onSearchTextChanged(event: any) {
+//   const text = event.target.value;
+//   console.log("text",text);
+//   this.dataSource.data = this.filterTreeData(TREE_DATA, text);
+// }
+
+// filterTreeData(data: FoodNode[], text: string): FoodNode[] {
+//   if (!text) {
+//     // Se il testo di ricerca è vuoto, restituisci l'intero array di dati
+//     return data;
+//   }
+
+//   const result : FoodNode[] = [];
+
+//   // Loop attraverso ogni elemento dell'albero e dei suoi figli
+//   data?.forEach(node => {
+//     if(node.children !== undefined){
+//       const newNode: FoodNode = {
+//         name: node.name,
+//         children: this.filterTreeData(node.children, text)
+//       };
+//          // Aggiungi l'elemento solo se il suo nome contiene il testo di ricerca
+//     if (newNode.name.toLowerCase().indexOf(text.toLowerCase()) !== -1) {
+//       result.push(newNode);
+//     } else if (newNode.children !== undefined && newNode.children.length > 0) {
+//       // Aggiungi l'elemento solo se ha figli che soddisfano il criterio di filtro
+//       result.push(newNode);
+//     }
+//   }
+
+//   });
+
+//   return result;
+// }
+
+
 
   async initMap(): Promise<void> {
     this.map = L.map("map").setView(this.center, this.zoom);
@@ -292,7 +347,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // }else{
     //   this.pointBoolean = false;
     // }
-    this.map.on('click', this.onMapClick.bind(this));
+    // this.pointBoolean = true;
+    if(this.circleMarkerArray.length > 0){
+      this.circleMarkerArray.forEach((circle:any)=>{
+        circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat,circle.getLatLng().lng));
+      });
+    }else{
+      this.map.on('click', this.onMapClick.bind(this));
+    }
+    // if(this.markerToAdd) {
+    //   this.markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(this.markerToAdd.getLatLng().lat,this.markerToAdd.getLatLng().lng));
+
+    // }
+
+
     // }
 
     // this.initMap();
@@ -319,7 +387,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         }
       });
       // alert("You must select a polygon!"); nel caso in cui non viene selezionato un poligono
-    } 
+    }
   }
 
   // metodo richiamato al click sulla mappa
@@ -408,14 +476,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             //ordina in senso alfabetico la parte relativa agli scale del modello
             indicatori?.children?.sort((o1: any, o2: any) => {
               if (o1.name > o2.name) {
-                return 1; 
-              }     
+                return 1;
+              }
               if (o1.name < o2.name) {
                 return -1;
               }
               return 0;
             })
-            
+
             let scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
             let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
             if (scale?.children?.findIndex(timeInd => timeInd.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
@@ -426,17 +494,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             }
 
             //ordina in senso alfabetico la parte relativa ai timeperiod del modello
-          
+
             scale?.children?.sort((o1: any, o2: any) => {
               if (o1.name > o2.name) {
-                return 1; 
-              }     
+                return 1;
+              }
               if (o1.name < o2.name) {
                 return -1;
               }
               return 0;
             })
-        
+
             let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
             if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
               time?.children?.push({
@@ -467,14 +535,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             //ordina in senso alfabetico la parte relativa agli scale del modello
             modelli?.children?.sort((o1: any, o2: any) => {
               if (o1.name > o2.name) {
-                return 1; 
-              }     
+                return 1;
+              }
               if (o1.name < o2.name) {
                 return -1;
               }
               return 0;
             })
-            
+
             let scale = modelli.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
             let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
             if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
@@ -485,17 +553,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             }
 
             //ordina in senso alfabetico la parte relativa ai timeperiod del modello
-          
+
             scale?.children?.sort((o1: any, o2: any) => {
               if (o1.name > o2.name) {
-                return 1; 
-              }     
+                return 1;
+              }
               if (o1.name < o2.name) {
                 return -1;
               }
               return 0;
             })
-        
+
             let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
             if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
               time?.children?.push({
@@ -526,14 +594,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               //ordina in senso alfabetico la parte relativa agli scale di observations
               observation?.children?.sort((o1: any, o2: any) => {
                 if (o1.name > o2.name) {
-                  return 1; 
-                }     
+                  return 1;
+                }
                 if (o1.name < o2.name) {
                   return -1;
                 }
                 return 0;
               })
-              
+
               let scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
               let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
               if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
@@ -546,14 +614,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             //ordina in senso alfabetico la parte relativa ai timeperiod di observations
             scale?.children?.sort((o1: any, o2: any) => {
               if (o1.name > o2.name) {
-                return 1; 
-              }     
+                return 1;
+              }
               if (o1.name < o2.name) {
                 return -1;
               }
               return 0;
             })
-              
+
               let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
               if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
                 time?.children?.push({
@@ -600,6 +668,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         console.log('ALL NODES ERROR: ', msg);
       }
     })
+    // this.dataSource.data = TREE_DATA;
+
   }
 
 
@@ -624,7 +694,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         });
 
         this.dataSource.data = TREE_DATA;
-        
+
+
       },
       error: (msg: any) => {
         console.log('IND ERROR: ', msg);
@@ -633,8 +704,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     });
 
   }
-
-
 
   addToActiveLayers(node: any) {
     // this.selData.get("dataSetSel")?.value
@@ -698,7 +767,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         this.metadata = res;
         console.log("METADATA =", this.metadata);
-        
+
 
         if (controlDate === "ok") {
 
@@ -768,7 +837,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       return false;
     }
   }
-  
+
   isAString(val:any): boolean { return typeof val === 'string'; }
 
 
@@ -1502,6 +1571,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let metaId: any;
     if(this.legendNoWms){
       this.markersLayer.clearLayers();
+      this.circleMarkerArray = [];
       this.rettangoliLayer.clearLayers();
       this.isIndicator = false;
       this.map.removeControl(this.legendNoWms);
@@ -1588,7 +1658,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * TREE
    */
 
-  typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
+  // typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
   private _transformer = (node: FoodNode, level: number) => {
     return {
       expandable: !!node.children && node.children.length > 0,
@@ -1612,9 +1682,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     node => node.expandable,
     node => node.children,
   );
-  
+
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
   dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
 
@@ -1656,8 +1727,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
 
+    if(this.circleMarkerArray.length > 0){
+      this.circleMarkerArray.forEach((circle:any)=>{
+        circle.removeEventListener('click');
+      });
+    }
+
     let dataId: any;
-  
+
 
     if (this.selData.get("dataSetSel")?.value) {
 
@@ -1707,12 +1784,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   // PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
   getDataVectorialTabledap() {
-    
+
     let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
     splittedVar = splittedVar[splittedVar.length - 1];
     //se isIndicator è true, allora si tratta di un tabledap, altrimenti è griddap
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
-    
+
     this.httpClient.post('http://localhost:8000/test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
@@ -1742,11 +1819,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           if(this.isIndicator){
             //tabledap case, with circle
             let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
-            let markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],{radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b)});
+            this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],{radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b)});
             // let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
             // this.rettangoliLayer.addLayer(rectangle);
-            this.markersLayer.addLayer(markerToAdd);
-            markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(markerToAdd.getLatLng().lat,markerToAdd.getLatLng().lng));
+            // if(markerToAdd) {
+            //   this.pointBoolean = true;
+            // }
+            this.circleMarkerArray.push(this.markerToAdd);
+            this.markersLayer.addLayer(this.markerToAdd);
+            // if(this.pointBoolean) {
+            // this.markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(this.markerToAdd.getLatLng().lat,this.markerToAdd.getLatLng().lng));
+            //   this.pointBoolean = false;
+            // }
+
             this.map.addLayer(this.markersLayer);
           }else{
             //griddap case with rectangle, NON SERVONO I MARKER!
@@ -1760,7 +1845,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             // })
                       //this.markersLayer.addLayer(markerToAdd);
           let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
-          
+
           let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
           this.rettangoliLayer.addLayer(rectangle);
           this.map.addLayer(this.rettangoliLayer);
@@ -1769,7 +1854,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           //this.markersLayer.addLayer(markerToAdd);
         }
-        
+
       },
       error: (msg: any) => {
         console.log('METADATA ERROR: ', msg);
@@ -1893,6 +1978,82 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   }
+
+  // applyFilter() {
+  //   this.treeControl.collapseAll();
+  //   // this.treeControl.expandAll();
+
+  //   const filterValue = this.selData.get("searchTextDataset")?.value.toLowerCase() || "";
+
+  //   // Filtro i nodi del mat-tree
+  //   this.dataAllNodesTree.filter = (node: ExampleFlatNode) => {
+  //     return node.name.toLowerCase().includes(filterValue);
+  //   }
+
+
+  // }
+
+  applyFilter(filterValue: string): any[] {
+    // console.log();
+    // console.log();
+    // console.log();
+    // console.log();
+
+
+    // this.treeControl.collapseAll();
+    // this.treeControl.expandAll();
+
+    filterValue = filterValue.trim().toLowerCase();
+    console.log("FILTER VALUE =", filterValue);
+    let arr: any[] = [];
+    if(this.treeControl.dataNodes) {
+
+      if(this.treeControl.dataNodes.length > 0) {
+        this.treeControl.dataNodes.filter((item: any) => {
+          // console.log("============================================");
+          // console.log("============================================");
+          // console.log("ITEM APPLY FILTER =", item);
+          // console.log("ITEM TYPE =", typeof item);
+          // console.log("ITEM.NAME =", item.name);
+          // console.log("ITEM.NAME TYPE =", typeof item.name);
+          // console.log("============================================");
+          // console.log("============================================");
+          if(typeof item.name === "object") {
+            console.log("INCLUDES NAME FILTER VALUE =", item.name.title.toLowerCase().includes(filterValue));
+            if(item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue)) {
+              arr.push(item);
+              // console.log("ARR =", arr);
+              //return arr;
+            }
+            // return arr
+
+          }
+
+        })
+
+      }
+      this.treeControl.dataNodes = arr;
+
+      /**
+       *  CONTINUARE QUI FILTRO DATASET
+       */
+    }
+    console.log("TREE CONTROL =", this.treeControl.dataNodes);
+    if(!filterValue) {
+      this.treeControl.collapseAll();
+      return this.dataAllNodesTree.data;
+    }
+    else {
+      this.treeControl.expandAll();
+    }
+
+    console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
+    console.log("ARR =", arr);
+    return this.treeControl.dataNodes
+
+
+  }
+
 
 }
 
