@@ -1,4 +1,5 @@
 import { Options } from '@angular-slider/ngx-slider';
+import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
@@ -165,7 +166,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   legendNoWms: any;
   style: any;
   markerToAdd: any;
-  circleMarkerArray : any[] = [];
+  circleMarkerArray: any[] = [];
 
   value: any;
   valueCustom: any;
@@ -277,42 +278,42 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   //test
-// filteredTreeData: FoodNode[] = [];
+  // filteredTreeData: FoodNode[] = [];
 
-// onSearchTextChanged(event: any) {
-//   const text = event.target.value;
-//   console.log("text",text);
-//   this.dataSource.data = this.filterTreeData(TREE_DATA, text);
-// }
+  // onSearchTextChanged(event: any) {
+  //   const text = event.target.value;
+  //   console.log("text",text);
+  //   this.dataSource.data = this.filterTreeData(TREE_DATA, text);
+  // }
 
-// filterTreeData(data: FoodNode[], text: string): FoodNode[] {
-//   if (!text) {
-//     // Se il testo di ricerca è vuoto, restituisci l'intero array di dati
-//     return data;
-//   }
+  // filterTreeData(data: FoodNode[], text: string): FoodNode[] {
+  //   if (!text) {
+  //     // Se il testo di ricerca è vuoto, restituisci l'intero array di dati
+  //     return data;
+  //   }
 
-//   const result : FoodNode[] = [];
+  //   const result : FoodNode[] = [];
 
-//   // Loop attraverso ogni elemento dell'albero e dei suoi figli
-//   data?.forEach(node => {
-//     if(node.children !== undefined){
-//       const newNode: FoodNode = {
-//         name: node.name,
-//         children: this.filterTreeData(node.children, text)
-//       };
-//          // Aggiungi l'elemento solo se il suo nome contiene il testo di ricerca
-//     if (newNode.name.toLowerCase().indexOf(text.toLowerCase()) !== -1) {
-//       result.push(newNode);
-//     } else if (newNode.children !== undefined && newNode.children.length > 0) {
-//       // Aggiungi l'elemento solo se ha figli che soddisfano il criterio di filtro
-//       result.push(newNode);
-//     }
-//   }
+  //   // Loop attraverso ogni elemento dell'albero e dei suoi figli
+  //   data?.forEach(node => {
+  //     if(node.children !== undefined){
+  //       const newNode: FoodNode = {
+  //         name: node.name,
+  //         children: this.filterTreeData(node.children, text)
+  //       };
+  //          // Aggiungi l'elemento solo se il suo nome contiene il testo di ricerca
+  //     if (newNode.name.toLowerCase().indexOf(text.toLowerCase()) !== -1) {
+  //       result.push(newNode);
+  //     } else if (newNode.children !== undefined && newNode.children.length > 0) {
+  //       // Aggiungi l'elemento solo se ha figli che soddisfano il criterio di filtro
+  //       result.push(newNode);
+  //     }
+  //   }
 
-//   });
+  //   });
 
-//   return result;
-// }
+  //   return result;
+  // }
 
 
 
@@ -348,11 +349,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //   this.pointBoolean = false;
     // }
     // this.pointBoolean = true;
-    if(this.circleMarkerArray.length > 0){
-      this.circleMarkerArray.forEach((circle:any)=>{
-        circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat,circle.getLatLng().lng));
+    if (this.circleMarkerArray.length > 0) {
+      this.circleMarkerArray.forEach((circle: any) => {
+        circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
       });
-    }else{
+    } else {
       this.map.on('click', this.onMapClick.bind(this));
     }
     // if(this.markerToAdd) {
@@ -383,7 +384,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       //è il modo più giusto?
       this.allPolygons.forEach((pol: any) => {
         if (pol.getBounds().contains(e.latlng)) {
-          console.log("The polygon is rullo di tamburi",pol);
+          console.log("The polygon is rullo di tamburi", pol);
         }
       });
       // alert("You must select a polygon!"); nel caso in cui non viene selezionato un poligono
@@ -582,34 +583,34 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
           else if (node.adriaclim_dataset === "observation") {
             let observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
-              //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-              let scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-              if (observation?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-                observation?.children?.push({
-                  name: scaleUpperCase,
-                  children: []
-                });
-              }
+            //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+            let scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+            if (observation?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
+              observation?.children?.push({
+                name: scaleUpperCase,
+                children: []
+              });
+            }
 
-              //ordina in senso alfabetico la parte relativa agli scale di observations
-              observation?.children?.sort((o1: any, o2: any) => {
-                if (o1.name > o2.name) {
-                  return 1;
-                }
-                if (o1.name < o2.name) {
-                  return -1;
-                }
-                return 0;
-              })
-
-              let scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-              let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-              if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-                scale?.children?.push({
-                  name: timeUpperCase,
-                  children: []
-                });
+            //ordina in senso alfabetico la parte relativa agli scale di observations
+            observation?.children?.sort((o1: any, o2: any) => {
+              if (o1.name > o2.name) {
+                return 1;
               }
+              if (o1.name < o2.name) {
+                return -1;
+              }
+              return 0;
+            })
+
+            let scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+            let timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+            if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+              scale?.children?.push({
+                name: timeUpperCase,
+                children: []
+              });
+            }
 
             //ordina in senso alfabetico la parte relativa ai timeperiod di observations
             scale?.children?.sort((o1: any, o2: any) => {
@@ -622,11 +623,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               return 0;
             })
 
-              let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-              if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-                time?.children?.push({
-                  name: node
-                });
+            let time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+            if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+              time?.children?.push({
+                name: node
+              });
 
               observation?.children?.sort((o1: any, o2: any) => {
                 if (o1.name.title > o2.name.title) {
@@ -713,7 +714,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.selData.get("dataSetSel")?.setValue(node);
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
     console.log("IS INDICATOR ==", this.isIndicator);
-    if(!this.isIndicator){
+    if (!this.isIndicator) {
       this.legendNoWms = undefined;
     }
     console.log("Added layer====", this.activeLayersArray);
@@ -794,7 +795,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.variableArray = node.variable_names.split(" ");
     }
     this.isIndicator = node.name.griddap_url !== "" ? false : true;
-    if(this.isIndicator){
+    if (this.isIndicator) {
       this.variableArray = this.variableArray.slice(-1);
     }
     this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
@@ -838,7 +839,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }
   }
 
-  isAString(val:any): boolean { return typeof val === 'string'; }
+  isAString(val: any): boolean { return typeof val === 'string'; }
 
 
   changeDate(arrow: any) {
@@ -1569,7 +1570,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   deleteLayer(idMeta?: string) {
     let metaId: any;
-    if(this.legendNoWms){
+    if (this.legendNoWms) {
       this.markersLayer.clearLayers();
       this.circleMarkerArray = [];
       this.rettangoliLayer.clearLayers();
@@ -1588,7 +1589,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       }
     }
 
-    if(this.legendLayer_src) {
+    if (this.legendLayer_src) {
       this.map.removeLayer(this.datasetLayer);
 
     }
@@ -1657,6 +1658,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   /**
    * TREE
    */
+  /** The selection for checklist */
+  checklistSelection = new SelectionModel<ExampleFlatNode>(false /* multiple */);
 
   // typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
   private _transformer = (node: FoodNode, level: number) => {
@@ -1722,13 +1725,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  openGraphDialog(lat?:any,lng?:any) {
+  openGraphDialog(lat?: any, lng?: any) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
 
-    if(this.circleMarkerArray.length > 0){
-      this.circleMarkerArray.forEach((circle:any)=>{
+    if (this.circleMarkerArray.length > 0) {
+      this.circleMarkerArray.forEach((circle: any) => {
         circle.removeEventListener('click');
       });
     }
@@ -1749,8 +1752,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
       }
 
-      if(lat){
-        this.coordOnClick = {"lat":lat,"lng":lng};
+      if (lat) {
+        this.coordOnClick = { "lat": lat, "lng": lng };
       }
 
       dialogConfig.data = {
@@ -1807,19 +1810,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         let bounds: any;
         let rectangle: any;
         let value_mid: any;
-        if(parseFloat(value_min) < 0){
+        if (parseFloat(value_min) < 0) {
           value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-         }else{
-         value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
-         }
-        this.createLegend(parseFloat(value_min),parseFloat(value_max),value_mid);
+        } else {
+          value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+        }
+        this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
         for (let i = 0; i < allLatCoordinates.length; i++) {
-          if(this.isIndicator){
+          if (this.isIndicator) {
             //tabledap case, with circle
-            let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
-            this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],{radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b)});
+            let varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
+            this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
             // let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
             // this.rettangoliLayer.addLayer(rectangle);
             // if(markerToAdd) {
@@ -1833,7 +1836,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             // }
 
             this.map.addLayer(this.markersLayer);
-          }else{
+          } else {
             //griddap case with rectangle, NON SERVONO I MARKER!
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.150002, parseFloat(allLongCoordinates[i]) - 0.1730774], [parseFloat(allLatCoordinates[i]) + 0.150002, parseFloat(allLongCoordinates[i]) + 0.1730774]];
             // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
@@ -1843,12 +1846,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             //   //   iconUrl: 'marker-icon.png',
             //   // })
             // })
-                      //this.markersLayer.addLayer(markerToAdd);
-          let varColor= this.getColor(allValues[i],value_min,value_max,"#f44336","#9c27b0","#3f51b5");
+            //this.markersLayer.addLayer(markerToAdd);
+            let varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
 
-          let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-          this.rettangoliLayer.addLayer(rectangle);
-          this.map.addLayer(this.rettangoliLayer);
+            let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+            this.rettangoliLayer.addLayer(rectangle);
+            this.map.addLayer(this.rettangoliLayer);
           }
           // markerToAdd.on('click',this.openGraphDialog.bind(this));
 
@@ -1863,14 +1866,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     });
   }
 
-    //function to fill the color of the rectangles of vectorial layer
-  fillRectangleColor(r: any,g: any,b: any){
-    return "rgb("+r+","+g+","+b+")";
+  //function to fill the color of the rectangles of vectorial layer
+  fillRectangleColor(r: any, g: any, b: any) {
+    return "rgb(" + r + "," + g + "," + b + ")";
   }
-  hexToRgb(hex:any) {
+  hexToRgb(hex: any) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function(m: any, r: any, g:any, b: any) {
+    hex = hex.replace(shorthandRegex, function (m: any, r: any, g: any, b: any) {
       return r + r + g + g + b + b;
     });
 
@@ -1883,42 +1886,42 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
 
-  getColor(v: any, min: any, max: any,colorMin: any,colorMid: any,colorMax: any) {
+  getColor(v: any, min: any, max: any, colorMin: any, colorMid: any, colorMax: any) {
 
     function getC(f: any, l: any, r: any) {
-        return {
-            r: Math.floor((1 - f) * l.r + f * r.r),
-            g: Math.floor((1 - f) * l.g + f * r.g),
-            b: Math.floor((1 - f) * l.b + f * r.b),
-        };
+      return {
+        r: Math.floor((1 - f) * l.r + f * r.r),
+        g: Math.floor((1 - f) * l.g + f * r.g),
+        b: Math.floor((1 - f) * l.b + f * r.b),
+      };
     }
     let left: any,
-        middle: any,
-        right: any,
-        mid: any;
-    if(colorMin===""){
+      middle: any,
+      right: any,
+      mid: any;
+    if (colorMin === "") {
       left = { r: 0, g: 0, b: 255 },
-      middle = { r: 255, g: 255, b: 0 },
-      right = { r: 255, g: 0, b: 0 },
-      mid = (max - min) / 2;
-    }else{
+        middle = { r: 255, g: 255, b: 0 },
+        right = { r: 255, g: 0, b: 0 },
+        mid = (max - min) / 2;
+    } else {
       left = { r: this.hexToRgb(colorMin)?.r, g: this.hexToRgb(colorMin)?.g, b: this.hexToRgb(colorMin)?.b },
-      middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
-      right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
-      mid = (max - min) / 2;
+        middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
+        right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
+        mid = (max - min) / 2;
     }
     return v < min + mid ?
-    getC((v - min) / mid, left, middle) :
-    getC((v - min - mid) / mid, middle, right);
-}
+      getC((v - min) / mid, left, middle) :
+      getC((v - min - mid) / mid, middle, right);
+  }
 
   // CREIAMO LA LEGENDA PER I NO WMS
 
   createLegend(value_min: any, value_max: any, value_mid: any) {
     let value_min_mid: any;
-    let value_mid_max : any;
+    let value_mid_max: any;
     this.legendNoWms = new L.Control({ position: "bottomleft" });
-    if(parseFloat(value_min) < 0) {
+    if (parseFloat(value_min) < 0) {
 
       value_min_mid = Math.ceil((parseFloat(value_mid) - parseFloat(value_min)) / 2);
       value_mid_max = Math.ceil((parseFloat(value_max) - parseFloat(value_mid)) / 2);
@@ -1928,19 +1931,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
     }
 
-    let getColor = (v:any) => {
-          return v === value_min
-                  ? "#f44336"
-                  : v === value_min_mid
-                  ? "#e91e63"
-                  : v === value_mid
-                  ? "#9c27b0"
-                  : v === value_mid_max
-                  ? "#673ab7"
-                  : v === value_max
-                  ? "#3f51b5"
-                  : "#3f51b5";
-  }
+    let getColor = (v: any) => {
+      return v === value_min
+        ? "#f44336"
+        : v === value_min_mid
+          ? "#e91e63"
+          : v === value_mid
+            ? "#9c27b0"
+            : v === value_mid_max
+              ? "#673ab7"
+              : v === value_max
+                ? "#3f51b5"
+                : "#3f51b5";
+    }
 
 
     // this.legendNoWms = new L.Control({ position: 'bottomright' });
@@ -1966,7 +1969,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
         labels.push(
-         "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '"></i> ' +
+          "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '"></i> ' +
           "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>");
       }
       // div.innerHTML = labels.join('<br>');
@@ -1979,80 +1982,159 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  // applyFilter() {
-  //   this.treeControl.collapseAll();
+  /**
+   *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE
+   */
+  applyFilter(filterValue: string): any[] {
+    filterValue = filterValue.trim().toLowerCase();
+    let treeFiltrato: any[] = [];
+    this.dataAllNodesTree.data = TREE_DATA;
+
+    if (this.treeControl.dataNodes) {
+      if (this.treeControl.dataNodes.length > 0) {
+        treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
+          if (typeof item.name === "object") {
+
+            return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
+          }
+
+        })
+        // console.log("TREE FILTRATO =", treeFiltrato);
+
+      }
+    }
+    if (!filterValue) {
+      console.log("COLLAPSE");
+
+      // this.dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+      // this.dataAllNodesTree.data = TREE_DATA;
+      return this.dataAllNodesTree.data;
+    }
+    else {
+      console.log("EXPAND");
+      // this.treeControl.expandAll();
+      // this.treeControl.dataNodes = treeFiltrato;
+      // this.dataAllNodesTree.data = TREE_DATA;
+      // this.dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+      return this.dataAllNodesTree.data = treeFiltrato;
+    }
+  }
+
+  /**
+   *  APPLY FILTER CON EXPAND DA RIVEDERE
+   */
+  // applyFilter(filterValue: string): any[] {
+  //   // console.log();
+  //   // console.log();
+  //   // console.log();
+  //   // console.log();
+
+
+  //   // this.treeControl.collapseAll();
   //   // this.treeControl.expandAll();
 
-  //   const filterValue = this.selData.get("searchTextDataset")?.value.toLowerCase() || "";
+  //   filterValue = filterValue.trim().toLowerCase();
+  //   console.log("FILTER VALUE =", filterValue);
+  //   let arr: any[] = [];
+  //   let treeFiltrato: any[] = [];
+  //   let treeClone: any;
+  //   const dataClone = _.cloneDeep(this.dataAllNodesTree);
+  //   if(this.treeControl.dataNodes) {
+  //     if(this.treeControl.dataNodes.length > 0) {
+  //       treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
+  //         if(typeof item.name === "object") {
 
-  //   // Filtro i nodi del mat-tree
-  //   this.dataAllNodesTree.filter = (node: ExampleFlatNode) => {
-  //     return node.name.toLowerCase().includes(filterValue);
+  //           return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
+  //         }
+  //         // console.log("============================================");
+  //         // console.log("============================================");
+  //         // console.log("ITEM APPLY FILTER =", item);
+  //         // console.log("ITEM TYPE =", typeof item);
+  //         // console.log("ITEM.NAME =", item.name);
+  //         // console.log("ITEM.NAME TYPE =", typeof item.name);
+  //         // console.log("============================================");
+  //         // console.log("============================================");
+  //         // if(typeof item.name === "object") {
+  //         //   console.log("INCLUDES NAME FILTER VALUE =", item.name.title.toLowerCase().includes(filterValue));
+  //         //   if(item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue)) {
+  //         //     // arr.push(item);
+  //         //     // console.log("ARR =", arr);
+  //         //     //return arr;
+  //         //   }
+  //         //   // return arr
+
+  //         // }
+
+
+  //       })
+  //       // console.log("TREE FILTRATO =", treeFiltrato);
+
+  //     }
+  //     const numeri = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  //     const numeriFiltrati = numeri.filter((item: any) => {
+  //       return item > 5;
+  //     });
+  //     // console.log("NUMERI FILTRATI =", numeriFiltrati);
+  //     treeClone = _.cloneDeep(this.treeControl);
+  //     treeClone.dataNodes = treeFiltrato;
+
   //   }
+
+
+  // //  dataClone = _.cloneDeep(this.dataAllNodesTree);
+  //  console.log("TREE CONTROL =", this.treeControl);
+  //  //  console.log("ARR =", arr);
+  //  if(!filterValue) {
+  //   console.log("COLLAPSE");
+
+  //   // this.treeControl.collapseAll();
+  //   // this.dataAllNodesTree = dataClone;
+  //   return this.dataAllNodesTree.data;
+  //   //  this.dataAllNodesTree.data = arr;
+  //   // this.dataAllNodesTree.data = treeFiltrato
+  //   // return this.dataAllNodesTree.data;
+  // }
+  // else {
+  //   console.log("EXPAND");
+  //   // this.treeControl.dataNodes.forEach(tree => {
+  //     //   treeFiltrato.forEach(f => {
+  //       //     if(tree === f) {
+  //   //       tree = f;
+
+  //   //     }
+  //   //   });
+  //   // });
+  //   this.dataAllNodesTree.data = treeFiltrato;
+  //   // this.treeControl.expandAll();
+  //   // this.treeControl.dataNodes = treeFiltrato;
+  //   console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
+  //   this.dataAllNodesTree.data.forEach(element => {
+  //     this.treeControl.dataNodes.forEach(tree => {
+  //       if(element.name === tree.name) {
+  //         if(tree.expandable === true) {
+  //           this.treeControl.expand(tree);
+  //         }
+  //       }
+
+  //     });
+  //     // this.treeControl.expand(element)
+  //   });
+  //   return this.dataAllNodesTree.data;
+  //   // return this.treeControl.dataNodes
+  //     // this.treeControl.dataNodes.forEach(element => {
+
+  //     // });
+  //     // this.dataAllNodesTree.data = arr;
+  //     // this.dataAllNodesTree.data
+  //     // return this.dataAllNodesTree.data;
+  //   }
+
+  //   // this.treeControl.dataNodes = arr;
+  //   // return this.dataAllNodesTree.data
 
 
   // }
 
-  applyFilter(filterValue: string): any[] {
-    // console.log();
-    // console.log();
-    // console.log();
-    // console.log();
-
-
-    // this.treeControl.collapseAll();
-    // this.treeControl.expandAll();
-
-    filterValue = filterValue.trim().toLowerCase();
-    console.log("FILTER VALUE =", filterValue);
-    let arr: any[] = [];
-    if(this.treeControl.dataNodes) {
-
-      if(this.treeControl.dataNodes.length > 0) {
-        this.treeControl.dataNodes.filter((item: any) => {
-          // console.log("============================================");
-          // console.log("============================================");
-          // console.log("ITEM APPLY FILTER =", item);
-          // console.log("ITEM TYPE =", typeof item);
-          // console.log("ITEM.NAME =", item.name);
-          // console.log("ITEM.NAME TYPE =", typeof item.name);
-          // console.log("============================================");
-          // console.log("============================================");
-          if(typeof item.name === "object") {
-            console.log("INCLUDES NAME FILTER VALUE =", item.name.title.toLowerCase().includes(filterValue));
-            if(item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue)) {
-              arr.push(item);
-              // console.log("ARR =", arr);
-              //return arr;
-            }
-            // return arr
-
-          }
-
-        })
-
-      }
-      this.treeControl.dataNodes = arr;
-
-      /**
-       *  CONTINUARE QUI FILTRO DATASET
-       */
-    }
-    console.log("TREE CONTROL =", this.treeControl.dataNodes);
-    if(!filterValue) {
-      this.treeControl.collapseAll();
-      return this.dataAllNodesTree.data;
-    }
-    else {
-      this.treeControl.expandAll();
-    }
-
-    console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
-    console.log("ARR =", arr);
-    return this.treeControl.dataNodes
-
-
-  }
 
 
 }
