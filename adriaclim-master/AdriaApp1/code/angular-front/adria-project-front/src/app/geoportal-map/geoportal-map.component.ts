@@ -1979,7 +1979,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.legendNoWms.addTo(this.map);
 
-
   }
 
   /**
