@@ -53,11 +53,20 @@
                 <!-- <h4>Select graph</h4> -->
 
                 <mat-form-field appearance="fill">
-                  <mat-label>Select graph</mat-label>
+                  <mat-label>Time scale</mat-label>
                   <mat-select formControlName="operationSel">
-                    <mat-option *ngFor="let o of optionsGraph" [value]="o.value">{{o.label}}</mat-option>
+                    <mat-option *ngFor="let o of optionTimeScale" [disabled]="removeAnnualCycle(o)" [matTooltip]="'Disabled in yearly period'" [matTooltipDisabled]="!removeAnnualCycle(o)" [value]="o.value">{{o.label}}</mat-option>
                   </mat-select>
                 </mat-form-field>
+
+                <!-- STATISTICS PER I POLIGONI -->
+                <!-- <mat-form-field appearance="fill">
+                  <mat-label>Statistics</mat-label>
+                  <mat-select formControlName="operationSel">
+                    <mat-option *ngFor="let s of optionStatistics" [value]="s.value">{{s.label}}</mat-option>
+                  </mat-select>
+                </mat-form-field> -->
+
               </div>
               <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [operation]="form.get('operationSel')?.value" [context]="'one'"></app-canvas-graph>
               <!-- <ng-template matTabContent> -->

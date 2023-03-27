@@ -18,6 +18,8 @@ from django.contrib import messages
 from AdriaProject.settings import ERDDAP_URL
 from django.core.cache import cache
 from asgiref.sync import sync_to_async
+import datetime as dt
+from collections import defaultdict
  
 htmlGetMetadata = """<style>
 @import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
@@ -1068,6 +1070,7 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
   onlylat = None
   onlylong = None
   operation = None
+  
   if "operation" in kwargs and kwargs["operation"]!="":
     operation = kwargs["operation"]
 
@@ -1079,6 +1082,9 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
     long_start = longitude
   if (long_end == "no"):
     long_end = longitude
+
+  
+
 
 
 
@@ -1182,7 +1188,7 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
 
   pattern = None
 
-  if operation=="annual":
+  if operation == "annualMonth":
     pattern = re.compile('\d\d\d\d-(\d\d)-\S*')
     months = ["01","02","03","04","05","06","07","08","09","10","11","12"]
     for mon in months:
@@ -1203,6 +1209,54 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       vals = []
 
     return [values2,dates2,unit,layerName2,lats2,longs2]
+  
+  if operation == "annualDay":
+    try:
+      #operation is annual cycle but day by day 
+      #I need to take that particular day for every year!!
+      #print("Ci entrooooooooooooooooooooooooo")
+      dates_list = [dt.datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ").date() for date in dates]
+      #print("DATES_LIST======",dates_list)
+      lats2 = [0 for value in values]
+      longs2 = [0 for value in values]
+      layerName2 = [layerName[0] for value in values]
+      # in values ci sono tutti i valori, dates_list tutte le date!
+      float_values = [float(value) for value in values]
+      df = pd.DataFrame({'datetime':dates_list,'value':float_values})
+      print("PRINTAMI QUALCOSA====",df.head())
+      df["datetime"] = pd.to_datetime(df["datetime"])
+      # Replace February 29th with February 28th
+      df['datetime'] = df['datetime'].apply(lambda x: x.replace(day=28) if x.month == 2 and x.day == 29 else x)
+      df["day_month"] = df["datetime"]
+      # df["day_month"] = df["day_month"].apply(lambda x: x.replace(year = 2000))
+      # df = df.sort_values(by=["day_month"])
+      df['day_month'] = df['day_month'].apply(lambda x: x.strftime('%d-%m'))
+      # df['day_month'] = df['datetime'].apply(lambda x: x.strftime('%d-%m'))
+      #df = df.sort_values(by=["datetime"])
+
+      # 5.174651322222222 valore y 15/12
+      # 5.227527636111111
+
+      # print("PRINTAMI ALTRO",df.head())
+      # print()
+      # print("DAY MONTH =", df['day_month'])
+      # print()
+      # print("VALUE MONTH =", df["value"])
+      # print()
+      df = df.dropna(subset=['value'])
+      grouped = df.groupby('day_month')['value'].mean()
+      removeDuplicates = df.drop_duplicates(subset=['day_month'])
+      
+      # grouped = grouped.reset_index()
+      # removeDuplicates = set(df["day_month"])
+      print("REMOVE DUPLICATES =", removeDuplicates)
+      print("REMOVE DUPLICATES TYPE =", type(removeDuplicates))
+      return [grouped.values,list(removeDuplicates["day_month"]),unit,layerName2,lats2,longs2]
+    except Exception as e:
+      print("EXCEPTION =", e)
+
+
+  print("E' FINITA????")
 
   for n in range(len(values)):
     

@@ -123,15 +123,23 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     },
   ]
 
-  optionsGraph = [
+  optionTimeScale = [
     {
       label: "Default Graph",
       value: "default"
     },
     {
-      label: "Annual Cycle",
-      value: "annual"
+      label: "Annual Month by Month",
+      value: "annualMonth"
     },
+    {
+      label: "Annual Day by Day",
+      value: "annualDay"
+    },
+
+  ]
+
+  optionStatistics = [
     {
       label: "Maximum Value (Moment By Moment)",
       value: "max"
@@ -156,7 +164,26 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       label: "Median",
       value: "median"
     }
-  ]
+  ];
+
+  removeAnnualCycle(o: any): boolean {
+
+    if(this.dataset.adriaclim_timeperiod === "yearly") {
+      if(o.value === "annualMonth") {
+        return true;
+      }
+      else if(o.value === "annualDay") {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+    else {
+      return false;
+    }
+
+  }
 
   formatDate(d: any) {
     let month = d.getMonth() + 1
@@ -296,6 +323,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
     else {
       this.getGraphTable();
+      // this.removeAnnualCycle();
     }
     // this.getAlgoType();
   }
