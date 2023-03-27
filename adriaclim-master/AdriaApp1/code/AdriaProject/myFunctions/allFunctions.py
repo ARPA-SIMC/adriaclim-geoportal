@@ -1228,22 +1228,15 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       # Replace February 29th with February 28th
       df['datetime'] = df['datetime'].apply(lambda x: x.replace(day=28) if x.month == 2 and x.day == 29 else x)
       df["day_month"] = df["datetime"]
-      # df["day_month"] = df["day_month"].apply(lambda x: x.replace(year = 2000))
-      # df = df.sort_values(by=["day_month"])
-      df['day_month'] = df['day_month'].apply(lambda x: x.strftime('%d-%m'))
+      df["day_month"] = df["day_month"].apply(lambda x: x.replace(year = 2000))
+      df = df.sort_values(by=["day_month"])
+      df['day_month'] = df['day_month'].apply(lambda x: x.strftime('%m-%d')) #cosi funziona....
       # df['day_month'] = df['datetime'].apply(lambda x: x.strftime('%d-%m'))
       #df = df.sort_values(by=["datetime"])
 
       # 5.174651322222222 valore y 15/12
       # 5.227527636111111
-
-      # print("PRINTAMI ALTRO",df.head())
-      # print()
-      # print("DAY MONTH =", df['day_month'])
-      # print()
-      # print("VALUE MONTH =", df["value"])
-      # print()
-      df = df.dropna(subset=['value'])
+      # df = df.dropna(subset=['value'])
       grouped = df.groupby('day_month')['value'].mean()
       removeDuplicates = df.drop_duplicates(subset=['day_month'])
       
