@@ -20,6 +20,8 @@ from django.core.cache import cache
 from asgiref.sync import sync_to_async
 import datetime as dt
 from collections import defaultdict
+from ipyleaflet import Polygon
+from shapely.geometry import Point, Polygon as ShapelyPolygon 
  
 htmlGetMetadata = """<style>
 @import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
@@ -518,7 +520,13 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
         #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
       url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latMin"] +"&latitude%3C=" + kwargs["latMax"] + "&longitude%3E=" + kwargs["longMin"] + "&longitude%3C=" + kwargs["longMax"]
 
-  elif is_indicator == "false" and is_graph and is_annual == False:
+  elif is_indicator == "false" and is_graph == False and is_annual == False:  
+    if (kwargs["num_param"] > 3):
+          url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] + ".csv?" +  kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"]  + ")%5D%5B(" + str(kwargs["range_value"]) + "):1:(" + str(kwargs["range_value"]) + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"] + ")%5D"
+    else:
+          url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"]  + ".csv?" + kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"] + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"]+ ")%5D"
+
+  elif is_indicator == "false" and is_graph  and is_annual == False:
        if(kwargs["num_parameters"]>3):
           url=ERDDAP_URL+"/griddap/"+ kwargs["dataset_id"] +".csv?"+kwargs["layer_name"]+"%5B("+kwargs["time_start"]+"):1:("+kwargs["time_finish"]+")%5D%5B("+str(kwargs["range_value"])+"):1:("+str(kwargs["range_value"])+")%5D%5B("+kwargs["latitude"]+"):1:("+kwargs["latitude"]+")%5D%5B("+kwargs["longitude"]+"):1:("+kwargs["longitude"]+")%5D"
        else:
@@ -1056,7 +1064,6 @@ def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude
     
     # csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',') 
     data = r.json() 
-    print("DATA==========",data)
     return data
 
 def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value,is_indicator,lat_start,long_start,lat_end,long_end, **kwargs):
@@ -1223,33 +1230,18 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       # in values ci sono tutti i valori, dates_list tutte le date!
       float_values = [float(value) for value in values]
       df = pd.DataFrame({'datetime':dates_list,'value':float_values})
-      print("PRINTAMI QUALCOSA====",df.head())
       df["datetime"] = pd.to_datetime(df["datetime"])
       # Replace February 29th with February 28th
       df['datetime'] = df['datetime'].apply(lambda x: x.replace(day=28) if x.month == 2 and x.day == 29 else x)
       df["day_month"] = df["datetime"]
       df["day_month"] = df["day_month"].apply(lambda x: x.replace(year = 2000))
       df = df.sort_values(by=["day_month"])
-      df['day_month'] = df['day_month'].apply(lambda x: x.strftime('%m-%d')) #cosi funziona....
-      # df['day_month'] = df['datetime'].apply(lambda x: x.strftime('%d-%m'))
-      #df = df.sort_values(by=["datetime"])
-
-      # 5.174651322222222 valore y 15/12
-      # 5.227527636111111
-      # df = df.dropna(subset=['value'])
       grouped = df.groupby('day_month')['value'].mean()
+      df['day_month'] = df['day_month'].apply(lambda x: x.strftime("%d-%m"))
       removeDuplicates = df.drop_duplicates(subset=['day_month'])
-      
-      # grouped = grouped.reset_index()
-      # removeDuplicates = set(df["day_month"])
-      print("REMOVE DUPLICATES =", removeDuplicates)
-      print("REMOVE DUPLICATES TYPE =", type(removeDuplicates))
       return [grouped.values,list(removeDuplicates["day_month"]),unit,layerName2,lats2,longs2]
     except Exception as e:
       print("EXCEPTION =", e)
-
-
-  print("E' FINITA????")
 
   for n in range(len(values)):
     
@@ -1599,6 +1591,67 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
   allData=[values,lat_coordinates,long_coordinates,value_min,value_max]
 
   return allData
+
+def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_param,range_value,is_indicator):
+  print("ARRIVO PRIMA DI URL_IS_IND")
+  print("Lat_lng_obj=======",lat_lng_obj)
+  # Define the polygon vertices
+  # vertices = [] #latitudes and longitudes from the frontend
+
+  # # Create a polygon layer on the map
+  # polygon = Polygon(
+  #     locations=vertices,
+  #     color='green',
+  #     fill_color='green',
+  #     fill_opacity=0.4
+  # )
+
+  # # # Create a map
+  # # m = Map(center=(37.7749,-122.4194), zoom=12)
+
+  # # # Add the polygon layer to the map
+  # # m.add_layer(polygon)
+
+# Define the point to check
+# point = Point(37.773,-122.408)
+
+# # Check if the point is inside the polygon
+# shapely_polygon = ShapelyPolygon(vertices)
+# is_inside = shapely_polygon.contains(point)
+
+# if is_inside:
+#     print("The point is inside the polygon.")
+# else:
+#     print("The point is outside the polygon.")
+  # url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude_start=latitude_start,latitude_end=latitude_end,
+  #                       longitude_start=longitude_start,longitude_end=longitude_end,num_param=num_param,range_value=range_value)
+  # print("URL DATA VECTORIAL========",url)
+  # df = pd.read_csv(url, dtype='unicode')
+  # allData=[]
+  # values=[]
+  # lat_coordinates=[]
+  # long_coordinates=[]
+
+  # i=0
+  # for index,row in df.iterrows():
+  #   values.insert(i,row[layer_name])
+  #   lat_coordinates.insert(i,row["latitude"])
+  #   long_coordinates.insert(i,row["longitude"])          
+  #   i+=1
+  # del values[0]
+  # del lat_coordinates[0]
+  # del long_coordinates[0]
+
+  # [float(i) for i in values]
+
+  # value_min = min(values)
+  # value_max = max(values)
+
+
+  # allData=[values,lat_coordinates,long_coordinates,value_min,value_max]
+
+  # return allData
+  return "Nothing!"
          
 
 

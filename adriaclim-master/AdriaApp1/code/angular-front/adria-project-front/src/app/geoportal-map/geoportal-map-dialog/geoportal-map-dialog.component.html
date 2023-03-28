@@ -55,14 +55,14 @@
                 <mat-form-field appearance="fill">
                   <mat-label>Time scale</mat-label>
                   <mat-select formControlName="operationSel">
-                    <mat-option *ngFor="let o of optionTimeScale" [disabled]="removeAnnualCycle(o)" [matTooltip]="'Disabled in yearly period'" [matTooltipDisabled]="!removeAnnualCycle(o)" [value]="o.value">{{o.label}}</mat-option>
+                    <mat-option *ngFor="let o of optionTimeScale" [disabled]="removeAnnualCycle(o)" [matTooltip]="'Disabled in this period'" [matTooltipDisabled]="!removeAnnualCycle(o)" [value]="o.value">{{o.label}}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
                 <!-- STATISTICS PER I POLIGONI -->
                 <!-- <mat-form-field appearance="fill">
                   <mat-label>Statistics</mat-label>
-                  <mat-select formControlName="operationSel">
+                  <mat-select formControlName="statisticSel">
                     <mat-option *ngFor="let s of optionStatistics" [value]="s.value">{{s.label}}</mat-option>
                   </mat-select>
                 </mat-form-field> -->

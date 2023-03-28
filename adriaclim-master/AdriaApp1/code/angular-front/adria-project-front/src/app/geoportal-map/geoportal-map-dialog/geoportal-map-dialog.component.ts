@@ -179,6 +179,14 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
         return false;
       }
     }
+    else if(this.dataset.adriaclim_timeperiod === "monthly" || this.dataset.adriaclim_timeperiod === "seasonal") {
+      if(o.value === "annualDay") {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
     else {
       return false;
     }
@@ -259,6 +267,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       // cod: new FormControl(this.element.cod_algo_type),
       cod: new FormControl(null),
       operationSel: new FormControl("default"),
+      statisticSel: new FormControl(),
       typeSel: new FormControl(this.typeOfExport[0].type),
       varSelected: new FormControl(null, Validators.required),
       // minSliderDate: new FormControl(this.dateStart),

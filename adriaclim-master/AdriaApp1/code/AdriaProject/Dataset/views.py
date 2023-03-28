@@ -308,18 +308,21 @@ def getAllNodes(request):
 
 @api_view(['GET', 'POST'])
 def getMetadataNew(request):
-    idMeta = request.data.get('idMeta')
-    metadata=allFunctions.getMetadata(idMeta)
-    # data = [model_to_dict(m) for m in metadata]
-    # metaSer = serializers.serialize('json', metadata)
-    # print("SERIALIZER ==", metaSer)
-    # data = json.loads(metaSer)
-    print()
-    print()
-    # print("DATA ==", data)
-    print()
-    print()
-    return JsonResponse({'metadata': metadata})
+    try:
+        idMeta = request.data.get('idMeta')
+        metadata=allFunctions.getMetadata(idMeta)
+        # data = [model_to_dict(m) for m in metadata]
+        # metaSer = serializers.serialize('json', metadata)
+        # print("SERIALIZER ==", metaSer)
+        # data = json.loads(metaSer)
+        print()
+        print()
+        # print("DATA ==", data)
+        print()
+        print()
+        return JsonResponse({'metadata': metadata})
+    except Exception as e:
+        print("ERROR ==", e)
 
 
 #New function for 2D layers!
@@ -463,4 +466,23 @@ def getDataVectorialNew(request):
     is_indicator = request.data.get('isIndicator')
     print("IS INDICATOR:",is_indicator)
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
+    return JsonResponse({'dataVect':dataVect})
+
+@api_view(['GET','POST'])
+def getDataPolygonNew(request):
+    dataset = request.data.get("dataset")
+    print("DATASET:",dataset)
+    print("DATASET ID:",dataset.get('id'))
+    dataset_id = dataset.get('id')
+    date_start = dataset.get('time_start')
+    date_end = dataset.get('time_end')
+    layer_name = request.data.get('selVar')
+    print("LAYER NAME:",layer_name)
+    range = str(request.data.get('range'))
+    num_param = dataset.get('variables')
+    lat_lng_obj = request.data.get("latLngObj")
+    print("LAT LNG OBJ: ", lat_lng_obj)
+    is_indicator = request.data.get('isIndicator')
+    print("IS INDICATOR:",is_indicator)
+    dataVect=allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_param,range,is_indicator)
     return JsonResponse({'dataVect':dataVect})

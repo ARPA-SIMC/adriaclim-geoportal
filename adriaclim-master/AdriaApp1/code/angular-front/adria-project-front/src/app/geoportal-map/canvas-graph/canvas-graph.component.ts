@@ -208,9 +208,16 @@ ngOnInit() {
 
 
 formatDate(d: any) {
-  if (this.operation === "annual") {
+  if(this.operation !== "annualDay") {
+    d = new Date(d);
+  }
+  if (this.operation === "annualMonth") {
     return this.months[d.getMonth()];
-  } else {
+  }
+  else if(this.operation === "annualDay"){
+    return d;
+  }
+  else {
     let month = d.getMonth() + 1
     let day = d.getDate()
     let year = d.getFullYear()
@@ -244,15 +251,15 @@ getDataGraph() {
   console.log("RANGE: ", this.range);
 
   this.httpClient.post('http://localhost:8000/test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
-    console.log("RES FOR GRAPH: ", JSON.parse(response));
     if (typeof response == 'string') {
       response = JSON.parse(response);
     }
+    console.log("RES FOR GRAPH: ", response);
     this.dataRes = response;
 
     let name = this.dataRes.allData.entries[0];
     this.dataRes.allData[name].forEach((element: any) => {
-      element.x = this.formatDate(new Date(element.x));
+      element.x = this.formatDate(element.x);
       element.y = Number(element.y);
       // if(element.y > 10000) {
       //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
@@ -348,138 +355,6 @@ getDataGraph() {
     // this.chartOptionBars = {
 
     // };
-
-    this.chartOptionBars = {
-      title: {
-        text: 'Check Console for Events',
-      },
-      xAxis: {
-        data: this.dataRes.allData[name].map((element: any) => element.x),
-        axisLabel: {
-          inside: true,
-          color: '#fff',
-        },
-        axisTick: {
-          show: false,
-        },
-        axisLine: {
-          show: false,
-        },
-        z: 10,
-      },
-      yAxis: {
-        axisLine: {
-          show: false,
-        },
-        axisTick: {
-          show: false,
-        },
-        axisLabel: {
-          color: '#999',
-        },
-      },
-      dataZoom: [
-        {
-          type: 'inside',
-        },
-      ],
-      series: [
-        // {
-        //   // For shadow
-        //   type: 'bar',
-        //   itemStyle: {
-        //     color: 'rgba(0,0,0,0.05)'
-        //   },
-        //   barGap: '-100%',
-        //   barCategoryGap: '40%',
-        //   data: this.dataShadow,
-        //   animation: false,
-        // },
-        {
-          data: this.dataRes.allData[name].map((element: any) => element.y),
-          type: 'scatter',
-          name: name,
-          // stack: 'counts',
-          // areaStyle: {},
-          itemStyle: {
-            color: new graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#83bff6' },
-              { offset: 0.5, color: '#188df0' },
-              { offset: 1, color: '#188df0' },
-            ]),
-          },
-          emphasis: {
-            itemStyle: {
-              color: new graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: '#2378f7' },
-                { offset: 0.7, color: '#2378f7' },
-                { offset: 1, color: '#83bff6' },
-              ]),
-            }
-          },
-          // data,
-        },
-      ],
-    };
-
-
-    this.option = {
-      title: {
-        text: 'Waterfall'
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        splitLine: { show: false },
-        data: (function () {
-          var list = [];
-          for (var i = 1; i <= 11; i++) {
-            list.push('Oct/' + i);
-          }
-          return list;
-        })()
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          type: 'bar',
-          stack: 'all',
-          itemStyle: {
-            normal: {
-              barBorderColor: 'rgba(0,0,0,0)',
-              color: 'rgba(0,0,0,0)'
-            },
-            emphasis: {
-              barBorderColor: 'rgba(0,0,0,0)',
-              color: 'rgba(0,0,0,0)'
-            }
-          },
-          // data: this.help
-        },
-        {
-          name: 'positive',
-          type: 'bar',
-          stack: 'all',
-          data: this.positive
-        },
-        {
-          name: 'negative',
-          type: 'bar',
-          stack: 'all',
-          data: this.negative,
-          itemStyle: {
-            color: '#f33'
-          }
-        }
-      ]
-    };
 
 
     //   this.chartOptions = {
