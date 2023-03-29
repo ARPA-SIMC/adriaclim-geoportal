@@ -522,6 +522,7 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
 
   elif is_indicator == "false" and is_graph == False and is_annual == False:  
     if (kwargs["num_param"] > 3):
+          #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_9e77_be3a_4ac6.htmlTable?txx%5B(2036-07-01T09:00:00Z):1:(2036-07-01T09:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
           url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] + ".csv?" +  kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"]  + ")%5D%5B(" + str(kwargs["range_value"]) + "):1:(" + str(kwargs["range_value"]) + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"] + ")%5D"
     else:
           url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"]  + ".csv?" + kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"] + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"]+ ")%5D"
@@ -534,6 +535,7 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
   
   elif is_indicator == "false" and is_graph and is_annual:
     if (kwargs["num_parameters"] > 3 ):
+      
       url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] +".csv?" + kwargs["layer_name"] + "%5B(" + kwargs["time_start"] + "):1:("+kwargs["time_finish"]+")%5D%5B("+str(kwargs["range_value"])+"):1:("+str(kwargs["range_value"])+")%5D%5B(" + kwargs["latMax"] + "):1:(" +kwargs["latMin"]  + ")%5D%5B(" +kwargs["longMax"]+ "):1:(" + kwargs["longMin"]  + ")%5D"
   
     else:
@@ -1592,31 +1594,74 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
 
   return allData
 
-def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_param,range_value,is_indicator):
-  print("ARRIVO PRIMA DI URL_IS_IND")
-  print("Lat_lng_obj=======",lat_lng_obj)
+def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max):
+  # print("ARRIVO PRIMA DI URL_IS_IND")
+  # print("Lat_lng_obj=======",lat_lng_obj)
   # Define the polygon vertices
-  # vertices = [] #latitudes and longitudes from the frontend
+   #latitudes and longitudes from the frontend  
 
-  # # Create a polygon layer on the map
-  # polygon = Polygon(
-  #     locations=vertices,
-  #     color='green',
-  #     fill_color='green',
-  #     fill_opacity=0.4
-  # )
+  start_time = time.time()
+  print("STARTED GETDATAPOLYGONNEW!")
+  vertices = []
+  for lat_lng in lat_lng_obj:
+    vertices.append((float(lat_lng["lat"]),float(lat_lng["lng"])))
+  shapely_polygon = ShapelyPolygon(vertices)
 
-  # # # Create a map
-  # # m = Map(center=(37.7749,-122.4194), zoom=12)
+  pol_vertices_str = ','.join(str(x).replace(' ','') for x in vertices)
+  key_cached = dataset_id + "_" + pol_vertices_str
+  #print("KEY CACHED",key_cached)
+  if cache.get(key_cached) is None:
+    print("CACHE MISS!")
+    
+  # # Check if the point is inside the polygon
+    df_polygon = pd.DataFrame(columns=["time","lat_lng","value"])
+    i = 0
+      # print("ARRIVO PRIMA DI URL_IS_IND")
+      # print("num_param",num_param)
+      # print("lat_min,lat_max,lng_min,lng_max",lat_min,lat_max,lng_min,lng_max)
+    url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude_start=lat_min,latitude_end=lat_max,
+                            longitude_start=lng_min,longitude_end=lng_max,num_param=num_param,range_value=range_value)
+    print("URL DATA VECTORIAL========",url)
+    df = pd.read_csv(url, dtype='unicode')
+    for index,row in df.iterrows():
+      if index != 0:
+        point = Point(float(row["latitude"]),float(row["longitude"]))
+        is_inside = shapely_polygon.contains(point)
+        if is_inside:
+         # print("The point is inside the polygon.",row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name])
+          df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
+          i += 1
+        else:
+          continue
+      
+        # print("df_polygon",df_polygon.head())
+    df_polygon = df_polygon.drop_duplicates(subset=["time","lat_lng","value"], keep='first')
+        # print("df_polygon after drop duplicates",df_polygon.head())
+    df_polygon["value"] = pd.to_numeric(df_polygon["value"])
+        # print("df_polygon after convert to float",df_polygon.head())
+    mean_values = df_polygon.groupby("time")["value"].mean()
+          # print("mean_values",mean_values)
+    df_polygon = df_polygon.drop_duplicates(subset=["time"], keep='first')
+          # print("list(df_polygon['time'])",list(df_polygon["time"]))
+    allData = [list(mean_values.values),list(df_polygon["time"])]
+    #save it to the cache!
+    #time=31536000 is one year!
+    print("key_cached",key_cached)
+    cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!
+    print("cache setted! Cache key", cache.get(key_cached))
+          # print("allData",allData)
+    print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
+    return allData
+  else:
+    print("CACHE HIT!")
+    print("CACHE TIME: ",time.time() - start_time)
+    pol_from_cache = json.loads(cache.get(key_cached))
+    return pol_from_cache
 
-  # # # Add the polygon layer to the map
-  # # m.add_layer(polygon)
 
-# Define the point to check
-# point = Point(37.773,-122.408)
+    
 
-# # Check if the point is inside the polygon
-# shapely_polygon = ShapelyPolygon(vertices)
+      
 # is_inside = shapely_polygon.contains(point)
 
 # if is_inside:
@@ -1651,7 +1696,7 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_
   # allData=[values,lat_coordinates,long_coordinates,value_min,value_max]
 
   # return allData
-  return "Nothing!"
+ 
          
 
 

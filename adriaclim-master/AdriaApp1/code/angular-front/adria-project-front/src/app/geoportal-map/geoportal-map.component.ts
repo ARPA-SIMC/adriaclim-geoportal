@@ -378,38 +378,38 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   /**
    * ***********************************************************************
    */
-  pointInsidePolygon(point: any, polygon: L.Polygon): boolean {
-    let inside = false;
-    const latLngs: any[] = polygon.getLatLngs();
-    console.log("latLngs dentro funzione =", latLngs);
+  // pointInsidePolygon(point: any, polygon: L.Polygon): boolean {
+  //   let inside = false;
+  //   const latLngs: any[] = polygon.getLatLngs();
+  //   console.log("latLngs dentro funzione =", latLngs);
 
-    let lat1: any;
-    let lng1: any;
-    let lat2: any;
-    let lng2: any;
-    for (let i = 0, j = latLngs[0].length - 1; i < latLngs[0].length; j = i++) {
-      lat1 = latLngs[0][i].lat;
-      lng1 = latLngs[0][i].lng;
-      lat2 = latLngs[0][j].lat;
-      lng2 = latLngs[0][j].lng;
+  //   let lat1: any;
+  //   let lng1: any;
+  //   let lat2: any;
+  //   let lng2: any;
+  //   for (let i = 0, j = latLngs[0].length - 1; i < latLngs[0].length; j = i++) {
+  //     lat1 = latLngs[0][i].lat;
+  //     lng1 = latLngs[0][i].lng;
+  //     lat2 = latLngs[0][j].lat;
+  //     lng2 = latLngs[0][j].lng;
 
-      // Verifica se la linea interseca il bordo del poligono
-      if (((lat1 > point.lat) !== (lat2 > point.lat)) && (point.lng < (lng2 - lng1) * (point.lat - lat1) / (lat2 - lat1) + lng1)) {
-        inside = !inside;
-      }
-    }
-    if (inside) {
-      console.log("lat1 =", lat1);
-      console.log("lng1 =", lng1);
-      console.log("lat2 =", lat2);
-      console.log("lng2 =", lng2);
+  //     // Verifica se la linea interseca il bordo del poligono
+  //     if (((lat1 > point.lat) !== (lat2 > point.lat)) && (point.lng < (lng2 - lng1) * (point.lat - lat1) / (lat2 - lat1) + lng1)) {
+  //       inside = !inside;
+  //     }
+  //   }
+  //   if (inside) {
+  //     console.log("lat1 =", lat1);
+  //     console.log("lng1 =", lng1);
+  //     console.log("lat2 =", lat2);
+  //     console.log("lng2 =", lng2);
 
-    }
-    console.log("inside =", inside);
-    return inside;
-  }
-
-
+  //   }
+  //   console.log("inside =", inside);
+  //   return inside;
+  // }
+  
+  
   // }
   onPolygonClick = (e: L.LeafletMouseEvent) => {
     this.map.off('click');
@@ -423,37 +423,35 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
       const polygonsContainingPoint = this.allPolygons.filter(polygon => {
-        if(polygon.getBounds().contains(e.latlng)) {
 
-          return polygon;
-        }
+          return polygon.getBounds().contains(e.latlng);
       }); //poligono che contiene il punto in cui l'utente ha cliccato
-      let latLngObj: any[] = [];
-      const bounds = L.latLngBounds(polygonsContainingPoint[0].getLatLngs());
-      // console.log("BOUNDS SOUTH =", bounds.getSouth());
-      // console.log("BOUNDS NORTH =", bounds.getNorth());
-      // console.log("BOUNDS WEST =", bounds.getWest());
-      // console.log("BOUNDS EAST =", bounds.getEast());
-      // console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint);
+      // let latLngObj: any[] = [];
+      // const bounds = L.latLngBounds(polygonsContainingPoint[0].getLatLngs());
+      // // console.log("BOUNDS SOUTH =", bounds.getSouth());
+      // // console.log("BOUNDS NORTH =", bounds.getNorth());
+      // // console.log("BOUNDS WEST =", bounds.getWest());
+      // // console.log("BOUNDS EAST =", bounds.getEast());
+      // // console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint);
 
-      let latlngs: any[] = [];
-      if(polygonsContainingPoint.length > 0) {
-        console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint);
-        // const latLngs = polygonsContainingPoint[0].getLatLng();
-        for (let lat = bounds.getSouth(); lat <= bounds.getNorth(); lat += 0.01) {
-          for (let lng = bounds.getWest(); lng <= bounds.getEast(); lng += 0.01) {
-            // console.log("LAT =", lat);
-            // console.log("LNG =", lng);
-            const point = L.latLng(lat, lng);
-            if (this.pointInsidePolygon(point, polygonsContainingPoint[0])) {
-              console.log("POINT =", point);
+      // let latlngs: any[] = [];
+       if(polygonsContainingPoint.length > 0) {
+       console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
+      //   // const latLngs = polygonsContainingPoint[0].getLatLng();
+      //   for (let lat = bounds.getSouth(); lat <= bounds.getNorth(); lat += 0.01) {
+      //     for (let lng = bounds.getWest(); lng <= bounds.getEast(); lng += 0.01) {
+      //       // console.log("LAT =", lat);
+      //       // console.log("LNG =", lng);
+      //       const point = L.latLng(lat, lng);
+      //       if (this.pointInsidePolygon(point, polygonsContainingPoint[0])) {
+      //         console.log("POINT =", point);
 
-              // latLngObj.push({lat: lat, lng: lng});
-              latlngs.push(point);
-            }
-          }
-        }
-        console.log("LAT LNG =", latlngs);
+      //         // latLngObj.push({lat: lat, lng: lng});
+      //         latlngs.push(point);
+      //       }
+      //     }
+      //   }
+      //   console.log("LAT LNG =", latlngs);
 
         let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
         splittedVar = splittedVar[splittedVar.length - 1];
@@ -463,11 +461,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         isIndicator: this.isIndicator ? "true" : "false",
         selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
         range: this.value ? Math.abs(this.value) : 0,
-        latLngObj: latLngObj
+        latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
       }).subscribe({
         next: (res: any) => {
           console.log("RES =", res);
-          // let allData = res['dataVect'];
+          let allData = res['dataVect'];
+          let allValues = allData[0]; //media dei valori
+          let allDates = allData[1]; //tutte le date!
+          //mostrarle nel grafico ora!
+
           // let allLatCoordinates = allData[1];
           // let allLongCoordinates = allData[2];
           // let allValues = allData[0];
