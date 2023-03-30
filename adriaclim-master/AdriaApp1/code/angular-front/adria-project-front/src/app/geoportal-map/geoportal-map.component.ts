@@ -408,8 +408,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   //   console.log("inside =", inside);
   //   return inside;
   // }
-  
-  
+
+
   // }
   onPolygonClick = (e: L.LeafletMouseEvent) => {
     this.map.off('click');
@@ -437,74 +437,30 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       // let latlngs: any[] = [];
        if(polygonsContainingPoint.length > 0) {
        console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
-      //   // const latLngs = polygonsContainingPoint[0].getLatLng();
-      //   for (let lat = bounds.getSouth(); lat <= bounds.getNorth(); lat += 0.01) {
-      //     for (let lng = bounds.getWest(); lng <= bounds.getEast(); lng += 0.01) {
-      //       // console.log("LAT =", lat);
-      //       // console.log("LNG =", lng);
-      //       const point = L.latLng(lat, lng);
-      //       if (this.pointInsidePolygon(point, polygonsContainingPoint[0])) {
-      //         console.log("POINT =", point);
+        this.openGraphDialog(null, null, polygonsContainingPoint[0].getLatLngs()[0])
+      //   let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
+      //   splittedVar = splittedVar[splittedVar.length - 1];
+      //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
+      //   dataset: this.selData.get("dataSetSel")?.value.name,
+      //   selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+      //   isIndicator: this.isIndicator ? "true" : "false",
+      //   selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
+      //   range: this.value ? Math.abs(this.value) : 0,
+      //   latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
+      // }).subscribe({
+      //   next: (res: any) => {
+      //     console.log("RES =", res);
+      //     let allDataPolygon = res['dataVect'];
+      //     let valuesPol = allDataPolygon[0]; //media dei valori
+      //     let datesPol = allDataPolygon[1]; //tutte le date!
 
-      //         // latLngObj.push({lat: lat, lng: lng});
-      //         latlngs.push(point);
-      //       }
-      //     }
+
+      //   },
+      //   error: (msg: any) => {
+      //     console.log('METADATA ERROR: ', msg);
       //   }
-      //   console.log("LAT LNG =", latlngs);
 
-        let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
-        splittedVar = splittedVar[splittedVar.length - 1];
-        this.httpClient.post('http://localhost:8000/test/dataPolygon', {
-        dataset: this.selData.get("dataSetSel")?.value.name,
-        selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-        isIndicator: this.isIndicator ? "true" : "false",
-        selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
-        range: this.value ? Math.abs(this.value) : 0,
-        latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
-      }).subscribe({
-        next: (res: any) => {
-          console.log("RES =", res);
-          let allData = res['dataVect'];
-          let allValues = allData[0]; //media dei valori
-          let allDates = allData[1]; //tutte le date!
-          //mostrarle nel grafico ora!
-
-          // let allLatCoordinates = allData[1];
-          // let allLongCoordinates = allData[2];
-          // let allValues = allData[0];
-          // let value_min = allData[3];
-          // let value_max = allData[4];
-          // let bounds: any;
-          // let rectangle: any;
-          // let value_mid: any;
-          // // if (parseFloat(value_min) < 0) {
-          // //   value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-          // // } else {
-          // //   value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
-          // // }
-          // // this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-          // // this.markersLayer = L.layerGroup();
-          // // markersLayer: L.LayerGroup = L.layerGroup();
-          // for (let i = 0; i < allLatCoordinates.length; i++) {
-          //   const coords = L.latLng(allLatCoordinates[i],allLongCoordinates[i]);
-          //   // console.log("COORDS =", coords);
-          //   if(polygonsContainingPoint[0].getBounds().contains(coords)) {
-          //     //console.log("The polygon is rullo di tamburi", polygonsContainingPoint[0]);
-          //      console.log("ALL VALUES=", allValues[i]);
-          //     // this.openGraphDialog(allLatCoordinates[i], allLongCoordinates[i]);
-          //   }
-          //   else {
-
-          //   }
-          // }
-
-        },
-        error: (msg: any) => {
-          console.log('METADATA ERROR: ', msg);
-        }
-
-      });
+      // });
 
       }
       else {
@@ -1853,7 +1809,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  openGraphDialog(lat?: any, lng?: any) {
+  openGraphDialog(lat?: any, lng?: any, polygon?: any ) {
+
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
@@ -1879,6 +1836,34 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         dataId = this.selData.get("dataSetSel")?.value.name.id;
 
       }
+      let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
+      splittedVar = splittedVar[splittedVar.length - 1];
+
+      // if(polygon){
+
+      //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
+      //   dataset: this.selData.get("dataSetSel")?.value.name,
+      //   selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+      //   isIndicator: this.isIndicator ? "true" : "false",
+      //   selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
+      //   range: this.value ? Math.abs(this.value) : 0,
+      //   latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
+      // }).subscribe({
+      //   next: (res: any) => {
+      //     console.log("RES =", res);
+      //     let allDataPolygon = res['dataVect'];
+      //     let valuesPol = allDataPolygon[0]; //media dei valori
+      //     let datesPol = allDataPolygon[1]; //tutte le date!
+
+
+      //   },
+      //   error: (msg: any) => {
+      //     console.log('METADATA ERROR: ', msg);
+      //   }
+
+      // });
+      // }
+
 
       if (lat) {
         this.coordOnClick = { "lat": lat, "lng": lng };
@@ -1892,11 +1877,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         latlng: this.coordOnClick,
         dateStart: this.dateStart,
         dateEnd: this.dateEnd,
-        variable: this.variableGroup.get("variableControl")?.value,
+        variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
         arrayVariable: this.variableArray,
         range: this.value,
         openGraph: true,
         extraParamExport: this.extraParamExport,
+
+        polygon: polygon,
+        isIndicator: this.isIndicator ? "true" : "false",
       };
 
     }

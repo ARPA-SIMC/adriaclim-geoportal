@@ -68,7 +68,7 @@
                 </mat-form-field> -->
 
               </div>
-              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [operation]="form.get('operationSel')?.value" [context]="'one'"></app-canvas-graph>
+              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [isIndicator]="isIndicator" [polygon]="polygon" [operation]="form.get('operationSel')?.value" [context]="'one'"></app-canvas-graph>
               <!-- <ng-template matTabContent> -->
 
             <!-- </ng-template> -->
@@ -94,72 +94,8 @@
 
             </mat-tab>
             <mat-tab label="Export" fxFlex fxLayout="row" fxLayoutAlign="center center" class="export-tab">
-              <div fxFlex fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="margin-top: 20px;">
 
-                <div fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;">
-                  <!-- <div class="example-label-container" fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
-                    <div fxFlex fxLayoutAlign="center center">
-                      <label id="example-name-label" class="example-name-label">Min: </label>
-                      <label class="example-value-label">{{form.get("minSliderDate")?.value | date: 'dd/MM/yyyy'}}</label>
-
-                    </div>
-                    <div fxFlex fxLayoutAlign="center center">
-                      <label id="example-name-label" class="example-name-label">Max: </label>
-                      <label class="example-value-label">{{form.get("maxSliderDate")?.value | date: 'dd/MM/yyyy'}}</label>
-
-                    </div>
-                  </div> -->
-                  <!-- <mat-slider [min]="dateStart.getTime()" [max]="dateEnd.getTime()" [step]="stepMilliseconds" fxFlex="80"> -->
-                  <!-- <mat-slider [min]="dataMinExport?.getTime()" [max]="dataMaxExport?.getTime()" [step]="stepDateExport" [attr.tickInterval]="1" fxFlex="80">
-                    <input matSliderStartThumb (input)="eventChangeDateSliderMax($event)">
-                    <input matSliderEndThumb (input)="eventChangeDateSliderMax($event)">
-                  </mat-slider> -->
-                  <ngx-slider [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider>
-
-                </div>
-
-                <div *ngIf="dataset.dimensions > 3" fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;">
-                  <!-- <div class="example-label-container" fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
-                    <div fxFlex fxLayoutAlign="center center">
-                      <label id="example-name-label" class="example-name-label">Min range: </label>
-                      <label class="example-value-label">{{this.form.get("minSliderRange")?.value | number : '1.0-2' : 'fr'}}</label>
-
-                    </div>
-                    <div fxFlex fxLayoutAlign="center center">
-                      <label id="example-name-label" class="example-name-label">Max range: </label> -->
-                      <!-- <label class="example-value-label">{{value}}</label> -->
-                      <!-- <label class="example-value-label">{{this.form.get("maxSliderRange")?.value | number : '1.0-2' : 'fr'}}</label>
-
-                    </div>
-                  </div>
-                  <mat-slider [min]="extraParamExport.minValue" [max]="extraParamExport.maxValue" [step]="extraParamExport.stepSize" fxFlex="80">
-                    <input matSliderStartThumb formControlName="minSliderRange">
-                    <input matSliderEndThumb formControlName="maxSliderRange">
-                  </mat-slider> -->
-                  <ngx-slider [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider>
-                </div>
-                <div class="menu-var">
-                  <h4>Variable</h4>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Please select a variable</mat-label>
-                    <mat-select formControlName="varSelected" multiple>
-                      <mat-option *ngFor="let v of arrayVariable" [value]="v">{{v}}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                  <!-- {{form.get('varSelected')?.value | json}} -->
-                </div>
-                <div class="menu-var">
-                  <h4>File Type:</h4>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Select the type of file</mat-label>
-                     <mat-select formControlName="typeSel">
-                      <mat-option *ngFor="let t of typeOfExport" [value]="t.type">{{t.label}}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-                <!-- <button mat-raised-button color="primary" (click)="exportData(form.get('typeSel')?.value)">Export</button> -->
-                <button mat-raised-button color="primary" (click)="exportData(this.form.get('typeSel')?.value)" [disabled]="form.invalid">Export</button>
-              </div>
+              <!-- QUI CI VA IL CODICE PER EXPORT -->
 
             </mat-tab>
           </mat-tab-group>

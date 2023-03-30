@@ -1,3 +1,4 @@
+import math
 from pydoc import resolve
 from math import isnan
 from termios import VLNEXT
@@ -1603,38 +1604,77 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_
   start_time = time.time()
   print("STARTED GETDATAPOLYGONNEW!")
   vertices = []
+  
   for lat_lng in lat_lng_obj:
     vertices.append((float(lat_lng["lat"]),float(lat_lng["lng"])))
+  
   shapely_polygon = ShapelyPolygon(vertices)
-
-  pol_vertices_str = ','.join(str(x).replace(' ','') for x in vertices)
+  pol_vertices_str = str(vertices[0][0]).replace(" ","")
   key_cached = dataset_id + "_" + pol_vertices_str
+  xmin = None
+  ymin = None
+  xmax = None
+  ymax = None
+  area = None
+  circ = None
   #print("KEY CACHED",key_cached)
+
   if cache.get(key_cached) is None:
     print("CACHE MISS!")
-    
-  # # Check if the point is inside the polygon
-    df_polygon = pd.DataFrame(columns=["time","lat_lng","value"])
-    i = 0
-      # print("ARRIVO PRIMA DI URL_IS_IND")
-      # print("num_param",num_param)
-      # print("lat_min,lat_max,lng_min,lng_max",lat_min,lat_max,lng_min,lng_max)
-    url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude_start=lat_min,latitude_end=lat_max,
-                            longitude_start=lng_min,longitude_end=lng_max,num_param=num_param,range_value=range_value)
-    print("URL DATA VECTORIAL========",url)
-    df = pd.read_csv(url, dtype='unicode')
-    for index,row in df.iterrows():
-      if index != 0:
-        point = Point(float(row["latitude"]),float(row["longitude"]))
-        is_inside = shapely_polygon.contains(point)
-        if is_inside:
-         # print("The point is inside the polygon.",row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name])
+    # Definisci i limiti del poligono
+    xmin, ymin, xmax, ymax = shapely_polygon.bounds
+  # distanze = []
+    circ = shapely_polygon.length
+    print("circ", circ)
+    area = shapely_polygon.area
+    print("area =", area)
+
+  # 2.23 = circonferenza poligono piccolo
+  # 8.54 = circonferenza poligono grande
+  # 4.67 = circonferenza poligono marche
+  # 10.09 = circonferenza poligono puglia
+
+  # 0.24 = area poligono piccolo
+  # 3.11 = area poligono grande
+  # 1.17 = area poligono marche
+  # 2.33 = area poligono puglia
+    if area > 2:
+      step = 0.3
+    elif area < 2 and area > 1:
+      step = 0.2
+    else:
+      step = 0.1
+    # distanza = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+
+    #anomaly 0.01 2378 points 625.62 seconds poligono più piccolo
+    #anomaly 0.05 75 points 19.05 seconds poligono più piccolo
+    #anomaly 0.05 1244 points 335.21 seconds croazia(poligono più grande)
+    #r95p yearly 0.05 75 points 23.31 seconds poligono più piccolo
+
+    #Salva tutte le coordinate dei punti interni al poligono
+    points_inside_polygon = []
+    for x in range(int(xmin/step), int(xmax/step)):
+        for y in range(int(ymin/step), int(ymax/step)):
+            point = Point(x*step, y*step)
+            if point.within(shapely_polygon):
+                points_inside_polygon.append((x*step, y*step))
+
+
+    # Visualizza le coordinate dei punti all'interno del poligono
+    # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
+    print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
+    df_polygon = pd.DataFrame(columns=['time','lat_lng', 'value'])
+    i=0
+    for point in points_inside_polygon:
+      url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
+                            longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
+      print("URL DATA VECTORIAL========",url)
+      df = pd.read_csv(url, dtype='unicode')
+      for index,row in df.iterrows():
+        if index != 0:
           df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-          i += 1
-        else:
-          continue
-      
-        # print("df_polygon",df_polygon.head())
+          i+=1
+
     df_polygon = df_polygon.drop_duplicates(subset=["time","lat_lng","value"], keep='first')
         # print("df_polygon after drop duplicates",df_polygon.head())
     df_polygon["value"] = pd.to_numeric(df_polygon["value"])
@@ -1642,25 +1682,85 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_
     mean_values = df_polygon.groupby("time")["value"].mean()
           # print("mean_values",mean_values)
     df_polygon = df_polygon.drop_duplicates(subset=["time"], keep='first')
-          # print("list(df_polygon['time'])",list(df_polygon["time"]))
-    allData = [list(mean_values.values),list(df_polygon["time"])]
-    #save it to the cache!
-    #time=31536000 is one year!
     print("key_cached",key_cached)
+    allData = []
+    list_time = list(df_polygon["time"])
+    list_value = list(mean_values.values)
+    for i in range(len(list_time)):
+      data_pol = {}
+      data_pol["x"] = list_time[i]
+      data_pol["y"] = list_value[i]
+      allData.append(data_pol)
+    
+    # allData = [list(mean_values.values),list(df_polygon["time"])]
     cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!
     print("cache setted! Cache key", cache.get(key_cached))
           # print("allData",allData)
     print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
+          # print("list(df_polygon['time'])",list(df_polygon["time"]))
     return allData
+  
   else:
     print("CACHE HIT!")
     print("CACHE TIME: ",time.time() - start_time)
     pol_from_cache = json.loads(cache.get(key_cached))
     return pol_from_cache
-
-
     
+  # # Check if the point is inside the polygon
+    # df_polygon = pd.DataFrame(columns=["time","lat_lng","value"])
+    # i = 0
+    #   # print("ARRIVO PRIMA DI URL_IS_IND")
+    #   # print("num_param",num_param)
+    #   # print("lat_min,lat_max,lng_min,lng_max",lat_min,lat_max,lng_min,lng_max)
+    # url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude_start=lat_min,latitude_end=lat_max,
+    #                         longitude_start=lng_min,longitude_end=lng_max,num_param=num_param,range_value=range_value)
+    # print("URL DATA VECTORIAL========",url)
+    # df = pd.read_csv(url, dtype='unicode')
+    # for index,row in df.iterrows():
+    #   if index != 0:
+    #     point = Point(float(row["latitude"]),float(row["longitude"]))
+    #     is_inside = shapely_polygon.contains(point)
+    #     if is_inside:
+    #      # print("The point is inside the polygon.",row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name])
+    #       df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
+    #       i += 1
+    #     else:
+    #       continue
+      
+    #     # print("df_polygon",df_polygon.head())
+    
+    # df_polygon = df_polygon.drop_duplicates(subset=["lat_lng"], keep='first')
+    # print("NUMBER OF POINTS INSIDE THE POLYGON=====",len(list(df_polygon["lat_lng"])))
+    # df_polygon = df_polygon.drop_duplicates(subset=["time","lat_lng","value"], keep='first')
+    #     # print("df_polygon after drop duplicates",df_polygon.head())
+    # df_polygon["value"] = pd.to_numeric(df_polygon["value"])
+    #     # print("df_polygon after convert to float",df_polygon.head())
+    # mean_values = df_polygon.groupby("time")["value"].mean()
+    #       # print("mean_values",mean_values)
+    # df_polygon = df_polygon.drop_duplicates(subset=["time"], keep='first')
+    #       # print("list(df_polygon['time'])",list(df_polygon["time"]))
+    # allData = [list(mean_values.values),list(df_polygon["time"])]
+    # #save it to the cache!
+    # #time=31536000 is one year!
+    # print("key_cached",key_cached)
+    # cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!
+    # print("cache setted! Cache key", cache.get(key_cached))
+    #       # print("allData",allData)
+    # print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
+    # return allData
 
+
+
+ 
+
+
+
+    # allData=[mean_value.values,list(df_calculate["time"])]
+
+  
+    # return allData
+
+      
       
 # is_inside = shapely_polygon.contains(point)
 

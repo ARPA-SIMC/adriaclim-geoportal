@@ -64,6 +64,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   minValue: any;
   maxValue: any;
 
+  // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
+  isIndicator: any;
+  polygon: any;
+
   minRange: any;
   maxRange: any;
 
@@ -255,6 +259,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     this.arrayVariable = data.arrayVariable;
     this.range = data.range;
     this.extraParamExport = data.extraParamExport;
+
+    // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
+    this.isIndicator = data.isIndicator;
+    this.polygon = data.polygon;
+
     // this.start = this.dateStart.getTime();
     // this.end = this.dateEnd.getTime();
     if (this.dataset) {
@@ -331,7 +340,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
     }
     else {
-      this.getGraphTable();
+      console.log("POLYGON", this.polygon);
+      this.spinnerLoading = false;
+      // this.getGraphTable();
       // this.removeAnnualCycle();
     }
     // this.getAlgoType();
