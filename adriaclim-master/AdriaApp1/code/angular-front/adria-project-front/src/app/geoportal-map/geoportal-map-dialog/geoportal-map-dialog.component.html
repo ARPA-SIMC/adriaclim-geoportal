@@ -49,7 +49,8 @@
           <mat-tab-group *ngIf="!spinnerLoading" class="tab-group">
 
             <mat-tab label="Graph" class="tab-graph">
-              <div>
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <!-- <div> -->
                 <!-- <h4>Select graph</h4> -->
 
                 <mat-form-field appearance="fill">
@@ -59,16 +60,23 @@
                   </mat-select>
                 </mat-form-field>
 
-                <!-- STATISTICS PER I POLIGONI -->
-                <!-- <mat-form-field appearance="fill">
-                  <mat-label>Statistics</mat-label>
-                  <mat-select formControlName="statisticSel">
-                    <mat-option *ngFor="let s of optionStatistics" [value]="s.value">{{s.label}}</mat-option>
-                  </mat-select>
-                </mat-form-field> -->
+                <ng-container *ngIf="polygon">
+                  <!-- STATISTICS PER I POLIGONI -->
+                  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="10px">
+                    <mat-form-field appearance="fill">
+                      <mat-label>Statistics</mat-label>
+                      <mat-select formControlName="statisticSel">
+                        <mat-option *ngFor="let s of optionStatistics" [value]="s.value">{{s.label}}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <button mat-raised-button color="primary">Send</button>
+
+                  </div>
+                </ng-container>
 
               </div>
-              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [isIndicator]="isIndicator" [polygon]="polygon" [operation]="form.get('operationSel')?.value" [context]="'one'"></app-canvas-graph>
+              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [isIndicator]="isIndicator" [polygon]="polygon" [operation]="form.get('operationSel')?.value" [extraParam]="extraParamExport" [context]="'one'"></app-canvas-graph>
               <!-- <ng-template matTabContent> -->
 
             <!-- </ng-template> -->

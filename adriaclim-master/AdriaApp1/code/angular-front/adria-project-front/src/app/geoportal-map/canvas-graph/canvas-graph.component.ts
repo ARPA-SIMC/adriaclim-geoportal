@@ -27,6 +27,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   @Input() isIndicator: any;
   @Input() operation: any;
   @Input() context: any;
+  @Input() extraParam: any;
   @Output() dataTimeExport = new EventEmitter<any>();
 
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -242,7 +243,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       selVar: this.variable,
       range: this.range ? Math.abs(this.range) : 0,
       latLngObj: this.polygon,
-      isIndicator: this.isIndicator
+      isIndicator: this.isIndicator,
+      parametro_agg: this.extraParam ? this.extraParam.nameExtraParam : null,
 
     }
     this.httpClient.post('http://localhost:8000/test/dataPolygon', data,

@@ -27,12 +27,12 @@ class Node(models.Model):
     wms_url = models.CharField(max_length=500,default="",null=True)
     
 class Indicator(models.Model):
-    dataset_id = models.CharField(primary_key=True,max_length=500)
-    adriaclim_dataset = models.CharField(max_length=500)
-    adriaclim_model = models.CharField(max_length=500)
-    adriaclim_timeperiod = models.CharField(max_length=500)
-    adriaclim_scale = models.CharField(max_length=500)
-    adriaclim_type = models.CharField(max_length=500)
+    dataset_id = models.CharField(primary_key=True,max_length=500,default="")
+    adriaclim_dataset = models.CharField(max_length=500,default="")
+    adriaclim_model = models.CharField(max_length=500,default="")
+    adriaclim_timeperiod = models.CharField(max_length=500,default="")
+    adriaclim_scale = models.CharField(max_length=500,default="")
+    adriaclim_type = models.CharField(max_length=500,default="")
     title = models.CharField(max_length=1500,null=False)
     metadata_url = models.CharField(max_length=1500,default="")
     institution = models.CharField(max_length=300,default="")

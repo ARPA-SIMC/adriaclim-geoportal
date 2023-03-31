@@ -555,9 +555,9 @@ def getAllDatasets():
   print("Started getAllDatasets()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
   df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=0,sep=",",names=["griddap","subset","tabledap","Make A Graph",
-                                                           "wms","files","Title","Summary","FGDC","ISO 19115",
-                                                           "Info","Background Info","RSS","Email","Institution",
-                                                           "Dataset ID"],
+                                                          "wms","files","Title","Summary","FGDC","ISO 19115",
+                                                          "Info","Background Info","RSS","Email","Institution",
+                                                          "Dataset ID"],
                   na_values="Value not available")
   node_list = []
   dataset_list = []
@@ -565,9 +565,11 @@ def getAllDatasets():
   print("Time to finish first read_csv getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
   df1 = df.replace(np.nan, "", regex=True)
   all_datasets = Node.objects.all()
+  # all_indicators = Indicator.objects.all()
+  # all_indicators.delete()
   all_datasets.delete()
   for index,row in df1.iterrows():
-     if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
+    if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
       #We take every datasets to fill the full list!
       
       adriaclim_scale = None
@@ -597,16 +599,16 @@ def getAllDatasets():
       for index1, row1 in get_info.iterrows():
         #now we create our datasets that we put in our db 
         if row1["Row Type"] == "dimension":
-           if dimensions > 0:
-             dimension_names = dimension_names + " "
-           dimensions = dimensions+1
-           dimension_names = dimension_names+row1["Variable Name"]
+          if dimensions > 0:
+            dimension_names = dimension_names + " "
+          dimensions = dimensions+1
+          dimension_names = dimension_names+row1["Variable Name"]
 
         if row1["Row Type"] == "variable":
-           if variables > 0:
-             variable_names = variable_names + " "
-           variables = variables+1
-           variable_names = variable_names+row1["Variable Name"]
+          if variables > 0:
+            variable_names = variable_names + " "
+          variables = variables+1
+          variable_names = variable_names+row1["Variable Name"]
 
         if row1["Attribute Name"] == "adriaclim_dataset":
           adriaclim_dataset = row1["Value"]
@@ -642,7 +644,7 @@ def getAllDatasets():
         adriaclim_scale = "large"
 
       if adriaclim_timeperiod == "day":
-         adriaclim_timeperiod = "daily"
+        adriaclim_timeperiod = "daily"
 
 
       if adriaclim_scale is None and not is_indicator:
@@ -673,22 +675,32 @@ def getAllDatasets():
         if is_indicator:
           adriaclim_timeperiod = "yearly"
         else:
-           adriaclim_timeperiod = "UNKNOWN"
+          adriaclim_timeperiod = "UNKNOWN"
       
       if time_start is not None and time_end is not None:
+          # if is_indicator:
+          #   new_ind = Indicator(dataset_id = node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
+          #         adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
+          #         adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
+          #         lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
+          #         dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
+          #         wms_url=row["wms"])
+          # else:
         new_node = Node(id = node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
-                                  adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
-                                  adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
-                                  lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
-                                  dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
-                                  wms_url=row["wms"])
+                          adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
+                          adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
+                          lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
+                          dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
+                          wms_url=row["wms"])
+        # new_ind.save()
         new_node.save()
         node_list.append(new_node.title)
         dataset_list.append(adriaclim_dataset)
         scale_list.append(adriaclim_scale)
-  
   print("Time to finish getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
   return [node_list,dataset_list,scale_list]
+
+  
    
 def getTitle():
   start_time = time.time()
@@ -1050,10 +1062,12 @@ def getDataTableIndicator(dataset_id,layer_name,time_start,time_finish,lat_start
     return data
 
 def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
-  
+  try:
+    #vedere se si tratta di un poligono e nel caso prendere tutti i punti che stanno nel poligono e per ogni punto chiamare questa funzione e costruire il json?
+
     url = getIndicatorQueryUrl(dataset_id,False,False,latitude=str(latitude),longitude=str(longitude),
     
-                               timeMin=str(time_start),timeMax=str(time_finish),range=str(range_value),format="json")
+                                timeMin=str(time_start),timeMax=str(time_finish),range=str(range_value),format="json")
     print("URL SUPER FUNZIONE =", url)
     # urlTabledap = https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
 
@@ -1068,6 +1082,10 @@ def getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude
     # csvfile = csv.DictReader(io.TextIOWrapper(url_open, encoding = 'utf-8'), delimiter=',') 
     data = r.json() 
     return data
+
+  except Exception as e:
+    print("EXEPTION =", e)
+    return e
 
 def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value,is_indicator,lat_start,long_start,lat_end,long_end, **kwargs):
   
@@ -1595,11 +1613,13 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
 
   return allData
 
-def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max):
+def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,operation,time_op,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg):
   # print("ARRIVO PRIMA DI URL_IS_IND")
   # print("Lat_lng_obj=======",lat_lng_obj)
   # Define the polygon vertices
    #latitudes and longitudes from the frontend  
+   #
+
 
   start_time = time.time()
   print("STARTED GETDATAPOLYGONNEW!")
@@ -1664,33 +1684,83 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_
     # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
     print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
     df_polygon = pd.DataFrame(columns=['time','lat_lng', 'value'])
+    
     i=0
+    dataTable = []
     for point in points_inside_polygon:
       url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
                             longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
       print("URL DATA VECTORIAL========",url)
       df = pd.read_csv(url, dtype='unicode')
-      for index,row in df.iterrows():
-        if index != 0:
-          df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-          i+=1
+      # DA SISTEMARE QUI!!!!!!!!!!!***********************************
+      try:
+        for index,row in df.iterrows():
+          if parametro_agg:
+            if len(dataTable) == 0:
+              dataTable.append({row["time"], row["latitude"],row["longitude"],row[parametro_agg],row[layer_name]})
+            if index != 0:
+              df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
+              dataTable.append({row["time"], row["latitude"],row["longitude"],row[parametro_agg],row[layer_name]})
+              i+=1
+          else:
+            if len(dataTable) == 0:
+              dataTable.append({row["time"], row["latitude"],row["longitude"],row[layer_name]})
+            if index != 0:
+              df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
+              dataTable.append({row["time"], row["latitude"],row["longitude"],row[layer_name]})
+              i+=1
+      except Exception as e:
+          print("EXCEPTION",e)
+          return str(e)
+
 
     df_polygon = df_polygon.drop_duplicates(subset=["time","lat_lng","value"], keep='first')
         # print("df_polygon after drop duplicates",df_polygon.head())
     df_polygon["value"] = pd.to_numeric(df_polygon["value"])
+    #a seconda del valore di operation e di time_op viene fatta l'operazione7
+    df_polygon["time"] = pd.to_datetime(df_polygon["time"]) #converto la colonna time in datetime
+
+
+    # ops = {
+    # "avg": {"default": "mean", "month": lambda x: x.dt.month.mean(), "day": lambda x: x.dt.day.mean()},
+    # "min": {"default": "min", "month": lambda x: x.dt.month.min(), "day": lambda x: x.dt.day.min()},
+    # "max": {"default": "max", "month": lambda x: x.dt.month.max(), "day": lambda x: x.dt.day.max()},
+    # "10th_perc": {"default": lambda x: x.quantile(0.1), "month": lambda x: x.dt.month.quantile(0.1), "day": lambda x: x.dt.day.quantile(0.1)},
+    # "90th_perc": {"default": lambda x: x.quantile(0.9), "month": lambda x: x.dt.month.quantile(0.9), "day": lambda x: x.dt.day.quantile(0.9)},
+    # "median": {"default": "median", "month": lambda x: x.dt.month.median(), "day": lambda x: x.dt.day.median()},
+    # "sum" : {"default": "sum", "month": lambda x: x.dt.month.sum(), "day": lambda x: x.dt.day.sum()},
+    # }
+
+    # groupby_col = "time" if time_op == "default" else df_polygon["time"].dt
+    # agg_func = ops[operation][time_op]
+
+    # #AGG IS USED TO APPLY AN AGGREGATE FUNCTION AND YOU NEED TO PASS IT THE NAME OF THE FUNCTION (min,avg,max etc)!!!
+    # res_values = df_polygon.groupby(groupby_col)["value"].agg(agg_func) #AGG IS USED TO APPLY AN AGGREGATE FUNCTION
+
         # print("df_polygon after convert to float",df_polygon.head())
-    mean_values = df_polygon.groupby("time")["value"].mean()
+    res_values = df_polygon.groupby("time")["value"].mean()
           # print("mean_values",mean_values)
     df_polygon = df_polygon.drop_duplicates(subset=["time"], keep='first')
     print("key_cached",key_cached)
     allData = []
     list_time = list(df_polygon["time"])
-    list_value = list(mean_values.values)
+    list_value = list(res_values.values)
     for i in range(len(list_time)):
       data_pol = {}
       data_pol["x"] = list_time[i]
       data_pol["y"] = list_value[i]
-      allData.append(data_pol)
+      allData.append({"dataPol": data_pol})
+
+    for i in range(len(dataTable)):
+      data_table = {}
+      data_table["time"] = dataTable[i]["time"]
+      data_table["latitude"] = dataTable[i]["latitude"]
+      data_table["longitude"] = dataTable[i]["longitude"]
+      data_table[layer_name] = dataTable[i][layer_name]
+      if parametro_agg:
+        data_table[parametro_agg] = dataTable[i][parametro_agg]
+      allData.append({"dataTable": data_table})
+    
     
     # allData = [list(mean_values.values),list(df_polygon["time"])]
     cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!

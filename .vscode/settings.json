@@ -1,4 +1,5 @@
 {
     "vscode.tsc.compiler.alertTSConfigChanges": "never",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "python.formatting.provider": "black"
 }

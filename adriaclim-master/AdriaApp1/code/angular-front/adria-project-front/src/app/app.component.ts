@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     console.log('AppComponent ngOnInit');
-
+    // this.getAllData();
     this.httpClient.post('http://localhost:8000/test/prova', {
 
     }).subscribe({
@@ -44,4 +44,15 @@ export class AppComponent implements OnInit {
       }
     });
   }
+
+  getAllData(){
+    this.httpClient.post('http://localhost:8000/myFunctions/getAllDatasets', {
+  }).subscribe({
+    next(position) {
+    },
+    error(msg) {
+    }
+  })
+  }
+
 }

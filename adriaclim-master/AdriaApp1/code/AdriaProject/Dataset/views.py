@@ -115,8 +115,11 @@ def getHighTemp(request):
     result=allFunctions.getHighTemperature()
     return JsonResponse({'result':result})
 
+@api_view(['GET','POST'])
 def getAllDatasets(request):
     allNodes = allFunctions.getAllDatasets()
+    #può non ritornare niente!
+    # print("AL NODES =", allNodes)
     return JsonResponse({'allNodes':allNodes})
 
 def getTitle(request):
@@ -299,7 +302,7 @@ def getInd(request):
 @api_view(['GET', 'POST'])
 def getAllNodes(request):
     # sync_to_async(allFunctions.getIndicators(),thread_sensitive = True)
-    # ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator")
+    # ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator"
     all_nodes = Node.objects.all()
     data = [model_to_dict(i) for i in all_nodes]
     # indSer = serializers.serialize('json', data)
@@ -480,13 +483,16 @@ def getDataPolygonNew(request):
     print("LAYER NAME:",layer_name)
     range = str(request.data.get('range'))
     num_param = dataset.get('dimensions')
+    parametro_agg = str(request.data.get('parametro_agg'))
     lat_min = dataset.get('lat_min')
     lat_max = dataset.get('lat_max')
     lng_min = dataset.get('lng_min')
     lng_max = dataset.get('lng_max')
+    operation = request.data.get('operation')
+    time_op = request.data.get('timeOp')
     lat_lng_obj = request.data.get("latLngObj")
     print("LAT LNG OBJ: ", lat_lng_obj)
     is_indicator = request.data.get('isIndicator')
     print("IS INDICATOR:",is_indicator)
-    dataVect=allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max)
+    dataVect=allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,operation,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg)
     return JsonResponse({'dataVect':dataVect})

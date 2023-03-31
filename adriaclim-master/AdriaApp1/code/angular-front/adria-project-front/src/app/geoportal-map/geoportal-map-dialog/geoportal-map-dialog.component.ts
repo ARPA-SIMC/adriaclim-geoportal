@@ -276,7 +276,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       // cod: new FormControl(this.element.cod_algo_type),
       cod: new FormControl(null),
       operationSel: new FormControl("default"),
-      statisticSel: new FormControl(),
+      statisticSel: new FormControl("avg"),
       typeSel: new FormControl(this.typeOfExport[0].type),
       varSelected: new FormControl(null, Validators.required),
       // minSliderDate: new FormControl(this.dateStart),
@@ -342,7 +342,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     else {
       console.log("POLYGON", this.polygon);
       this.spinnerLoading = false;
-      // this.getGraphTable();
+      if(!this.polygon) {
+        this.getGraphTable();
+
+      }
       // this.removeAnnualCycle();
     }
     // this.getAlgoType();

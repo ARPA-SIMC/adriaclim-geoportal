@@ -38,6 +38,7 @@ interface LatLng {
 
 interface ExtraParams {
   name: string;
+  nameExtraParam: string;
   minValue: number;
   maxValue: number;
   stepSize: number;
@@ -221,6 +222,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     });
 
     // this.getInd();
+
     this.getAllNodes();
     // this.dataSource.data = TREE_DATA;
 
@@ -271,7 +273,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //     [42.61546062315476, 10.695002224139875],
     //   ],
     // ).addTo(this.map);
-    this.getPluto();
+    // this.getPluto();
 
   }
 
@@ -529,12 +531,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     menuTrigger.closeMenu();
   }
 
+
+
   getPluto() {
     this.httpClient.post('http://localhost:8000/test/pluto', {
     }).subscribe({
       next(position) {
+        console.log("PLUTO =", position);
+
       },
       error(msg) {
+        console.log('PLUTO ERROR: ', msg);
       }
     });
   }
@@ -1460,6 +1467,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             minValue: - max,
             maxValue: - min,
             stepSize: step,
+            nameExtraParam: name,
           };
 
           this.extraParamExport = {
@@ -1467,6 +1475,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             minValue: min,
             maxValue: max,
             stepSize: step,
+            nameExtraParam: name,
           }
 
         }
@@ -1476,6 +1485,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             minValue: min,
             maxValue: max,
             stepSize: step,
+            nameExtraParam: name,
           };
 
           this.extraParamExport = {
@@ -1483,6 +1493,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             minValue: min,
             maxValue: max,
             stepSize: step,
+            nameExtraParam: name,
           }
         }
         // if(this.value this.extraParam.maxValue){
