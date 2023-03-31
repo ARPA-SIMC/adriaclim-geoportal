@@ -1697,17 +1697,17 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
         for index,row in df.iterrows():
           if parametro_agg:
             if len(dataTable) == 0:
-              dataTable.append({row["time"], row["latitude"],row["longitude"],row[parametro_agg],row[layer_name]})
+              dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
             if index != 0:
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-              dataTable.append({row["time"], row["latitude"],row["longitude"],row[parametro_agg],row[layer_name]})
+              dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
               i+=1
           else:
             if len(dataTable) == 0:
-              dataTable.append({row["time"], row["latitude"],row["longitude"],row[layer_name]})
+               dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
             if index != 0:
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-              dataTable.append({row["time"], row["latitude"],row["longitude"],row[layer_name]})
+              dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
               i+=1
       except Exception as e:
           print("EXCEPTION",e)
