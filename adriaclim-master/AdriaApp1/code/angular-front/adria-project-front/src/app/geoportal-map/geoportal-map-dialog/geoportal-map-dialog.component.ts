@@ -12,6 +12,7 @@ import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
 import { MatSliderChange } from '@angular/material/slider';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
+import { last } from 'lodash';
 
 @Component({
   selector: 'app-geoportal-map-dialog',
@@ -63,6 +64,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   dataMaxExport: any;
   minValue: any;
   maxValue: any;
+
+  operation: any = "default";
+  statistic: any = "avg";
 
   // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
   isIndicator: any;
@@ -158,18 +162,22 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     },
     {
       label: "10th Percentile",
-      value: "percentile_10"
+      value: "10th_perc"
     },
     {
       label: "90th Percentile",
-      value: "percentile_90"
+      value: "90th_perc"
     },
     {
       label: "Median",
       value: "median"
+    },
+    {
+      label: "Sum",
+      value: "sum"
     }
   ];
-
+  
   removeAnnualCycle(o: any): boolean {
 
     if(this.dataset.adriaclim_timeperiod === "yearly") {
@@ -759,44 +767,71 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
   }
 
+
   dataTablePolygon(event: any) {
-    console.log("EVENT", event);
+    //console.log("EVENT", event);
     this.spinnerLoading = false;
     this.dataTable = event;
-    console.log("datatable graph=======", this.dataTable);
+    //console.log("datatable graph=======", this.dataTable);
 
     this.displayedColumns = Object.keys(this.dataTable[0]);
+    let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
+    //console.log("lastCol", lastCol);
     let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
+    //console.log("dim_unit", dim_unit);
     if (dim_unit) {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
     }
-
+   
+    
 
 
     // this.dataTable.data.table.forEach((el: any) => {
     let objArr: any = {};
     let arr1: any = [];
+    
     // console.log("K = ", k);
 
-    this.dataTable.data.table.rows.forEach((arr: any) => {
-      objArr = {};
+    this.dataTable.forEach((arr: any,index: number) => {
+      if (index !== 0){
+        objArr = {};
 
-      this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
-        objArr[key] = arr[i];
-
-      })
-      arr1.push(objArr);
+        this.displayedColumns.forEach((key: any, i: number) => {
+          if (i === this.displayedColumns.length - 1) {
+            //ultima chiave da non cambiare
+            objArr[key] = arr[lastCol];
+          }else{
+            objArr[key] = arr[key];
+          }
+        })
+        arr1.push(objArr);
+    }
 
     });
-    this.dataTable.data.table.rows = [...arr1];
+    this.dataTable = [...arr1];
+    this.dataTable.sort((a: any, b: any) => {
+      return new Date(a.time).getTime() - new Date(b.time).getTime();
+    });
 
-    if (this.dataTable.data.table.rows.length > 0) {
-      this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
+    //console.log("this.dataTable after everything!!", this.dataTable);
+
+    
+  
+    // console.log("this.dataTable after everything!!", this.dataTable);
+
+    if (this.dataTable.length > 0) {
+      this.dataSource = new MatTableDataSource(this.dataTable);
+      //console.log(this.dataSource);
       // bypass ngIf for paginator
       this.setDataSourceAttributes();
 
 
     }
+  }
+
+  sendSelGraphPoly() {
+    this.operation = this.form.get('operationSel')?.value;
+    this.statistic = this.form.get('statisticSel')?.value;
   }
 
 

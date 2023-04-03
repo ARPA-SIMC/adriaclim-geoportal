@@ -26,6 +26,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   @Input() polygon: any;
   @Input() isIndicator: any;
   @Input() operation: any;
+  @Input() statistic: any;
   @Input() context: any;
   @Input() extraParam: any;
   @Output() dataTimeExport = new EventEmitter<any>();
@@ -221,19 +222,27 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
+      console.log("d",d);
       d = new Date(d);
+      console.log("!= annualDay", d);
+      
     }
     if (this.operation === "annualMonth") {
+      console.log("=== annualMonth");
+      
       return this.months[d.getMonth()];
     }
     else if (this.operation === "annualDay") {
+      console.log("=== annualDay");
+      
       return d;
     }
     else {
       let month = d.getMonth() + 1
       let day = d.getDate()
       let year = d.getFullYear()
-
+      // console.log("Entro qui!!")
+      // console.log(day + "/" + month + "/" + year);
       return day + "/" + month + "/" + year;
     }
   }
@@ -246,7 +255,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       latLngObj: this.polygon,
       isIndicator: this.isIndicator,
       parametro_agg: this.extraParam ? this.extraParam.nameExtraParam : null,
-
+      operation: this.operation,
+      statistic: this.statistic,
+      
     }
     console.log("QUESTO PARAMETRO IN DATA =", data);
 
@@ -259,22 +270,23 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
         console.log("RES DOPO IL PARSE =", response);
 
         let allDataPolygon = response['dataVect'];
+ 
         this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
         console.log("allDataPolygon", allDataPolygon);
-        let valuesPol = allDataPolygon[0]; //media dei valori
-        let datesPol = allDataPolygon[1]; //tutte le date!
-        console.log("valuesPol", valuesPol);
-        console.log("datesPol", datesPol);
+
         allDataPolygon.dataPol.forEach((element: any) => {
-          element.x = this.formatDate(element.x);
+          /**
+           *  Da rivedere qui!!!!!!
+           */
+          // element.x = this.formatDate(element.x);
           element.y = Number(element.y);
-          if(element.x> 10000) {
-            element.x = element.x.toExponential().replace(/e\+?/, ' x 10^');
-          }
-          else if(element.x < 0.001) {
-            element.x = element.x.toExponential().replace(/e\+?/, ' x 10^');
-          }
+          // if(element.y> 10000) {
+          //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
+          // }
+          // else if(element.y < 0.001) {
+          //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
+          // }
         });
         let name = this.variable;
         // this.dataRes.allData[name].forEach((element: any) => {

@@ -1613,7 +1613,10 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
 
   return allData
 
-def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,operation,time_op,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg):
+def convertToTime(date_str):
+  return dt.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ').strftime("%Y-%m-%d")
+
+def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg):
   # print("ARRIVO PRIMA DI URL_IS_IND")
   # print("Lat_lng_obj=======",lat_lng_obj)
   # Define the polygon vertices
@@ -1630,7 +1633,7 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
   
   shapely_polygon = ShapelyPolygon(vertices)
   pol_vertices_str = str(vertices[0][0]).replace(" ","")
-  key_cached = dataset_id + "_" + pol_vertices_str
+  key_cached = dataset_id + "_" + pol_vertices_str + "_" + statistic + "_" + time_op
   xmin = None
   ymin = None
   xmax = None
@@ -1645,9 +1648,9 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
     xmin, ymin, xmax, ymax = shapely_polygon.bounds
   # distanze = []
     circ = shapely_polygon.length
-    print("circ", circ)
+    # print("circ", circ)
     area = shapely_polygon.area
-    print("area =", area)
+    # print("area =", area)
 
   # 2.23 = circonferenza poligono piccolo
   # 8.54 = circonferenza poligono grande
@@ -1706,15 +1709,17 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
               dat_tab["latitude"] = row["latitude"]
               dat_tab["longitude"] = row["longitude"]
               dat_tab[parametro_agg] = row[parametro_agg]
-              dat_tab[layer_name] = row[layer_name]
+              dat_tab[layer_name] = row[layer_name]  if not pd.isna(row[layer_name]) else "Value not defined"
               dataTable.append(dat_tab)
-            if index > 1:
+              #EOBS_de0d_3ca1_a77a_45.60425767756453_avg
+              #EOBS_de0d_3ca1_a77a_45.60425767756453_avg
+            if index > 0:
               dat_tab = {}
-              dat_tab["time"] = row["time"]
+              dat_tab["time"] = convertToTime(row["time"])
               dat_tab["latitude"] = row["latitude"]
               dat_tab["longitude"] = row["longitude"]
               dat_tab[parametro_agg] = row[parametro_agg]
-              dat_tab[layer_name] = row[layer_name]
+              dat_tab[layer_name] = row[layer_name] if not pd.isna(row[layer_name]) else "Value not defined"
               dataTable.append(dat_tab)
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
               #dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
@@ -1728,17 +1733,17 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
               dat_tab["longitude"] = row["longitude"]
               #dat_tab[parametro_agg] = row[parametro_agg]
               #print("Sono arrvato qui")
-              dat_tab[layer_name] = row[layer_name]
+              dat_tab[layer_name] = row[layer_name] if not pd.isna(row[layer_name])  else "Value not defined"
               dataTable.append(dat_tab)
               #  dataTable.append(dat)
-            if index > 1:
+            if index > 0:
               #print("LAYER NAME SE NON PARAMETRO SECONDO =", row[layer_name])
               dat_tab = {}
-              dat_tab["time"] = row["time"]
+              dat_tab["time"] = convertToTime(row["time"])
               dat_tab["latitude"] = row["latitude"]
               dat_tab["longitude"] = row["longitude"]
               #dat_tab[parametro_agg] = row[parametro_agg]
-              dat_tab[layer_name] = row[layer_name]
+              dat_tab[layer_name] = row[layer_name] if not pd.isna(row[layer_name])  else "Value not defined"
               dataTable.append(dat_tab)
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
               # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
@@ -1750,32 +1755,34 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
 
     df_polygon = df_polygon.drop_duplicates(subset=["time","lat_lng","value"], keep='first')
         # print("df_polygon after drop duplicates",df_polygon.head())
+    df_polygon = df_polygon.dropna(how='any',axis=0)
     df_polygon["value"] = pd.to_numeric(df_polygon["value"])
     #a seconda del valore di operation e di time_op viene fatta l'operazione7
     df_polygon["time"] = pd.to_datetime(df_polygon["time"]) #converto la colonna time in datetime
 
 
-    # ops = {
-    # "avg": {"default": "mean", "month": lambda x: x.dt.month.mean(), "day": lambda x: x.dt.day.mean()},
-    # "min": {"default": "min", "month": lambda x: x.dt.month.min(), "day": lambda x: x.dt.day.min()},
-    # "max": {"default": "max", "month": lambda x: x.dt.month.max(), "day": lambda x: x.dt.day.max()},
-    # "10th_perc": {"default": lambda x: x.quantile(0.1), "month": lambda x: x.dt.month.quantile(0.1), "day": lambda x: x.dt.day.quantile(0.1)},
-    # "90th_perc": {"default": lambda x: x.quantile(0.9), "month": lambda x: x.dt.month.quantile(0.9), "day": lambda x: x.dt.day.quantile(0.9)},
-    # "median": {"default": "median", "month": lambda x: x.dt.month.median(), "day": lambda x: x.dt.day.median()},
-    # "sum" : {"default": "sum", "month": lambda x: x.dt.month.sum(), "day": lambda x: x.dt.day.sum()},
-    # }
 
-    # groupby_col = "time" if time_op == "default" else df_polygon["time"].dt
-    # agg_func = ops[operation][time_op]
+    ops = {
+      "avg": {"default": "mean", "annualMonth": lambda x: x.dt.month.mean(), "annualDay": lambda x: x.dt.day.mean()},
+      "min": {"default": "min", "annualMonth": lambda x: x.dt.month.min(), "annualDay": lambda x: x.dt.day.min()},
+      "max": {"default": "max", "annualMonth": lambda x: x.dt.month.max(), "annualDay": lambda x: x.dt.day.max()},
+      "10th_perc": {"default": lambda x: x.quantile(0.1), "annualMonth": lambda x: x.dt.month.quantile(0.1), "annualDay": lambda x: x.dt.day.quantile(0.1)},
+      "90th_perc": {"default": lambda x: x.quantile(0.9), "annualMonth": lambda x: x.dt.month.quantile(0.9), "annualDay": lambda x: x.dt.day.quantile(0.9)},
+      "median": {"default": "median", "annualMonth": lambda x: x.dt.month.median(), "annualDay": lambda x: x.dt.day.median()},
+      "sum" : {"default": "sum", "annualMonth": lambda x: x.dt.month.sum(), "annualDay": lambda x: x.dt.day.sum()},
+    }
 
-    # #AGG IS USED TO APPLY AN AGGREGATE FUNCTION AND YOU NEED TO PASS IT THE NAME OF THE FUNCTION (min,avg,max etc)!!!
-    # res_values = df_polygon.groupby(groupby_col)["value"].agg(agg_func) #AGG IS USED TO APPLY AN AGGREGATE FUNCTION
+    groupby_col = "time" if time_op == "default" else df_polygon["time"].dt
+    agg_func = ops[statistic][time_op]
 
+    #AGG IS USED TO APPLY AN AGGREGATE FUNCTION AND YOU NEED TO PASS IT THE NAME OF THE FUNCTION (min,avg,max etc)!!!
+    res_values = df_polygon.groupby(groupby_col)["value"].agg(agg_func) #AGG IS USED TO APPLY AN AGGREGATE FUNCTION
+    print("res_values",res_values)
         # print("df_polygon after convert to float",df_polygon.head())
-    res_values = df_polygon.groupby("time")["value"].mean()
+    # res_values = df_polygon.groupby("time")["value"].mean()
           # print("mean_values",mean_values)
     df_polygon = df_polygon.drop_duplicates(subset=["time"], keep='first')
-    print("key_cached",key_cached)
+    # print("key_cached",key_cached)
     allData = {}
     # allData["dataPol"] = []
     try:
@@ -1806,21 +1813,21 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
         data_table["longitude"] = dataTable[i]["longitude"]
         data_table[layer_name] = dataTable[i][layer_name]
         if parametro_agg != "None":
-          print("Entro qui yeahhhhhh!!")
+          # print("Entro qui yeahhhhhh!!")
           data_table[parametro_agg] = dataTable[i][parametro_agg]
         data_table_list.append(data_table)
       
       allData["dataTable"] = data_table_list
-      print("ALL DATA POL =", allData)
+      # print("ALL DATA POL =", allData)
     except Exception as e:
       print("EXCEPTION 1",e)
       return str(e)
     
     try:
-      print("allData",allData)
+      # print("allData",allData)
       # allData = [list(mean_values.values),list(df_polygon["time"])]
       cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!
-      print("cache setted! Cache key", cache.get(key_cached))
+      print("cache setted! Cache key", key_cached)
             # print("allData",allData)
       print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
             # print("list(df_polygon['time'])",list(df_polygon["time"]))
