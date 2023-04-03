@@ -484,6 +484,7 @@ def getDataPolygonNew(request):
     range = str(request.data.get('range'))
     num_param = dataset.get('dimensions')
     parametro_agg = str(request.data.get('parametro_agg'))
+    print("PARAMETRO AGG:",parametro_agg)
     lat_min = dataset.get('lat_min')
     lat_max = dataset.get('lat_max')
     lng_min = dataset.get('lng_min')

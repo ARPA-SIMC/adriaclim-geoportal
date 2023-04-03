@@ -76,7 +76,7 @@
                 </ng-container>
 
               </div>
-              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [isIndicator]="isIndicator" [polygon]="polygon" [operation]="form.get('operationSel')?.value" [extraParam]="extraParamExport" [context]="'one'"></app-canvas-graph>
+              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" (dataTablePolygon)="dataTablePolygon($event)" class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable" [range]="range" [isIndicator]="isIndicator" [polygon]="polygon" [operation]="form.get('operationSel')?.value" [extraParam]="extraParamExport" [context]="'one'"></app-canvas-graph>
               <!-- <ng-template matTabContent> -->
 
             <!-- </ng-template> -->

@@ -1690,27 +1690,61 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
     for point in points_inside_polygon:
       url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
                             longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
-      print("URL DATA VECTORIAL========",url)
+      #print("URL DATA VECTORIAL========",url)
       df = pd.read_csv(url, dtype='unicode')
+      #print("LAYER NAME PRIMA DI TUTTO =", layer_name)
       # DA SISTEMARE QUI!!!!!!!!!!!***********************************
       try:
         for index,row in df.iterrows():
-          if parametro_agg:
+          # print("PARAMETRO AGGIUNTIVO =", type(parametro_agg))
+          # print("PARAMETRO AGGIUNTIVO",parametro_agg)
+          if parametro_agg != "None":
             if len(dataTable) == 0:
-              dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
-            if index != 0:
+              #print("LAYER NAME SE PARAMETRO =", row[layer_name])
+              dat_tab = {}
+              dat_tab["time"] = row["time"]
+              dat_tab["latitude"] = row["latitude"]
+              dat_tab["longitude"] = row["longitude"]
+              dat_tab[parametro_agg] = row[parametro_agg]
+              dat_tab[layer_name] = row[layer_name]
+              dataTable.append(dat_tab)
+            if index > 1:
+              dat_tab = {}
+              dat_tab["time"] = row["time"]
+              dat_tab["latitude"] = row["latitude"]
+              dat_tab["longitude"] = row["longitude"]
+              dat_tab[parametro_agg] = row[parametro_agg]
+              dat_tab[layer_name] = row[layer_name]
+              dataTable.append(dat_tab)
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-              dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
+              #dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
               i+=1
           else:
             if len(dataTable) == 0:
-               dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
-            if index != 0:
+              #print("LAYER NAME SE NON PARAMETRO PRIMO =", row[layer_name])
+              dat_tab = {}
+              dat_tab["time"] = row["time"]
+              dat_tab["latitude"] = row["latitude"]
+              dat_tab["longitude"] = row["longitude"]
+              #dat_tab[parametro_agg] = row[parametro_agg]
+              #print("Sono arrvato qui")
+              dat_tab[layer_name] = row[layer_name]
+              dataTable.append(dat_tab)
+              #  dataTable.append(dat)
+            if index > 1:
+              #print("LAYER NAME SE NON PARAMETRO SECONDO =", row[layer_name])
+              dat_tab = {}
+              dat_tab["time"] = row["time"]
+              dat_tab["latitude"] = row["latitude"]
+              dat_tab["longitude"] = row["longitude"]
+              #dat_tab[parametro_agg] = row[parametro_agg]
+              dat_tab[layer_name] = row[layer_name]
+              dataTable.append(dat_tab)
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-              dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
+              # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
               i+=1
       except Exception as e:
-          print("EXCEPTION",e)
+          print("EXCEPTION 3",e)
           return str(e)
 
 
@@ -1742,33 +1776,58 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,oper
           # print("mean_values",mean_values)
     df_polygon = df_polygon.drop_duplicates(subset=["time"], keep='first')
     print("key_cached",key_cached)
-    allData = []
-    list_time = list(df_polygon["time"])
-    list_value = list(res_values.values)
-    for i in range(len(list_time)):
-      data_pol = {}
-      data_pol["x"] = list_time[i]
-      data_pol["y"] = list_value[i]
-      allData.append({"dataPol": data_pol})
-
-    for i in range(len(dataTable)):
-      data_table = {}
-      data_table["time"] = dataTable[i]["time"]
-      data_table["latitude"] = dataTable[i]["latitude"]
-      data_table["longitude"] = dataTable[i]["longitude"]
-      data_table[layer_name] = dataTable[i][layer_name]
-      if parametro_agg:
-        data_table[parametro_agg] = dataTable[i][parametro_agg]
-      allData.append({"dataTable": data_table})
+    allData = {}
+    # allData["dataPol"] = []
+    try:
+      list_time = list(df_polygon["time"].dt.strftime('%d/%m/%Y'))
+      #print("list_time",list_time)
+      #print("len(list_time)",len(list_time))
+      list_value = list(res_values.values)
+      #print("len(list_value)",len(list_value))
+      #print("list_value",list_value)
+      data_pol_list = []
+      for i in range(len(list_time)):
+        data_pol = {}
+        data_pol["x"] = list_time[i]
+        data_pol["y"] = list_value[i]
+        # allData.append({"dataPol": []})
+        data_pol_list.append(data_pol)
+        # allData["dataPol"].append(data_pol)
+        # allData.append({"dataPol": data_pol})
+      allData["dataPol"] = data_pol_list
+      
+      # print("allData",allData)
+      data_table_list = []
+      for i in range(len(dataTable)):
+        data_table = {}
+        #print("dataTable[i]",dataTable[i])
+        data_table["time"] = dataTable[i]["time"]
+        data_table["latitude"] = dataTable[i]["latitude"]
+        data_table["longitude"] = dataTable[i]["longitude"]
+        data_table[layer_name] = dataTable[i][layer_name]
+        if parametro_agg != "None":
+          print("Entro qui yeahhhhhh!!")
+          data_table[parametro_agg] = dataTable[i][parametro_agg]
+        data_table_list.append(data_table)
+      
+      allData["dataTable"] = data_table_list
+      print("ALL DATA POL =", allData)
+    except Exception as e:
+      print("EXCEPTION 1",e)
+      return str(e)
     
-    
-    # allData = [list(mean_values.values),list(df_polygon["time"])]
-    cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!
-    print("cache setted! Cache key", cache.get(key_cached))
-          # print("allData",allData)
-    print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
-          # print("list(df_polygon['time'])",list(df_polygon["time"]))
-    return allData
+    try:
+      print("allData",allData)
+      # allData = [list(mean_values.values),list(df_polygon["time"])]
+      cache.set(key_cached,json.dumps(allData),timeout=None) #it never expires NOT GOOD!
+      print("cache setted! Cache key", cache.get(key_cached))
+            # print("allData",allData)
+      print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
+            # print("list(df_polygon['time'])",list(df_polygon["time"]))
+      return allData
+    except Exception as e:
+      print("EXCEPTION 2",e)
+      return str(e)
   
   else:
     print("CACHE HIT!")

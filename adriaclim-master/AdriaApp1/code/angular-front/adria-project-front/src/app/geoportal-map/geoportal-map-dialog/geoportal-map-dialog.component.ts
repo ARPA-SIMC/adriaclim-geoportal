@@ -759,6 +759,46 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
   }
 
+  dataTablePolygon(event: any) {
+    console.log("EVENT", event);
+    this.spinnerLoading = false;
+    this.dataTable = event;
+    console.log("datatable graph=======", this.dataTable);
+
+    this.displayedColumns = Object.keys(this.dataTable[0]);
+    let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
+    if (dim_unit) {
+      this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
+    }
+
+
+
+    // this.dataTable.data.table.forEach((el: any) => {
+    let objArr: any = {};
+    let arr1: any = [];
+    // console.log("K = ", k);
+
+    this.dataTable.data.table.rows.forEach((arr: any) => {
+      objArr = {};
+
+      this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
+        objArr[key] = arr[i];
+
+      })
+      arr1.push(objArr);
+
+    });
+    this.dataTable.data.table.rows = [...arr1];
+
+    if (this.dataTable.data.table.rows.length > 0) {
+      this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
+      // bypass ngIf for paginator
+      this.setDataSourceAttributes();
+
+
+    }
+  }
+
 
 
 }

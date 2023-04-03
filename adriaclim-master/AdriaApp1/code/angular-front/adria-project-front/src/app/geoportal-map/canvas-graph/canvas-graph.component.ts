@@ -29,6 +29,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   @Input() context: any;
   @Input() extraParam: any;
   @Output() dataTimeExport = new EventEmitter<any>();
+  @Output() dataTablePolygon = new EventEmitter<any>();
 
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   chartOption: EChartsOption = {};
@@ -247,6 +248,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       parametro_agg: this.extraParam ? this.extraParam.nameExtraParam : null,
 
     }
+    console.log("QUESTO PARAMETRO IN DATA =", data);
+
     this.httpClient.post('http://localhost:8000/test/dataPolygon', data,
       { responseType: 'text' }).subscribe((response: any) => {
         console.log("RES PRIMA DEL PARSE =", response);
@@ -256,12 +259,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
         console.log("RES DOPO IL PARSE =", response);
 
         let allDataPolygon = response['dataVect'];
+        this.dataTablePolygon.emit(allDataPolygon.dataTable);
+
         console.log("allDataPolygon", allDataPolygon);
         let valuesPol = allDataPolygon[0]; //media dei valori
         let datesPol = allDataPolygon[1]; //tutte le date!
         console.log("valuesPol", valuesPol);
         console.log("datesPol", datesPol);
-        allDataPolygon.forEach((element: any) => {
+        allDataPolygon.dataPol.forEach((element: any) => {
           element.x = this.formatDate(element.x);
           element.y = Number(element.y);
           if(element.x> 10000) {
@@ -301,7 +306,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
             type: 'category',
             boundaryGap: false,
             // data: this.dataRes.allData[name].map((element: any) => element.x)
-            data: allDataPolygon.map((element: any) => element.x)
+            data: allDataPolygon.dataPol.map((element: any) => element.x)
           },
           yAxis: {
             type: 'value'
@@ -350,7 +355,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
             },
           ],
           series: [{
-            data: allDataPolygon.map((element: any) => element.y),
+            data: allDataPolygon.dataPol.map((element: any) => element.y),
             name: name,
             type: 'line',
             stack: 'counts',
@@ -359,7 +364,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
           },
          ]
         }
-        this.dataTimeExport.emit(allDataPolygon);
+        this.dataTimeExport.emit(allDataPolygon.dataPol);
 
       });
 
