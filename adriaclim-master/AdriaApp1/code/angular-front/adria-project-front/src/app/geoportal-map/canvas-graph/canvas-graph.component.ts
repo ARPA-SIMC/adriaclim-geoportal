@@ -29,8 +29,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   @Input() statistic: any;
   @Input() context: any;
   @Input() extraParam: any;
+  @Input() enableArea: any;
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
+  @Output() spinnerLoadingChild = new EventEmitter<any>();
 
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   chartOption: EChartsOption = {};
@@ -178,14 +180,22 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   dataRes: any;
 
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // this.spinnerLoading.emit(true);
+
     if (this.polygon) {
       //se c'è il poligono chiamare altra funzione
+      this.spinnerLoadingChild.emit(true);
+
       this.getDataGraphPolygon();
     } else {
       //se non c'è il poligono chiama this.getDataGraph() classica
+      this.spinnerLoadingChild.emit(true);
+
       this.getDataGraph();
     }
 
@@ -222,18 +232,18 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
-      console.log("d",d);
+      //console.log("d",d);
       d = new Date(d);
-      console.log("!= annualDay", d);
+      //console.log("!= annualDay", d);
       
     }
     if (this.operation === "annualMonth") {
-      console.log("=== annualMonth");
+      //console.log("=== annualMonth");
       
       return this.months[d.getMonth()];
     }
     else if (this.operation === "annualDay") {
-      console.log("=== annualDay");
+      //console.log("=== annualDay");
       
       return d;
     }
@@ -274,7 +284,113 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
         this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
         console.log("allDataPolygon", allDataPolygon);
+  
+        if(this.statistic === "min_mean_max" || this.statistic === "min_10thPerc_median_90thPerc_max"){
+          //caso di min_mean_max o min_10thPerc..., una linea per ogni statistica
+          
+          let allStats = Object.keys(allDataPolygon.dataPol[0]);
+          allStats = allStats.filter((stat: any) => stat !== "x");
 
+          allDataPolygon.dataPol.forEach((element: any) => {
+              
+              allStats.forEach((stat: any) => {
+                  element[stat] = Number(element[stat]);
+              });
+              
+          });
+          // let statsName = this.statistic.split("_");
+              this.chartOption = {
+      
+                xAxis: {
+                  type: 'category',
+                  boundaryGap: false,
+                  data: allDataPolygon.dataPol.map((element: any) => element.x)
+                },
+                yAxis: {
+                  type: 'value'
+                },
+
+                tooltip: {
+                  trigger: 'axis',
+                  formatter: (paramsFormatter: any) => {
+      
+                    const tooltipHTML = paramsFormatter.map((param: any) => {
+                      let value = param.value;
+                      if (value > 10000 || value < 0.001 && value !== 0) {
+                        value = value.toExponential().replace(/e\+?/, ' x 10^');
+                      }
+                      return `${param.marker} ${param.seriesName}: ${value}`;
+                    }).join('<br>');
+      
+                    return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+      
+                  },
+                  transitionDuration: 0.2,
+                  axisPointer: {
+                    type: 'cross',
+                    label: {
+                      backgroundColor: '#6a7985'
+                    }
+                  }
+                },
+                legend: {
+                  data: allStats,
+                  orient: 'horizontal',
+                  itemGap: 70,
+                },
+                grid: {
+                  left: '3%',
+                  right: '4%',
+                  bottom: '3%',
+                  containLabel: true
+                },
+      
+                dataZoom: [
+                  {
+                    type: 'inside',
+                  },
+                ],
+                series: allStats.map((stat: any) => {
+                  return {
+                    data: allDataPolygon.dataPol.map((element: any) => element[stat]),
+                    name: stat,
+                    type: 'line',
+                    stack: 'counts',
+                    areaStyle: this.enableArea ? {} : undefined,
+                    smooth: true
+                  }
+                })
+                // series: [{
+                //   data: allDataPolygon.dataPol.map((element: any) => element.mean),
+                //   name: "Mean",
+                //   type: 'line',
+                //   stack: 'counts',
+                //   areaStyle: {},
+                //   smooth: true
+                //   },
+                //   {
+                //   data: allDataPolygon.dataPol.map((element: any) => element.min),
+                //   name: "Min",
+                //   type: 'line',
+                //   stack: 'counts',
+                //   areaStyle: {},
+                //   smooth: true
+                // },
+                // {
+                //   data: allDataPolygon.dataPol.map((element: any) => element.max),
+                //   name: "Max",
+                //   type: 'line',
+                //   stack: 'counts',
+                //   areaStyle: {},
+                //   smooth: true
+                // },
+                // ]
+              }
+
+          
+        }
+        else{
+            
         allDataPolygon.dataPol.forEach((element: any) => {
           /**
            *  Da rivedere qui!!!!!!
@@ -289,24 +405,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
           // }
         });
         let name = this.variable;
-        // this.dataRes.allData[name].forEach((element: any) => {
-        //   element.x = this.formatDate(element.x);
-        //   element.y = Number(element.y);
-        //   // if(element.y > 10000) {
-        //   //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-        //   // }
-        //   // else if(element.y < 0.001) {
-        //   //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-        //   // }
-        // });
-
-        // // const yMax = 500;
-        // // const dataShadow = [];
-
-        // // // tslint:disable-next-line: prefer-for-of
-        // // for (let i = 0; i < this.dataRes.allData[name].map((element: any) => element.y).length; i++) {
-        // //   dataShadow.push(yMax);
-        // // }
 
         this.chartOption = {
 
@@ -371,14 +469,16 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
             name: name,
             type: 'line',
             stack: 'counts',
-            areaStyle: {},
+            areaStyle: this.enableArea ? {} : undefined,
             smooth: true
           },
          ]
         }
-        this.dataTimeExport.emit(allDataPolygon.dataPol);
-
+      }
+      this.dataTimeExport.emit(allDataPolygon.dataPol);
+      this.spinnerLoadingChild.emit(false);
       });
+      
 
     //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
     //   dataset: this.selData.get("dataSetSel")?.value.name,
@@ -428,6 +528,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       lng_max: "no"
     }
     console.log("RANGE: ", this.range);
+
+    /**
+     *  DA SPOSTARE SPINNER PER IL GRAFICO E NON PER LA TABLE
+     */
 
     this.httpClient.post('http://localhost:8000/test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
       if (typeof response == 'string') {
@@ -518,17 +622,18 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
           name: name,
           type: 'line',
           stack: 'counts',
-          areaStyle: {},
+          areaStyle: this.enableArea ? {} : undefined,
           smooth: true
         },
-        {
-          name: 'X-1',
-          type: 'line',
-          stack: 'counts',
-          areaStyle: {},
-          smooth: true,
-          data: [2.3, 3.2, 1.01, 1.34, 3.0, 2.30, 2.10]
-        },]
+        // {
+        //   name: 'X-1',
+        //   type: 'line',
+        //   stack: 'counts',
+        //   areaStyle: {},
+        //   smooth: true,
+        //   data: [2.3, 3.2, 1.01, 1.34, 3.0, 2.30, 2.10]
+        // },
+      ]
       }
 
       // this.chartOptionBars = {
@@ -556,6 +661,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       //   };
       console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
       this.dataTimeExport.emit(this.dataRes.allData[name]);
+      this.spinnerLoadingChild.emit(false);
 
 
     });
@@ -564,6 +670,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   onChartEvent(event: any, type: string) {
     console.log('chart event:', type, event);
   }
+
+  // enableDisable
 
 
 

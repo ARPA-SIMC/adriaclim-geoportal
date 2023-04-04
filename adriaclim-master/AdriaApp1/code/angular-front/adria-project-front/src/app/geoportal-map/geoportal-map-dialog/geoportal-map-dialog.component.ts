@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -25,13 +25,13 @@ import { last } from 'lodash';
     }
   ]
 })
-export class GeoportalMapDialogComponent implements AfterViewInit {
+export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentChecked {
 
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
-  spinnerLoading = true;
+  spinnerLoading: any = true;
 
   // @ViewChild(MatPaginator) paginator!: MatPaginator;
   private paginator!: MatPaginator;
@@ -162,11 +162,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     },
     {
       label: "10th Percentile",
-      value: "10th_perc"
+      value: "10thPerc"
     },
     {
       label: "90th Percentile",
-      value: "90th_perc"
+      value: "90thPerc"
     },
     {
       label: "Median",
@@ -175,6 +175,14 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     {
       label: "Sum",
       value: "sum"
+    },
+    {
+      label: "Min, Mean, Max",
+      value: "min_mean_max"
+    },
+    {
+      label: "Min, 10th Percentile, Median, 90th Percentile, Max",
+      value: "min_10thPerc_median_90thPerc_max"
     }
   ];
   
@@ -243,6 +251,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   @ViewChild('graphDiv') graph!: ElementRef;
 
   constructor(
+    private changeDetector: ChangeDetectorRef,
     private httpService: HttpService,
     public datePipe: DatePipe,
     private httpClient: HttpClient,
@@ -287,6 +296,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
       statisticSel: new FormControl("avg"),
       typeSel: new FormControl(this.typeOfExport[0].type),
       varSelected: new FormControl(null, Validators.required),
+      enableArea: new FormControl(true),
       // minSliderDate: new FormControl(this.dateStart),
       // maxSliderDate: new FormControl(this.dateEnd),
       // minSlider
@@ -330,7 +340,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
   }
 
-
+  ngAfterContentChecked(): void {
+    this.changeDetector.detectChanges();
+  }
 
   // bypass ngIf for paginator
   setDataSourceAttributes() {
@@ -349,7 +361,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
     }
     else {
       console.log("POLYGON", this.polygon);
-      this.spinnerLoading = false;
+      // this.spinnerLoading = false;
       if(!this.polygon) {
         this.getGraphTable();
 
@@ -473,7 +485,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
     // //   </mat-paginator>
     // // `;
-    this.spinnerLoading = false;
+    // this.spinnerLoading = false;
+        // console.log("RESPONSE METADATA TABLE==",response);
         if (typeof response === 'string') {
           response = JSON.parse(response);
         }
@@ -519,7 +532,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
   getGraphTable() {
     if (this.dataset) {
-      this.spinnerLoading = true;
+      // this.spinnerLoading = true;
       let data = {
         idMeta: this.datasetId,
         dimensions: this.dataset.dimensions,
@@ -535,7 +548,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
       this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
 
-        this.spinnerLoading = false;
+        // this.spinnerLoading = false;
         if (typeof response === 'string') {
           response = JSON.parse(response);
         }
@@ -736,7 +749,16 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
   addDataTimeExport(graph: any) {
     // Array di timestamp a partire dalle date presenti in 'graph'
     const timestampArray = graph.map((element: any) => {
+      // let dateParts: any;
+      // if(element.x.includes('/')) {
+      //   dateParts = element.x.split('/');
+
+      // }
+      // else {
+      //   dateParts = element.x
+      // }
       const dateParts = element.x.split('/');
+      
       const date = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
       return date;
     });
@@ -770,7 +792,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
   dataTablePolygon(event: any) {
     //console.log("EVENT", event);
-    this.spinnerLoading = false;
+    // this.spinnerLoading = false;
     this.dataTable = event;
     //console.log("datatable graph=======", this.dataTable);
 
@@ -827,6 +849,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit {
 
 
     }
+  }
+
+  spinnerLoadingChild(event: any) {
+    console.log("EVENT =", event);
+    
+    this.spinnerLoading = event;
   }
 
   sendSelGraphPoly() {

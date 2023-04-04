@@ -227,15 +227,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.dataSource.data = TREE_DATA;
 
     this.filteredData = this.dataAllNodesTree.data;
+    if(this.selData.get('searchTextDataset')?.value) {
+      this.selData.get('searchTextDataset')?.valueChanges.pipe(
+        startWith(''),
+        debounceTime(500),
+        distinctUntilChanged(),
+        map((text: string) => this.applyFilter(text))
+      ).subscribe((filteredData: any) => {
+        this.filteredData = filteredData;
+      });
 
-    this.selData.get('searchTextDataset')?.valueChanges.pipe(
-      startWith(''),
-      debounceTime(500),
-      distinctUntilChanged(),
-      map((text: string) => this.applyFilter(text))
-    ).subscribe((filteredData: any) => {
-      this.filteredData = filteredData;
-    });
+    }
 
   }
 
@@ -377,9 +379,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   polygonSelect() {
     this.map.on('click', this.onPolygonClick.bind(this));
   }
-  /**
-   * ***********************************************************************
-   */
   // pointInsidePolygon(point: any, polygon: L.Polygon): boolean {
   //   let inside = false;
   //   const latLngs: any[] = polygon.getLatLngs();
@@ -800,8 +799,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   addToActiveLayers(node: any) {
     // this.selData.get("dataSetSel")?.value
     // if(this.selData.get("dataSetSel")?.value) {
-    this.activeLayersArray.push(node);
-    // this.activeLayersGroup.get("activeLayersControl")?.setValue(node);
+    if (this.activeLayersArray.indexOf(node) === -1) {
+      this.activeLayersArray.push(node);
+    }
+
+    console.log("ACTIVE LAYERS ARRAY =", this.activeLayersArray)
     this.selData.get("dataSetSel")?.setValue(node);
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
     console.log("IS INDICATOR ==", this.isIndicator);
