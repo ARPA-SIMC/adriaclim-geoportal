@@ -79,7 +79,7 @@
 
                 <mat-tree [dataSource]="dataAllNodesTree" [treeControl]="treeControl">
                   <mat-tree-node *matTreeNodeDef="let node; let lastItem = last" matTreeNodePadding>
-
+                    <!-- {{node | json}} -->
                     <!-- <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio"> -->
                     <ng-container *ngIf="node.expandable === false && !isAString(node.name); else noRadio">
                       <div fxFlex fxLayout="column" fxLayoutAlign="center start"

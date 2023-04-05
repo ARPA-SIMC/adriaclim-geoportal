@@ -185,7 +185,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       value: "min_10thPerc_median_90thPerc_max"
     }
   ];
-  
+
   removeAnnualCycle(o: any): boolean {
 
     if(this.dataset.adriaclim_timeperiod === "yearly") {
@@ -525,6 +525,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
         }
       // this.myDiv.nativeElement.innerHTML = response;
+      this.spinnerLoading = false;
     });
 
 
@@ -758,7 +759,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       //   dateParts = element.x
       // }
       const dateParts = element.x.split('/');
-      
+
       const date = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
       return date;
     });
@@ -804,14 +805,14 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     if (dim_unit) {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
     }
-   
-    
+
+
 
 
     // this.dataTable.data.table.forEach((el: any) => {
     let objArr: any = {};
     let arr1: any = [];
-    
+
     // console.log("K = ", k);
 
     this.dataTable.forEach((arr: any,index: number) => {
@@ -837,8 +838,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
     //console.log("this.dataTable after everything!!", this.dataTable);
 
-    
-  
+
+
     // console.log("this.dataTable after everything!!", this.dataTable);
 
     if (this.dataTable.length > 0) {
@@ -853,7 +854,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   spinnerLoadingChild(event: any) {
     console.log("EVENT =", event);
-    
+
     this.spinnerLoading = event;
   }
 

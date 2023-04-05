@@ -21,7 +21,7 @@
       <input type="text"> -->
 
       <div #metadataTable *ngIf="!openGraph; else graph">
-        <mat-spinner *ngIf="spinnerLoading"></mat-spinner>
+        <mat-spinner *ngIf="spinnerLoading" fxLayoutAlign="center center"></mat-spinner>
         <table mat-table [dataSource]="dataSource">
 
           <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns; let i = index">
