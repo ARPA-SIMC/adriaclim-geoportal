@@ -71,6 +71,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
   isIndicator: any;
   polygon: any;
+  polyExport: any;
 
   minRange: any;
   maxRange: any;
@@ -183,6 +184,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     {
       label: "Min, 10th Percentile, Median, 90th Percentile, Max",
       value: "min_10thPerc_median_90thPerc_max"
+    },
+    {
+      label: "Box Plot",
+      value: "boxPlot"
     }
   ];
 
@@ -280,6 +285,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
     this.isIndicator = data.isIndicator;
     this.polygon = data.polygon;
+    this.polyExport = data.polyExport;
+
 
     // this.start = this.dateStart.getTime();
     // this.end = this.dateEnd.getTime();
@@ -364,8 +371,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       // this.spinnerLoading = false;
       if(!this.polygon) {
         this.getGraphTable();
-
+        
       }
+      
       // this.removeAnnualCycle();
     }
     // this.getAlgoType();
@@ -601,8 +609,24 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   exportData(typeSel: any) {
+    //siamo nel caso del punto
+    
     let erddapUrl: any;
     //COSI FUNZIONA ORA PERò BOH.......
+    let latMin: any;
+    let latMax: any;
+    let lngMax: any;
+    let lngMin: any;
+    if(this.polygon){
+      const corner1 = this.polyExport.getSouthWest();
+      const corner2 = this.polyExport.getNorthEast();
+
+      // Get the latitudes and longitudes of the corners
+      latMin = corner1.lat;
+      lngMin = corner1.lng;
+      latMax = corner2.lat;
+      lngMax = corner2.lng;
+    }
     if(this.dataset.griddap_url !== ""){
          erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
         //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
@@ -620,19 +644,36 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             variable =  "," + el;
 
           }
+          
 
           //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
 
           if (this.dataset.dimensions === 3) {
+            //siamo nel caso di latitude e long 
+            //va aggiunto controllo su poligono
             //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-            erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+            if(this.polygon) {
+   
+              erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
+              
+            }
+            else{
+              erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+            }
           }
           else {
             //caso parametro aggiuntivo
+            //va aggiunto controllo su poligono
             let rangeMin = this.minRange;
             let rangeMax = this.maxRange;
+            if(this.polygon){
             //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-            erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+              erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
+            }
+            else{
+              erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+              
+            }
           }
 
         });
@@ -649,10 +690,16 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           erddapUrl += variable + "%2C";
         }
       });
-      erddapUrl += "&time%3E=" + this.formatDateExport(this.minValue) + "&time%3C=" + this.formatDateExport(this.maxValue) + "&latitude%3E=" + this.latlng.lat + "&latitude%3C=" + this.latlng.lat + "&longitude%3E=" + this.latlng.lng + "&longitude%3C=" + this.latlng.lng;
+      if(this.polygon){
+        erddapUrl += "&time%3E=" + this.formatDateExport(this.minValue) + "&time%3C=" + this.formatDateExport(this.maxValue) + "&latitude%3E=" + latMin + "&latitude%3C=" + latMax + "&longitude%3E=" + lngMin + "&longitude%3C=" + lngMax;
+      }
+      else {
+        erddapUrl += "&time%3E=" + this.formatDateExport(this.minValue) + "&time%3C=" + this.formatDateExport(this.maxValue) + "&latitude%3E=" + this.latlng.lat + "&latitude%3C=" + this.latlng.lat + "&longitude%3E=" + this.latlng.lng + "&longitude%3C=" + this.latlng.lng;
+
+      }
 
     }
-
+      
       const link = document.createElement('a');
       link.setAttribute('target', '_self');
       link.setAttribute('href', erddapUrl);

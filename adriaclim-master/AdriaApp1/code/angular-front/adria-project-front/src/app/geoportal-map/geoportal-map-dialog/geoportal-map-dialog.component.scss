@@ -12,7 +12,7 @@
 
 :ng-deep .canvas-graph {
   width: 100% !important;
-  height: 100% !important;
+  height: 100 !important;
 }
 
 ::ng-deep .tab-group {
@@ -39,4 +39,8 @@
   width: fit-content !important;
   max-width: 300px !important;
   word-break: break-all !important;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  max-height: 80vh !important;
 }

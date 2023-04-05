@@ -424,8 +424,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
       const polygonsContainingPoint = this.allPolygons.filter(polygon => {
-
-          return polygon.getBounds().contains(e.latlng);
+        return polygon.getBounds().contains(e.latlng);
       }); //poligono che contiene il punto in cui l'utente ha cliccato
       // let latLngObj: any[] = [];
       // const bounds = L.latLngBounds(polygonsContainingPoint[0].getLatLngs());
@@ -438,7 +437,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       // let latlngs: any[] = [];
        if(polygonsContainingPoint.length > 0) {
        console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
-        this.openGraphDialog(null, null, polygonsContainingPoint[0].getLatLngs()[0])
+        this.openGraphDialog(null, null, polygonsContainingPoint[0])
       //   let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
       //   splittedVar = splittedVar[splittedVar.length - 1];
       //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
@@ -1882,6 +1881,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         this.coordOnClick = { "lat": lat, "lng": lng };
       }
 
+      // const corner1 = bounds.getSouthWest();
+      // const corner2 = bounds.getNorthEast();
+
+      // // Get the latitudes and longitudes of the corners
+      // const lat_min = corner1.lat;
+      // const lon_min = corner1.lng;
+      // const lat_max = corner2.lat;
+      // const lon_max = corner2.lng;
+      // dialogConfig.height = '1000px';
+
       dialogConfig.data = {
         success: true,
         datasetId: dataId,
@@ -1895,8 +1904,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         range: this.value,
         openGraph: true,
         extraParamExport: this.extraParamExport,
-
-        polygon: polygon,
+        polyExport: polygon ? polygon.getBounds() : null,
+        polygon: polygon ? polygon.getLatLngs()[0] : null,
         isIndicator: this.isIndicator ? "true" : "false",
       };
 
