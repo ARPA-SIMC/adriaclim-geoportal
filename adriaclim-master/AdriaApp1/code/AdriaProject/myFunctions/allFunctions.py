@@ -2,6 +2,7 @@ import math
 from pydoc import resolve
 from math import isnan
 from termios import VLNEXT
+from statistics import mean,median,stdev
 from django.db import models
 from Dataset.models import Node,Indicator #,Cache
 import pandas as pd
@@ -509,47 +510,58 @@ def getIndicatorQueryUrlPoint(ind, onlyFirstVariable, skipDimensions, lat, lon, 
 
   
 def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
-  if is_indicator == "true" and is_graph == False and is_annual == False:
-  
-    print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
-    url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["date_start"] + "&time%3C=" + kwargs["date_start"]
-  
-  elif is_indicator == "true" and is_graph and is_annual:
-      url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latitude"] +"&latitude%3C=" + kwargs["latitude"] + "&longitude%3E=" + kwargs["longitude"] + "&longitude%3C=" + kwargs["longitude"]
+  #true, true, false
+  try:
+    if is_indicator == "true" and is_graph == False:
+    
+      print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
+      url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["date_start"] + "&time%3C=" + kwargs["date_start"]
+    
+    elif is_indicator == "true" and is_graph and is_annual:
+        try:
+          print("Entro qui parte 2!!!!!!")
+          url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latitude"] +"&latitude%3C=" + kwargs["latitude"] + "&longitude%3E=" + kwargs["longitude"] + "&longitude%3C=" + kwargs["longitude"]
+        except Exception as e1:
+          print("Eccezione 2",e1)
+          return str(e1)
+    elif is_indicator == "true" and is_graph and not is_annual:
+          #  url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
+          #                     longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
+          #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
+          #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
+        url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latMin"] +"&latitude%3C=" + kwargs["latMax"] + "&longitude%3E=" + kwargs["longMin"] + "&longitude%3C=" + kwargs["longMax"]
+ 
+    elif is_indicator == "false" and is_graph == False and is_annual == False:  
+      if (kwargs["num_param"] > 3):
+            #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_9e77_be3a_4ac6.htmlTable?txx%5B(2036-07-01T09:00:00Z):1:(2036-07-01T09:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
+            url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] + ".csv?" +  kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"]  + ")%5D%5B(" + str(kwargs["range_value"]) + "):1:(" + str(kwargs["range_value"]) + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"] + ")%5D"
+      else:
+            url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"]  + ".csv?" + kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"] + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"]+ ")%5D"
 
-  elif is_indicator == "true" and is_graph and not is_annual:
-        #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
-        #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
-      url = ERDDAP_URL+"/tabledap/" + kwargs["dataset_id"] + ".csv?" + "time%2Clatitude%2Clongitude%2C" + kwargs["layer_name"] +"&time%3E=" + kwargs["time_start"] + "&time%3C=" + kwargs["time_finish"] + "&latitude%3E=" + kwargs["latMin"] +"&latitude%3C=" + kwargs["latMax"] + "&longitude%3E=" + kwargs["longMin"] + "&longitude%3C=" + kwargs["longMax"]
-
-  elif is_indicator == "false" and is_graph == False and is_annual == False:  
-    if (kwargs["num_param"] > 3):
-          #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_9e77_be3a_4ac6.htmlTable?txx%5B(2036-07-01T09:00:00Z):1:(2036-07-01T09:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
-          url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] + ".csv?" +  kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"]  + ")%5D%5B(" + str(kwargs["range_value"]) + "):1:(" + str(kwargs["range_value"]) + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"] + ")%5D"
-    else:
-          url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"]  + ".csv?" + kwargs["layer_name"] + "%5B(" +  kwargs["time_start"]  + "):1:(" +  kwargs["time_finish"] + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"]+ ")%5D"
-
-  elif is_indicator == "false" and is_graph  and is_annual == False:
-       if(kwargs["num_parameters"]>3):
-          url=ERDDAP_URL+"/griddap/"+ kwargs["dataset_id"] +".csv?"+kwargs["layer_name"]+"%5B("+kwargs["time_start"]+"):1:("+kwargs["time_finish"]+")%5D%5B("+str(kwargs["range_value"])+"):1:("+str(kwargs["range_value"])+")%5D%5B("+kwargs["latitude"]+"):1:("+kwargs["latitude"]+")%5D%5B("+kwargs["longitude"]+"):1:("+kwargs["longitude"]+")%5D"
-       else:
-          url=ERDDAP_URL+"/griddap/"+ kwargs["dataset_id"] +".csv?"+ kwargs["layer_name"] +"%5B("+kwargs["time_start"]+"):1:("+kwargs["time_finish"]+")%5D%5B("+kwargs["latitude"]+"):1:("+ kwargs["latitude"] +")%5D%5B("+kwargs["longitude"]+"):1:("+kwargs["longitude"]+")%5D"
-  
-  elif is_indicator == "false" and is_graph and is_annual:
-    if (kwargs["num_parameters"] > 3 ):
-      
-      url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] +".csv?" + kwargs["layer_name"] + "%5B(" + kwargs["time_start"] + "):1:("+kwargs["time_finish"]+")%5D%5B("+str(kwargs["range_value"])+"):1:("+str(kwargs["range_value"])+")%5D%5B(" + kwargs["latMax"] + "):1:(" +kwargs["latMin"]  + ")%5D%5B(" +kwargs["longMax"]+ "):1:(" + kwargs["longMin"]  + ")%5D"
-  
-    else:
-      url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] +".csv?"+kwargs["layer_name"] + "%5B(" + kwargs["time_start"] + "):1:("+kwargs["time_finish"]+ ")%5D%5B(" + kwargs["latMax"]  + "):1:(" + kwargs["latMin"]  + ")%5D%5B(" +kwargs["longMax"]+ "):1:(" + kwargs["longMin"]  + ")%5D"
-  
-  elif is_indicator == "false" and is_graph == False:  
-    if (kwargs["num_param"] > 3):
-          url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] + ".csv?" +  kwargs["layer_name"] + "%5B(" +  kwargs["date_start"]  + "):1:(" +  kwargs["date_start"]  + ")%5D%5B(" + str(kwargs["range_value"]) + "):1:(" + str(kwargs["range_value"]) + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"] + ")%5D"
-    else:
-          url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"]  + ".csv?" + kwargs["layer_name"] + "%5B(" +  kwargs["date_start"]  + "):1:(" +  kwargs["date_start"] + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"]+ ")%5D"
-  
-  return url
+    elif is_indicator == "false" and is_graph  and is_annual == False:
+        if(kwargs["num_parameters"]>3):
+            url=ERDDAP_URL+"/griddap/"+ kwargs["dataset_id"] +".csv?"+kwargs["layer_name"]+"%5B("+kwargs["time_start"]+"):1:("+kwargs["time_finish"]+")%5D%5B("+str(kwargs["range_value"])+"):1:("+str(kwargs["range_value"])+")%5D%5B("+kwargs["latitude"]+"):1:("+kwargs["latitude"]+")%5D%5B("+kwargs["longitude"]+"):1:("+kwargs["longitude"]+")%5D"
+        else:
+            url=ERDDAP_URL+"/griddap/"+ kwargs["dataset_id"] +".csv?"+ kwargs["layer_name"] +"%5B("+kwargs["time_start"]+"):1:("+kwargs["time_finish"]+")%5D%5B("+kwargs["latitude"]+"):1:("+ kwargs["latitude"] +")%5D%5B("+kwargs["longitude"]+"):1:("+kwargs["longitude"]+")%5D"
+    
+    elif is_indicator == "false" and is_graph and is_annual:
+      if (kwargs["num_parameters"] > 3 ):
+        
+        url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] +".csv?" + kwargs["layer_name"] + "%5B(" + kwargs["time_start"] + "):1:("+kwargs["time_finish"]+")%5D%5B("+str(kwargs["range_value"])+"):1:("+str(kwargs["range_value"])+")%5D%5B(" + kwargs["latMax"] + "):1:(" +kwargs["latMin"]  + ")%5D%5B(" +kwargs["longMax"]+ "):1:(" + kwargs["longMin"]  + ")%5D"
+    
+      else:
+        url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] +".csv?"+kwargs["layer_name"] + "%5B(" + kwargs["time_start"] + "):1:("+kwargs["time_finish"]+ ")%5D%5B(" + kwargs["latMax"]  + "):1:(" + kwargs["latMin"]  + ")%5D%5B(" +kwargs["longMax"]+ "):1:(" + kwargs["longMin"]  + ")%5D"
+    
+    elif is_indicator == "false" and is_graph == False and is_annual:  
+      if (kwargs["num_param"] > 3):
+            url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"] + ".csv?" +  kwargs["layer_name"] + "%5B(" +  kwargs["date_start"]  + "):1:(" +  kwargs["date_start"]  + ")%5D%5B(" + str(kwargs["range_value"]) + "):1:(" + str(kwargs["range_value"]) + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"] + ")%5D"
+      else:
+            url = ERDDAP_URL+"/griddap/" + kwargs["dataset_id"]  + ".csv?" + kwargs["layer_name"] + "%5B(" +  kwargs["date_start"]  + "):1:(" +  kwargs["date_start"] + ")%5D%5B(" + kwargs["latitude_start"] + "):1:(" + kwargs["latitude_end"] + ")%5D%5B(" + kwargs["longitude_start"] + "):1:(" + kwargs["longitude_end"]+ ")%5D"
+    
+    return url
+  except Exception as e:
+    print("Error",e)
+    return str(e)
 
 def getAllDatasets():
   start_time = time.time()
@@ -1204,7 +1216,10 @@ def packageGraphData(allData,**kwargs):
 
 def processOperation(operation,values,dates,unit,layerName,lats,longs):
   if operation=="default":
-    return [values,dates,unit,layerName,lats,longs]
+    mean_result = mean(values)
+    median_result = median(values)
+    stdev_result = stdev(values)
+    return [values,dates,unit,layerName,lats,longs,mean_result,median_result,stdev_result]
   values2=[]
 
   dates2=[]
@@ -1218,6 +1233,9 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
   pattern = None
 
   if operation == "annualMonth":
+    mean_result = mean(values)
+    median_result = median(values)
+    stdev_result = stdev(values)
     pattern = re.compile('\d\d\d\d-(\d\d)-\S*')
     months = ["01","02","03","04","05","06","07","08","09","10","11","12"]
     for mon in months:
@@ -1237,7 +1255,7 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
         
       vals = []
 
-    return [values2,dates2,unit,layerName2,lats2,longs2]
+    return [values2,dates2,unit,layerName2,lats2,longs2,mean_result,median_result,stdev_result]
   
   if operation == "annualDay":
     try:
@@ -1248,6 +1266,9 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       #print("DATES_LIST======",dates_list)
       lats2 = [0 for value in values]
       longs2 = [0 for value in values]
+      mean_result = mean(values)
+      median_result = median(values)
+      stdev_result = stdev(values)
       layerName2 = [layerName[0] for value in values]
       # in values ci sono tutti i valori, dates_list tutte le date!
       float_values = [float(value) for value in values]
@@ -1261,7 +1282,7 @@ def processOperation(operation,values,dates,unit,layerName,lats,longs):
       grouped = df.groupby('day_month')['value'].mean()
       df['day_month'] = df['day_month'].apply(lambda x: x.strftime("%d-%m"))
       removeDuplicates = df.drop_duplicates(subset=['day_month'])
-      return [grouped.values,list(removeDuplicates["day_month"]),unit,layerName2,lats2,longs2]
+      return [grouped.values,list(removeDuplicates["day_month"]),unit,layerName2,lats2,longs2,mean_result,median_result,stdev_result]
     except Exception as e:
       print("EXCEPTION =", e)
 
@@ -1589,7 +1610,7 @@ def percentileFunction(arr,percentile):
 
 def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_end,longitude_start,longitude_end,num_param,range_value,is_indicator):
   #print("ARRIVO PRIMA DI URL_IS_IND")
-  url = url_is_indicator(is_indicator,False,False,dataset_id=dataset_id,layer_name=layer_name,date_start=date_start,latitude_start=latitude_start,latitude_end=latitude_end,
+  url = url_is_indicator(is_indicator,False,True,dataset_id=dataset_id,layer_name=layer_name,date_start=date_start,latitude_start=latitude_start,latitude_end=latitude_end,
                         longitude_start=longitude_start,longitude_end=longitude_end,num_param=num_param,range_value=range_value)
   print("URL DATA VECTORIAL========",url)
   df = pd.read_csv(url, dtype='unicode')
@@ -1597,6 +1618,7 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
   values=[]
   lat_coordinates=[]
   long_coordinates=[]
+  df = df.dropna(how='any',axis=0)
 
   i=0
   for index,row in df.iterrows():
@@ -1621,7 +1643,7 @@ def getDataVectorial(dataset_id,layer_name,date_start,latitude_start,latitude_en
 def convertToTime(date_str):
   return dt.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ').strftime("%Y-%m-%d")
 
-def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg):
+def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range_value,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords):
   start_time = time.time()
   print("STARTED GETDATAPOLYGONNEW!")
   vertices = []
@@ -1643,6 +1665,9 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
   if cache.get(key_cached) is None:
     print("CACHE MISS!")
     # Definisci i limiti del poligono
+
+      #caso di circle coords
+
     xmin, ymin, xmax, ymax = shapely_polygon.bounds
   # distanze = []
     circ = shapely_polygon.length
@@ -1672,12 +1697,22 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
 
     #Salva tutte le coordinate dei punti interni al poligono
     points_inside_polygon = []
-    for x in range(int(xmin/step), int(xmax/step)):
-        for y in range(int(ymin/step), int(ymax/step)):
-            point = Point(x*step, y*step)
+    try:
+      if len(circle_coords) > 0:
+          for coord in circle_coords:
+            # print("Cooord",coord)
+            point = Point(coord["lat"],coord["lng"])
             if point.within(shapely_polygon):
-                points_inside_polygon.append((x*step, y*step))
-
+                points_inside_polygon.append((coord["lat"],coord["lng"]))
+      else:
+        for x in range(int(xmin/step), int(xmax/step)):
+            for y in range(int(ymin/step), int(ymax/step)):
+                point = Point(x*step, y*step)
+                if point.within(shapely_polygon):
+                    points_inside_polygon.append((x*step, y*step))
+    except Exception as coord:
+      print("Eccezione",coord)
+      return str(coord)
 
     # Visualizza le coordinate dei punti all'interno del poligono
     # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
@@ -1687,10 +1722,21 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
     i=0
     dataTable = []
     for point in points_inside_polygon:
-      url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
-                            longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
-      #print("URL DATA VECTORIAL========",url)
-      df = pd.read_csv(url, dtype='unicode')
+      if is_indicator == "false":
+        url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
+                              longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
+        df = pd.read_csv(url, dtype='unicode')
+      else:
+        # print("Entro quiiiiiii!!!!")
+        try:
+          url = url_is_indicator(is_indicator,True,True,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
+                                longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
+          print("URL DATA VECTORIAL========",url)
+          df = pd.read_csv(url, dtype='unicode')
+        except Exception as e:
+          print("fdkjsjk",e)
+          continue
+      
       #print("LAYER NAME PRIMA DI TUTTO =", layer_name)
       # DA SISTEMARE QUI!!!!!!!!!!!***********************************
       try:

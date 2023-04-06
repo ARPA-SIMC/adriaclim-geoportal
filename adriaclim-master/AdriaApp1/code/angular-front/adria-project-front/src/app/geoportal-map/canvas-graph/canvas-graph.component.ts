@@ -1,13 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
 import { EChartsOption, graphic } from 'echarts';
+import * as echarts from 'echarts';
+import { ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-canvas-graph',
   templateUrl: './canvas-graph.component.html',
   styleUrls: ['./canvas-graph.component.scss']
 })
-export class CanvasGraphComponent implements OnInit, OnChanges {
+export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   isLoading!: boolean;
   @Input() idMeta: any;
   @Input() dataset: any;
@@ -30,9 +32,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   @Input() context: any;
   @Input() extraParam: any;
   @Input() enableArea: any;
+  @Input() circleCoords: any;
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
   @Output() spinnerLoadingChild = new EventEmitter<any>();
+  @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
+  myChart: any;
+  // startValue: any;
+  // endValue: any =  (document.getElementById('main') as HTMLDivElement).getEchartsInstance().getOption().dataZoom[0]
 
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   chartOption: EChartsOption = {};
@@ -42,6 +49,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   help: any[] = [];
   positive: any[] = [];
   negative: any[] = [];
+  data1 = [
+    [850, 740, 900, 1200, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
+    [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
+    [880, 880, 880, 860, 720, 720, 620, 860, 970, 950, 880, 910, 850, 870, 840, 840, 850, 840, 840, 840],
+    [890, 810, 810, 820, 800, 770, 760, 740, 750, 760, 910, 920, 890, 860, 880, 720, 840, 850, 850, 780],
+    [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870]
+  ]
+
+
   /**********************TEST BOX PLOT */
 //   var data1 = [
 //     [850, 740, 900, 1070, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
@@ -182,7 +198,135 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 // ]
 // };
 
-  optionBoxPlot: any = {
+
+optionBoxPlot: any = {
+      // tooltip: {
+      //   trigger: 'axis',
+      //   axisPointer: {
+      //     type: 'cross'
+      //   }
+      // },
+      title: [
+      {
+      text: 'Michelson-Morley Experiment',
+      left: 'center'
+      },
+      {
+      text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
+      borderColor: '#999',
+      borderWidth: 1,
+      textStyle: {
+      fontWeight: 'normal',
+      fontSize: 14,
+      lineHeight: 20
+      },
+      left: '10%',
+      top: '90%'
+      }
+      ],
+
+      dataset: [
+      {
+      // prettier-ignore dataset index 0
+      source: this.data1
+      },
+      {
+      //datasetIndex 1
+      transform: {
+      type: 'boxplot',
+      config: { itemNameFormatter: 'Expr {value}' },
+      }
+      },
+      //datasetindex 2
+      {
+      fromDatasetIndex: 1,
+      fromTransformResult: 1
+      },
+
+      {
+      source:  this.data1.map((item, index) => {
+      const average = item.reduce((prev, curr) => prev + curr) / item.length;
+      return [index, average];
+
+      }
+      )
+      }
+
+
+
+      ],
+      tooltip: {
+      trigger: 'item',
+      axisPointer: {
+      type: 'shadow'
+      }
+      },
+      grid: {
+      left: '10%',
+      right: '10%',
+      bottom: '15%'
+      },
+      xAxis: {
+      type: 'category',
+      data: ["Expr 0","Expr 1","Expr 2","Expr 3","Expr 4"]
+      },
+      yAxis: {
+      type: 'value',
+      name: 'km/s minus 299,000',
+      },
+      series: [
+      {
+      name: 'Box plot',
+      type: 'boxplot',
+      datasetIndex: 1,
+
+      tooltip: {
+        formatter: function(param:any) {
+          const param_smaller = "<span style='display:inline-block;margin-bottom:3px; margin-left:18px; border-radius:5px;width:5px;height:5px;background-color:#c23531;'></span>"
+            return [
+                param.marker + " " + param.name.charAt(0).toUpperCase() + param.name.slice(1) + ": ",
+                param_smaller  + " " + "Upper: " + param.data[5],
+                param_smaller  + " " +  "Q3: " + param.data[4],
+                param_smaller  + " " + "Median: " + param.data[3],
+                param_smaller  + " " + "Q1: " + param.data[2],
+                param_smaller  + " " + "Lower: " + param.data[1]
+            ].join("<br/>");
+        }
+      },
+
+      },
+      {
+      name: 'Outlier',
+      type: 'scatter',
+      datasetIndex: 2,
+
+      },
+      {
+      name: 'Mean',
+      type: 'scatter',
+      datasetIndex: 3,
+      symbolSize: 10,
+      itemStyle: {
+      color: 'red',
+      },
+      z:10,
+
+      // tooltip: {
+      //     formatter: function(param) {
+      //         return [
+      //             param.marker + "Mean:",
+      //             + param.data[1]
+      //         ].join("<br/>");
+      //     }
+      // },
+
+
+      }
+
+      ]
+};
+
+  optionBoxPlotOld: any = {
     title: [
       {
         text: 'Michelson-Morley Experiment',
@@ -224,10 +368,19 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       },
 
     ],
+    toolbox: {
+      feature: {
+        dataZoom: {
+          yAxisIndex: 'none'
+        },
+        restore: {},
+        saveAsImage: {}
+      }
+    },
     tooltip: {
       trigger: 'item',
       axisPointer: {
-        type: 'shadow'
+        type: 'cross'
       }
     },
     grid: {
@@ -335,6 +488,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
   constructor(private httpClient: HttpClient) {
 
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -352,11 +506,17 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
       this.getDataGraph();
     }
+    
+    console.log("ECHARTS =", echarts);
+
+    
 
   }
 
   ngOnInit() {
     this.isLoading = true;
+
+    // EChartsOption, graphic
     // this.getDataGraph();
     // this.getDataGraphPolygon();
 
@@ -380,6 +540,26 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       //   }
       // }
     }
+  }
+
+  ngAfterViewInit() {
+    this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
+    // this.myChart.on('datazoom', (evt: any) => {
+    //   console.log("DATAZOOM =", evt);
+      
+    //   var axis = this.myChart.getModel().option.xAxis[0];
+    //   var starttime = axis.data[axis.rangeStart];
+    //   var endtime = axis.data[axis.rangeEnd];
+    //   console.log("START END =", starttime,endtime);
+    // });
+
+    this.myChart.on('dataZoom', () => {
+      var option = this.myChart.getOption();
+      console.log("OPTIONSSSSSS =", option);
+      
+      console.log("DATI ZOOM GRAFICOoooo =", option.dataZoom[0].startValue, option.dataZoom[0].endValue);
+    });
+
   }
 
 
@@ -421,6 +601,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
       parametro_agg: this.extraParam ? this.extraParam.nameExtraParam : null,
       operation: this.operation,
       statistic: this.statistic,
+      circleCoords: this.circleCoords,
       
     }
     console.log("QUESTO PARAMETRO IN DATA =", data);
@@ -498,9 +679,20 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
                     bottom: '3%',
                     containLabel: true
                   },
+                  toolbox: {
+                    feature: {
+                      dataZoom: {
+                        yAxisIndex: 'none'
+                      },
+                      restore: {},
+                      saveAsImage: {}
+                    }
+                  },
         
                   dataZoom: [
                     {
+                      show: true,
+                      realtime: true,
                       type: 'inside',
                     },
                   ],
@@ -615,8 +807,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
             dataZoom: [
               {
+                show: true,
+                realtime: true,
                 type: 'inside',
               },
+
             ],
             series: [{
               data: allDataPolygon.dataPol.map((element: any) => element.y),
@@ -738,6 +933,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
         //   showDelay: 0,
         //   transitionDuration: 0.2,
         // },
+        toolbox: {
+          feature: {
+            dataZoom: {
+              yAxisIndex: 'none'
+            },
+            restore: {},
+            saveAsImage: {}
+          }
+        },
         tooltip: {
           trigger: 'axis',
           formatter: (paramsFormatter: any) => {
@@ -773,8 +977,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
 
         dataZoom: [
           {
+            show: true,
+            realtime: true,
             type: 'inside',
           },
+       
         ],
         series: [{
           data: this.dataRes.allData[name].map((element: any) => element.y),
@@ -827,8 +1034,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges {
   }
 
   onChartEvent(event: any, type: string) {
-    console.log('chart event:', type, event);
+    console.log('chart event:', event);
+    // const startTimestamp = event.batch[0].start;
+    // const endTimestamp = event.batch[0].end;
+    
   }
+  // }
+
 
   // enableDisable
 

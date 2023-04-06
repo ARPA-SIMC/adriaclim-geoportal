@@ -44,6 +44,11 @@ interface ExtraParams {
   stepSize: number;
 }
 
+interface circleCoords {
+  lat: any;
+  lng: any;
+}
+
 // const TREE_DATA: FoodNode[] = [
 //   {
 //     name: 'Fruit',
@@ -172,7 +177,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   legendNoWms: any;
   style: any;
   markerToAdd: any;
+
   circleMarkerArray: any[] = [];
+  circleCoords: circleCoords[] = [];
+
 
   value: any;
   valueCustom: any;
@@ -1669,6 +1677,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     if (this.legendNoWms) {
       this.markersLayer.clearLayers();
       this.circleMarkerArray = [];
+      this.circleCoords = [];
       this.rettangoliLayer.clearLayers();
       this.isIndicator = false;
       this.map.removeControl(this.legendNoWms);
@@ -1890,7 +1899,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       // const lat_max = corner2.lat;
       // const lon_max = corner2.lng;
       // dialogConfig.height = '1000px';
-
+      console.log("this.circlecoo",this.circleCoords);
       dialogConfig.data = {
         success: true,
         datasetId: dataId,
@@ -1906,6 +1915,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         extraParamExport: this.extraParamExport,
         polyExport: polygon ? polygon.getBounds() : null,
         polygon: polygon ? polygon.getLatLngs()[0] : null,
+        circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };
 
@@ -1958,6 +1968,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // markersLayer: L.LayerGroup = L.layerGroup();
         for (let i = 0; i < allLatCoordinates.length; i++) {
           if (this.isIndicator) {
+            this.circleCoords.push(
+              {
+                lat: allLatCoordinates[i],
+                lng: allLongCoordinates[i],
+              }
+            )
+           // console.log("this.circleCoords.push",this.circleCoords);
             //tabledap case, with circle
             let varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
             this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
@@ -1995,6 +2012,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           //this.markersLayer.addLayer(markerToAdd);
         }
+        console.log("CIRCLE COORDS: ", this.circleCoords);
+        
 
       },
       error: (msg: any) => {

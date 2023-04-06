@@ -80,6 +80,11 @@
                   </ng-container>
 
                 </div>
+                <div fxFlex fxLayout="row" fxLayoutAlign="space-between center">
+                  <span>Mean: valore</span>
+                  <span>Median: valore</span>
+                  <span>Standard deviation: valore</span>
+                </div>
                 <div fxFlex fxLayout="row" fxLayoutAlign="end center">
                   <section class="example-section">
                     <mat-checkbox class="example-margin" formControlName="enableArea">Enable area</mat-checkbox>
@@ -92,6 +97,7 @@
                 [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
                 [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"
                 [extraParam]="extraParamExport" [enableArea]="form.get('enableArea')?.value"
+                [circleCoords]="circleCoords"
                 [context]="'one'"></app-canvas-graph>
               <!-- <ng-template matTabContent> -->
 

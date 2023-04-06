@@ -39,6 +39,7 @@ export class HighlightDirective implements OnChanges {
       this.el.nativeElement,
       'innerHTML',
       this.getFormattedText()
+      
     );
   }
 

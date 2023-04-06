@@ -65,6 +65,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   minValue: any;
   maxValue: any;
 
+  circleCoords: any;
+
   operation: any = "default";
   statistic: any = "avg";
 
@@ -286,6 +288,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.isIndicator = data.isIndicator;
     this.polygon = data.polygon;
     this.polyExport = data.polyExport;
+
+    this.circleCoords = data.circleCoords;
 
 
     // this.start = this.dateStart.getTime();

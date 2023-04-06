@@ -1,6 +1,6 @@
 <form>
 
-  <div echarts [options]="statistic !== 'boxPlot' ? chartOption : optionBoxPlot " class="demo-chart" theme="macarons"></div>
+  <div #parent id="main" echarts  [options]="statistic !== 'boxPlot' ? chartOption : optionBoxPlot " class="demo-chart" theme="macarons" (chartDataZoom)="onChartEvent($event, 'chartDataZoom')"></div>
   <!-- <div echarts [options]="optionBoxPlot" class="demo-chart" theme="macarons"></div> -->
 
 </form>
