@@ -33,6 +33,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() extraParam: any;
   @Input() enableArea: any;
   @Input() circleCoords: any;
+  @Output() meanMedianStdev = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
   @Output() spinnerLoadingChild = new EventEmitter<any>();
@@ -615,6 +616,7 @@ optionBoxPlot: any = {
           console.log("RES DOPO IL PARSE =", response);
 
           let allDataPolygon = response['dataVect'];
+          this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev);
   
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
@@ -804,6 +806,15 @@ optionBoxPlot: any = {
               bottom: '3%',
               containLabel: true
             },
+            toolbox: {
+              feature: {
+                dataZoom: {
+                  yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+              }
+            },
 
             dataZoom: [
               {
@@ -893,8 +904,13 @@ optionBoxPlot: any = {
       }
       console.log("RES FOR GRAPH: ", response);
       this.dataRes = response;
+  
+      this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev);
 
       let name = this.dataRes.allData.entries[0];
+      if(this.operation === "annualMonth"){
+        this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
+      }
       this.dataRes.allData[name].forEach((element: any) => {
         element.x = this.formatDate(element.x);
         element.y = Number(element.y);

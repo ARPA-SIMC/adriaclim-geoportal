@@ -64,6 +64,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   dataMaxExport: any;
   minValue: any;
   maxValue: any;
+  meanValue: any;
+  medianValue: any;
+  stdevValue: any;
 
   circleCoords: any;
 
@@ -907,6 +910,13 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     console.log("EVENT =", event);
 
     this.spinnerLoading = event;
+  }
+
+  meanMedianStdev(event: any){
+    let mean_median_stdev = event.split("_");
+    this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
+    this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
+    this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
   }
 
   sendSelGraphPoly() {

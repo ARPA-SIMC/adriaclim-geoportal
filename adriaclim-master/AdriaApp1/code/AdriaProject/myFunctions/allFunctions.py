@@ -1156,7 +1156,7 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
           lats.insert(i,row["latitude"])
           longs.insert(i,row["longitude"])
           layerName.insert(i,layer_name)
-          values.insert(i,row[layer_name])
+          values.insert(i,float(row[layer_name]))
           dates.insert(i,row["time"])
           i+=1
   else:  #one every nvalues/x data 
@@ -1167,7 +1167,7 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
           lats.insert(i,row["latitude"])
           longs.insert(i,row["longitude"])
           layerName.insert(i,layer_name)
-          values.insert(i,row[layer_name])
+          values.insert(i,float(row[layer_name]))
           dates.insert(i,row["time"])
           i+=1
 
@@ -1183,6 +1183,9 @@ def getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,
 
 def packageGraphData(allData,**kwargs):
   values = allData[0]
+  mean_result = mean(values)
+  median_result = median(values)
+  stdev_result = stdev(values)
   dates = allData[1]
   unit = allData[2]
   layerName = allData[3]
@@ -1190,6 +1193,9 @@ def packageGraphData(allData,**kwargs):
   longs = allData[5]
   data = {}
   data["unit"]=unit
+  data["mean"] = mean_result
+  data["median"] = median_result
+  data["stdev"] = stdev_result
   data["entries"]=[]
 
   if "output" in kwargs:
@@ -1216,10 +1222,7 @@ def packageGraphData(allData,**kwargs):
 
 def processOperation(operation,values,dates,unit,layerName,lats,longs):
   if operation=="default":
-    mean_result = mean(values)
-    median_result = median(values)
-    stdev_result = stdev(values)
-    return [values,dates,unit,layerName,lats,longs,mean_result,median_result,stdev_result]
+    return [values,dates,unit,layerName,lats,longs]
   values2=[]
 
   dates2=[]
@@ -1822,6 +1825,9 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
         "min_10thPerc_median_90thPerc_max": "min_10thPerc_median_90thPerc_max"
       }
       groupby_col = "time" if time_op == "default" else df_polygon["time"].dt.month if time_op == "annualMonth" else df_polygon["time"].dt.day
+      mean = df_polygon["value"].mean()
+      median = df_polygon["value"].median()
+      std_dev = df_polygon["value"].std()
       if ops[statistic] == "min_mean_max":
         agg_func = ['min','mean','max']
       elif ops[statistic] == "min_10thPerc_median_90thPerc_max":
@@ -1893,6 +1899,9 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
         data_table_list.append(data_table)
       
       allData["dataTable"] = data_table_list
+      allData["mean"] = mean
+      allData["median"] = median
+      allData["stdev"] = std_dev
       # print("ALL DATA POL =", allData)
     except Exception as e:
       print("EXCEPTION 1",e)

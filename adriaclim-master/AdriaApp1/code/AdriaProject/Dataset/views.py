@@ -449,6 +449,7 @@ def getDataGraphicNewCanvas(request):
     operation = request.data.get("operation") #default or type of operation
     context = request.data.get("context") #one or poylgon
     allData = allFunctions.getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+    # print("allData",allData)
     return JsonResponse({'allData':allData})
 
 @api_view(['GET','POST'])

@@ -177,7 +177,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   legendNoWms: any;
   style: any;
   markerToAdd: any;
-
   circleMarkerArray: any[] = [];
   circleCoords: circleCoords[] = [];
 
@@ -258,8 +257,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
+    
       if (f.properties.popupContent !== "") {
-
         f.geometry.coordinates.forEach(c => {
           c.forEach(coord => {
             coord.reverse();
@@ -269,22 +268,111 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           // poligon = L.polygon(c);
         });
 
+          let pol = L.polygon(polyg[0]).addTo(this.map);
+          this.allPolygons.push(pol);
+          polyg = [];
+      }else{
+        f.geometry.coordinates.forEach(c => {
+          c.forEach(coord => {
+            coord.reverse();
+          });
+        });
+      }
+    });
+
+  }
+
+  removeAllPolygons(){
+    this.allPolygons.forEach(pol=>{
+      this.map.removeLayer(pol);
+    })
+    this.allPolygons = [];
+  }
+
+  adriaticView(){
+    let polyg: any = [];
+    this.removeAllPolygons();
+    this.polygon.features.forEach(f => {
+      if (f.properties.popupContent === "") {
+        f.geometry.coordinates.forEach(c => {
+          polyg.push(c);
+          // poligon = L.polygon(c);
+        });
         let pol = L.polygon(polyg[0]).addTo(this.map);
         this.allPolygons.push(pol);
         polyg = [];
       }
     });
-    // .addTo(this.map);
-    // const polygo = L.polygon(
-    //   [
-    //     [43.34471993041581, 10.695002224139875],
-    //     [43.06626090251556, 11.585015616399813],
-    //     [42.616704865269284, 11.4120295594627],
-    //     [42.61546062315476, 10.695002224139875],
-    //   ],
-    // ).addTo(this.map);
-    // this.getPluto();
 
+    
+
+  }
+
+  pilotView(){
+    let polyg: any = [];
+    this.removeAllPolygons();
+    this.polygon.features.forEach(f =>{
+      f.geometry.coordinates.forEach(c => {
+        polyg.push(c);
+        // poligon = L.polygon(c);
+      });
+        let pol = L.polygon(polyg[0]);
+        if (f.properties.popupContent !== ""){
+          pol.addTo(this.map);
+          this.allPolygons.push(pol);
+        }else{
+          this.map.removeLayer(pol);
+        }
+        polyg = [];
+      });
+  }
+
+  //FUNZIONA! PROVATO ANCHE AL CLICK NEL TOOL DEL POLIGONO DOPO LA SELEZIONE DEL DATASET,
+  //MOSTRA I DATI DEL POLIGONO CARICATO E SELEZIONATO!
+  uploadGeo():Promise<File>{
+    //come funziona
+    return new Promise((resolve, reject) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.geojson';
+      input.addEventListener('change', () => {
+        const file = input.files?.[0];
+        if (file) {
+          resolve(file);
+          //now we have the file and we read it!
+          const reader = new FileReader();
+         
+          reader.onload = (e:any) =>{
+            const content = e.target.result;
+            const geojson = JSON.parse(content);
+            let polyg: any = [];
+            this.removeAllPolygons(); //first we remove all polygons
+            geojson.features.forEach((f:any)=> {
+          
+                f.geometry.coordinates.forEach((c:any)=> {
+                  c.forEach((coord:any) => {
+                    coord.reverse();
+                  });
+
+                  polyg.push(c);
+                  // poligon = L.polygon(c);
+                });
+
+                  let pol = L.polygon(polyg[0]).addTo(this.map);
+                  this.allPolygons.push(pol);
+                  polyg = [];
+              });
+            }   
+
+        
+          reader.readAsText(file);
+          
+        } else {
+          reject(new Error('No file chosen'));
+        }
+      });
+      input.click();
+    });
   }
 
   async ngOnInit(): Promise<void> {

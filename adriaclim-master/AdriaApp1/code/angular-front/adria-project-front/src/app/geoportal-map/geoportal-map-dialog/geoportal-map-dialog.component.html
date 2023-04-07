@@ -81,9 +81,9 @@
 
                 </div>
                 <div fxFlex fxLayout="row" fxLayoutAlign="space-between center">
-                  <span>Mean: valore</span>
-                  <span>Median: valore</span>
-                  <span>Standard deviation: valore</span>
+                  <span>Mean: {{meanValue}}</span>
+                  <span>Median: {{medianValue}}</span>
+                  <span>Standard deviation: {{stdevValue}}</span>
                 </div>
                 <div fxFlex fxLayout="row" fxLayoutAlign="end center">
                   <section class="example-section">
@@ -91,7 +91,7 @@
                   </section>
                 </div>
               </div>
-              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"
+              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" (meanMedianStdev)="meanMedianStdev($event)"
                 (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
                 class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                 [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
