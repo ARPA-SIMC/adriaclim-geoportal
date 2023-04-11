@@ -705,7 +705,7 @@ optionBoxPlot: any = {
                       type: 'line',
                       stack: 'counts',
                       areaStyle: this.enableArea ? {} : undefined,
-                      smooth: true
+                      smooth: false
                     }
                   })
                   // series: [{
@@ -830,7 +830,7 @@ optionBoxPlot: any = {
               type: 'line',
               stack: 'counts',
               areaStyle: this.enableArea ? {} : undefined,
-              smooth: true
+              smooth: false
             },
           ]
           }
@@ -1005,7 +1005,7 @@ optionBoxPlot: any = {
           type: 'line',
           stack: 'counts',
           areaStyle: this.enableArea ? {} : undefined,
-          smooth: true
+          smooth: false
         },
         // {
         //   name: 'X-1',

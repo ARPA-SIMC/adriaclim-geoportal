@@ -371,7 +371,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     if (!this.openGraph) {
       this.getMetadataTable();
       // this.setDataSourceAttributes();
-
+      
     }
     else {
       console.log("POLYGON", this.polygon);

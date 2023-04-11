@@ -50,6 +50,25 @@ class Indicator(models.Model):
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
 
+class Polygon(models.Model):
+    #cosi se c'è cache hit, ci prendiamo il poligono e l'id in questione
+    pol_vertices_str = models.CharField(max_length=500,default="",null=True) 
+    # id = models.CharField(primary_key=True,max_length=600,default="")
+    id = models.AutoField(primary_key=True)
+    value = models.FloatField(default=0,null=True)
+    dataset_id = models.ForeignKey(Node,on_delete=models.CASCADE)
+    date_value = models.CharField(max_length=500,default="",null=True)
+    latitude = models.FloatField(default=0,null=True)
+    longitude = models.FloatField(default=0,null=True)
+    parametro_agg = models.CharField(max_length=500,default="",null=True)
+    
+    # def __init__(self, value=0, date_value=''):
+    #     self.value = value
+    #     self.date_value = date_value
+     
+    
+    # def as_dict(self):
+    #     return {'time': self.date_value, 'value': self.value, 'lat_lng': "(" + str(self.latitude) + "," + str(self.longitude) + ")"}
 # class Cache(models.Model):   
 #     url = models.TextField(primary_key=True)
 #     value = models.TextField() 

@@ -378,6 +378,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngOnInit(): Promise<void> {
     await this.initMap();
     console.log("LEGEND NO WMS =", this.legendNoWms)
+    /**
+     *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
+     */
+    // const dataNow = new Date();
+    // const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 17, 51, 0, 0);
+    // const tempoRimanente = orario.getTime() - dataNow.getTime();
+    // if(tempoRimanente > 0) {
+    //   setTimeout(() => {
+    //     alert("ALLERTA ORARIO!")
+    //   }, tempoRimanente);
+    // }
     // await this.initMap();
 
   }
