@@ -1737,6 +1737,7 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
   circ = None
   
   # print("check cache",cache.get(key=key_cached))
+
   polygons = Polygon.objects.filter(dataset_id = dataset_id,pol_vertices_str = pol_vertices_str)
   if polygons:
  
