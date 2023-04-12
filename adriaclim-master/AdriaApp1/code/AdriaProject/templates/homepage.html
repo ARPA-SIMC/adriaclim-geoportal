@@ -584,6 +584,13 @@
 
           */
 
+           //GET ROMPO TUTTO
+            $.ajax({
+                  type:'GET',
+                  url:'myFunctions/rottoTutto',
+                  contentType:"application/json"
+                  
+              });
         //GET ALL NODES
          $.ajax({
             type:"GET",
@@ -597,6 +604,8 @@
                   contentType:"application/json"
                   
               });
+          
+
 
           //GET ALL INDICATORS
           $.ajax({

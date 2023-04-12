@@ -602,6 +602,8 @@ def getAllDatasets():
       variable_names = ""
       dimensions = 0
       dimension_names = ""
+      param_min = 0
+      param_max = 0
 
       node_id = row["Dataset ID"]
       metadata_url = row["Info"]
@@ -649,6 +651,17 @@ def getAllDatasets():
           lng_min = row1["Value"]
         if row1["Attribute Name"] == "geospatial_lon_max":
           lng_max = row1["Value"]
+        
+        if dimensions > 3 and griddap_url != "":
+          #siamo nel caso del parametro aggiuntivo
+          if row1["Row Type"] == "dimension" and row1["Variable Name"] != "time" and row1["Variable Name"] != "latitude" and row1["Variable Name"] != "longitude":
+            if row1["Attribute Name"] == "actual_range":
+              parametro_agg = row1["Value"]
+              param_min = float(parametro_agg.split(",")[0])
+              param_max = float(parametro_agg.split(",")[1].replace(" ",""))
+        
+        
+
 
       #is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
       is_indicator =  re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)
@@ -704,7 +717,7 @@ def getAllDatasets():
                           adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
                           lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
                           dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
-                          wms_url=row["wms"])
+                          wms_url=row["wms"], param_min = param_min, param_max = param_max)
         # new_ind.save()
         new_node.save()
         node_list.append(new_node.title)
@@ -1554,6 +1567,105 @@ def getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,lon
       df['unit']=unit
       df = df.groupby([(df.time.dt.day),(df.time.dt.month) ,(df["latitude"]),(df["longitude"]),(df.unit)])[layer_name].mean()
       return df.to_json()
+	# AdriaClim Indicators | adriaclim_WRF | yearly | hist | r95p
+  # tempo 4709 secondi circa
+
+def rompo_tutto_final_version():
+  all_datasets = Node.objects.all()
+  for dataset in all_datasets:
+    url_csv = ""
+    if dataset.griddap_url != "":
+      #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_bda7_23d0_0f98.csv?consecutive_summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,number_of_csu_periods_with_more_than_5days_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_wave_duration_index_wrt_mean_of_reference_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_waves_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tropical_nights_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D
+      #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/WAVES_VTM10_5da8_8ef6_cf64
+      url_csv += dataset.griddap_url + ".csv?"
+      variable_names = dataset.variable_names.split(" ")
+      for index, var in enumerate(variable_names):
+        if dataset.dimensions > 3:
+          if index < len(variable_names) - 1: 
+          #https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+            url_csv += var + "%5B(" + dataset.time_start + "):1:(" + dataset.time_end + ")%5D%5B(" + dataset.param_min + "):1:(" + dataset.param_max + ")%5D%5B(" + dataset.lat_max + "):1:(" + dataset.lat_min + ")%5D%5B(" + dataset.lng_min + "):1:(" + dataset.lng_max + ")%5D,"
+          else:
+            url_csv += var + "%5B(" + dataset.time_start + "):1:(" + dataset.time_end + ")%5D%5B(" + dataset.param_min + "):1:(" + dataset.param_max + ")%5D%5B(" + dataset.lat_max + "):1:(" + dataset.lat_min + ")%5D%5B(" + dataset.lng_min + "):1:(" + dataset.lng_max + ")%5D"
+
+        else:
+          if index < len(variable_names) - 1:
+            url_csv += var + "%5B(" + dataset.time_start + "):1:(" + dataset.time_end + ")%5D%5B(" + dataset.lat_max + "):1:(" + dataset.lat_min + ")%5D%5B(" + dataset.lng_min + "):1:(" + dataset.lng_max + ")%5D,"
+          else:
+            url_csv += var + "%5B(" + dataset.time_start + "):1:(" + dataset.time_end + ")%5D%5B(" + dataset.lat_max + "):1:(" + dataset.lat_min + ")%5D%5B(" + dataset.lng_min + "):1:(" + dataset.lng_max + ")%5D"
+      
+      
+
+    else:
+      url_csv += dataset.tabledap_url + ".csv?"
+      variable_names = dataset.variable_names.split(" ")
+      for index, var in enumerate(variable_names):
+        if index < len(variable_names) - 1:
+          url_csv += var + "%2C"
+        else:
+          url_csv += var + "&"
+      
+      url_csv += "time%3E=" + dataset.time_start + "&time%3C=" + dataset.time_end + "&latitude%3E=" + dataset.lat_min + "&latitude%3C=" + dataset.lat_max + "&longitude%3E=" + dataset.lng_min + "&longitude%3C=" + dataset.lng_max
+
+      #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal.csv?time%2Clatitude%2Clongitude%2CIndicator&time%3E=1991-02-16&time%3C=2022-11-16&latitude%3E=44.91736&latitude%3C=45.7757&longitude%3E=11.30252&longitude%3C=13.07745
+      
+      #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal
+    start_time = time.time()
+    print("Sono iniziata ora!")
+    chunksize = 10 ** 6
+    polygons = []
+    for chunk in pd.read_csv(url_csv, chunksize=chunksize, low_memory=False):
+      for index, row in chunk.iterrows():
+        if index > 0:
+          #va fatto!
+          pol = Polygon(value_0 = float(row["txx"]), dataset_id = dataset, date_value = convertToTime(row["time"]), 
+                        latitude = float(row["latitude"]), longitude = float(row["longitude"]))
+          polygons.append(pol)
+
+    # Bulk insert all polygons in a single database query
+    Polygon.objects.bulk_create(polygons)
+    print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
+    
+    
+
+def rompo_tutto():
+  # AdriaClim Indicators | MedCordex_IPSL | yearly | hist | txx
+  # tempo 55 secondi circa
+  # AdriaClim Indicators | MedCordex_IPSL | seasonal | hist | csu ======> 161k
+  # tempo 338 secondi circa
+  # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_e73d_c8fa_d12a.csv?very_wet_days_wrt_95th_percentile_of_reference_period%5B(1992-01-01):1:(2011-01-01T00:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D"
+  # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_ad60_605d_97a5.csv?txx%5B(1970-06-15T12:00:00Z):1:(2005-06-06T12:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
+  # AdriaClim Indicators | MedCordex_IPSL | seasonal | proj | txx =====> 201k
+  # tempo 299 secondi circa
+  # try:
+
+  #   polygons = Polygon.objects.filter(dataset_id ="MedCordex_IPSL_ad60_605d_97a5")
+  #   print("Polygons =====", polygons)
+  #   if polygons:
+  #     for pol in polygons:
+  #       print("Pol found=====", pol)
+  #   else:
+  #     print("Pol not found!!!!!!")
+
+  # except Exception as e:
+  #   print("Eccezione", e)
+
+  url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_2084_7a01_e870.csv?txx%5B(2006-01-01):1:(2050-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
+  start_time = time.time()
+  print("Sono iniziata ora!")
+  chunksize = 10 ** 6
+  polygons = []
+  for chunk in pd.read_csv(url_r95p_yearly, chunksize=chunksize, low_memory=False):
+    for index, row in chunk.iterrows():
+      if index > 0:
+        pol = Polygon(value_0 = float(row["txx"]), dataset_id = Node.objects.get(id="MedCordex_IPSL_2084_7a01_e870"), date_value = convertToTime(row["time"]), 
+                      latitude = float(row["latitude"]), longitude = float(row["longitude"]))
+        polygons.append(pol)
+
+  # Bulk insert all polygons in a single database query
+  Polygon.objects.bulk_create(polygons)
+  
+  print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
+   
 
 def percentile(percentile,dataset_id,layer_name,time_start,time_finish,latitude1,longitude1,latitude2,longitude2,latitude3,longitude3,num_parameters,range_value,is_indicator,latMin,longMin,latMax,longMax):
   if is_indicator == "false":
@@ -1908,9 +2020,9 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
               dat_tab[layer_name] = row[layer_name] if not pd.isna(row[layer_name]) else "Value not defined"
               dataTable.append(dat_tab)
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-              pol = Polygon(pol_vertices_str = pol_vertices_str, value = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]), 
-                            latitude = float(row["latitude"]), longitude = float(row["longitude"]), parametro_agg = row[parametro_agg])
-              pol.save()
+              # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]), 
+              #               latitude = float(row["latitude"]), longitude = float(row["longitude"]), parametro_agg = row[parametro_agg])
+              # pol.save()
               #dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
               i+=1
           else:
@@ -1935,11 +2047,13 @@ def getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,stat
               dat_tab[layer_name] = row[layer_name] if not pd.isna(row[layer_name])  else "Value not defined"
               dataTable.append(dat_tab)
               df_polygon.loc[i] = [row["time"],"(" + row["latitude"]+","+row["longitude"] + ")",row[layer_name]]
-              pol = Polygon(pol_vertices_str = pol_vertices_str, value = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]), 
-                            latitude = float(row["latitude"]), longitude = float(row["longitude"]))
-              pol.save()
+              # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]), 
+              #               latitude = float(row["latitude"]), longitude = float(row["longitude"]))
+              # pol.save()
               # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
               i+=1
+              # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
+              # TIME GETDATAPOLYGONNEW 1960.06 seconds Snowfall rate (projections, day)
       except Exception as e:
           print("EXCEPTION 3",e)
           return str(e)

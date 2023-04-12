@@ -257,7 +257,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let polyg: any = [];
     this.polygon.features.forEach(f => {
-    
+
       if (f.properties.popupContent !== "") {
         f.geometry.coordinates.forEach(c => {
           c.forEach(coord => {
@@ -304,7 +304,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       }
     });
 
-    
+
 
   }
 
@@ -341,14 +341,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           resolve(file);
           //now we have the file and we read it!
           const reader = new FileReader();
-         
+
           reader.onload = (e:any) =>{
             const content = e.target.result;
             const geojson = JSON.parse(content);
             let polyg: any = [];
             this.removeAllPolygons(); //first we remove all polygons
             geojson.features.forEach((f:any)=> {
-          
+
                 f.geometry.coordinates.forEach((c:any)=> {
                   c.forEach((coord:any) => {
                     coord.reverse();
@@ -362,11 +362,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                   this.allPolygons.push(pol);
                   polyg = [];
               });
-            }   
+            }
 
-        
+
           reader.readAsText(file);
-          
+
         } else {
           reject(new Error('No file chosen'));
         }
@@ -378,17 +378,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   async ngOnInit(): Promise<void> {
     await this.initMap();
     console.log("LEGEND NO WMS =", this.legendNoWms)
-    /**
-     *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
-     */
-    // const dataNow = new Date();
-    // const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 17, 51, 0, 0);
-    // const tempoRimanente = orario.getTime() - dataNow.getTime();
-    // if(tempoRimanente > 0) {
-    //   setTimeout(() => {
-    //     alert("ALLERTA ORARIO!")
-    //   }, tempoRimanente);
-    // }
+
     // await this.initMap();
 
   }
@@ -2112,7 +2102,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           //this.markersLayer.addLayer(markerToAdd);
         }
         console.log("CIRCLE COORDS: ", this.circleCoords);
-        
+
 
       },
       error: (msg: any) => {

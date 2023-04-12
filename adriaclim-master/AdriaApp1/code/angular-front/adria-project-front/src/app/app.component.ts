@@ -30,6 +30,20 @@ export class AppComponent implements OnInit {
 
     this.getPippo("ciao");
 
+    /**
+     *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
+     */
+    const dataNow = new Date();
+    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 3, 0, 0, 0);
+    const tempoRimanente = orario.getTime() - dataNow.getTime();
+    console.log('tempoRimanente: ', tempoRimanente);
+
+    if(tempoRimanente > 0) {
+      setTimeout(() => {
+        this.getAllData();
+      }, tempoRimanente);
+    }
+
   }
 
   getPippo(idInput: string) {

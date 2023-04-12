@@ -18,6 +18,8 @@ class Node(models.Model):
     lng_max = models.CharField(max_length=300,default="",null=True)
     time_start = models.CharField(max_length=120,default="")
     time_end = models.CharField(max_length=120,default="")
+    param_min = models.FloatField(default=0,null=True)
+    param_max = models.FloatField(default=0,null=True)
     tabledap_url = models.CharField(max_length=250,default="")
     dimensions = models.IntegerField(default=0,null=True)
     dimension_names = models.CharField(max_length=1500,default="",null=True)
@@ -40,6 +42,8 @@ class Indicator(models.Model):
     lat_max = models.CharField(max_length=300,default="",null=True)
     lng_min = models.CharField(max_length=300,default="",null=True)
     lng_max = models.CharField(max_length=300,default="",null=True)
+    param_min = models.FloatField(default=0,null=True)
+    param_max = models.FloatField(default=0,null=True)
     time_start = models.CharField(max_length=120,default="")
     time_end = models.CharField(max_length=120,default="")
     tabledap_url = models.CharField(max_length=250,default="")
@@ -52,15 +56,23 @@ class Indicator(models.Model):
 
 class Polygon(models.Model):
     #cosi se c'è cache hit, ci prendiamo il poligono e l'id in questione
+    
     pol_vertices_str = models.CharField(max_length=500,default="",null=True) 
     # id = models.CharField(primary_key=True,max_length=600,default="")
     id = models.AutoField(primary_key=True)
-    value = models.FloatField(default=0,null=True)
+    value_0 = models.FloatField(default=0,null=True)
     dataset_id = models.ForeignKey(Node,on_delete=models.CASCADE)
     date_value = models.CharField(max_length=500,default="",null=True)
     latitude = models.FloatField(default=0,null=True)
     longitude = models.FloatField(default=0,null=True)
     parametro_agg = models.CharField(max_length=500,default="",null=True)
+    
+    # DA AGGIUNGERE CASO TABLEDAP DOVE BISOGNA PRENDERE SOLO L'ULTIMA VARIABILE
+    def __init__(self, *args, **kwargs):
+        super(Polygon, self).__init__(*args, **kwargs)
+        if Node.objects.get(id=self.dataset_id).variables > 1:
+            for i in range(1,Node.objects.get(id=self.dataset_id).variables):
+                setattr(self, 'value_'+str(i), models.FloatField(default=0,null=True))
     
     # def __init__(self, value=0, date_value=''):
     #     self.value = value

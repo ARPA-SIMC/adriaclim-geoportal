@@ -115,6 +115,8 @@ def getHighTemp(request):
     result=allFunctions.getHighTemperature()
     return JsonResponse({'result':result})
 
+
+
 @api_view(['GET','POST'])
 def getAllDatasets(request):
     allNodes = allFunctions.getAllDatasets()
@@ -129,6 +131,14 @@ def getTitle(request):
 def getIndicators(request):
     indicators = allFunctions.getIndicators()
     return JsonResponse({'indicators':indicators})
+
+def rompiamo_tutto(request):
+    try:
+        allFunctions.rompo_tutto()
+        return "Ho aggiustato tutto!!!!"
+    except Exception as e:
+        print("Ho rotto tutto!!!!!",e)
+        return str(e)
 
 
 def getMetadataUrl(request,dataset_id):
