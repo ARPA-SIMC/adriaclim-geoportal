@@ -3185,13 +3185,19 @@ def rompo_tutto():
                 #):
                 defaults = {
                     "value_0": float(row["txx"]),
-                    "dataset_id": n,
-                    "date_value": convertToTime(row["time"]),
-                    "latitude": float(row["latitude"]),
-                    "longitude": float(row["longitude"]),
+                    # "dataset_id": n,
+                    # "date_value": convertToTime(row["time"]),
+                    # "latitude": float(row["latitude"]),
+                    # "longitude": float(row["longitude"]),
                 }
                 
-                Polygon.objects.update_or_create(defaults=defaults)
+                Polygon.objects.update_or_create(
+                    dataset_id = n,
+                    date_value = convertToTime(row["time"]),
+                    latitude = float(row["latitude"]),
+                    longitude = float(row["longitude"]),
+                    defaults = defaults
+                )
                 # if(Polygon.objects.filter(
                 #     dataset_id = n,
                 #     date_value = convertToTime(row["time"]),
