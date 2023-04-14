@@ -77,7 +77,7 @@ class Polygon(models.Model):
                 setattr(self, 'value_'+str(i), models.FloatField(default=0, null=True))
     
     class Meta:
-        unique_together = (("dataset_id", "date_value", "latitude", "longitude"),)
+        unique_together = ("dataset_id", "date_value", "latitude", "longitude")
     
     
     # def __init__(self, value=0, date_value=''):

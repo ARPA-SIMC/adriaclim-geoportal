@@ -3161,7 +3161,7 @@ def rompo_tutto():
 
     chunksize = 10**6
     polygons = []
-
+    dtypes = {'time': 'string', 'latitude': 'float32', 'longitude': 'float32', 'txx': 'float32'}
     for chunk in pd.read_table(
         url_r95p_yearly,
         engine="c",
@@ -3172,9 +3172,11 @@ def rompo_tutto():
     ):
 
         chunk.drop(index=chunk.index[0], axis=0, inplace=True)
+        chunk = chunk.astype(dtypes)
         try:
             for row in chunk.to_dict(orient="records"):
-                print("row", row)
+
+                #print("row", row)
                 # if (Polygon.objects.filter(
                 #         dataset_id=n,
                 #         date_value=convertToTime(row["time"]),
@@ -3183,6 +3185,7 @@ def rompo_tutto():
                 #         value_0=float(row["txx"]),
                 #     ).count() == 0
                 #):
+                
                 defaults = {
                     "value_0": float(row["txx"]),
                     # "dataset_id": n,
@@ -3192,11 +3195,11 @@ def rompo_tutto():
                 }
                 
                 Polygon.objects.update_or_create(
-                    dataset_id = n,
-                    date_value = convertToTime(row["time"]),
-                    latitude = float(row["latitude"]),
-                    longitude = float(row["longitude"]),
-                    defaults = defaults
+                    dataset_id=n,
+                    date_value=convertToTime(row["time"]),
+                    latitude=float(row["latitude"]),
+                    longitude=float(row["longitude"]),
+                    defaults=defaults
                 )
                 # if(Polygon.objects.filter(
                 #     dataset_id = n,
@@ -3236,6 +3239,7 @@ def rompo_tutto():
         except Exception as e:
             print("Eccezione", e)
             return str(e)
+    
 
     # Bulk insert all polygons in a single database query
     # Polygon.objects.bulk_create(polygons)
