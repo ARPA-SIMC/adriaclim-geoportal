@@ -11,7 +11,7 @@ services:
       - ./code:/code
       - /static:/static
     command: >
-      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && hypercorn --bind '0.0.0.0:8000' AdriaProject.asgi:application --reload"
+      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate  && cd AdriaProject && hypercorn --bind '0.0.0.0:8000' AdriaProject.asgi:application --reload"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -54,8 +54,9 @@ services:
       - POSTGRES_DB=$POSTGRES_NAME
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - PGDATA=/var/lib/postgresql/data
     volumes:
-    - postgres-volume:/var/lib/postgresql/data
+    - postgres-volume:/var/lib/postgresql/data:rw
 
 volumes:
   postgres-volume:

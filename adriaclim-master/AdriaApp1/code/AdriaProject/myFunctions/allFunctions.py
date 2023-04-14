@@ -3,7 +3,7 @@ from pydoc import resolve
 from math import isnan
 from termios import VLNEXT
 from statistics import mean,median,stdev
-from django.db import models
+from django.db import models, transaction
 from Dataset.models import Node,Indicator, Polygon #,Cache
 import pandas as pd
 import csv
@@ -563,168 +563,234 @@ def url_is_indicator(is_indicator,is_graph,is_annual,**kwargs):
     print("Error",e)
     return str(e)
 
+
 def getAllDatasets():
   start_time = time.time()
   print("Started getAllDatasets()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
-  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=0,sep=",",names=["griddap","subset","tabledap","Make A Graph",
-                                                          "wms","files","Title","Summary","FGDC","ISO 19115",
-                                                          "Info","Background Info","RSS","Email","Institution",
-                                                          "Dataset ID"],
-                  na_values="Value not available")
   node_list = []
-  dataset_list = []
-  scale_list = []
-  print("Time to finish first read_csv getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
-  df1 = df.replace(np.nan, "", regex=True)
-  all_datasets = Node.objects.all()
+  Node.objects.all().delete()#delete all existing nodes
+  try:
+    df=pd.read_table(download_with_cache_as_csv(url_datasets),header=0,sep=",",engine="c",names=["griddap","subset","tabledap","MakeAGraph",
+                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
+                                                            "Info","BackgroundInfo","RSS","Email","Institution",
+                                                            "DatasetID"],
+                    na_values="Value not available")
+
+    #print("Time to finish first read_table getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
+    df = df.fillna("")
+    df.drop(index=df.index[0],axis=0,inplace=True)
+  except Exception as e:
+    print("Error",e)
+    return str(e)
   # all_indicators = Indicator.objects.all()
   # all_indicators.delete()
-  all_datasets.delete()
-  for index,row in df1.iterrows():
-    if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
-      #We take every datasets to fill the full list!
-      
-      adriaclim_scale = None
-      adriaclim_dataset = None
-      adriaclim_timeperiod = None
-      adriaclim_model = None
-      adriaclim_type = None
-      institution = "UNKNOWN"
-      time_start = None
-      time_end = None
-      lat_min = None
-      lat_max = None
-      lng_min = None
-      lng_max = None
 
-      variables = 0
-      variable_names = ""
-      dimensions = 0
-      dimension_names = ""
-      param_min = 0
-      param_max = 0
+  for row in df.itertuples():
+    info = row.Info
+    
+  # for index,row in df.iterrows(): #cambiare iterrows 
+    # if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets":
+    #We take every datasets to fill the full list!
+    adriaclim_scale = None
+    adriaclim_dataset = None
+    adriaclim_timeperiod = None
+    adriaclim_model = None
+    adriaclim_type = None
+    institution = "UNKNOWN"
+    time_start = None
+    time_end = None
+    lat_min = None
+    lat_max = None
+    lng_min = None
+    lng_max = None
 
-      node_id = row["Dataset ID"]
-      metadata_url = row["Info"]
-      tabledap_url = row["tabledap"]
-      griddap_url = row["griddap"]
-      get_info = pd.read_csv(download_with_cache_as_csv(row["Info"]), header=None, sep=",",
-                            names=["Row Type", "Variable Name", "Attribute Name", "Data Type", "Value"]).fillna("nan")
-      for index1, row1 in get_info.iterrows():
-        #now we create our datasets that we put in our db 
-        if row1["Row Type"] == "dimension":
+    variables = 0
+    variable_names = ""
+    dimensions = 0
+    dimension_names = ""
+    param_min = 0
+    param_max = 0
+    node_id = row.DatasetID
+    metadata_url = row.Info
+    tabledap_url = row.tabledap
+    griddap_url = row.griddap
+    get_info = pd.read_table(download_with_cache_as_csv(info), header=None, sep=",",engine="c",
+                          names=["RowType", "VariableName", "AttributeName", "DataType", "Value"]).fillna("nan")
+    # for index1, row1 in get_info.iterrows():
+    get_info.drop(index=get_info.index[0],axis=0,inplace=True)
+
+    for row1 in get_info.itertuples():
+        # print("row1")
+        #now we create our datasets that we put in our db    
+        if row1.RowType == "dimension":
           if dimensions > 0:
             dimension_names = dimension_names + " "
-          dimensions = dimensions+1
-          dimension_names = dimension_names+row1["Variable Name"]
+        
+          dimensions = dimensions + 1
+          dimension_names = dimension_names + row1.VariableName
 
-        if row1["Row Type"] == "variable":
+            
+
+        if row1.RowType == "variable":
           if variables > 0:
             variable_names = variable_names + " "
-          variables = variables+1
-          variable_names = variable_names+row1["Variable Name"]
+    
+          variables = variables + 1
+          variable_names = variable_names + row1.VariableName
 
-        if row1["Attribute Name"] == "adriaclim_dataset":
-          adriaclim_dataset = row1["Value"]
-        if row1["Attribute Name"] == "adriaclim_model":
-          adriaclim_model = row1["Value"]
-        if row1["Attribute Name"] == "adriaclim_scale":
-          adriaclim_scale = row1["Value"]
-        if row1["Attribute Name"]  == "adriaclim_timeperiod":
-          adriaclim_timeperiod = row1["Value"]
-        if row1["Attribute Name"] == "adriaclim_type":
-          adriaclim_type = row1["Value"]
-        if row1["Attribute Name"] == "title":
-          title = row1["Value"]
-        if row1["Attribute Name"] == "institution":
-          institution = row1["Value"]
-        if row1["Attribute Name"] == "time_coverage_start":
-          time_start = row1["Value"]
-        if row1["Attribute Name"] == "time_coverage_end":
-          time_end = row1["Value"]
-        if row1["Attribute Name"] == "geospatial_lat_min":
-          lat_min = row1["Value"]
-        if row1["Attribute Name"] == "geospatial_lat_max":
-          lat_max = row1["Value"]
-        if row1["Attribute Name"] == "geospatial_lon_min":
-          lng_min = row1["Value"]
-        if row1["Attribute Name"] == "geospatial_lon_max":
-          lng_max = row1["Value"]
+            
+
+        if row1.AttributeName == "adriaclim_dataset":
+          adriaclim_dataset = row1.Value
+        if row1.AttributeName == "adriaclim_model":
+          adriaclim_model = row1.Value
+        if row1.AttributeName == "adriaclim_scale":
+          adriaclim_scale = row1.Value
+        if row1.AttributeName  == "adriaclim_timeperiod":
+          adriaclim_timeperiod = row1.Value
+        if row1.AttributeName == "adriaclim_type":
+          adriaclim_type = row1.Value
+        if row1.AttributeName == "title":
+          title = row1.Value
+        if row1.AttributeName == "institution":
+          institution = row1.Value
+        if row1.AttributeName == "time_coverage_start":
+          time_start = row1.Value
+        if row1.AttributeName == "time_coverage_end":
+          time_end = row1.Value
+        if row1.AttributeName == "geospatial_lat_min":
+          lat_min = row1.Value
+        if row1.AttributeName == "geospatial_lat_max":
+          lat_max = row1.Value
+        if row1.AttributeName == "geospatial_lon_min":
+          lng_min = row1.Value
+        if row1.AttributeName == "geospatial_lon_max":
+          lng_max = row1.Value
+        if griddap_url != "":
+          if row1.AttributeName == "actual_range" and row1.VariableName != "time" and row1.VariableName != "latitude" and row1.VariableName != "longitude":
+            param_agg = row1.Value.split(",")
+            param_min = float(param_agg[0])
+            param_max = float(param_agg[1].replace(" ",""))
+
         
-        if dimensions > 3 and griddap_url != "":
-          #siamo nel caso del parametro aggiuntivo
-          if row1["Row Type"] == "dimension" and row1["Variable Name"] != "time" and row1["Variable Name"] != "latitude" and row1["Variable Name"] != "longitude":
-            if row1["Attribute Name"] == "actual_range":
-              parametro_agg = row1["Value"]
-              param_min = float(parametro_agg.split(",")[0])
-              param_max = float(parametro_agg.split(",")[1].replace(" ",""))
+        #is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
+        is_indicator = re.search("indicator",row.Title, re.IGNORECASE)
         
-        
+        if is_indicator and adriaclim_scale is None:
+          adriaclim_scale = "large"
+
+        if adriaclim_timeperiod == "day":
+          adriaclim_timeperiod = "daily"
 
 
-      #is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
-      is_indicator =  re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)
-      
-      if is_indicator and adriaclim_scale is None:
-        adriaclim_scale = "large"
-
-      if adriaclim_timeperiod == "day":
-        adriaclim_timeperiod = "daily"
+        if adriaclim_scale is None and not is_indicator:
+          adriaclim_scale = "UNKNOWN"
 
 
-      if adriaclim_scale is None and not is_indicator:
-        adriaclim_scale = "UNKNOWN"
+        if adriaclim_model is None:
+          adriaclim_model="UNKNOWN"
 
+        if adriaclim_type is None:
+          adriaclim_type="UNKNOWN"
 
-      if adriaclim_model is None:
-        adriaclim_model="UNKNOWN"
-
-      if adriaclim_type is None:
-        adriaclim_type="UNKNOWN"
-
-      if adriaclim_dataset is None:
-        if is_indicator:
-          adriaclim_dataset = "indicator"
-        else:
+        if adriaclim_dataset is None:
           adriaclim_dataset="no"
 
-      if adriaclim_timeperiod is None:
-        if "yearly" in row["Title"].lower():
-          adriaclim_timeperiod = "yearly"
-        if "monthly" in row["Title"].lower():
-          adriaclim_timeperiod = "monthly"
-        if "seasonal" in row["Title"].lower():
-          adriaclim_timeperiod = "seasonal"
+        if adriaclim_timeperiod is None:
+          if "yearly" in row.Title.lower():
+            adriaclim_timeperiod = "yearly"
+          if "monthly" in row.Title.lower():
+            adriaclim_timeperiod = "monthly"
+          if "seasonal" in row.Title.lower():
+            adriaclim_timeperiod = "seasonal"
 
-      if adriaclim_timeperiod is None:
-        if is_indicator:
-          adriaclim_timeperiod = "yearly"
-        else:
-          adriaclim_timeperiod = "UNKNOWN"
-      
-      if time_start is not None and time_end is not None:
-          # if is_indicator:
-          #   new_ind = Indicator(dataset_id = node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
-          #         adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
-          #         adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
-          #         lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
-          #         dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
-          #         wms_url=row["wms"])
+        if adriaclim_timeperiod is None:
+          if is_indicator:
+            adriaclim_timeperiod = "yearly"
+          else:
+            adriaclim_timeperiod = "UNKNOWN"
+
+
+        if time_start is not None and time_end is not None:
+          # try:
+          #   node = Node.objects.get(id=node_id)
+          # except Node.DoesNotExist:
+          #     node = None
+            
+          # if node is not None:
+          #   if node.adriaclim_dataset != adriaclim_dataset:
+          #       node.adriaclim_dataset = adriaclim_dataset
+          #   if node.adriaclim_model != adriaclim_model:
+          #       node.adriaclim_model = adriaclim_model
+          #   if node.adriaclim_scale != adriaclim_scale:
+          #       node.adriaclim_scale = adriaclim_scale
+          #   if node.adriaclim_timeperiod != adriaclim_timeperiod:
+          #       node.adriaclim_timeperiod = adriaclim_timeperiod
+          #   if node.adriaclim_type != adriaclim_type:
+          #       node.adriaclim_type = adriaclim_type
+          #   if node.title != row.Title:
+          #       node.title = row.Title
+          #   if node.institution != institution:
+          #       node.institution = institution
+          #   if node.dimensions != dimensions:
+          #       node.dimensions = dimensions
+          #   if node.dimension_names != dimension_names:
+          #       node.dimension_names = dimension_names
+          #   if node.variables != variables:
+          #       node.variables = variables
+          #   if node.variable_names != variable_names:
+          #     node.variable_names = variable_names
+          #   if node.griddap_url != griddap_url:
+          #     node.griddap_url = griddap_url
+          #   if node.wms_url != row.wms:
+          #       node.wms_url = row.wms
+          #   if node.time_start != time_start:
+          #       node.time_start = time_start
+          #   if node.time_end != time_end:
+          #       node.time_end = time_end
+          #   if node.lat_max != lat_max:
+          #       node.lat_max = lat_max
+          #   if node.lat_min != lat_min:
+          #       node.lat_min = lat_min
+          #   if node.lng_max != lng_max:
+          #       node.lng_max = lng_max
+          #   if node.lng_min != lng_min:
+          #       node.lng_min = lng_min
+          #   if node.metadata_url != metadata_url:
+          #       node.metadata_url = metadata_url
+          #   if node.tabledap_url != tabledap_url:
+          #       node.tabledap_url = tabledap_url
+          #   if node.param_min != param_min:
+          #       node.param_min = param_min
+          #   if node.param_max != param_max:
+          #       node.param_max = param_max
+            
+          #   node.save()
+          #   #node_list.append(node)
+
           # else:
-        new_node = Node(id = node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
-                          adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
-                          adriaclim_type = adriaclim_type, title = row["Title"], metadata_url = metadata_url, institution = institution,
-                          lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
-                          dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
-                          wms_url=row["wms"], param_min = param_min, param_max = param_max)
-        # new_ind.save()
-        new_node.save()
-        node_list.append(new_node.title)
-        dataset_list.append(adriaclim_dataset)
-        scale_list.append(adriaclim_scale)
+          
+            node = Node(id=node_id, adriaclim_dataset = adriaclim_dataset, adriaclim_model = adriaclim_model,
+                                  adriaclim_scale = adriaclim_scale, adriaclim_timeperiod = adriaclim_timeperiod, 
+                                  adriaclim_type = adriaclim_type, title = row.Title, metadata_url = metadata_url, institution = institution,
+                                  lat_min = lat_min, lng_min = lng_min, lat_max = lat_max, lng_max = lng_max, time_start = time_start, time_end = time_end, tabledap_url = tabledap_url, dimensions = dimensions,
+                                  dimension_names = dimension_names, variables = variables, variable_names = variable_names, griddap_url = griddap_url,
+                                  wms_url=row.wms,param_min = param_min, param_max = param_max)
+            
+            #node.save()
+            #print("node",node.dimensions)
+            node_list.append(node)
+
+    
+
+  #[node.save() for node in node_list]  
+  try: 
+    Node.objects.bulk_create(node_list,ignore_conflicts=True)
+  except Exception as e:
+    print("Bulk_create failed",type(e).__name__)
   print("Time to finish getAllDatasets() ========= {:.2f} seconds".format(time.time()-start_time))
-  return [node_list,dataset_list,scale_list]
+  
 
   
    
@@ -753,7 +819,7 @@ def getIndicators():
   start_time = time.time()
   print("Started getIndicators()")
   url_datasets=ERDDAP_URL+"/info/index.csv?page=1&itemsPerPage=100000"
-  df=pd.read_csv(download_with_cache_as_csv(url_datasets),header=0,sep=",",names=["griddap","subset","tabledap","Make A Graph",
+  df=pd.read_table(download_with_cache_as_csv(url_datasets),header=0,sep=",",engine="c",names=["griddap","subset","tabledap","Make A Graph",
                                                            "wms","files","Title","Summary","FGDC","ISO 19115",
                                                            "Info","Background Info","RSS","Email","Institution",
                                                            "Dataset ID"],
@@ -762,11 +828,10 @@ def getIndicators():
   dataset_list = []
   scale_list = []
   print("Time to finish first read_csv getIndicators() ========= {:.2f} seconds".format(time.time()-start_time))
-  df1 = df.replace(np.nan, "", regex=True)
-  all_indicators = Indicator.objects.all()
-  all_indicators.delete()
-  for index,row in df1.iterrows():
-     if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets" and (re.search("^indicat*",row["Dataset ID"]) or re.search("indicator",row["Title"], re.IGNORECASE)):
+  df = df.fillna("")
+  Indicator.objects.all().delete()
+  for index,row in df.iterrows():
+     if row["Info"] != "Info" and row["Dataset ID"] != "allDatasets" and re.search("indicator",row["Title"], re.IGNORECASE):
       #if the dataset_id starts with indicat...For now we assume that indicators have this thing in common......
       #we found an indicator so we need to explore its metadata!
       adriaclim_scale = None
@@ -791,7 +856,7 @@ def getIndicators():
       metadata_url = row["Info"]
       tabledap_url = row["tabledap"]
       griddap_url = row["griddap"]
-      get_info = pd.read_csv(download_with_cache_as_csv(row["Info"]), header=None, sep=",",
+      get_info = pd.read_table(download_with_cache_as_csv(row["Info"]), header=None, sep=",", engine="c",
                             names=["Row Type", "Variable Name", "Attribute Name", "Data Type", "Value"]).fillna("nan")
       for index1, row1 in get_info.iterrows():
         #now we create our indicators that we put in our db 
@@ -1571,7 +1636,10 @@ def getDataAnnualPolygon(dataset_id,layer_name,time_start,time_finish,latMin,lon
   # tempo 4709 secondi circa
 
 def rompo_tutto_final_version():
-  all_datasets = Node.objects.all()
+  start_time = time.time()
+  print("Sono iniziata ora final version!!!")
+  num_of_datasets = Node.objects.count() // 16 #testiamo solo su un sedicesimo di loro....
+  all_datasets = Node.objects.all()[:num_of_datasets] 
   for dataset in all_datasets:
     url_csv = ""
     if dataset.griddap_url != "":
@@ -1593,6 +1661,27 @@ def rompo_tutto_final_version():
           else:
             url_csv += var + "%5B(" + dataset.time_start + "):1:(" + dataset.time_end + ")%5D%5B(" + dataset.lat_max + "):1:(" + dataset.lat_min + ")%5D%5B(" + dataset.lng_min + "):1:(" + dataset.lng_max + ")%5D"
       
+    
+      chunksize = 10 ** 6
+      polygons = []
+      print("url_csv=======",url_csv)
+      for chunk in pd.read_table(url_csv,sep=",",engine="c",header=0, chunksize=chunksize, low_memory=False):
+        for index, row in chunk.iterrows():
+          if index > 0:
+            #siamo nel caso di griddap!
+            params = {
+              "date_value": convertToTime(row["time"]),
+              "latitude": float(row["latitude"]),
+              "longitude": float(row["longitude"]),
+              "dataset_id": dataset,
+            }
+            for index, var in enumerate(variable_names):
+              params["value_"+str(index)] = row[var]
+            
+            pol = Polygon(params)
+            polygons.append(pol)
+    
+
       
 
     else:
@@ -1605,21 +1694,29 @@ def rompo_tutto_final_version():
           url_csv += var + "&"
       
       url_csv += "time%3E=" + dataset.time_start + "&time%3C=" + dataset.time_end + "&latitude%3E=" + dataset.lat_min + "&latitude%3C=" + dataset.lat_max + "&longitude%3E=" + dataset.lng_min + "&longitude%3C=" + dataset.lng_max
+      print("url_csv=======",url_csv)
+      chunksize = 10 ** 6
+      polygons = []
+      for chunk in pd.read_table(url_csv,sep=",",engine="c",header=0, chunksize=chunksize, low_memory=False):
+        for index, row in chunk.iterrows():
+          if index > 0:
+            #siamo nel caso di griddap!
+            params = {
+              "date_value": convertToTime(row["time"]),
+              "latitude": float(row["latitude"]),
+              "longitude": float(row["longitude"]),
+              "dataset_id": dataset,
+            }
+            for index, var in enumerate(variable_names):
+              if index == len(variable_names) - 1:
+                params["value_0"] = row[var]
+            
+            pol = Polygon(params)
+            polygons.append(pol)
 
       #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal.csv?time%2Clatitude%2Clongitude%2CIndicator&time%3E=1991-02-16&time%3C=2022-11-16&latitude%3E=44.91736&latitude%3C=45.7757&longitude%3E=11.30252&longitude%3C=13.07745
       
       #https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal
-    start_time = time.time()
-    print("Sono iniziata ora!")
-    chunksize = 10 ** 6
-    polygons = []
-    for chunk in pd.read_csv(url_csv, chunksize=chunksize, low_memory=False):
-      for index, row in chunk.iterrows():
-        if index > 0:
-          #va fatto!
-          pol = Polygon(value_0 = float(row["txx"]), dataset_id = dataset, date_value = convertToTime(row["time"]), 
-                        latitude = float(row["latitude"]), longitude = float(row["longitude"]))
-          polygons.append(pol)
 
     # Bulk insert all polygons in a single database query
     Polygon.objects.bulk_create(polygons)
@@ -1632,7 +1729,8 @@ def rompo_tutto():
   # tempo 55 secondi circa
   # AdriaClim Indicators | MedCordex_IPSL | seasonal | hist | csu ======> 161k
   # tempo 338 secondi circa
-  # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_e73d_c8fa_d12a.csv?very_wet_days_wrt_95th_percentile_of_reference_period%5B(1992-01-01):1:(2011-01-01T00:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D"
+  url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_ad60_605d_97a5.csv?txx%5B(1970-06-15T12:00:00Z):1:(2005-06-06T12:00:00Z)%5D%5B(46.888783):1:(37.288776)%5D%5B(10.24039):1:(21.663462)%5D"
+  #url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_e73d_c8fa_d12a.csv?very_wet_days_wrt_95th_percentile_of_reference_period%5B(1992-01-01):1:(2011-01-01T00:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D"
   # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_ad60_605d_97a5.csv?txx%5B(1970-06-15T12:00:00Z):1:(2005-06-06T12:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
   # AdriaClim Indicators | MedCordex_IPSL | seasonal | proj | txx =====> 201k
   # tempo 299 secondi circa
@@ -1649,20 +1747,35 @@ def rompo_tutto():
   # except Exception as e:
   #   print("Eccezione", e)
 
-  url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_2084_7a01_e870.csv?txx%5B(2006-01-01):1:(2050-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
+  # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_2084_7a01_e870.csv?txx%5B(2006-01-01):1:(2050-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
   start_time = time.time()
   print("Sono iniziata ora!")
+  # try:
+  #   n = Node.objects.get(id="MedCordex_IPSL_ad60_605d_97a5")
+  #   print("Trovato",n)
+  # except Node.DoesNotExist:
+  #   print("Nodo MedCordex_IPSL_ad60_605d_97a5 non trovato!")
+
   chunksize = 10 ** 6
   polygons = []
-  for chunk in pd.read_csv(url_r95p_yearly, chunksize=chunksize, low_memory=False):
-    for index, row in chunk.iterrows():
-      if index > 0:
-        pol = Polygon(value_0 = float(row["txx"]), dataset_id = Node.objects.get(id="MedCordex_IPSL_2084_7a01_e870"), date_value = convertToTime(row["time"]), 
-                      latitude = float(row["latitude"]), longitude = float(row["longitude"]))
-        polygons.append(pol)
+
+  for chunk in pd.read_table(url_r95p_yearly,engine="c",sep=",",header=0,chunksize=chunksize, low_memory=False):
+    try:
+      for index,row in enumerate(chunk.to_dict(orient="records")):
+          if index > 0:
+            # print("row",row)
+
+            pol = Polygon(value_0 = float(row["txx"]), dataset_id = n, date_value = convertToTime(row["time"]), 
+                            latitude = float(row["latitude"]), longitude = float(row["longitude"]))
+            #polygons.append(pol)
+            pol.save()
+            print("Pol found=====", pol)
+    except Exception as e:
+      print("Eccezione", e)
+      return str(e)
 
   # Bulk insert all polygons in a single database query
-  Polygon.objects.bulk_create(polygons)
+  #Polygon.objects.bulk_create(polygons)
   
   print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time()-start_time))
    
@@ -1702,8 +1815,9 @@ def percentile(percentile,dataset_id,layer_name,time_start,time_finish,latitude1
       result_percentile.reverse()
       allData=[all_date,result_percentile,layer_name,unit]
       return allData
-      
 
+
+   
 
 def percentile_new(n):
     def percentile_(x):

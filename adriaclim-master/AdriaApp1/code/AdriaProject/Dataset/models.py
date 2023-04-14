@@ -70,9 +70,12 @@ class Polygon(models.Model):
     # DA AGGIUNGERE CASO TABLEDAP DOVE BISOGNA PRENDERE SOLO L'ULTIMA VARIABILE
     def __init__(self, *args, **kwargs):
         super(Polygon, self).__init__(*args, **kwargs)
-        if Node.objects.get(id=self.dataset_id).variables > 1:
-            for i in range(1,Node.objects.get(id=self.dataset_id).variables):
-                setattr(self, 'value_'+str(i), models.FloatField(default=0,null=True))
+        # print("Dataset ID:", self.dataset_id)
+        node = self.dataset_id
+        if node.variables > 1 and node.griddap_url != "":
+            for i in range(1, node.variables):
+                setattr(self, 'value_'+str(i), models.FloatField(default=0, null=True))
+    
     
     # def __init__(self, value=0, date_value=''):
     #     self.value = value

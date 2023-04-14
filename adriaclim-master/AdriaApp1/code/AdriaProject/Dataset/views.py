@@ -319,6 +319,22 @@ def getAllNodes(request):
     # indJson = json.loads(indSer)
     return JsonResponse({"nodes": data})
 
+def rompiamo_tutto(request):
+    try:
+        allFunctions.rompo_tutto()
+        return "Ho aggiustato tutto!!!!"
+    except Exception as e:
+        print("Ho rotto tutto!!!!! ",e)
+        return str(e)
+    
+def rompiamo_tutto_final_version(request):
+    try:
+        allFunctions.rompo_tutto_final_version()
+        return "Ho aggiustato tutto!!!!"
+    except Exception as e:
+        print("Ho rotto tutto!!!!! Final Version",e)
+        return str(e)
+
 @api_view(['GET', 'POST'])
 def getMetadataNew(request):
     try:
