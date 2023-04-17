@@ -3199,7 +3199,7 @@ def rompo_tutto():
         # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
         # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
         # chunk["dataset_id"] = "MedCordex_IPSL_2084_7a01_e870" # seasonal 201k dati meno di 10 sec
-        chunk["dataset_id"] = "MedCordex_IPSL_c22c_bffc_1baa" # seasonal 161k dati meno di 10 sec
+        chunk["dataset_id"] = "MedCordex_IPSL_c22c_bffc_1baa" # seasonal 161k dati 22 secondi
         # chunk["dataset_id"] = "atm_regional_a4d7_6d53_fdfd"
         
         csv_data = chunk.to_csv(index=False)
