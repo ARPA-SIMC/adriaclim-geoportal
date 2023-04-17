@@ -1,5 +1,6 @@
 from unittest.util import _MAX_LENGTH
 from django.db import models
+from postgres_copy import CopyManager
 
 # Create your models here.
 class Node(models.Model):
@@ -66,6 +67,7 @@ class Polygon(models.Model):
     latitude = models.FloatField(default=0,null=True)
     longitude = models.FloatField(default=0,null=True)
     parametro_agg = models.CharField(max_length=500,default="",null=True)
+    objects = CopyManager()
     
     # DA AGGIUNGERE CASO TABLEDAP DOVE BISOGNA PRENDERE SOLO L'ULTIMA VARIABILE
     def __init__(self, *args, **kwargs):
@@ -76,8 +78,8 @@ class Polygon(models.Model):
             for i in range(1, node.variables):
                 setattr(self, 'value_'+str(i), models.FloatField(default=0, null=True))
     
-    class Meta:
-        unique_together = ("dataset_id", "date_value", "latitude", "longitude")
+    # class Meta:
+    #     unique_together = ("dataset_id", "date_value", "latitude", "longitude")
     
     
     # def __init__(self, value=0, date_value=''):
