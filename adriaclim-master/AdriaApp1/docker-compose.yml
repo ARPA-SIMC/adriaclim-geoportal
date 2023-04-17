@@ -19,7 +19,7 @@ services:
       - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       - db
-      - memcached
+      - redis
   nginx:
     build: ./nginx
     container_name: adriapp_nginx
@@ -36,14 +36,20 @@ services:
   #     - "4200:4200"
   #   depends_on:
   #     - django
-  memcached:
-   image: memcached
-   container_name: adriapp_memcached
+
+  redis:
+   image: redis:alpine
+   container_name: adriapp_redis
    ports:
-     - "11211:11211"
-   entrypoint:
-    - memcached
-    - -m 64
+     - "6379:6379"
+  # memcached:
+  #  image: memcached
+  #  container_name: adriapp_memcached
+  #  ports:
+  #    - "11211:11211"
+  #  entrypoint:
+  #   - memcached
+  #   - -m 64
   db:
     image: postgres:13
     container_name: adriapp_postgres

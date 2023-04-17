@@ -327,15 +327,15 @@ months = {
 
 def download_with_cache(u):
     cache_key = u  # needs to be unique
-    cache_time = 43200  # time in seconds for cache to be valid (now it is 12 hours)
-    output_value = cache.get(cache_key)  # returns None if no key-value pair
+    cache_time = None  # time in seconds for cache to be valid (now it is infinite)
+    output_value = cache.get(key=cache_key)  # returns None if no key-value pair
     # print("output_value: ",output_value)
     if output_value == None:
         # if is none we save it in the cache and returns it
         output_value = urllib.request.urlopen(cache_key).read()
         if output_value:
             output_value = output_value.decode("utf-8")
-            cache.set(cache_key, output_value, cache_time)
+            cache.set(key=cache_key, value=output_value,timeout=cache_time)
             return output_value
     else:
         return output_value
@@ -3474,7 +3474,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
             agg_func = ops[statistic]
         # AGG IS USED TO APPLY AN AGGREGATE FUNCTION AND YOU NEED TO PASS IT THE NAME OF THE FUNCTION (min,avg,max etc)!!!
 
-        res_values = df_polygon.groupby(groupby_col)["value"].agg(
+        res_values = df_polygon.groupby(groupby_col)["value_0"].agg(
             agg_func
         )  # AGG IS USED TO APPLY AN AGGREGATE FUNCTION
         print("res_values", res_values)
@@ -3596,7 +3596,7 @@ def getDataPolygonNew(
                 data_table["latitude"] = pol.latitude
                 data_table["longitude"] = pol.longitude
                 data_table[layer_name] = (
-                    pol.value if not pd.isna(pol.value) else "Value not defined"
+                    pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
                 )
                 if parametro_agg != "None":
                     # print("Entro qui yeahhhhhh!!")
@@ -3617,16 +3617,16 @@ def getDataPolygonNew(
             )
             print("Test 2==========", df_polygon_model.head())
             df_polygon_model = df_polygon_model.drop_duplicates(
-                subset=["date_value", "latitude", "longitude", "value"], keep="first"
+                subset=["date_value", "latitude", "longitude", "value_0"], keep="first"
             )
             df_polygon_model = df_polygon_model.dropna(how="any", axis=0)
             df_polygon_model["date_value"] = pd.to_datetime(
                 df_polygon_model["date_value"]
             )
-            df_polygon_model["value"]
-            mean = df_polygon_model["value"].mean()
-            median = df_polygon_model["value"].median()
-            std_dev = df_polygon_model["value"].std()
+            # df_polygon_model["value_0"]
+            mean = df_polygon_model["value_0"].mean()
+            median = df_polygon_model["value_0"].median()
+            std_dev = df_polygon_model["value_0"].std()
             allData["dataPol"] = operation_before_after_cache(
                 df_polygon_model, statistic, time_op
             )
@@ -3705,7 +3705,7 @@ def getDataPolygonNew(
         # Visualizza le coordinate dei punti all'interno del poligono
         # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
         print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
-        df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value"])
+        df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
 
         i = 0
         dataTable = []
@@ -3786,6 +3786,18 @@ def getDataPolygonNew(
                                 "(" + row["latitude"] + "," + row["longitude"] + ")",
                                 row[layer_name],
                             ]
+                            defaults = {
+                                "value_0": float(row[layer_name]),
+                                "pol_vertices_str": pol_vertices_str,
+                                "parametro_agg": row[parametro_agg],
+                            }
+                            Polygon.objects.update_or_create(
+                                            dataset_id=Node.objects.get(id=dataset_id),
+                                            date_value=convertToTime(row["time"]),
+                                            latitude=float(row["latitude"]),
+                                            longitude=float(row["longitude"]),
+                                            defaults=defaults,
+                                                             )
                             # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
                             #               latitude = float(row["latitude"]), longitude = float(row["longitude"]), parametro_agg = row[parametro_agg])
                             # pol.save()
@@ -3825,9 +3837,20 @@ def getDataPolygonNew(
                                 "(" + row["latitude"] + "," + row["longitude"] + ")",
                                 row[layer_name],
                             ]
-                            # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
-                            #               latitude = float(row["latitude"]), longitude = float(row["longitude"]))
-                            # pol.save()
+                           # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
+                             #             latitude = float(row["latitude"]), longitude = float(row["longitude"]))
+                            #pol.save()
+                            defaults = {
+                                "value_0": float(row[layer_name]),
+                                "pol_vertices_str": pol_vertices_str,
+                            }
+                            Polygon.objects.update_or_create(
+                                            dataset_id=Node.objects.get(id=dataset_id),
+                                            date_value=convertToTime(row["time"]),
+                                            latitude=float(row["latitude"]),
+                                            longitude=float(row["longitude"]),
+                                            defaults=defaults,
+                                                             )
                             # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
                             i += 1
                             # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
@@ -3838,17 +3861,17 @@ def getDataPolygonNew(
 
         try:
             df_polygon = df_polygon.drop_duplicates(
-                subset=["date_value", "lat_lng", "value"], keep="first"
+                subset=["date_value", "lat_lng", "value_0"], keep="first"
             )
             df_polygon = df_polygon.dropna(how="any", axis=0)
             allData = {}
             # allData["dataBeforeOp"] = df_polygon.to_dict()
-            df_polygon["value"] = pd.to_numeric(df_polygon["value"])
+            df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
             # a seconda del valore di operation e di time_op viene fatta l'operazione7
             df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
-            mean = df_polygon["value"].mean()
-            median = df_polygon["value"].median()
-            std_dev = df_polygon["value"].std()
+            mean = df_polygon["value_0"].mean()
+            median = df_polygon["value_0"].median()
+            std_dev = df_polygon["value_0"].std()
             data_table_list = []
             for i in range(len(dataTable)):
                 data_table = {}

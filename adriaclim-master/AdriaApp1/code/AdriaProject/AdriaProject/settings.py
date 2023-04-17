@@ -36,10 +36,19 @@ ALLOWED_HOSTS = ['*']
 
 
 #cache, we use memcached as our default backend cache
+# CACHES = {
+#     'default':{
+#     'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#     'LOCATION': 'memcached:11211'
+#     }
+# }
 CACHES = {
-    'default':{
-    'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-    'LOCATION': 'memcached:11211'
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/0',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
 
