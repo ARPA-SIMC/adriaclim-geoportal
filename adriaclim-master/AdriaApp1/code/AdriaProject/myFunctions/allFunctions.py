@@ -4,7 +4,7 @@ from math import isnan
 from termios import VLNEXT
 from statistics import mean, median, stdev
 from django.db import models, transaction
-from Dataset.models import Node, Indicator, Polygon  # ,Cache
+from Dataset.models import Node, Indicator, Polygon,HookedCopyMapping  # ,Cache
 import pandas as pd
 import csv
 import urllib
@@ -804,11 +804,27 @@ async def delete_all(param, **kwargs):
         objects = await asyncio.gather(*[asyncio.to_thread(Node.objects.all)])
         await asyncio.gather(*[asyncio.to_thread(obj.delete) for obj in objects])
     elif param == "Polygon":
-        print("test",kwargs["id"])
-        polygons = await asyncio.to_thread(Polygon.objects.filter(dataset_id__title=kwargs["id"].title))
-        print("test3",polygons)
-        await asyncio.gather(*[asyncio.to_thread(obj.delete) for obj in polygons])
+        # polygon_object = await asyncio.gather(*[asyncio.to_thread(Polygon.objects.all)])
+        # print("arrivo qui test")
+        # mioOggetto = await asyncio.to_thread(Polygon.objects.all)
+        # print("mioOggetto", mioOggetto)
+        # print("test",kwargs["id"].title)
+        # test_print = await asyncio.gather(*[asyncio.to_thread(type(Polygon.objects))])
+        # print("test_print",test_print)
+        all_polygons = await asyncio.gather(*[asyncio.to_thread(Polygon.objects.all)])
+        # await asyncio.gather(*[asyncio.to_thread(pol.delete) for pol in all_polygons if pol.dataset_id == kwargs["id"]])
+        # print("Test_print polygons",test_print)
+        # polygons = await asyncio.to_thread(Polygon.objects.filter(dataset_id__title=kwargs["id"].title).all())
+        # print("test3",polygons)
+        # await asyncio.gather(*[asyncio.to_thread(obj.delete) for obj in polygons])
 
+def deletePoly(param, **kwargs):
+    # print("PARAM =", par)
+    if param == "Node":
+        Node.objects.all().delete()
+    elif param == "Polygon":
+        obj = Polygon.objects.filter(dataset_id=kwargs["id"])
+        obj.delete()
 
 def getAllDatasets():
     start_time = time.time()
@@ -3133,6 +3149,132 @@ def rompo_tutto_final_version():
         Polygon.objects.bulk_create(polygons)
         print("TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time() - start_time))
 
+def generic_rompo_tutto(url_dataset,dataset,num_variables,is_tabledap):
+    if is_tabledap:
+        dtypes = {'date_value': 'string', 'latitude': 'float32', 'longitude': 'float32', 'value_0': 'float32'}
+        chunksize = 10**6
+        for chunk in pd.read_table(
+            url_dataset,
+            engine="c",
+            sep=",",
+            header=0,
+            chunksize=chunksize,
+            low_memory=False,
+            names=["date_value", "latitude", "longitude", "value_0"]
+        ):
+
+            chunk.drop(index=chunk.index[0], axis=0, inplace=True)
+            chunk = chunk.astype(dtypes)
+            # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
+            # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
+            # chunk["dataset_id"] = "MedCordex_IPSL_2084_7a01_e870" # seasonal 201k dati meno di 10 sec
+            chunk["dataset_id"] = dataset.id # seasonal 161k dati 22 secondi
+            # chunk["dataset_id"] = "atm_regional_a4d7_6d53_fdfd"
+            
+            csv_data = chunk.to_csv(index=False)
+            csv_file = io.StringIO(csv_data)
+            
+
+            try:
+                #print("Test======",chunk.head())
+                # if(Polygon.objects.filter(dataset_id="MedCordex_IPSL_c22c_bffc_1baa", date_value = date_value, latitude = chunk["latitude"], longitude = chunk["longitude"])):
+                
+            # Polygon.objects.filter(dataset_id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")).delete()
+                Polygon.copy_manager.from_csv(
+                    csv_file,
+                    dict(
+                        dataset_id_id="dataset_id",
+                        date_value="date_value",
+                        latitude="latitude",
+                        longitude="longitude",
+                        value_0="value_0",
+                    ),
+                    # static_mapping = {
+                    #     'value_0': "value_0",
+                    # },
+                    # drop_constraints=False,
+                    # drop_indexes=False,
+                    # static_mapping={
+                    #     "dataset_id": "MedCordex_IPSL_ad60_605d_97a5",
+                    # },
+                )
+                
+
+            except Exception as e:
+                print("Eccezione", e)
+                return str(e)
+    else:
+        dtypes = {'date_value': 'string', 'latitude': 'float32', 'longitude': 'float32'}
+        names = ['date_value', 'latitude', 'longitude']
+        
+        if dataset.dimensions > 3:
+            for name in dataset.dimension_names:
+                if name != "time" and name != "latitude" and name != "longitude":
+                    dtypes[name] = 'float32'
+                    names.append(name)
+        
+        for i in range(0,num_variables):
+            dtypes["value_" + str(i)] = 'float32'
+            names.append("value_" + str(i))
+        
+        
+
+        chunksize = 10**6
+        for chunk in pd.read_table(
+            url_dataset,
+            engine="c",
+            sep=",",
+            header=0,
+            chunksize=chunksize,
+            low_memory=False,
+            names=names
+        ):
+
+            chunk.drop(index=chunk.index[0], axis=0, inplace=True)
+            chunk = chunk.astype(dtypes)
+            # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
+            # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
+            # chunk["dataset_id"] = "MedCordex_IPSL_2084_7a01_e870" # seasonal 201k dati meno di 10 sec
+            chunk["dataset_id"] = dataset.id # seasonal 161k dati 22 secondi
+            # chunk["dataset_id"] = "atm_regional_a4d7_6d53_fdfd"
+            
+            csv_data = chunk.to_csv(index=False)
+            csv_file = io.StringIO(csv_data)
+            with open(csv_file) as f:
+                reader = csv.DictReader(f)
+                fieldnames = reader.fieldnames
+            
+            mapping = {
+                name: name.lower()
+                for name in fieldnames
+            }
+            
+
+            
+
+            try:
+                #print("Test======",chunk.head())
+                # if(Polygon.objects.filter(dataset_id="MedCordex_IPSL_c22c_bffc_1baa", date_value = date_value, latitude = chunk["latitude"], longitude = chunk["longitude"])):
+                
+            # Polygon.objects.filter(dataset_id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")).delete()
+                Polygon.copy_manager.from_csv(
+                    csv_file,
+                    mapping,
+                    # static_mapping = {
+                    #     'value_0': "value_0",
+                    # },
+                    # drop_constraints=False,
+                    # drop_indexes=False,
+                    # static_mapping={
+                    #     "dataset_id": "MedCordex_IPSL_ad60_605d_97a5",
+                    # },
+                )
+                
+
+            except Exception as e:
+                print("Eccezione", e)
+                return str(e)
+
 
 def rompo_tutto():
     # AdriaClim Indicators | MedCordex_IPSL | yearly | hist | txx
@@ -3142,10 +3284,10 @@ def rompo_tutto():
     # AdriaClim Indicators | MedCordex_IPSL | seasonal | hist | csu ======> 161k
     # tempo 338 secondi circa
     # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_ad60_605d_97a5.csv?txx%5B(1970-06-15T12:00:00Z):1:(2005-06-06T12:00:00Z)%5D%5B(46.888783):1:(37.288776)%5D%5B(10.24039):1:(21.663462)%5D"
-    url_micidiale = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_c22c_bffc_1baa.csv?consecutive_summer_days_index_per_time_period%5B(1970-01-01):1:(2005-10-01T00:00:00Z)%5D%5B(46.888783):1:(37.288776)%5D%5B(10.240385):1:(21.663462)%5D"
+    # url_micidiale = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_c22c_bffc_1baa.csv?consecutive_summer_days_index_per_time_period%5B(1970-01-01):1:(2005-10-01T00:00:00Z)%5D%5B(46.888783):1:(37.288776)%5D%5B(10.240385):1:(21.663462)%5D"
     # url_r95p_monthly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_c3bc_3ecd_2f3c.csv?very_wet_days_wrt_95th_percentile_of_reference_period%5B(1992-01-01):1:(2011-12-01T00:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D"
     # url_r95p_seasonal = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_2084_7a01_e870.csv?txx%5B(2006-01-01):1:(2050-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
-    #url_r95p_seasonal = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_c22c_bffc_1baa.csv?consecutive_summer_days_index_per_time_period%5B(1970-01-01):1:(2005-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,number_of_csu_periods_with_more_than_5days_per_time_period%5B(1970-01-01):1:(2005-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
+    url_r95p_seasonal = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_c22c_bffc_1baa.csv?consecutive_summer_days_index_per_time_period%5B(1970-01-01):1:(2005-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,number_of_csu_periods_with_more_than_5days_per_time_period%5B(1970-01-01):1:(2005-10-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
     #url_r95_monthly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_4d78_6f74_63bc.csv?wind10m%5B(1969-12-30):1:(2005-11-20T00:00:00Z)%5D%5B(90):1:(-90)%5D%5B(-171.2326):1:(180.45724)%5D"
     # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_e73d_c8fa_d12a.csv?very_wet_days_wrt_95th_percentile_of_reference_period%5B(1992-01-01):1:(2011-01-01T00:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D"
     # url_r95p_yearly = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_ad60_605d_97a5.csv?txx%5B(1970-06-15T12:00:00Z):1:(2005-06-06T12:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D"
@@ -3153,6 +3295,21 @@ def rompo_tutto():
     # tempo 299 secondi circa
     # try:
     #10293...
+    # arrayVariabili = []
+    # dataInizio = "1970-01-01"
+    # dataFine = "2005-10-01T00:00:00Z"
+    # latMax = "46.88878"
+    # latMin = "37.28878"
+    # lngMin = "10.24039"
+    # lngMax = "21.66346"
+    # url_final = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_c22c_bffc_1baa.csv?"
+    # for index, v in enumerate(arrayVariabili):
+    #     if index == len(arrayVariabili) - 1:
+    #         url_final += v + "%5B(" + dataInizio + "):1:(" + dataFine + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
+    #     else:
+    #         url_final += v + "%5B(" + dataInizio + "):1:(" + dataFine + ")%5D%5B(" + latMax + "):1:(" + latMin + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D,"
+            
+        
 
     #   polygons = Polygon.objects.filter(dataset_id ="MedCordex_IPSL_ad60_605d_97a5")
     #   print("Polygons =====", polygons)
@@ -3182,120 +3339,155 @@ def rompo_tutto():
 
     chunksize = 10**6
     polygons = []
-    #asyncio.run(delete_all("Polygon",id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa"))) #to delete all polygons in the database
-    dtypes = {'date_value': 'string', 'latitude': 'float32', 'longitude': 'float32', 'value_0': 'float32'}
+    dataset = Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")
+    # asyncio.run(delete_all("Polygon",id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa"))) #to delete all polygons in the database
+    deletePoly("Polygon",id=dataset)
+    dtypes = {'date_value': 'string', 'latitude': 'float32', 'longitude': 'float32'}
+    names = ['date_value', 'latitude', 'longitude']
+    
+    if dataset.dimensions > 3:
+        for name in dataset.dimension_names:
+            if name != "time" and name != "latitude" and name != "longitude":
+                dtypes[name] = 'float32'
+                names.append(name)
+    
+    for i in range(0,dataset.variables):
+        dtypes["value_" + str(i)] = 'float32'
+        names.append("value_" + str(i))
+    
+    print("names prima",names)
+    dict_keys = names.copy()
+    dict_keys.append("dataset_id")
+    print("Names dopo",names)
+
+    chunksize = 10**6
     for chunk in pd.read_table(
-        url_micidiale,
+        url_r95p_seasonal,
         engine="c",
         sep=",",
         header=0,
         chunksize=chunksize,
         low_memory=False,
-        names=["date_value", "latitude", "longitude", "value_0"]
+        names=names
     ):
 
         chunk.drop(index=chunk.index[0], axis=0, inplace=True)
         chunk = chunk.astype(dtypes)
+        # print("chunk",chunk.head())
         # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
         # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
         # chunk["dataset_id"] = "MedCordex_IPSL_2084_7a01_e870" # seasonal 201k dati meno di 10 sec
-        chunk["dataset_id"] = "MedCordex_IPSL_c22c_bffc_1baa" # seasonal 161k dati 22 secondi
+        chunk["dataset_id"] = dataset.id # seasonal 161k dati 22 secondi
         # chunk["dataset_id"] = "atm_regional_a4d7_6d53_fdfd"
         
+
         csv_data = chunk.to_csv(index=False)
         csv_file = io.StringIO(csv_data)
+        
+        mapping = {
+            name: name.lower()
+            for name in dict_keys
+        }
+        
+
         
 
         try:
             #print("Test======",chunk.head())
             # if(Polygon.objects.filter(dataset_id="MedCordex_IPSL_c22c_bffc_1baa", date_value = date_value, latitude = chunk["latitude"], longitude = chunk["longitude"])):
-            #Polygon.objects = CopyManager()
-           # Polygon.objects.filter(dataset_id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")).delete()
-            Polygon.objects.from_csv(
+            
+        # Polygon.objects.filter(dataset_id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")).delete()
+            c = HookedCopyMapping(
+                Polygon,
                 csv_file,
-                dict(
-                    dataset_id_id="dataset_id",
-                    date_value="date_value",
-                    latitude="latitude",
-                    longitude="longitude",
-                    value_0="value_0",
-                ),
-                # static_mapping = {
-                #     'value_0': "value_0",
-                # },
-                # drop_constraints=False,
-                # drop_indexes=False,
-                # static_mapping={
-                #     "dataset_id": "MedCordex_IPSL_ad60_605d_97a5",
-                # },
-            
-                # columns=list(chunk.columns),
-                #values=chunk.values.tolist(),
+                mapping,
+                dataset,
             )
+            # Call the pre_copy method before copying data from the CSV file
+            # c.pre_copy()
+
+            # # Call the post_copy method after copying data from the CSV file
+            # c.post_copy()
+
+            # # Call the pre_insert method before inserting data into the database table
+            # c.pre_insert()
+
+            # # Insert data into the database table
+            # #c.save()
+
+            # # Call the post_insert method after inserting data into the database table
+            # c.post_insert()
+            # c.pre_insert()
+            # c.execute()
+            c.save()
+            # Polygon.copy_manager.from_csv(
+            #     csv_file,
+            #     mapping,
+            #     # static_mapping = {
+            #     #     'value_0': "value_0",
+            #     # },
+            #     # drop_constraints=False,
+            #     # drop_indexes=False,
+            #     # static_mapping={
+            #     #     "dataset_id": "MedCordex_IPSL_ad60_605d_97a5",
+            #     # },
+            # )
             
-                #print("row", row)
-                # if (Polygon.objects.filter(
-                #         dataset_id=n,
-                #         date_value=convertToTime(row["time"]),
-                #         latitude=float(row["latitude"]),
-                #         longitude=float(row["longitude"]),
-                #         value_0=float(row["txx"]),
-                #     ).count() == 0
-                #):
-                
-                # defaults = {
-                #     "value_0": float(row["txx"]),
-                #     # "dataset_id": n,
-                #     # "date_value": convertToTime(row["time"]),
-                #     # "latitude": float(row["latitude"]),
-                #     # "longitude": float(row["longitude"]),
-                # }
-                
-                # Polygon.objects.update_or_create(
-                #     dataset_id=n,
-                #     date_value=convertToTime(row["time"]),
-                #     latitude=float(row["latitude"]),
-                #     longitude=float(row["longitude"]),
-                #     defaults=defaults
-                # )
-                # if(Polygon.objects.filter(
-                #     dataset_id = n,
-                #     date_value = convertToTime(row["time"]),
-                #     latitude = float(row["latitude"]),
-                #     longitude = float(row["longitude"]),
-                #     value_0 = float(row["txx"]),
-                # )):
-
-                #     print("DENTRO IL FILTRO PER UPDATE")
-                #     # defaults = {
-                #     #     "value_0": float(row["txx"]),
-                #     #     "dataset_id": n,
-                #     #     "date_value": convertToTime(row["time"]),
-                #     #     "latitude": float(row["latitude"]),
-                #     #     "longitude": float(row["longitude"]),
-                #     # }
-                #     # polygons.append(pol)
-                #     Polygon.objects.update(
-                #         value_0 = float(row["txx"]),
-                #         dataset_id_id = n,
-                #         date_value = convertToTime(row["time"]),
-                #         latitude = float(row["latitude"]),
-                #         longitude = float(row["longitude"]),
-                #     )
-
-                # else:
-                #     # print("DENTRO IL CREATE")
-                #     Polygon.objects.create(
-                #         value_0 = float(row["txx"]),
-                #         dataset_id_id = n,
-                #         date_value = convertToTime(row["time"]),
-                #         latitude = float(row["latitude"]),
-                #         longitude = float(row["longitude"]),
-                #     )
 
         except Exception as e:
             print("Eccezione", e)
             return str(e)
+    # dtypes = {'date_value': 'string', 'latitude': 'float32', 'longitude': 'float32', 'value_0': 'float32'}
+    # for chunk in pd.read_table(
+    #     url_micidiale,
+    #     engine="c",
+    #     sep=",",
+    #     header=0,
+    #     chunksize=chunksize,
+    #     low_memory=False,
+    #     names=["date_value", "latitude", "longitude", "value_0"]
+    # ):
+
+    #     chunk.drop(index=chunk.index[0], axis=0, inplace=True)
+    #     chunk = chunk.astype(dtypes)
+    #     # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
+    #     # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
+    #     # chunk["dataset_id"] = "MedCordex_IPSL_2084_7a01_e870" # seasonal 201k dati meno di 10 sec
+    #     chunk["dataset_id"] = "MedCordex_IPSL_c22c_bffc_1baa" # seasonal 161k dati 22 secondi
+    #     # chunk["dataset_id"] = "atm_regional_a4d7_6d53_fdfd"
+        
+    #     csv_data = chunk.to_csv(index=False)
+    #     csv_file = io.StringIO(csv_data)
+        
+
+    #     try:
+    #         #print("Test======",chunk.head())
+    #         # if(Polygon.objects.filter(dataset_id="MedCordex_IPSL_c22c_bffc_1baa", date_value = date_value, latitude = chunk["latitude"], longitude = chunk["longitude"])):
+            
+    #        # Polygon.objects.filter(dataset_id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")).delete()
+    #         Polygon.copy_manager.from_csv(
+    #             csv_file,
+    #             dict(
+    #                 dataset_id_id="dataset_id",
+    #                 date_value="date_value",
+    #                 latitude="latitude",
+    #                 longitude="longitude",
+    #                 value_0="value_0",
+    #             ),
+    #             # static_mapping = {
+    #             #     'value_0': "value_0",
+    #             # },
+    #             # drop_constraints=False,
+    #             # drop_indexes=False,
+    #             # static_mapping={
+    #             #     "dataset_id": "MedCordex_IPSL_ad60_605d_97a5",
+    #             # },
+    #         )
+            
+
+    #     except Exception as e:
+    #         print("Eccezione", e)
+    #         return str(e)
     
 
     # Bulk insert all polygons in a single database query
