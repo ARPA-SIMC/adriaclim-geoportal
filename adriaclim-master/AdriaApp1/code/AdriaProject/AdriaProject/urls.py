@@ -33,7 +33,7 @@ urlpatterns = [
     path('admin/adminPage', admin.site.urls),
     path('',data_views.index,name="homepage"),
     path('myFunctions/rottoTutto',data_views.rompiamo_tutto),
-    path('myFunctions/rottoTuttoFinal',data_views.rompiamo_tutto_final_version),
+    path('myFunctions/downloadBigData',data_views.download_big_data),
     path('getDataExport/<str:dataset_id>/<str:selectedType>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
     '<str:longitude>',data_views.getDataExport),
     path('getDataVectorial/<str:dataset_id>/<str:layer_name>/<str:date_start>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param>/<int:range_value>/<str:is_indicator>',data_views.getDataVectorial),

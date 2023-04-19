@@ -327,9 +327,9 @@ def rompiamo_tutto(request):
         print("Ho rotto tutto!!!!! ",e)
         return str(e)
     
-def rompiamo_tutto_final_version(request):
+def download_big_data(request):
     try:
-        allFunctions.rompo_tutto_final_version()
+        allFunctions.download_big_data()
         return "Ho aggiustato tutto!!!!"
     except Exception as e:
         print("Ho rotto tutto!!!!! Final Version",e)

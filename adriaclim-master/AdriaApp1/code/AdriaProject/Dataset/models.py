@@ -1,7 +1,7 @@
 import json
 from unittest.util import _MAX_LENGTH
 from django.db import models
-from postgres_copy import CopyManager,CopyMapping
+from postgres_copy import CopyManager
 
 # Create your models here.
 class Node(models.Model):
@@ -92,8 +92,8 @@ class Indicator(models.Model):
 # def dynamic_fieldname_model_factory(fields_prefix,variables,griddap_url):
 #     class AbstractModel(models.Model):
 
-#         class Meta:
-#             abstract = True
+        # class Meta:
+        #     abstract = True
 
 #     # if self.dataset_id.variables > 1 and self.dataset_id.griddap_url !=  "":
 #     if variables > 1 and griddap_url !=  "":
@@ -108,7 +108,32 @@ class Polygon(models.Model):
     pol_vertices_str = models.CharField(max_length=500,default="",null=True) 
     # id = models.CharField(primary_key=True,max_length=600,default="")
     id = models.AutoField(primary_key=True)
-    value_0 = models.FloatField(default=0,null=True)
+    value_0 = models.FloatField(default=None,null=True)
+    value_1 = models.FloatField(default=None,null=True)
+    value_2 = models.FloatField(default=None,null=True)
+    value_3 = models.FloatField(default=None,null=True)
+    value_4 = models.FloatField(default=None,null=True)
+    value_5 = models.FloatField(default=None,null=True)
+    value_6 = models.FloatField(default=None,null=True)
+    value_7 = models.FloatField(default=None,null=True)
+    value_8 = models.FloatField(default=None,null=True)
+    value_9 = models.FloatField(default=None,null=True)
+    value_10 = models.FloatField(default=None,null=True)
+    value_11 = models.FloatField(default=None,null=True)
+    value_12 = models.FloatField(default=None,null=True)
+    value_13 = models.FloatField(default=None,null=True)
+    value_14 = models.FloatField(default=None,null=True)
+    value_15 = models.FloatField(default=None,null=True)
+    value_16 = models.FloatField(default=None,null=True)
+    value_17 = models.FloatField(default=None,null=True)
+    value_18 = models.FloatField(default=None,null=True)
+    value_19 = models.FloatField(default=None,null=True)
+    value_20 = models.FloatField(default=None,null=True)
+    value_21 = models.FloatField(default=None,null=True)
+    value_22 = models.FloatField(default=None,null=True)
+    value_23 = models.FloatField(default=None,null=True)
+    value_24 = models.FloatField(default=None,null=True)
+    value_25 = models.FloatField(default=None,null=True)
     dataset_id = models.ForeignKey(Node,on_delete=models.CASCADE)
     date_value = models.CharField(max_length=500,default="",null=True)
     latitude = models.FloatField(default=0,null=True)
@@ -117,92 +142,34 @@ class Polygon(models.Model):
     objects = models.Manager()
     copy_manager = CopyManager()
     #     # DA AGGIUNGERE CASO TABLEDAP DOVE BISOGNA PRENDERE SOLO L'ULTIMA VARIABILE
-    def add_attribute(self,value):
-        setattr(self, value, models.FloatField(default=0, null=True))
+    # def add_attribute(self, attribute):
+    #     print("Ci entrooooooooooooo")
+    #     print("attribute",attribute)
+    #     print("value type",type(attribute))
+    #     # self.__setattr__(str(attribute), models.FloatField(default=0, null=True))
+    #     # self.__setattr__(str(attribute), value)
+    #     field = models.FloatField(default=0, null=True)
+    #     self.add_to_class(str(attribute), field)
 
-    def __init__(self, *args, **kwargs):
-        super(Polygon, self).__init__(*args, **kwargs)
-        # print("Dataset ID:", self.dataset_id)
-        node = self.dataset_id
-        print("Sono in polygon",node.variables)
-        if node.variables > 1 and node.griddap_url != "":
-            print("Sono nel caso di più di una variabile",node.variables)
-            print("node type",type(node))
-            print("self type",type(self))
+    # def add_field_to_person_model():
+    #     model_class = apps.get_model('myapp', 'Person')
+    #     field = models.IntegerField()
+    #     model_class.add_to_class('age', field)
+        # setattr(self, str(value), models.FloatField(default=0, null=True))
 
-            for i in range(1, node.variables):
-                setattr(self, 'value_'+str(i), models.FloatField(default=0, null=True))
+    # def __init__(self, *args, **kwargs):
+    #     super(Polygon, self).__init__(*args, **kwargs)
+    #     # print("Dataset ID:", self.dataset_id)
+    #     node = self.dataset_id
+    #     print("Sono in polygon",node.variables)
+    #     if node.variables > 1 and node.griddap_url != "":
+    #         print("Sono nel caso di più di una variabile",node.variables)
+    #         print("node type",type(node))
+    #         print("self type",type(self))
 
+    #         for i in range(1, node.variables):
+    #             setattr(self, 'value_'+str(i), models.FloatField(default=0, null=True))
 
-class HookedCopyMapping(CopyMapping):
-
-    # def execute(self, using=None, keep_null=False, ignore_conflicts=False, rows=None):
-    #     self.pre_copy(self.cursor)
-    #     self.copy(using=using, keep_null=keep_null, ignore_conflicts=ignore_conflicts)
-    #     self.post_copy(self.cursor)
-    #     self.pre_insert(self.cursor, rows=rows)  # Pass the rows argument
-    #     self.insert()
-    #     self.post_insert(self.cursor)
-    def __init__(self,*args,**kwargs):
-        print("entro quiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
-        print("args",args)
-        # poly_to_check = args[0]
-        print("args[0] type",type(args[0]))
-        args[0] = Polygon(dataset_id=args[3])
-        # for key in args[2]:
-        #     if "value_" in key and key != "value_0":
-        #         print("key",key)
-        #         poly_to_check.__init__(poly_to_check)
-                
-        
-        print("poly_to_check test",args[0])
-        # print("args 0",dir(args[0].date_value.field))
-        # print("args 2",args[2])
-        # print("self", dir(self))
-        # dict_pol = self.__dict__
-        # print("dict_pol",dict_pol)
-        super(HookedCopyMapping,self).__init__(*args, **kwargs)
-        
-    def pre_copy(self):
-        print("pre_copy!")
-        # Doing whatever you'd like here
-
-    def post_copy(self):
-        print("post_copy!")
-        # And here
-
-    def pre_insert(self):
-        # print("cursor",cursor)
-        print("self",self)
-        dict_pol = self.__dict__
-        model_pol = dict_pol["model"]
-        # model_pol.__init__(pol_vertices_str=model_pol.pol_vertices_str,
-        #                    id=model_pol.id,
-        #                    dataset_id=model_pol.dataset_id,
-        #                    date_value=model_pol.date_value,
-        #                    latitude=model_pol.latitude,
-        #                    longitude=model_pol.longitude,
-        #                    parametro_agg=model_pol.parametro_agg,
-        #                    value_0=model_pol.value_0
-        #                    )
-        
-        # print("polygon_instance",polygon_instance)
-        # Call the __init__ method of Polygon model with required arguments
-        # print("self_parame",self.field_map)
-        # polygon_instance.__init__(pol_vertices_str=self.field_map['pol_vertices_str'],
-        #                           id=self.field_map['id'],
-        #                           value_0=self.field_map['value_0'],
-        #                           dataset_id=self.field_map['dataset_id'],
-        #                           date_value=self.field_map['date_value'],
-        #                           latitude=self.field_map['latitude'],
-        #                           longitude=self.field_map['longitude'],
-        #                           parametro_agg=self.field_map['parametro_agg'])
-        print("self.polygon",self.__init__)
-        print("pre_insert!")
-        # And here
-
-    def post_insert(self):
-        print("post_insert!")
         # And finally here
     # class Meta:
     #     unique_together = ("dataset_id", "date_value", "latitude", "longitude")
