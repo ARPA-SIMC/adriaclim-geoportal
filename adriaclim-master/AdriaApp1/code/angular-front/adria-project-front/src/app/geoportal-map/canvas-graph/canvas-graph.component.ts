@@ -414,7 +414,7 @@ optionBoxPlot: any = {
         datasetIndex: 1,
         tooltip: {
           formatter: function(param:any) {
-            console.log("param:",param);
+            // console.log("param:",param);
               return [
                   "Experiment " + param.name + ": ",
                   "upper: " + param.data[5],
@@ -489,7 +489,7 @@ optionBoxPlot: any = {
 
   constructor(private httpClient: HttpClient) {
 
-    
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -498,7 +498,7 @@ optionBoxPlot: any = {
     if (this.polygon) {
       //se c'è il poligono chiamare altra funzione
         this.spinnerLoadingChild.emit(true);
-  
+
         this.getDataGraphPolygon();
 
     } else {
@@ -507,10 +507,10 @@ optionBoxPlot: any = {
 
       this.getDataGraph();
     }
-    
-    console.log("ECHARTS =", echarts);
 
-    
+    // console.log("ECHARTS =", echarts);
+
+
 
   }
 
@@ -547,7 +547,7 @@ optionBoxPlot: any = {
     this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
     // this.myChart.on('datazoom', (evt: any) => {
     //   console.log("DATAZOOM =", evt);
-      
+
     //   var axis = this.myChart.getModel().option.xAxis[0];
     //   var starttime = axis.data[axis.rangeStart];
     //   var endtime = axis.data[axis.rangeEnd];
@@ -556,9 +556,9 @@ optionBoxPlot: any = {
 
     this.myChart.on('dataZoom', () => {
       var option = this.myChart.getOption();
-      console.log("OPTIONSSSSSS =", option);
-      
-      console.log("DATI ZOOM GRAFICOoooo =", option.dataZoom[0].startValue, option.dataZoom[0].endValue);
+      // console.log("OPTIONSSSSSS =", option);
+
+      // console.log("DATI ZOOM GRAFICOoooo =", option.dataZoom[0].startValue, option.dataZoom[0].endValue);
     });
 
   }
@@ -570,16 +570,16 @@ optionBoxPlot: any = {
       //console.log("d",d);
       d = new Date(d);
       //console.log("!= annualDay", d);
-      
+
     }
     if (this.operation === "annualMonth") {
       //console.log("=== annualMonth");
-      
+
       return this.months[d.getMonth()];
     }
     else if (this.operation === "annualDay") {
       //console.log("=== annualDay");
-      
+
       return d;
     }
     else {
@@ -603,41 +603,41 @@ optionBoxPlot: any = {
       operation: this.operation,
       statistic: this.statistic,
       circleCoords: this.circleCoords,
-      
+
     }
-    console.log("QUESTO PARAMETRO IN DATA =", data);
+    // console.log("QUESTO PARAMETRO IN DATA =", data);
     if(this.statistic !== "boxPlot") {
       this.httpClient.post('http://localhost:8000/test/dataPolygon', data,
         { responseType: 'text' }).subscribe((response: any) => {
-          console.log("RES PRIMA DEL PARSE =", response);
+          // console.log("RES PRIMA DEL PARSE =", response);
           if (typeof response == 'string') {
             response = JSON.parse(response);
           }
-          console.log("RES DOPO IL PARSE =", response);
+          // console.log("RES DOPO IL PARSE =", response);
 
           let allDataPolygon = response['dataVect'];
           this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev);
-  
+
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
-          console.log("allDataPolygon", allDataPolygon);
-    
+          // console.log("allDataPolygon", allDataPolygon);
+
           if(this.statistic === "min_mean_max" || this.statistic === "min_10thPerc_median_90thPerc_max"){
             //caso di min_mean_max o min_10thPerc..., una linea per ogni statistica
-            
+
             let allStats = Object.keys(allDataPolygon.dataPol[0]);
             allStats = allStats.filter((stat: any) => stat !== "x");
 
             allDataPolygon.dataPol.forEach((element: any) => {
-                
+
                 allStats.forEach((stat: any) => {
                     element[stat] = Number(element[stat]);
                 });
-                
+
             });
             // let statsName = this.statistic.split("_");
                 this.chartOption = {
-        
+
                   xAxis: {
                     type: 'category',
                     boundaryGap: false,
@@ -650,7 +650,7 @@ optionBoxPlot: any = {
                   tooltip: {
                     trigger: 'axis',
                     formatter: (paramsFormatter: any) => {
-        
+
                       const tooltipHTML = paramsFormatter.map((param: any) => {
                         let value = param.value;
                         if (value > 10000 || value < 0.001 && value !== 0) {
@@ -658,9 +658,9 @@ optionBoxPlot: any = {
                         }
                         return `${param.marker} ${param.seriesName}: ${value}`;
                       }).join('<br>');
-        
+
                       return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
-        
+
                     },
                     transitionDuration: 0.2,
                     axisPointer: {
@@ -690,7 +690,7 @@ optionBoxPlot: any = {
                       saveAsImage: {}
                     }
                   },
-        
+
                   dataZoom: [
                     {
                       show: true,
@@ -735,10 +735,10 @@ optionBoxPlot: any = {
                   // ]
                 }
 
-            
+
           }
           else{
-              
+
           allDataPolygon.dataPol.forEach((element: any) => {
             /**
              *  Da rivedere qui!!!!!!
@@ -843,7 +843,7 @@ optionBoxPlot: any = {
         this.spinnerLoadingChild.emit(false);
         // this.dataTimeExport.emit([]);
       }
-      
+
 
     //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
     //   dataset: this.selData.get("dataSetSel")?.value.name,
@@ -892,7 +892,7 @@ optionBoxPlot: any = {
       lng_min: "no",
       lng_max: "no"
     }
-    console.log("RANGE: ", this.range);
+    // console.log("RANGE: ", this.range);
 
     /**
      *  DA SPOSTARE SPINNER PER IL GRAFICO E NON PER LA TABLE
@@ -902,9 +902,9 @@ optionBoxPlot: any = {
       if (typeof response == 'string') {
         response = JSON.parse(response);
       }
-      console.log("RES FOR GRAPH: ", response);
+      // console.log("RES FOR GRAPH: ", response);
       this.dataRes = response;
-  
+
       this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev);
 
       let name = this.dataRes.allData.entries[0];
@@ -997,7 +997,7 @@ optionBoxPlot: any = {
             realtime: true,
             type: 'inside',
           },
-       
+
         ],
         series: [{
           data: this.dataRes.allData[name].map((element: any) => element.y),
@@ -1041,7 +1041,7 @@ optionBoxPlot: any = {
       //     }]
 
       //   };
-      console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
+      // console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
       this.dataTimeExport.emit(this.dataRes.allData[name]);
       this.spinnerLoadingChild.emit(false);
 
@@ -1050,10 +1050,10 @@ optionBoxPlot: any = {
   }
 
   onChartEvent(event: any, type: string) {
-    console.log('chart event:', event);
+    // console.log('chart event:', event);
     // const startTimestamp = event.batch[0].start;
     // const endTimestamp = event.batch[0].end;
-    
+
   }
   // }
 

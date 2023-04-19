@@ -533,7 +533,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
     # true, true, false
     try:
         if is_indicator == "true" and is_graph == False:
-            print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
+            #print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
             url = (
                 ERDDAP_URL
                 + "/tabledap/"
@@ -549,7 +549,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
 
         elif is_indicator == "true" and is_graph and is_annual:
             try:
-                print("Entro qui parte 2!!!!!!")
+                #print("Entro qui parte 2!!!!!!")
                 url = (
                     ERDDAP_URL
                     + "/tabledap/"
@@ -910,7 +910,7 @@ def getAllDatasets():
         get_info = get_info.to_dict(orient="records")
         for row1 in get_info:
             if row1 == get_info[-1] and time_start != "" and time_end != "":
-                print("Last row====", row1)
+                #print("Last row====", row1)
                 defaults = {
                     "adriaclim_dataset": adriaclim_dataset,
                     "adriaclim_model": adriaclim_model,
@@ -2974,7 +2974,7 @@ def download_big_data():
     # num_of_datasets = (
     #     Node.objects.count() // 16
     # )  # testiamo solo su un sedicesimo di loro....
-    all_datasets = Node.objects.filter(adriaclim_timeperiod="yearly")
+    all_datasets = Node.objects.filter(adriaclim_dataset="indicator")
     for dataset in all_datasets:
         start_time = time.time()
         print("Sono iniziata ora final version!!!")
@@ -3284,10 +3284,10 @@ def rompo_tutto():
         dtypes["value_" + str(i)] = 'float32'
         names.append("value_" + str(i))
     
-    print("names prima",names)
+    #print("names prima",names)
     dict_keys = names.copy()
     dict_keys.append("dataset_id")
-    print("Names dopo",names)
+    #print("Names dopo",names)
 
     chunksize = 10**6
     for chunk in pd.read_table(
@@ -3570,7 +3570,7 @@ def getDataVectorial(
         num_param=num_param,
         range_value=range_value,
     )
-    print("URL DATA VECTORIAL========", url)
+    #print("URL DATA VECTORIAL========", url)
     df = pd.read_csv(url, dtype="unicode")
     allData = []
     values = []
@@ -3634,7 +3634,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         res_values = df_polygon.groupby(groupby_col)["value_0"].agg(
             agg_func
         )  # AGG IS USED TO APPLY AN AGGREGATE FUNCTION
-        print("res_values", res_values)
+        #print("res_values", res_values)
         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
         # print("MONTHS =", months)
         list_time = (
@@ -3688,6 +3688,8 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         print("eccezione========", e)
         return str(e)
 
+#cambiare tutto il modo in cui ragiona, controllare prima la cache, se non c'è controllare il db e se non c'è prenderlo come ora dal dataserver
+#se c'è nel db, elaborarlo e salvarlo nella cache!
 
 def getDataPolygonNew(
     dataset_id,
@@ -3708,7 +3710,7 @@ def getDataPolygonNew(
     circle_coords,
 ):
     start_time = time.time()
-    print("STARTED GETDATAPOLYGONNEW!")
+    #print("STARTED GETDATAPOLYGONNEW!")
     vertices = []
 
     for lat_lng in lat_lng_obj:
@@ -3716,7 +3718,7 @@ def getDataPolygonNew(
 
     shapely_polygon = ShapelyPolygon(vertices)
     pol_vertices_str = str(vertices[0][0]).replace(" ", "")
-    # key_cached = dataset_id + "_" + pol_vertices_str + "_" + statistic
+    key_cached = dataset_id + "_" + pol_vertices_str #chiave della cache!
     xmin = None
     ymin = None
     xmax = None
@@ -3725,170 +3727,163 @@ def getDataPolygonNew(
     circ = None
 
     # print("check cache",cache.get(key=key_cached))
-
-    polygons = Polygon.objects.filter(
-        dataset_id=dataset_id, pol_vertices_str=pol_vertices_str
-    )
-    if polygons:
-        # t_tab_algorithm_config = TTabAlgorithmConfig.objects.filter(cod_config = pkClient, cod_algo_type = pkCodAlgoType)
-        # if pkClient is not None and pkCodAlgoType is not None:
-        # 		t_tab_algorithm_config = TTabAlgorithmConfig.objects.filter(cod_config = pkClient, cod_algo_type = pkCodAlgoType).update(
-        # 			cod_algo_type_id = codAlgoType,
-        # 		)
-
-        # 		updates_made += t_tab_algorithm_config
-
-        # data = [model_to_dict(obj) for obj in polygons]
-        # print("DATA =", data)
-        print("DOPO FILTER")
-        # qui siamo nel caso in cui è presente il poligono con quel vertice e il dataset id
-        try:
-            print("CACHE HIT!")
-            allData = {}
-            data_table_list = []
-            for pol in polygons:
-                data_table = {}
-                # print("dataTable[i]",dataTable[i])
-                data_table["time"] = pol.date_value
-                data_table["latitude"] = pol.latitude
-                data_table["longitude"] = pol.longitude
-                data_table[layer_name] = (
-                    pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
-                )
-                if parametro_agg != "None":
-                    # print("Entro qui yeahhhhhh!!")
-                    data_table[parametro_agg] = pol.parametro_agg
-                data_table_list.append(data_table)
-                #
-            allData[
-                "dataTable"
-            ] = data_table_list  # così abbiamo la tabella, ora ci serve il grafico.....
-
-            # pol["value"], pol["date_value"],pol["latitude"],pol["longitude"]
-            print("Test1")
-            df_polygon_model = pd.DataFrame(
-                [
-                    model_to_dict(p, fields=[field.name for field in p._meta.fields])
-                    for p in polygons
-                ]
-            )
-            print("Test 2==========", df_polygon_model.head())
-            df_polygon_model = df_polygon_model.drop_duplicates(
-                subset=["date_value", "latitude", "longitude", "value_0"], keep="first"
-            )
-            df_polygon_model = df_polygon_model.dropna(how="any", axis=0)
-            df_polygon_model["date_value"] = pd.to_datetime(
-                df_polygon_model["date_value"]
-            )
-            # df_polygon_model["value_0"]
-            mean = df_polygon_model["value_0"].mean()
-            median = df_polygon_model["value_0"].median()
-            std_dev = df_polygon_model["value_0"].std()
-            allData["dataPol"] = operation_before_after_cache(
-                df_polygon_model, statistic, time_op
-            )
-            allData["mean"] = mean
-            allData["median"] = median
-            allData["stdev"] = std_dev
-            # value, date_value, latitude, longitude
-            print("DB TIME: ", time.time() - start_time)
-
-            # pol_from_cache = json.loads(cache.get(key=key_cached))
-            # print("pol_from_cache=======",pol_from_cache)
-            # try:
-            #   pol_from_cache["dataPol"] = operation_before_after_cache(pol_from_cache["dataBeforeOp"],statistic,time_op,True)
-            # except Exception as e:
-            # print("ueeeee errore",e)
-            # return str(e)
-            # print("pol_from_cache without json loads",cache.get(key_cached))
-            # print("pol_from_cache=========",pol_from_cache)
-            return allData
-        except Exception as e:
-            print("Errore", e)
-            return str(e)
+    #aggiungere controllo cache prima.....
+    cache_result = cache.get(key=key_cached)
+    
+    if cache_result is not None:
+        print("CACHE HIT!")
+        #siamo nella cache
+        #prendere tutti i dati memorizzati nella cache ed elaborarli e passarli al frontend
+        #print("cache_result=======",cache_result)
+        pol_from_cache = json.loads(cache_result)
+        #print("pol_from_cache=======",pol_from_cache)
+        dataframe_from_dict = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"])
+        dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
+        #print("dataframe_from_dict=======",dataframe_from_dict["date_value"])
+        pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
+        return pol_from_cache
 
     else:
-        print("CACHE MISS!")
-        # Definisci i limiti del poligono
+        polygons = Polygon.objects.filter(
+            dataset_id=dataset_id, pol_vertices_str=pol_vertices_str
+        )
+        if polygons:
+            print("DOPO FILTER")
+            # qui siamo nel caso in cui è presente il poligono con quel vertice e il dataset id
+            try:
+                print("CACHE MISS AND DB HIT!")
+                allData = {}
+                data_table_list = []
+                for pol in polygons:
+                    data_table = {}
+                    # print("dataTable[i]",dataTable[i])
+                    data_table["time"] = pol.date_value
+                    data_table["latitude"] = pol.latitude
+                    data_table["longitude"] = pol.longitude
+                    data_table[layer_name] = (
+                        pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
+                    )
+                    if parametro_agg != "None":
+                        # print("Entro qui yeahhhhhh!!")
+                        data_table[parametro_agg] = pol.parametro_agg
+                    data_table_list.append(data_table)
+                    #
+                allData[
+                    "dataTable"
+                ] = data_table_list  # così abbiamo la tabella, ora ci serve il grafico.....
 
-        # caso di circle coords
-
-        xmin, ymin, xmax, ymax = shapely_polygon.bounds
-        # distanze = []
-        circ = shapely_polygon.length
-        area = shapely_polygon.area
-
-        # 2.23 = circonferenza poligono piccolo
-        # 8.54 = circonferenza poligono grande
-        # 4.67 = circonferenza poligono marche
-        # 10.09 = circonferenza poligono puglia
-
-        # 0.24 = area poligono piccolo
-        # 3.11 = area poligono grande
-        # 1.17 = area poligono marche
-        # 2.33 = area poligono puglia
-        if area > 2:
-            step = 0.3
-        elif area < 2 and area > 1:
-            step = 0.2
-        else:
-            step = 0.1
-        # distanza = sqrt((x2 - x1)^2 + (y2 - y1)^2)
-
-        # anomaly 0.01 2378 points 625.62 seconds poligono più piccolo
-        # anomaly 0.05 75 points 19.05 seconds poligono più piccolo
-        # anomaly 0.05 1244 points 335.21 seconds croazia(poligono più grande)
-        # r95p yearly 0.05 75 points 23.31 seconds poligono più piccolo
-
-        # Salva tutte le coordinate dei punti interni al poligono
-        points_inside_polygon = []
-        try:
-            if len(circle_coords) > 0:
-                for coord in circle_coords:
-                    # print("Cooord",coord)
-                    point = Point(coord["lat"], coord["lng"])
-                    if point.within(shapely_polygon):
-                        points_inside_polygon.append((coord["lat"], coord["lng"]))
-            else:
-                for x in range(int(xmin / step), int(xmax / step)):
-                    for y in range(int(ymin / step), int(ymax / step)):
-                        point = Point(x * step, y * step)
-                        if point.within(shapely_polygon):
-                            points_inside_polygon.append((x * step, y * step))
-        except Exception as coord:
-            print("Eccezione", coord)
-            return str(coord)
-
-        # Visualizza le coordinate dei punti all'interno del poligono
-        # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
-        print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
-        df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
-
-        i = 0
-        dataTable = []
-        for point in points_inside_polygon:
-            if is_indicator == "false":
-                url = url_is_indicator(
-                    is_indicator,
-                    True,
-                    False,
-                    dataset_id=dataset_id,
-                    layer_name=layer_name,
-                    time_start=date_start,
-                    time_finish=date_end,
-                    latitude=str(point[0]),
-                    longitude=str(point[1]),
-                    num_parameters=num_param,
-                    range_value=range_value,
+                # pol["value"], pol["date_value"],pol["latitude"],pol["longitude"]
+                #print("Test1")
+                df_polygon_model = pd.DataFrame(
+                    [
+                        model_to_dict(p, fields=[field.name for field in p._meta.fields])
+                        for p in polygons
+                    ]
                 )
-                df = pd.read_csv(url, dtype="unicode")
+                #print("Test 2==========", df_polygon_model.head())
+                df_polygon_model = df_polygon_model.drop_duplicates(
+                    subset=["date_value", "latitude", "longitude", "value_0"], keep="first"
+                )
+                df_polygon_model = df_polygon_model.dropna(how="all", axis=1)
+                allData["dataBeforeOp"] = df_polygon_model.to_dict(orient="records")
+                df_polygon_model["date_value"] = pd.to_datetime(
+                    df_polygon_model["date_value"]
+                )
+                
+                # df_polygon_model["value_0"]
+                mean = df_polygon_model["value_0"].mean()
+                median = df_polygon_model["value_0"].median()
+                std_dev = df_polygon_model["value_0"].std()
+                allData["mean"] = mean
+                allData["median"] = median
+                allData["stdev"] = std_dev
+                cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #lo setta nella cache per 12 ore
+                allData["dataPol"] = operation_before_after_cache(
+                    df_polygon_model, statistic, time_op
+                )
+
+                # value, date_value, latitude, longitude
+                print("DB TIME: ", time.time() - start_time)
+
+                # pol_from_cache = json.loads(cache.get(key=key_cached))
+                # print("pol_from_cache=======",pol_from_cache)
+                # try:
+                #   pol_from_cache["dataPol"] = operation_before_after_cache(pol_from_cache["dataBeforeOp"],statistic,time_op,True)
+                # except Exception as e:
+                # print("ueeeee errore",e)
+                # return str(e)
+                # print("pol_from_cache without json loads",cache.get(key_cached))
+                # print("pol_from_cache=========",pol_from_cache)
+                return allData
+            except Exception as e:
+                print("Errore", e)
+                return str(e)
+
+        else:
+            print("DB AND CACHE MISS!")
+            # Definisci i limiti del poligono
+
+            # caso di circle coords
+
+            xmin, ymin, xmax, ymax = shapely_polygon.bounds
+            # distanze = []
+            circ = shapely_polygon.length
+            area = shapely_polygon.area
+
+            # 2.23 = circonferenza poligono piccolo
+            # 8.54 = circonferenza poligono grande
+            # 4.67 = circonferenza poligono marche
+            # 10.09 = circonferenza poligono puglia
+
+            # 0.24 = area poligono piccolo
+            # 3.11 = area poligono grande
+            # 1.17 = area poligono marche
+            # 2.33 = area poligono puglia
+            if area > 2:
+                step = 0.3
+            elif area < 2 and area > 1:
+                step = 0.2
             else:
-                # print("Entro quiiiiiii!!!!")
-                try:
+                step = 0.1
+            # distanza = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+
+            # anomaly 0.01 2378 points 625.62 seconds poligono più piccolo
+            # anomaly 0.05 75 points 19.05 seconds poligono più piccolo
+            # anomaly 0.05 1244 points 335.21 seconds croazia(poligono più grande)
+            # r95p yearly 0.05 75 points 23.31 seconds poligono più piccolo
+
+            # Salva tutte le coordinate dei punti interni al poligono
+            points_inside_polygon = []
+            try:
+                if len(circle_coords) > 0:
+                    for coord in circle_coords:
+                        # print("Cooord",coord)
+                        point = Point(coord["lat"], coord["lng"])
+                        if point.within(shapely_polygon):
+                            points_inside_polygon.append((coord["lat"], coord["lng"]))
+                else:
+                    for x in range(int(xmin / step), int(xmax / step)):
+                        for y in range(int(ymin / step), int(ymax / step)):
+                            point = Point(x * step, y * step)
+                            if point.within(shapely_polygon):
+                                points_inside_polygon.append((x * step, y * step))
+            except Exception as coord:
+                print("Eccezione", coord)
+                return str(coord)
+
+            # Visualizza le coordinate dei punti all'interno del poligono
+            # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
+            print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
+            df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
+
+            i = 0
+            dataTable = []
+            for point in points_inside_polygon:
+                if is_indicator == "false":
                     url = url_is_indicator(
                         is_indicator,
                         True,
-                        True,
+                        False,
                         dataset_id=dataset_id,
                         layer_name=layer_name,
                         time_start=date_start,
@@ -3898,171 +3893,189 @@ def getDataPolygonNew(
                         num_parameters=num_param,
                         range_value=range_value,
                     )
-                    print("URL DATA VECTORIAL========", url)
                     df = pd.read_csv(url, dtype="unicode")
-                except Exception as e:
-                    print("fdkjsjk", e)
-                    continue
+                else:
+                    # print("Entro quiiiiiii!!!!")
+                    try:
+                        url = url_is_indicator(
+                            is_indicator,
+                            True,
+                            True,
+                            dataset_id=dataset_id,
+                            layer_name=layer_name,
+                            time_start=date_start,
+                            time_finish=date_end,
+                            latitude=str(point[0]),
+                            longitude=str(point[1]),
+                            num_parameters=num_param,
+                            range_value=range_value,
+                        )
+                        #print("URL DATA VECTORIAL========", url)
+                        df = pd.read_csv(url, dtype="unicode")
+                    except Exception as e:
+                        print("fdkjsjk", e)
+                        continue
 
-            # print("LAYER NAME PRIMA DI TUTTO =", layer_name)
-            # DA SISTEMARE QUI!!!!!!!!!!!***********************************
-            try:
-                for index, row in df.iterrows():
-                    # print("PARAMETRO AGGIUNTIVO =", type(parametro_agg))
-                    # print("PARAMETRO AGGIUNTIVO",parametro_agg)
-                    if parametro_agg != "None":
-                        if len(dataTable) == 0:
-                            # print("LAYER NAME SE PARAMETRO =", row[layer_name])
-                            dat_tab = {}
-                            dat_tab["time"] = row["time"]
-                            dat_tab["latitude"] = row["latitude"]
-                            dat_tab["longitude"] = row["longitude"]
-                            dat_tab[parametro_agg] = row[parametro_agg]
-                            dat_tab[layer_name] = (
-                                row[layer_name]
-                                if not pd.isna(row[layer_name])
-                                else "Value not defined"
-                            )
-                            dataTable.append(dat_tab)
-                            # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
-                            # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
-                        if index > 0:
-                            dat_tab = {}
-                            dat_tab["time"] = convertToTime(row["time"])
-                            dat_tab["latitude"] = row["latitude"]
-                            dat_tab["longitude"] = row["longitude"]
-                            dat_tab[parametro_agg] = row[parametro_agg]
-                            dat_tab[layer_name] = (
-                                row[layer_name]
-                                if not pd.isna(row[layer_name])
-                                else "Value not defined"
-                            )
-                            dataTable.append(dat_tab)
-                            df_polygon.loc[i] = [
-                                row["time"],
-                                "(" + row["latitude"] + "," + row["longitude"] + ")",
-                                row[layer_name],
-                            ]
-                            defaults = {
-                                "value_0": float(row[layer_name]),
-                                "pol_vertices_str": pol_vertices_str,
-                                "parametro_agg": row[parametro_agg],
-                            }
-                            Polygon.objects.update_or_create(
-                                            dataset_id=Node.objects.get(id=dataset_id),
-                                            date_value=convertToTime(row["time"]),
-                                            latitude=float(row["latitude"]),
-                                            longitude=float(row["longitude"]),
-                                            defaults=defaults,
-                                                             )
+                # print("LAYER NAME PRIMA DI TUTTO =", layer_name)
+                # DA SISTEMARE QUI!!!!!!!!!!!***********************************
+                try:
+                    for index,row in enumerate(df.to_dict(orient="records")):
+                        # print("PARAMETRO AGGIUNTIVO =", type(parametro_agg))
+                        # print("PARAMETRO AGGIUNTIVO",parametro_agg)
+                        if parametro_agg != "None":
+                            if len(dataTable) == 0:
+                                # print("LAYER NAME SE PARAMETRO =", row[layer_name])
+                                dat_tab = {}
+                                dat_tab["time"] = row["time"]
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                dat_tab[parametro_agg] = row[parametro_agg]
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
+                                # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
+                            if index > 0:
+                                dat_tab = {}
+                                dat_tab["time"] = convertToTime(row["time"])
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                dat_tab[parametro_agg] = row[parametro_agg]
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                df_polygon.loc[i] = [
+                                    row["time"],
+                                    "(" + row["latitude"] + "," + row["longitude"] + ")",
+                                    row[layer_name],
+                                ]
+                                defaults = {
+                                    "value_0": float(row[layer_name]),
+                                    "pol_vertices_str": pol_vertices_str,
+                                    "parametro_agg": row[parametro_agg],
+                                }
+                                Polygon.objects.update_or_create(
+                                                dataset_id=Node.objects.get(id=dataset_id),
+                                                date_value=convertToTime(row["time"]),
+                                                latitude=float(row["latitude"]),
+                                                longitude=float(row["longitude"]),
+                                                defaults=defaults,
+                                                                )
+                                # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
+                                #               latitude = float(row["latitude"]), longitude = float(row["longitude"]), parametro_agg = row[parametro_agg])
+                                # pol.save()
+                                # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
+                                i += 1
+                        else:
+                            if len(dataTable) == 0:
+                                # print("LAYER NAME SE NON PARAMETRO PRIMO =", row[layer_name])
+                                dat_tab = {}
+                                dat_tab["time"] = row["time"]
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                # dat_tab[parametro_agg] = row[parametro_agg]
+                                # print("Sono arrvato qui")
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                #  dataTable.append(dat)
+                            if index > 0:
+                                # print("LAYER NAME SE NON PARAMETRO SECONDO =", row[layer_name])
+                                dat_tab = {}
+                                dat_tab["time"] = convertToTime(row["time"])
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                # dat_tab[parametro_agg] = row[parametro_agg]
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                df_polygon.loc[i] = [
+                                    row["time"],
+                                    "(" + row["latitude"] + "," + row["longitude"] + ")",
+                                    row[layer_name],
+                                ]
                             # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
-                            #               latitude = float(row["latitude"]), longitude = float(row["longitude"]), parametro_agg = row[parametro_agg])
-                            # pol.save()
-                            # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],parametro_agg:row[parametro_agg],layer_name:row[layer_name]})
-                            i += 1
-                    else:
-                        if len(dataTable) == 0:
-                            # print("LAYER NAME SE NON PARAMETRO PRIMO =", row[layer_name])
-                            dat_tab = {}
-                            dat_tab["time"] = row["time"]
-                            dat_tab["latitude"] = row["latitude"]
-                            dat_tab["longitude"] = row["longitude"]
-                            # dat_tab[parametro_agg] = row[parametro_agg]
-                            # print("Sono arrvato qui")
-                            dat_tab[layer_name] = (
-                                row[layer_name]
-                                if not pd.isna(row[layer_name])
-                                else "Value not defined"
-                            )
-                            dataTable.append(dat_tab)
-                            #  dataTable.append(dat)
-                        if index > 0:
-                            # print("LAYER NAME SE NON PARAMETRO SECONDO =", row[layer_name])
-                            dat_tab = {}
-                            dat_tab["time"] = convertToTime(row["time"])
-                            dat_tab["latitude"] = row["latitude"]
-                            dat_tab["longitude"] = row["longitude"]
-                            # dat_tab[parametro_agg] = row[parametro_agg]
-                            dat_tab[layer_name] = (
-                                row[layer_name]
-                                if not pd.isna(row[layer_name])
-                                else "Value not defined"
-                            )
-                            dataTable.append(dat_tab)
-                            df_polygon.loc[i] = [
-                                row["time"],
-                                "(" + row["latitude"] + "," + row["longitude"] + ")",
-                                row[layer_name],
-                            ]
-                           # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
-                             #             latitude = float(row["latitude"]), longitude = float(row["longitude"]))
-                            #pol.save()
-                            defaults = {
-                                "value_0": float(row[layer_name]),
-                                "pol_vertices_str": pol_vertices_str,
-                            }
-                            Polygon.objects.update_or_create(
-                                            dataset_id=Node.objects.get(id=dataset_id),
-                                            date_value=convertToTime(row["time"]),
-                                            latitude=float(row["latitude"]),
-                                            longitude=float(row["longitude"]),
-                                            defaults=defaults,
-                                                             )
-                            # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
-                            i += 1
-                            # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
-                            # TIME GETDATAPOLYGONNEW 1960.06 seconds Snowfall rate (projections, day)
+                                #             latitude = float(row["latitude"]), longitude = float(row["longitude"]))
+                                #pol.save()
+                                defaults = {
+                                    "value_0": float(row[layer_name]),
+                                    "pol_vertices_str": pol_vertices_str,
+                                }
+                                Polygon.objects.update_or_create(
+                                                dataset_id=Node.objects.get(id=dataset_id),
+                                                date_value=convertToTime(row["time"]),
+                                                latitude=float(row["latitude"]),
+                                                longitude=float(row["longitude"]),
+                                                defaults=defaults,
+                                                                )
+                                # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
+                                i += 1
+                                # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
+                                # TIME GETDATAPOLYGONNEW 1960.06 seconds Snowfall rate (projections, day)
+                except Exception as e:
+                    print("EXCEPTION 3", e)
+                    return str(e)
+
+            try:
+                df_polygon = df_polygon.drop_duplicates(
+                    subset=["date_value", "lat_lng", "value_0"], keep="first"
+                )
+                df_polygon = df_polygon.dropna(how="all", axis=1)
+                allData = {}
+                
+                df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
+                allData["dataBeforeOp"] = df_polygon.to_dict(orient="records")
+                # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
+                mean = df_polygon["value_0"].mean()
+                median = df_polygon["value_0"].median()
+                std_dev = df_polygon["value_0"].std()
+                data_table_list = []
+                for i in range(len(dataTable)):
+                    data_table = {}
+                    # print("dataTable[i]",dataTable[i])
+                    data_table["time"] = dataTable[i]["time"]
+                    data_table["latitude"] = dataTable[i]["latitude"]
+                    data_table["longitude"] = dataTable[i]["longitude"]
+                    data_table[layer_name] = dataTable[i][layer_name]
+                    if parametro_agg != "None":
+                        # print("Entro qui yeahhhhhh!!")
+                        data_table[parametro_agg] = dataTable[i][parametro_agg]
+                    data_table_list.append(data_table)
+
+                allData["dataTable"] = data_table_list
+                allData["mean"] = mean
+                allData["median"] = median
+                allData["stdev"] = std_dev
+                # Mi setto la cache prima di fare l'operazione richiesta ma con tutte le date e tutti i valori!
+                cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #12 ore di cache
+                print("DB AND CACHE setted!")
+
+                allData["dataPol"] = operation_before_after_cache(
+                    df_polygon, statistic, time_op
+                )
+                print(
+                    "TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time() - start_time)
+                )
             except Exception as e:
-                print("EXCEPTION 3", e)
+                print("EXCEPTION 1", e)
                 return str(e)
+                # print("allData",allData)
 
-        try:
-            df_polygon = df_polygon.drop_duplicates(
-                subset=["date_value", "lat_lng", "value_0"], keep="first"
-            )
-            df_polygon = df_polygon.dropna(how="any", axis=0)
-            allData = {}
-            # allData["dataBeforeOp"] = df_polygon.to_dict()
-            df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
-            # a seconda del valore di operation e di time_op viene fatta l'operazione7
-            df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
-            mean = df_polygon["value_0"].mean()
-            median = df_polygon["value_0"].median()
-            std_dev = df_polygon["value_0"].std()
-            data_table_list = []
-            for i in range(len(dataTable)):
-                data_table = {}
-                # print("dataTable[i]",dataTable[i])
-                data_table["time"] = dataTable[i]["time"]
-                data_table["latitude"] = dataTable[i]["latitude"]
-                data_table["longitude"] = dataTable[i]["longitude"]
-                data_table[layer_name] = dataTable[i][layer_name]
-                if parametro_agg != "None":
-                    # print("Entro qui yeahhhhhh!!")
-                    data_table[parametro_agg] = dataTable[i][parametro_agg]
-                data_table_list.append(data_table)
-
-            allData["dataTable"] = data_table_list
-            allData["mean"] = mean
-            allData["median"] = median
-            allData["stdev"] = std_dev
-            # Mi setto la cache prima di fare l'operazione richiesta ma con tutte le date e tutti i valori!
-            # cache.set(key=key_cached,value=json.dumps(allData),timeout=None) #it never expires NOT GOOD!
-            print("DB setted!")
-
-            allData["dataPol"] = operation_before_after_cache(
-                df_polygon, statistic, time_op
-            )
-            print(
-                "TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time() - start_time)
-            )
-        except Exception as e:
-            print("EXCEPTION 1", e)
-            return str(e)
-            # print("allData",allData)
-
-            # print("list(df_polygon['time'])",list(df_polygon["time"]))
-        return allData
+                # print("list(df_polygon['time'])",list(df_polygon["time"]))
+            return allData
 
 
 def createArrow(

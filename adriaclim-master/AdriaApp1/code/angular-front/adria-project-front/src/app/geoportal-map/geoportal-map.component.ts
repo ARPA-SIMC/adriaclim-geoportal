@@ -377,7 +377,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     await this.initMap();
-    console.log("LEGEND NO WMS =", this.legendNoWms)
+    // console.log("LEGEND NO WMS =", this.legendNoWms)
 
     // await this.initMap();
 
@@ -533,7 +533,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
       // let latlngs: any[] = [];
        if(polygonsContainingPoint.length > 0) {
-       console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
+      //  console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
         this.openGraphDialog(null, null, polygonsContainingPoint[0])
       //   let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
       //   splittedVar = splittedVar[splittedVar.length - 1];
@@ -632,11 +632,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpClient.post('http://localhost:8000/test/pluto', {
     }).subscribe({
       next(position) {
-        console.log("PLUTO =", position);
+        // console.log("PLUTO =", position);
 
       },
       error(msg) {
-        console.log('PLUTO ERROR: ', msg);
+        // console.log('PLUTO ERROR: ', msg);
       }
     });
   }
@@ -899,14 +899,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.activeLayersArray.push(node);
     }
 
-    console.log("ACTIVE LAYERS ARRAY =", this.activeLayersArray)
+    // console.log("ACTIVE LAYERS ARRAY =", this.activeLayersArray)
     this.selData.get("dataSetSel")?.setValue(node);
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
-    console.log("IS INDICATOR ==", this.isIndicator);
+    // console.log("IS INDICATOR ==", this.isIndicator);
     if (!this.isIndicator) {
       this.legendNoWms = undefined;
     }
-    console.log("Added layer====", this.activeLayersArray);
+    // console.log("Added layer====", this.activeLayersArray);
     // }
   }
 
@@ -956,7 +956,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }).subscribe({
       next: (res: any) => {
         this.metadata = res;
-        console.log("METADATA =", this.metadata);
+        // console.log("METADATA =", this.metadata);
 
 
         if (controlDate === "ok") {
@@ -1595,7 +1595,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
         }
         // if(this.value this.extraParam.maxValue){
-        console.log("CONSTROL EXTRA: ", controlExtra);
+        // console.log("CONSTROL EXTRA: ", controlExtra);
         this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
 
         this.options = {
@@ -1672,7 +1672,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   sliderControl(event: any) {
-    console.log("EVENTO SLIDERRRRRRRRR =", event.value);
+    // console.log("EVENTO SLIDERRRRRRRRR =", event.value);
     this.valueCustom = event.value;
     let metaId: any;
     if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
@@ -1988,7 +1988,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       // const lat_max = corner2.lat;
       // const lon_max = corner2.lng;
       // dialogConfig.height = '1000px';
-      console.log("this.circlecoo",this.circleCoords);
+      // console.log("this.circlecoo",this.circleCoords);
       dialogConfig.data = {
         success: true,
         datasetId: dataId,
@@ -2037,7 +2037,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        console.log("RES =", res);
+        // console.log("RES =", res);
         let allData = res['dataVect'];
         let allLatCoordinates = allData[1];
         let allLongCoordinates = allData[2];
@@ -2101,7 +2101,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           //this.markersLayer.addLayer(markerToAdd);
         }
-        console.log("CIRCLE COORDS: ", this.circleCoords);
+        // console.log("CIRCLE COORDS: ", this.circleCoords);
 
 
       },
@@ -2193,9 +2193,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
     // this.legendNoWms = new L.Control({ position: 'bottomright' });
-    console.log("value_min =", value_min);
-    console.log("value_mid =", value_mid);
-    console.log("value_max =", value_max);
+    // console.log("value_min =", value_min);
+    // console.log("value_mid =", value_mid);
+    // console.log("value_max =", value_max);
 
     this.legendNoWms.onAdd = (map: any) => {
       let div = L.DomUtil.create('div', 'info legend');
@@ -2207,10 +2207,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       for (let i = 0; i < grades.length; i++) {
         from = grades[i];
         to = grades[i + 1];
-        console.log("from =", from);
-        console.log("from + 1 =", (from + 1));
-        console.log("GET COLOR =", getColor(from));
-        console.log("GET COLOR + 1 =", getColor(from + 1));
+        // console.log("from =", from);
+        // console.log("from + 1 =", (from + 1));
+        // console.log("GET COLOR =", getColor(from));
+        // console.log("GET COLOR + 1 =", getColor(from + 1));
 
 
 
@@ -2249,14 +2249,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       }
     }
     if (!filterValue) {
-      console.log("COLLAPSE");
+      // console.log("COLLAPSE");
 
       // this.dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
       // this.dataAllNodesTree.data = TREE_DATA;
       return this.dataAllNodesTree.data;
     }
     else {
-      console.log("EXPAND");
+      // console.log("EXPAND");
       // this.treeControl.expandAll();
       // this.treeControl.dataNodes = treeFiltrato;
       // this.dataAllNodesTree.data = TREE_DATA;

@@ -49,7 +49,7 @@
           <mat-tab-group class="tab-group" [ngStyle]="{'visibility': spinnerLoading ? 'hidden' : 'visible'}">
 
             <mat-tab label="Graph" class="tab-graph">
-              <div fxLayout="row" fxLayoutAlign="space-between center" style="height: 45px;">
+              <div fxLayout="row" fxLayoutAlign="space-between center" style="height: 55px;">
 
                 <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                   <!-- <div> -->
@@ -80,7 +80,7 @@
                   </ng-container>
 
                 </div>
-                <div fxFlex fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px; border: 1px solid red; height: 100%;">
+                <div fxFlex fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;">
                   <span>Mean: {{meanValue}}</span>
                   <span>Median: {{medianValue}}</span>
                   <span>Standard deviation: {{stdevValue}}</span>

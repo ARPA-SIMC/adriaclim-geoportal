@@ -371,16 +371,16 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     if (!this.openGraph) {
       this.getMetadataTable();
       // this.setDataSourceAttributes();
-      
+
     }
     else {
-      console.log("POLYGON", this.polygon);
+      // console.log("POLYGON", this.polygon);
       // this.spinnerLoading = false;
       if(!this.polygon) {
         this.getGraphTable();
-        
+
       }
-      
+
       // this.removeAnnualCycle();
     }
     // this.getAlgoType();
@@ -506,7 +506,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           response = JSON.parse(response);
         }
         this.dataTable = response;
-        console.log("datatable metadata=======",this.dataTable);
+        // console.log("datatable metadata=======",this.dataTable);
 
         this.displayedColumns = this.dataTable.metadata.table.columnNames;
         let dim_unit: any;
@@ -560,7 +560,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         range: this.range ? Math.abs(this.range) : null
       }
 
-      console.log("RANGE IN GETGRAPHTABLE======",this.range);
+      // console.log("RANGE IN GETGRAPHTABLE======",this.range);
 
       this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
 
@@ -569,7 +569,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           response = JSON.parse(response);
         }
         this.dataTable = response;
-        console.log("datatable graph=======", this.dataTable);
+        // console.log("datatable graph=======", this.dataTable);
 
         this.displayedColumns = this.dataTable.data.table.columnNames;
         let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
@@ -610,14 +610,14 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.form.get("varSelected")?.value.map((el: any) => {
       prova = el;
     })
-    console.log("PROVA = ", prova);
-    console.log("PROVA FORM = ", this.form.get("varSelected")?.value);
+    // console.log("PROVA = ", prova);
+    // console.log("PROVA FORM = ", this.form.get("varSelected")?.value);
 
   }
 
   exportData(typeSel: any) {
     //siamo nel caso del punto
-    
+
     let erddapUrl: any;
     //COSI FUNZIONA ORA PERò BOH.......
     let latMin: any;
@@ -651,18 +651,18 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             variable =  "," + el;
 
           }
-          
+
 
           //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
 
           if (this.dataset.dimensions === 3) {
-            //siamo nel caso di latitude e long 
+            //siamo nel caso di latitude e long
             //va aggiunto controllo su poligono
             //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
             if(this.polygon) {
-   
+
               erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
-              
+
             }
             else{
               erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
@@ -679,7 +679,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             }
             else{
               erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-              
+
             }
           }
 
@@ -706,7 +706,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       }
 
     }
-      
+
       const link = document.createElement('a');
       link.setAttribute('target', '_self');
       link.setAttribute('href', erddapUrl);
@@ -739,7 +739,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   download() {
-    console.log("INIZIO DOWNLOAD");
+    // console.log("INIZIO DOWNLOAD");
 
     let erddapUrl: any;
     if (this.dataset.dimensions === 3) {
@@ -751,10 +751,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
       erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
     }
-    console.log("ERDDAP URL", erddapUrl);
+    // console.log("ERDDAP URL", erddapUrl);
 
     this.downloadFile(erddapUrl).subscribe((response: any) => {
-      console.log("Before blob===========", response);
+      // console.log("Before blob===========", response);
       let blob: any = new Blob([response], { type: 'text/json' });
       // const url= window.URL.createObjectURL(blob);
       //window.open(url);
@@ -766,7 +766,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       // a.download = this.datasetId + "." + this.form.get('typeSel')?.value;
       // a.click();
       // URL.revokeObjectURL(objectUrl);
-      console.log("DOWNLOAD CLICK QUI");
+      // console.log("DOWNLOAD CLICK QUI");
 
     }), (error: any) => console.log('Error downloading the file'),
       () => console.info('File downloaded successfully');
@@ -787,7 +787,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     }
 
     this.httpService.downloadFile().subscribe((response: any) => {
-      console.log("RESPONSE DOWNLOAD", response);
+      // console.log("RESPONSE DOWNLOAD", response);
 
       let blob: any = new Blob([response], { type: 'text/json; charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
@@ -907,7 +907,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   spinnerLoadingChild(event: any) {
-    console.log("EVENT =", event);
+    // console.log("EVENT =", event);
 
     this.spinnerLoading = event;
   }

@@ -29,13 +29,13 @@ services:
       - "8000:8000"
     depends_on:
       - django
-  # angular:
-  #   build: code/angular-front/adria-project-front
-  #   container_name: adriapp_angular
-  #   ports:
-  #     - "4200:4200"
-  #   depends_on:
-  #     - django
+  angular:
+    build: code/angular-front/adria-project-front
+    container_name: adriapp_angular
+    ports:
+      - "4200:4200"
+    depends_on:
+      - django
 
   redis:
    image: redis:alpine

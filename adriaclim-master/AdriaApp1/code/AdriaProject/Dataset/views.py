@@ -251,7 +251,7 @@ def getWindArrows(request,datasetId1,datasetId2,layer_name1,date_start1,num_para
 
 def getDataExport(request,dataset_id,selectedType,layer_name,time_start,time_finish,latitude,longitude):
     urlCall=ERDDAP_URL+"griddap/"+dataset_id+"."+selectedType+"?"+layer_name+"%5B("+time_start+"):1:("+time_finish+")%5D%5B("+latitude+"):1:("+latitude+")%5D%5B("+longitude+"):1:("+longitude+")%5D"
-    print(urlCall)
+    #print(urlCall)
     nameOfTheFile=dataset_id+"."+selectedType
     file_path = os.path.join(settings.MEDIA_ROOT, urlCall)
     if os.path.exists(file_path):
@@ -481,20 +481,20 @@ def getDataGraphicNewCanvas(request):
 @api_view(['GET','POST'])
 def getDataVectorialNew(request):
     dataset = request.data.get("dataset")
-    print("DATASET:",dataset)
-    print("DATASET ID:",dataset.get('id'))
+    #print("DATASET:",dataset)
+    #print("DATASET ID:",dataset.get('id'))
     dataset_id = dataset.get('id')
     sel_date = str(request.data.get('selDate'))
-    print("come mi arriva qui======",sel_date)
+    #print("come mi arriva qui======",sel_date)
     layer_name = request.data.get('selVar')
-    print("LAYER NAME:",layer_name)
+    #print("LAYER NAME:",layer_name)
     num_param = dataset.get('variables')
     lat_min = dataset.get('lat_min')
     lat_max = dataset.get('lat_max')
     lng_min = dataset.get('lng_min')
     lng_max = dataset.get('lng_max')
     is_indicator = request.data.get('isIndicator')
-    print("IS INDICATOR:",is_indicator)
+    #print("IS INDICATOR:",is_indicator)
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
     return JsonResponse({'dataVect':dataVect})
 
@@ -520,11 +520,11 @@ def getDataPolygonNew(request):
     statistic = request.data.get('statistic')
     circle_coords = request.data.get("circleCoords")
     # print("CIRCLE_COORDS",circle_coords)
-    print("STATISTIC:",statistic)
-    print("time_op:",time_op)
+    #print("STATISTIC:",statistic)
+    #print("time_op:",time_op)
     lat_lng_obj = request.data.get("latLngObj")
     # print("LAT LNG OBJ: ", lat_lng_obj)
     is_indicator = request.data.get('isIndicator')
-    print("IS INDICATOR:",is_indicator)
+    #print("IS INDICATOR:",is_indicator)
     dataVect=allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords)
     return JsonResponse({'dataVect':dataVect})

@@ -11,17 +11,17 @@ export class AppComponent implements OnInit {
   title = 'adria-project-front';
 
   constructor(private httpClient: HttpClient) {
-    console.log('AppComponent constructor');
+    // console.log('AppComponent constructor');
   }
 
   ngOnInit() {
     console.log('AppComponent ngOnInit');
-    // this.getAllData();
+    this.getAllData();
     this.httpClient.post('http://localhost:8000/test/prova', {
 
     }).subscribe({
       next(position) {
-        console.log('Current Position: ', position);
+        // console.log('Current Position: ', position);
       },
       error(msg) {
         console.log('Error Getting Location: ', msg);
@@ -33,16 +33,16 @@ export class AppComponent implements OnInit {
     /**
      *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
      */
-    // const dataNow = new Date();
-    // const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 3, 0, 0, 0);
-    // const tempoRimanente = orario.getTime() - dataNow.getTime();
+    const dataNow = new Date();
+    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 17, 35, 0, 0);
+    const tempoRimanente = orario.getTime() - dataNow.getTime();
     // console.log('tempoRimanente: ', tempoRimanente);
 
-    // if(tempoRimanente > 0) {
-    //   setTimeout(() => {
-    //     this.getAllData();
-    //   }, tempoRimanente);
-    // }
+    if(tempoRimanente > 0) {
+      setTimeout(() => {
+        this.ngOnInit();
+      }, tempoRimanente);
+    }
 
   }
 
@@ -51,10 +51,10 @@ export class AppComponent implements OnInit {
       inputEsterno: idInput
     }).subscribe({
       next(position) {
-        console.log('PIPPO: ', position);
+        // console.log('PIPPO: ', position);
       },
       error(msg) {
-        console.log('PIPPO ERROR: ', msg);
+        // console.log('PIPPO ERROR: ', msg);
       }
     });
   }
@@ -63,8 +63,10 @@ export class AppComponent implements OnInit {
     this.httpClient.post('http://localhost:8000/myFunctions/getAllDatasets', {
   }).subscribe({
     next(position) {
+
     },
     error(msg) {
+      console.log('Error ALL DATA: ', msg);
     }
   })
   }
