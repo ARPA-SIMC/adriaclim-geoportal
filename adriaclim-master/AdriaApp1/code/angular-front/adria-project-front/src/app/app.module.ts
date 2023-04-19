@@ -1,4 +1,4 @@
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { NgModule, LOCALE_ID, APP_INITIALIZER} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -49,7 +49,7 @@ import { DatePipe } from '@angular/common';
 import { registerLocaleData } from '@angular/common';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { LeafletModule } from "@asymmetrik/ngx-leaflet";
-
+import { AppInitializer } from './app-initializer';
 import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 registerLocaleData(localeFr);
@@ -116,6 +116,14 @@ registerLocaleData(localeIt);
     {provide: LOCALE_ID, useValue: 'fr-FR'},
     {provide: LOCALE_ID, useValue: 'it-IT'},
     DatePipe,
+    AppComponent,
+    AppInitializer,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (initializer: AppInitializer) => () => initializer.initialize(),
+      deps: [AppInitializer],
+      multi: true,
+    },
 
   ],
   bootstrap: [AppComponent]

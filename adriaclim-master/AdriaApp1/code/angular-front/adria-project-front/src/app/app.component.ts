@@ -1,6 +1,8 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 
+const FUNCTION_CALLED_FLAG = 'function_called';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -16,7 +18,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     console.log('AppComponent ngOnInit');
-    this.getAllData();
+    // this.getAllData();
     this.httpClient.post('http://localhost:8000/test/prova', {
 
     }).subscribe({
@@ -34,13 +36,13 @@ export class AppComponent implements OnInit {
      *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
      */
     const dataNow = new Date();
-    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 17, 35, 0, 0);
+    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 2, 0, 0, 0);
     const tempoRimanente = orario.getTime() - dataNow.getTime();
-    // console.log('tempoRimanente: ', tempoRimanente);
+    console.log('tempoRimanente: ', tempoRimanente);
 
     if(tempoRimanente > 0) {
       setTimeout(() => {
-        this.ngOnInit();
+        this.getAllData();
       }, tempoRimanente);
     }
 
@@ -71,4 +73,35 @@ export class AppComponent implements OnInit {
   })
   }
 
+ 
+
+}
+
+export function initializeApp(appComponent: AppComponent) {
+  return () => {
+    // Check if the function has already been called
+    const flag = localStorage.getItem(FUNCTION_CALLED_FLAG);
+    if (!flag || flag !== 'true') {
+      // Call the function at the start of the server
+      appComponent.getAllData();
+
+      // Set the flag to indicate that the function has been called
+      localStorage.setItem(FUNCTION_CALLED_FLAG, 'true');
+    }
+
+    // Set the interval to call the function at a specific time every day
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 2 && now.getMinutes() === 0 && now.getSeconds() === 0) {
+        // Reset the flag to allow the function to be called again
+        localStorage.removeItem(FUNCTION_CALLED_FLAG);
+
+        // Call the function
+        appComponent.getAllData();
+      }
+    }, 1000); // Check every second
+
+    // Clean up the interval on app exit
+    window.addEventListener('beforeunload', () => clearInterval(intervalId));
+  };
 }

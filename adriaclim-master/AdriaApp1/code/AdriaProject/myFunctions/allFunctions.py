@@ -328,7 +328,7 @@ months = {
 
 def download_with_cache(u):
     cache_key = u  # needs to be unique
-    cache_time = None  # time in seconds for cache to be valid (now it is infinite)
+    cache_time = 43200  # time in seconds for cache to be valid (now it is 12 hours)
     output_value = cache.get(key=cache_key)  # returns None if no key-value pair
     # print("output_value: ",output_value)
     if output_value == None:
