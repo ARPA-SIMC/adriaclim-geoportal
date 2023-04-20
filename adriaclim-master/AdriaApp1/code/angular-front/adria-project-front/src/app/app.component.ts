@@ -1,5 +1,5 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 
 const FUNCTION_CALLED_FLAG = 'function_called';
 
@@ -9,13 +9,18 @@ const FUNCTION_CALLED_FLAG = 'function_called';
   styleUrls: ['./app.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'adria-project-front';
 
   constructor(private httpClient: HttpClient) {
     // console.log('AppComponent constructor');
   }
 
+  ngAfterViewInit(): void {
+
+
+
+  }
   ngOnInit() {
     console.log('AppComponent ngOnInit');
     // this.getAllData();
@@ -35,8 +40,11 @@ export class AppComponent implements OnInit {
     /**
      *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
      */
+    console.log("PRIMA");
     const dataNow = new Date();
-    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 11, 52, 0, 0);
+    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 16, 35, 0, 0);
+    console.log('dataNow: ', dataNow);
+    console.log('orario: ', orario);
     const tempoRimanente = orario.getTime() - dataNow.getTime();
     console.log('tempoRimanente: ', tempoRimanente);
 
@@ -47,6 +55,8 @@ export class AppComponent implements OnInit {
     }
 
   }
+
+
 
   getPippo(idInput: string) {
     this.httpClient.post('http://localhost:8000/test/pippo', {
@@ -68,7 +78,7 @@ export class AppComponent implements OnInit {
 
     },
     error(msg) {
-      console.log('Error ALL DATA: ', msg);
+      // console.log('Error ALL DATA: ', msg);
     }
   })
   }

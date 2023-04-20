@@ -4,6 +4,8 @@ from django.http.response import HttpResponse, JsonResponse,ResponseHeaders
 from django.conf import settings
 from django.shortcuts import render
 from django.db.models import Q
+
+# import allFunctions
 from myFunctions import allFunctions
 from .forms import DatasetForm
 import requests
@@ -15,8 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.core import serializers
 from asgiref.sync import sync_to_async
-from celery.schedules import crontab
-from celery.task import periodic_task
+# from celery.schedules import crontab
+# from celery.task import periodic_task
 
 
 
@@ -118,7 +120,7 @@ def getHighTemp(request):
     return JsonResponse({'result':result})
 
 
-@periodic_task(run_every=crontab(hour=12, minute=21))
+# @periodic_task(run_every=crontab(hour=12, minute=21))
 @api_view(['GET','POST'])
 def getAllDatasets(request):
 
