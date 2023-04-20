@@ -17,6 +17,7 @@ from django.conf.urls import handler404, handler500
 from django.contrib import admin
 from django.urls import path
 from Dataset import views as data_views
+from Dataset.views import getAllDatasets
 from Metadata import views as metadata_views
 from Utente import views as utente_views
 from django.conf import settings
@@ -107,5 +108,7 @@ urlpatterns = [
   
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
 
 #handler500="Dataset.views.dataset_id_wrong"

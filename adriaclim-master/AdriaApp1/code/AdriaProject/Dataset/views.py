@@ -15,6 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.core import serializers
 from asgiref.sync import sync_to_async
+from celery.schedules import crontab
+from celery.task import periodic_task
 
 
 
@@ -116,13 +118,15 @@ def getHighTemp(request):
     return JsonResponse({'result':result})
 
 
-
+@periodic_task(run_every=crontab(hour=12, minute=21))
 @api_view(['GET','POST'])
 def getAllDatasets(request):
+
     allNodes = allFunctions.getAllDatasets()
     #può non ritornare niente!
     # print("AL NODES =", allNodes)
-    return JsonResponse({'allNodes':allNodes})
+    # return JsonResponse({'allNodes':allNodes})
+    return HttpResponse("Ok", status=200)
 
 def getTitle(request):
     titles=allFunctions.getTitle()

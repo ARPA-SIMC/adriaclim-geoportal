@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
+
+ALREADY_POPULATED = False
 # import mimetypes
 # mimetypes.add_type("text/css", ".css", True)
 # mimetypes.add_type('text/html', '.html', True)
@@ -52,6 +55,17 @@ CACHES = {
     }
 }
 
+#celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'my_task': {
+        'task': 'AdriaProject.tasks.task_get_all_data',
+        'schedule': crontab(hour=11, minute=38),
+    },
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,6 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'AdriaProject.apps.AdriaProjectConfig',
     'Dataset.apps.DatasetConfig',
     'Metadata',
     'Utente',

@@ -27,6 +27,7 @@ from shapely.geometry import Point, Polygon as ShapelyPolygon
 from django.forms import model_to_dict
 from postgres_copy import CopyManager
 
+
 htmlGetMetadata = """<style>
 @import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
 @import "https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css";

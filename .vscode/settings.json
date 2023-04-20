@@ -1,5 +1,8 @@
 {
     "vscode.tsc.compiler.alertTSConfigChanges": "never",
     "cmake.configureOnOpen": false,
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "python.analysis.extraPaths": [
+        "./adriaclim-master/AdriaApp1/code/AdriaProject/myFunctions"
+    ]
 }

@@ -9,7 +9,11 @@ WORKDIR /usr/src/app
 # Copy dependency definitions
 COPY package.json /usr/src/app
 
+
 # Install dependecies
+#Possiamo provare questo anche
+#RUN npm install -g @angular/cli
+
 RUN npm install
 
 # # Generate the build of the application
@@ -17,6 +21,10 @@ RUN npm install
 
 # Get all the code needed to run the app
 COPY . /usr/src/app
+
+RUN chmod 775 /usr/src/app/node_modules/.bin/ng
+
+RUN chmod 775 /usr/src/app/node_modules/.bin/ng.cmd
 
 # Expose the port the app runs in
 EXPOSE 4200
