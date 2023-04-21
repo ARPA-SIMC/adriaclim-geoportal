@@ -2972,9 +2972,6 @@ def getDataAnnualPolygon(
 
 def download_big_data():
     start_effettivo = time.time()
-    # num_of_datasets = (
-    #     Node.objects.count() // 16
-    # )  # testiamo solo su un sedicesimo di loro....
     all_datasets = Node.objects.filter(adriaclim_dataset="indicator")
     for dataset in all_datasets:
         start_time = time.time()
@@ -3188,6 +3185,7 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
             chunk["dataset_id"] = dataset.id 
             csv_data = chunk.to_csv(index=False)
             csv_file = io.StringIO(csv_data)
+            
 
             mapping = {
                 name: name.lower()

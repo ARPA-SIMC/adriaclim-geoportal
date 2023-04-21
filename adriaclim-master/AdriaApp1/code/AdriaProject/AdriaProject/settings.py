@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
-# from celery.schedules import crontab
+from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
 # import mimetypes
 # mimetypes.add_type("text/css", ".css", True)
@@ -20,6 +20,8 @@ from dotenv import load_dotenv, find_dotenv
 # # mimetypes.add_type('text/javascript', '.js', True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+USE_TZ = True
+TIME_ZONE = "Europe/Rome"
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -271,4 +273,22 @@ STATICFILES_DIRS=[
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap" 
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = "Europe/Rome"
+CELERY_BEAT_SCHEDULE = {
+    'my_task': {
+        'task': 'AdriaProject.tasks.task_get_all_data',
+        'schedule': crontab(hour=2, minute=0),
+    },
+    'my_task2':{
+        'task': 'AdriaProject.tasks.download_big_data',
+        'schedule': crontab(hour=12, minute=23),
+    }
+}
 

@@ -11,7 +11,7 @@ services:
       - ./code:/code
       - /static:/static
     command: >
-      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload"
+      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -63,6 +63,44 @@ services:
       - PGDATA=/var/lib/postgresql/data
     volumes:
     - postgres-volume:/var/lib/postgresql/data:rw
+  
+    # Celery
+  celery:
+    restart: always
+    build:
+      context: .
+    command: >
+      sh -c "cd AdriaProject && celery -A AdriaProject worker --loglevel=info && celery -A AdriaProject inspect scheduled"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./code:/code
+    container_name: adriapp_celery
+    depends_on:
+      - db
+      - redis
+  celery-beat:
+    restart: always
+    build:
+      context: .
+    command: >
+      sh -c "cd AdriaProject &&  celery -A AdriaProject beat -l info "
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./code:/code
+    container_name: adriapp_celery_beat
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres-volume:
