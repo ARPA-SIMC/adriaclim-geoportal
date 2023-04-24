@@ -71,6 +71,7 @@ CACHES = {
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.gis',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -154,6 +155,7 @@ CSRF_USE_SESSIONS = True
 # CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
 # Application definition
 
+
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -213,7 +215,7 @@ ASGI_APPLICATION = 'AdriaProject.asgi:application'
 
 DATABASES = {
     'default': {
-         'ENGINE': 'django.db.backends.postgresql',
+         'ENGINE': 'django.contrib.gis.db.backends.postgis',
           'HOST': os.environ.get('DB_HOST'),
           'NAME': os.environ.get('DB_NAME'),
           'USER': os.environ.get('DB_USER'),
@@ -288,7 +290,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'my_task2':{
         'task': 'AdriaProject.tasks.download_big_data',
-        'schedule': crontab(hour=12, minute=23),
+        'schedule': crontab(hour=2, minute=23),
     }
 }
 

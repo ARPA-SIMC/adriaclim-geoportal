@@ -4,9 +4,14 @@ from math import isnan
 from termios import VLNEXT
 from statistics import mean, median, stdev
 from django.db import models, transaction
+from django.db.models import Q
 from Dataset.models import Node, Indicator, Polygon  # ,Cache
 import pandas as pd
 import csv
+import geopandas as gpd
+from django.contrib.gis.geos import Point 
+from django.contrib.gis.geos import Polygon as GeosPolygon
+from django.contrib.gis.geos import GEOSGeometry
 import urllib
 from Utente.models import Utente
 import numpy as np
@@ -23,9 +28,12 @@ from django.core.cache import cache
 from asgiref.sync import sync_to_async
 import datetime as dt
 from collections import defaultdict
-from shapely.geometry import Point, Polygon as ShapelyPolygon
+from shapely.geometry import Polygon as ShapelyPolygon
+from shapely.geometry import Point as ShapelyPoint
+import shapely.speedups
 from django.forms import model_to_dict
 from postgres_copy import CopyManager
+
 
 
 htmlGetMetadata = """<style>
@@ -3144,6 +3152,7 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
                 Polygon.copy_manager.from_csv(
                     csv_file,
                     mapping,
+                
                 )
                 
 
@@ -3205,6 +3214,7 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
 
 
 def rompo_tutto():
+    #con questo nuovo, con 161k ha impiegato secondi
     # AdriaClim Indicators | MedCordex_IPSL | yearly | hist | txx
 
     # tempo 55 secondi circa
@@ -3286,6 +3296,8 @@ def rompo_tutto():
     #print("names prima",names)
     dict_keys = names.copy()
     dict_keys.append("dataset_id")
+    dict_keys.append("coordinate")
+    # print("dict keys",dict_keys)
     #print("Names dopo",names)
 
     chunksize = 10**6
@@ -3301,43 +3313,70 @@ def rompo_tutto():
 
         chunk.drop(index=chunk.index[0], axis=0, inplace=True)
         chunk = chunk.astype(dtypes)
+        mapping = {}
         # print("chunk",chunk.head())
         # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
         # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
         # chunk["dataset_id"] = "MedCordex_IPSL_2084_7a01_e870" # seasonal 201k dati meno di 10 sec
         chunk["dataset_id"] = dataset.id # seasonal 161k dati 22 secondi
+        # chunk.assign(coordinate=[*zip(chunk["latitude",chunk["longitude"]])])
         # chunk["dataset_id"] = "atm_regional_a4d7_6d53_fdfd"
-        
-
-        csv_data = chunk.to_csv(index=False)
+        chunk_geo = gpd.GeoDataFrame(chunk, geometry=gpd.points_from_xy(chunk.latitude, chunk.longitude), crs="EPSG:4326")
+        chunk_geo['coordinate'] = chunk_geo['geometry'].apply(lambda p: Point(p.y,p.x,srid=4326))
+        # chunk_geo = chunk_geo.rename(columns={'geometry':'coordinate'})
+        chunk_geo = chunk_geo.drop(columns=['geometry'])
+        chunk_geo["coordinate"] = chunk_geo["coordinate"].apply(lambda p: p.wkt)
+        csv_data = chunk_geo.to_csv(index=False)
         csv_file = io.StringIO(csv_data)
-        
+        # print("Ci arrivo")
+        # print("chunk_geo",chunk_geo)
+        # Convert the geometry column to WKT format and save the GeoDataFrame to a CSV file
+        # csv_data = pd.DataFrame(chunk_geo.assign(geometry=chub["geometry"].apply(lambda p: p.wkt))).to_csv()
+        # csv_data = chunk_geo.to_csv(index=False)
+        # # print("csv_data",csv_data)  
+        # csv_file = io.StringIO(csv_data)
         mapping = {
             name: name.lower()
             for name in dict_keys
         }
-        
+        # for name in dict_keys:
+        #       if name != "coordinate":
+        #           mapping[name] = name.lower()
 
-        
+        # print("mapping",mapping)
+
+    
 
         try:
             #print("Test======",chunk.head())
             # if(Polygon.objects.filter(dataset_id="MedCordex_IPSL_c22c_bffc_1baa", date_value = date_value, latitude = chunk["latitude"], longitude = chunk["longitude"])):
             
         # Polygon.objects.filter(dataset_id=Node.objects.get(id="MedCordex_IPSL_c22c_bffc_1baa")).delete()
-          
             Polygon.copy_manager.from_csv(
                 csv_file,
                 mapping,
-                # static_mapping = {
-                #     'value_0': "value_0",
-                # },
-                # drop_constraints=False,
-                # drop_indexes=False,
-                # static_mapping={
-                #     "dataset_id": "MedCordex_IPSL_ad60_605d_97a5",
-                # },
-            )
+            )  
+        
+                   
+                    # create_point = Point(row["latitude"],row["longitude"])
+                    # # print("create_point",create_point)
+                    # # print("type",type(create_point))
+                    # # print("create_point.wkb",create_point.wkb)
+                    # # print("create_point.wkt",create_point.wkt)
+                    # # print("create_point.ewkb",create_point.ewkb)
+                    # # print("create_point.ewkt",create_point.ewkt)
+                    # # print("create_point.srid",create_point.srid)
+                   
+                    # p= Polygon(dataset_id=Node.objects.get(id=row["dataset_id"]),  
+                    #                        value_0=row["value_0"],
+                    #                        value_1 = row["value_1"],
+                    #                        date_value=row["date_value"],
+                    #                        coordinate = create_point.ewkb,
+                    #                        latitude = row["latitude"],
+                    #                        longitude = row["longitude"]
+                    #                        )
+                    # p.save()
+        
             
 
         except Exception as e:
@@ -3709,13 +3748,25 @@ def getDataPolygonNew(
     circle_coords,
 ):
     start_time = time.time()
-    #print("STARTED GETDATAPOLYGONNEW!")
+    print("STARTED GETDATAPOLYGONNEW!")
     vertices = []
+    vertices_geos_poly = []
 
     for lat_lng in lat_lng_obj:
         vertices.append((float(lat_lng["lat"]), float(lat_lng["lng"])))
+        vertices_geos_poly.append((float(lat_lng["lng"]), float(lat_lng["lat"])))
 
     shapely_polygon = ShapelyPolygon(vertices)
+    shapely_polygon_inverse = ShapelyPolygon(vertices_geos_poly)
+   
+    try:
+        geos_polygon = GeosPolygon.from_ewkt(shapely_polygon_inverse.wkt)
+        # print("geos_polygon=======",geos_polygon)
+    except Exception as e:
+        print("exc",e)
+        return str(e)
+  
+    shapely.speedups.enable()
     pol_vertices_str = str(vertices[0][0]).replace(" ", "")
     key_cached = dataset_id + "_" + pol_vertices_str #chiave della cache!
     xmin = None
@@ -3724,6 +3775,7 @@ def getDataPolygonNew(
     ymax = None
     area = None
     circ = None
+    
 
     # print("check cache",cache.get(key=key_cached))
     #aggiungere controllo cache prima.....
@@ -3743,17 +3795,25 @@ def getDataPolygonNew(
         return pol_from_cache
 
     else:
+        # polygons = Polygon.objects.filter(
+        #     dataset_id=dataset_id, pol_vertices_str=pol_vertices_str
+        # 
+        print("Check if it is in db!")
         polygons = Polygon.objects.filter(
-            dataset_id=dataset_id, pol_vertices_str=pol_vertices_str
-        )
-        if polygons:
+            Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
+        if polygons.exists():
             print("DOPO FILTER")
-            # qui siamo nel caso in cui è presente il poligono con quel vertice e il dataset id
+            
+            # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
             try:
                 print("CACHE MISS AND DB HIT!")
+                # print("pol",polygons)
+                # all_points_poly = filter(lambda pol:Point(pol.latitude,pol.longitude).within(shapely_polygon),polygons)
                 allData = {}
                 data_table_list = []
                 for pol in polygons:
+                    #checkare se quel determinato punto del dataset sta nel poligono selezionato
+                    #sta nel poligono selezionato 
                     data_table = {}
                     # print("dataTable[i]",dataTable[i])
                     data_table["time"] = pol.date_value
@@ -3766,6 +3826,8 @@ def getDataPolygonNew(
                         # print("Entro qui yeahhhhhh!!")
                         data_table[parametro_agg] = pol.parametro_agg
                     data_table_list.append(data_table)
+                        
+                        
                     #
                 allData[
                     "dataTable"
@@ -3779,6 +3841,7 @@ def getDataPolygonNew(
                         for p in polygons
                     ]
                 )
+                df_polygon_model = df_polygon_model.drop("coordinate",axis=1)
                 #print("Test 2==========", df_polygon_model.head())
                 df_polygon_model = df_polygon_model.drop_duplicates(
                     subset=["date_value", "latitude", "longitude", "value_0"], keep="first"
@@ -3857,13 +3920,13 @@ def getDataPolygonNew(
                 if len(circle_coords) > 0:
                     for coord in circle_coords:
                         # print("Cooord",coord)
-                        point = Point(coord["lat"], coord["lng"])
+                        point = ShapelyPoint(coord["lat"], coord["lng"])
                         if point.within(shapely_polygon):
                             points_inside_polygon.append((coord["lat"], coord["lng"]))
                 else:
                     for x in range(int(xmin / step), int(xmax / step)):
                         for y in range(int(ymin / step), int(ymax / step)):
-                            point = Point(x * step, y * step)
+                            point = ShapelyPoint(x * step, y * step)
                             if point.within(shapely_polygon):
                                 points_inside_polygon.append((x * step, y * step))
             except Exception as coord:

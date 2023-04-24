@@ -1,7 +1,8 @@
 import json
 from unittest.util import _MAX_LENGTH
-from django.db import models
+from django.contrib.gis.db import models
 from postgres_copy import CopyManager
+
 
 # Create your models here.
 class Node(models.Model):
@@ -103,6 +104,8 @@ class Indicator(models.Model):
 #             models.CharField(max_length=255, blank=True, default=''),
 #         )
 #     return AbstractModel
+#Everything worked fine but in models.py when I try to add a PointField after putting in settings.py in INSTALLED_APPS django.contrib.gis and importing in models.py 'from django.contrib.gis.db import models', it is returning me this error 'AttributeError: 'DatabaseOperations' object has no attribute 'geo_db_type''
+
 class Polygon(models.Model):
 
     pol_vertices_str = models.CharField(max_length=500,default="",null=True) 
@@ -138,6 +141,7 @@ class Polygon(models.Model):
     date_value = models.CharField(max_length=500,default="",null=True)
     latitude = models.FloatField(default=0,null=True)
     longitude = models.FloatField(default=0,null=True)
+    coordinate = models.PointField(null=True,srid=4326)
     parametro_agg = models.CharField(max_length=500,default="",null=True)
     objects = models.Manager()
     copy_manager = CopyManager()
