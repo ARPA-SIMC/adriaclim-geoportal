@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from kombu import Queue
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
 # import mimetypes
@@ -283,14 +284,19 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ENABLE_UTC = False
 CELERY_TIMEZONE = "Europe/Rome"
+CELERY_QUEUES = (
+    Queue('my_queue', routing_key='my_queue'),
+)
 CELERY_BEAT_SCHEDULE = {
     'my_task': {
         'task': 'AdriaProject.tasks.task_get_all_data',
-        'schedule': crontab(hour=2, minute=0),
+        'schedule': crontab(hour=0, minute=10),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
     },
-    'my_task2':{
-        'task': 'AdriaProject.tasks.download_big_data',
-        'schedule': crontab(hour=2, minute=30,day_of_week='saturday'),
-    }
+    'my_task2': {
+        'task': 'AdriaProject.tasks.download_all_data',
+        'schedule': crontab(hour=0, minute=30,day_of_week="saturday"),
+        'options': {'queue': 'my_queue','link':'AdriaProject.tasks.task_get_all_data'}  # Set the queue for this task
+    },
 }
 

@@ -2978,9 +2978,9 @@ def getDataAnnualPolygon(
 # tempo 4709 secondi circa
 
 
-def download_big_data():
+def download_big_data(timeperiod):
     start_effettivo = time.time()
-    all_datasets = Node.objects.filter(adriaclim_dataset="indicator")
+    all_datasets = Node.objects.filter(Q(adriaclim_dataset="indicator") & Q(adriaclim_timeperiod=timeperiod))
     for dataset in all_datasets:
         start_time = time.time()
         print("Sono iniziata ora final version!!!")
@@ -3801,6 +3801,7 @@ def getDataPolygonNew(
         pol_from_cache = json.loads(cache_result)
         #print("pol_from_cache=======",pol_from_cache)
         dataframe_from_dict = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"])
+        # print("pol_from_cache=======",pol_from_cache)
         dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
         #print("dataframe_from_dict=======",dataframe_from_dict["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
@@ -3831,9 +3832,8 @@ def getDataPolygonNew(
                     data_table["time"] = pol.date_value
                     data_table["latitude"] = pol.latitude
                     data_table["longitude"] = pol.longitude
-                    data_table[layer_name] = (
-                        pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
-                    )
+                    data_table[layer_name] = pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
+                    
                     if parametro_agg != "None":
                         # print("Entro qui yeahhhhhh!!")
                         data_table[parametro_agg] = pol.parametro_agg
@@ -3844,6 +3844,7 @@ def getDataPolygonNew(
                 allData[
                     "dataTable"
                 ] = data_table_list  # così abbiamo la tabella, ora ci serve il grafico.....
+                # print("allData[dataTable]=======", allData["dataTable"])
 
                 # pol["value"], pol["date_value"],pol["latitude"],pol["longitude"]
                 #print("Test1")
@@ -4039,6 +4040,7 @@ def getDataPolygonNew(
                                                 date_value=convertToTime(row["time"]),
                                                 latitude=float(row["latitude"]),
                                                 longitude=float(row["longitude"]),
+                                                coordinate = Point(float(row["longitude"]), float(row["latitude"])),
                                                 defaults=defaults,
                                                                 )
                                 # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
@@ -4092,6 +4094,7 @@ def getDataPolygonNew(
                                                 date_value=convertToTime(row["time"]),
                                                 latitude=float(row["latitude"]),
                                                 longitude=float(row["longitude"]),
+                                                coordinate = Point(float(row["longitude"]), float(row["latitude"])),
                                                 defaults=defaults,
                                                                 )
                                 # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})

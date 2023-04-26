@@ -570,13 +570,14 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           response = JSON.parse(response);
         }
         this.dataTable = response;
-        // console.log("datatable graph=======", this.dataTable);
+
 
         this.displayedColumns = this.dataTable.data.table.columnNames;
-        let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
-        if (dim_unit) {
-          this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-        }
+        // let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+
+        // if (dim_unit) {
+        //   this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
+        // }
         // this.dataTable.data.table.forEach((el: any) => {
         let objArr: any = {};
         let arr1: any = [];
@@ -854,12 +855,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
     this.displayedColumns = Object.keys(this.dataTable[0]);
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
-    //console.log("lastCol", lastCol);
-    let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
-    //console.log("dim_unit", dim_unit);
-    if (dim_unit) {
-      this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-    }
+    // //console.log("lastCol", lastCol);
+    // let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
+    // //console.log("dim_unit", dim_unit);
+    // if (dim_unit) {
+    //   this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
+    // }
 
 
 

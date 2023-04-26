@@ -2,7 +2,7 @@ import { Options } from '@angular-slider/ngx-slider';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
@@ -137,7 +137,7 @@ interface ExampleFlatNode {
     }
   ]
 })
-export class GeoportalMapComponent implements OnInit, AfterViewInit {
+export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   panelOpenState = false;
 
@@ -235,18 +235,22 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.dataSource.data = TREE_DATA;
 
     this.filteredData = this.dataAllNodesTree.data;
-    if(this.selData.get('searchTextDataset')?.value) {
-      this.selData.get('searchTextDataset')?.valueChanges.pipe(
-        startWith(''),
-        debounceTime(500),
-        distinctUntilChanged(),
-        map((text: string) => this.applyFilter(text))
-      ).subscribe((filteredData: any) => {
-        this.filteredData = filteredData;
-      });
+    // console.log("this.filteredData", this.filteredData);
+    // if(this.selData.get('searchTextDataset')?.value) {
+    this.selData.get('searchTextDataset')?.valueChanges.pipe(
+      startWith(''),
+      debounceTime(500),
+      distinctUntilChanged(),
+      map((text: string) => this.applyFilter(text))
+    ).subscribe((filteredData: any) => {
+      this.filteredData = filteredData;
+    });
 
-    }
+    // }
 
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log("changes", changes);
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -2232,6 +2236,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE
    */
   applyFilter(filterValue: string): any[] {
+
     filterValue = filterValue.trim().toLowerCase();
     let treeFiltrato: any[] = [];
     this.dataAllNodesTree.data = TREE_DATA;
@@ -2249,7 +2254,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
       }
     }
-    if (!filterValue) {
+    // if (treeFiltrato.length === 0) {
+      if(!filterValue){
       // console.log("COLLAPSE");
 
       // this.dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);

@@ -128,14 +128,15 @@
               <div fxFlex fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="max-height: 100% !important; overflow: hidden !important;">
 
                 <div fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;">
-
-                  <ngx-slider [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider>
+                  <span fxFlex="100" fxLayoutAlign="center center"><b>Time range</b></span>
+                  <ngx-slider fxFlex="100" [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider>
 
                 </div>
 
                 <div *ngIf="dataset.dimensions > 3" fxFlex fxLayout="row wrap" fxLayoutAlign="center center"
                   style="width: 100%;">
-                  <ngx-slider [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider>
+                  <span fxFlex="100" fxLayoutAlign="center center"><b>{{extraParamExport.name}}</b></span>
+                  <ngx-slider fxFlex="100" [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider>
                 </div>
                 <div class="menu-var">
                   <h4>Variable</h4>
