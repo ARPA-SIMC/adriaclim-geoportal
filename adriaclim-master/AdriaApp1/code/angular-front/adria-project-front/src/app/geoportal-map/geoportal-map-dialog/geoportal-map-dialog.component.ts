@@ -415,8 +415,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     let data = {
       idMeta: this.datasetId
     }
-    this.httpClient.post('http://localhost:8000/test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
-
+    // this.httpService.post('test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
+    this.httpService.post('test/metadataTable', data).subscribe((response: any) => {
     //   if (typeof response === 'string') {
     //     response = JSON.parse(response);
     //   }
@@ -562,7 +562,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
       // console.log("RANGE IN GETGRAPHTABLE======",this.range);
 
-      this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
+      // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
+        this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
 
         // this.spinnerLoading = false;
         if (typeof response === 'string') {
@@ -719,86 +720,86 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
 
-  downloadFile(url: any): any {
-    //console.log("QUI CI ENRO");
-    // const headerDict = {
-    //   'Access-Control-Allow-Origin': '*',
-    // }
-    // const requestOptions = {
-    //   headers: new Headers(headerDict),
-    //   responseType: 'blob'
-    // };
+  // downloadFile(url: any): any {
+  //   //console.log("QUI CI ENRO");
+  //   // const headerDict = {
+  //   //   'Access-Control-Allow-Origin': '*',
+  //   // }
+  //   // const requestOptions = {
+  //   //   headers: new Headers(headerDict),
+  //   //   responseType: 'blob'
+  //   // };
 
-    return this.httpClient.get(url, {
-      responseType: 'blob', headers: {
-        'Access-Control-Allow-Origin': '*',
-        "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"
-      }
-    });
-  }
+  //   return this.httpClient.get(url, {
+  //     responseType: 'blob', headers: {
+  //       'Access-Control-Allow-Origin': '*',
+  //       "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
+  //       "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"
+  //     }
+  //   });
+  // }
 
-  download() {
-    // console.log("INIZIO DOWNLOAD");
+  // download() {
+  //   // console.log("INIZIO DOWNLOAD");
 
-    let erddapUrl: any;
-    if (this.dataset.dimensions === 3) {
-      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-    }
-    else {
-      //caso parametro aggiuntivo DA FARE!!!
-      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-    }
-    // console.log("ERDDAP URL", erddapUrl);
+  //   let erddapUrl: any;
+  //   if (this.dataset.dimensions === 3) {
+  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+  //   }
+  //   else {
+  //     //caso parametro aggiuntivo DA FARE!!!
+  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+  //   }
+  //   // console.log("ERDDAP URL", erddapUrl);
 
-    this.downloadFile(erddapUrl).subscribe((response: any) => {
-      // console.log("Before blob===========", response);
-      let blob: any = new Blob([response], { type: 'text/json' });
-      // const url= window.URL.createObjectURL(blob);
-      //window.open(url);
-      saveAs(blob, this.datasetId + this.form.get('typeSel')?.value);
+  //   this.downloadFile(erddapUrl).subscribe((response: any) => {
+  //     // console.log("Before blob===========", response);
+  //     let blob: any = new Blob([response], { type: 'text/json' });
+  //     // const url= window.URL.createObjectURL(blob);
+  //     //window.open(url);
+  //     saveAs(blob, this.datasetId + this.form.get('typeSel')?.value);
 
-      // const a = document.createElement('a');
-      // const objectUrl = URL.createObjectURL(blob);
-      // a.href = objectUrl;
-      // a.download = this.datasetId + "." + this.form.get('typeSel')?.value;
-      // a.click();
-      // URL.revokeObjectURL(objectUrl);
-      // console.log("DOWNLOAD CLICK QUI");
+  //     // const a = document.createElement('a');
+  //     // const objectUrl = URL.createObjectURL(blob);
+  //     // a.href = objectUrl;
+  //     // a.download = this.datasetId + "." + this.form.get('typeSel')?.value;
+  //     // a.click();
+  //     // URL.revokeObjectURL(objectUrl);
+  //     // console.log("DOWNLOAD CLICK QUI");
 
-    }), (error: any) => console.log('Error downloading the file'),
-      () => console.info('File downloaded successfully');
-  }
-
-
-  downloadWithService() {
-    let erddapUrl: any;
-    if (this.dataset.dimensions === 3) {
-      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-    }
-    //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_4d78_6f74_63bc.json?wind10m%5B(1969-12-30T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(42.87742828483367):1:(42.87742828483367)%5D%5B(11.656494140625002):1:(11.656494140625002)%5D
-    else {
-      //caso parametro aggiuntivo DA FARE!!!
-      //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-    }
-
-    this.httpService.downloadFile().subscribe((response: any) => {
-      // console.log("RESPONSE DOWNLOAD", response);
-
-      let blob: any = new Blob([response], { type: 'text/json; charset=utf-8' });
-      const url = window.URL.createObjectURL(blob);
-      saveAs(blob, "employees.json");
-    }),
-
-      (error: any) => console.log('Error downloading the file'),
-      () => console.info('File downloaded successfully');
+  //   }), (error: any) => console.log('Error downloading the file'),
+  //     () => console.info('File downloaded successfully');
+  // }
 
 
-  }
+  // downloadWithService() {
+  //   let erddapUrl: any;
+  //   if (this.dataset.dimensions === 3) {
+  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+  //   }
+  //   //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_4d78_6f74_63bc.json?wind10m%5B(1969-12-30T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(42.87742828483367):1:(42.87742828483367)%5D%5B(11.656494140625002):1:(11.656494140625002)%5D
+  //   else {
+  //     //caso parametro aggiuntivo DA FARE!!!
+  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
+  //   }
+
+  //   this.httpService.downloadFile().subscribe((response: any) => {
+  //     // console.log("RESPONSE DOWNLOAD", response);
+
+  //     let blob: any = new Blob([response], { type: 'text/json; charset=utf-8' });
+  //     const url = window.URL.createObjectURL(blob);
+  //     saveAs(blob, "employees.json");
+  //   }),
+
+  //     (error: any) => console.log('Error downloading the file'),
+  //     () => console.info('File downloaded successfully');
+
+
+  // }
 
 
   addDataTimeExport(graph: any) {

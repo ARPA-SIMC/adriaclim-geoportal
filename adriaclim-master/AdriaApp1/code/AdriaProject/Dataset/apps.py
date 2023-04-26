@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-# from myFunctions import allFunctions
 
 
 class DatasetConfig(AppConfig):
@@ -12,5 +11,3 @@ class DatasetConfig(AppConfig):
         print("Ci entro in init.py")
         if Node.objects.count() == 0:
             allFunctions.getAllDatasets()
-        # allFunctions.getAllDatasets()
-        # allFunctions.getAllDatasets()

@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { EChartsOption, graphic } from 'echarts';
 import * as echarts from 'echarts';
 import { ElementRef } from '@angular/core';
+import { HttpService } from 'src/app/services/http.service';
 
 @Component({
   selector: 'app-canvas-graph',
@@ -487,7 +488,7 @@ optionBoxPlot: any = {
   dataRes: any;
 
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private httpService: HttpService) {
 
 
   }
@@ -607,8 +608,9 @@ optionBoxPlot: any = {
     }
     // console.log("QUESTO PARAMETRO IN DATA =", data);
     if(this.statistic !== "boxPlot") {
-      this.httpClient.post('http://localhost:8000/test/dataPolygon', data,
-        { responseType: 'text' }).subscribe((response: any) => {
+      this.httpService.post('test/dataPolygon', data,
+        // { responseType: 'text' }).subscribe((response: any) => {
+        ).subscribe((response: any) => {
           // console.log("RES PRIMA DEL PARSE =", response);
           if (typeof response == 'string') {
             response = JSON.parse(response);
@@ -898,7 +900,8 @@ optionBoxPlot: any = {
      *  DA SPOSTARE SPINNER PER IL GRAFICO E NON PER LA TABLE
      */
 
-    this.httpClient.post('http://localhost:8000/test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
+    // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
+    this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
       if (typeof response == 'string') {
         response = JSON.parse(response);
       }

@@ -290,7 +290,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'my_task2':{
         'task': 'AdriaProject.tasks.download_big_data',
-        'schedule': crontab(hour=2, minute=23),
+        'schedule': crontab(hour=2, minute=30,day_of_week='saturday'),
     }
 }
 

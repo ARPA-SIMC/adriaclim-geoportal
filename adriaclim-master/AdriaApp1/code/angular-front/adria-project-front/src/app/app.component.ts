@@ -1,5 +1,6 @@
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { HttpService } from './services/http.service';
 
 const FUNCTION_CALLED_FLAG = 'function_called';
 
@@ -12,7 +13,7 @@ const FUNCTION_CALLED_FLAG = 'function_called';
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'adria-project-front';
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private httpService: HttpService) {
     // console.log('AppComponent constructor');
   }
 
@@ -40,44 +41,54 @@ export class AppComponent implements OnInit, AfterViewInit {
     /**
      *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
      */
-    console.log("PRIMA");
-    const dataNow = new Date();
-    const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 16, 35, 0, 0);
-    console.log('dataNow: ', dataNow);
-    console.log('orario: ', orario);
-    const tempoRimanente = orario.getTime() - dataNow.getTime();
-    console.log('tempoRimanente: ', tempoRimanente);
+    // console.log("PRIMA");
+    // const dataNow = new Date();
+    // const orario = new Date(dataNow.getFullYear(), dataNow.getMonth(), dataNow.getDate(), 16, 35, 0, 0);
+    // console.log('dataNow: ', dataNow);
+    // console.log('orario: ', orario);
+    // const tempoRimanente = orario.getTime() - dataNow.getTime();
+    // console.log('tempoRimanente: ', tempoRimanente);
 
-    if(tempoRimanente > 0) {
-      setTimeout(() => {
-        this.getAllData();
-      }, tempoRimanente);
-    }
+    // if(tempoRimanente > 0) {
+    //   setTimeout(() => {
+    //     this.getAllData();
+    //   }, tempoRimanente);
+    // }
 
   }
 
 
 
   getPippo(idInput: string) {
-    this.httpClient.post('http://localhost:8000/test/pippo', {
+    this.httpService.post('test/pippo', {
       inputEsterno: idInput
     }).subscribe({
-      next(position) {
-        // console.log('PIPPO: ', position);
+      next(position: any) {
+        console.log('PIPPO: ', position);
       },
-      error(msg) {
-        // console.log('PIPPO ERROR: ', msg);
+      error(msg: any) {
+        console.log('PIPPO ERROR: ', msg);
       }
-    });
+  });
+    // this.httpClient.post('http://localhost:8000/test/pippo', {
+    //   inputEsterno: idInput
+    // }).subscribe({
+    //   next(position) {
+    //     console.log('PIPPO: ', position);
+    //   },
+    //   error(msg) {
+    //     console.log('PIPPO ERROR: ', msg);
+    //   }
+    // });
   }
 
   getAllData(){
-    this.httpClient.post('http://localhost:8000/myFunctions/getAllDatasets', {
+    this.httpService.post('myFunctions/getAllDatasets', {
   }).subscribe({
-    next(position) {
+    next(position: any) {
 
     },
-    error(msg) {
+    error(msg: any) {
       // console.log('Error ALL DATA: ', msg);
     }
   })

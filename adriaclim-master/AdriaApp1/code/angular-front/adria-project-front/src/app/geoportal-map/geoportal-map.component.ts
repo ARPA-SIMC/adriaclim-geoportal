@@ -14,6 +14,7 @@ import * as moment from 'moment';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
+import { HttpService } from '../services/http.service';
 // import "leaflet/dist/leaflet.css";
 
 /**
@@ -207,7 +208,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   navigateDateLeftSeason = false;
   navigateDateRightSeason = true;
 
-  constructor(private httpClient: HttpClient, private dialog: MatDialog) {
+  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService) {
     this.selData = new FormGroup({
       dataSetSel: new FormControl(),
       searchText: new FormControl(),
@@ -629,20 +630,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   getPluto() {
-    this.httpClient.post('http://localhost:8000/test/pluto', {
+    this.httpService.post('test/pluto', {
     }).subscribe({
-      next(position) {
+      next(position:any) {
         // console.log("PLUTO =", position);
 
       },
-      error(msg) {
+      error(msg:any) {
         // console.log('PLUTO ERROR: ', msg);
       }
     });
   }
 
   getAllNodes() {
-    this.httpClient.post('http://localhost:8000/test/allNodes', {
+    this.httpService.post('test/allNodes', {
     }).subscribe({
       next: (res: any) => {
 
@@ -861,7 +862,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   getInd() {
-    this.httpClient.post('http://localhost:8000/test/ind', {
+    this.httpService.post('test/ind', {
     }).subscribe({
       next: (res: any) => {
 
@@ -951,7 +952,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.deleteLayer(idMeta);
 
     }
-    this.httpClient.post('http://localhost:8000/test/metadata', {
+    this.httpService.post('test/metadata', {
       idMeta: idMeta
     }).subscribe({
       next: (res: any) => {
@@ -2030,7 +2031,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //se isIndicator è true, allora si tratta di un tabledap, altrimenti è griddap
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
 
-    this.httpClient.post('http://localhost:8000/test/dataVectorial', {
+    this.httpService.post('test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
       isIndicator: this.isIndicator ? "true" : "false",

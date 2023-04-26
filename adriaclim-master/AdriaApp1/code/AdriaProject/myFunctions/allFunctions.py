@@ -3123,6 +3123,7 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
         
         list_keys = names.copy()
         list_keys.append("dataset_id")
+        list_keys.append("coordinate")
 
         for chunk in pd.read_table(
             url_dataset,
@@ -3137,8 +3138,14 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
 
             chunk.drop(index=chunk.index[0], axis=0, inplace=True)
             chunk = chunk.astype(dtypes)
-            chunk["dataset_id"] = dataset.id 
-            csv_data = chunk.to_csv(index=False)
+            chunk["dataset_id"] = dataset.id
+            chunk_geo = gpd.GeoDataFrame(chunk, geometry=gpd.points_from_xy(chunk.latitude, chunk.longitude), crs="EPSG:4326")
+            chunk_geo['coordinate'] = chunk_geo['geometry'].apply(lambda p: Point(p.y,p.x,srid=4326))
+            # chunk_geo = chunk_geo.rename(columns={'geometry':'coordinate'})
+            chunk_geo = chunk_geo.drop(columns=['geometry'])
+            chunk_geo["coordinate"] = chunk_geo["coordinate"].apply(lambda p: p.wkt)
+
+            csv_data = chunk_geo.to_csv(index=False)
             csv_file = io.StringIO(csv_data)
 
                         
@@ -3177,6 +3184,7 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
         
         list_keys = names.copy()
         list_keys.append("dataset_id") 
+        list_keys.append("coordinate")
 
         chunksize = 10**6
         for chunk in pd.read_table(
@@ -3192,7 +3200,12 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
             chunk.drop(index=chunk.index[0], axis=0, inplace=True)
             chunk = chunk.astype(dtypes)
             chunk["dataset_id"] = dataset.id 
-            csv_data = chunk.to_csv(index=False)
+            chunk_geo = gpd.GeoDataFrame(chunk, geometry=gpd.points_from_xy(chunk.latitude, chunk.longitude), crs="EPSG:4326")
+            chunk_geo['coordinate'] = chunk_geo['geometry'].apply(lambda p: Point(p.y,p.x,srid=4326))
+            # chunk_geo = chunk_geo.rename(columns={'geometry':'coordinate'})
+            chunk_geo = chunk_geo.drop(columns=['geometry'])
+            chunk_geo["coordinate"] = chunk_geo["coordinate"].apply(lambda p: p.wkt)
+            csv_data = chunk_geo.to_csv(index=False)
             csv_file = io.StringIO(csv_data)
             
 
@@ -3313,7 +3326,6 @@ def rompo_tutto():
 
         chunk.drop(index=chunk.index[0], axis=0, inplace=True)
         chunk = chunk.astype(dtypes)
-        mapping = {}
         # print("chunk",chunk.head())
         # chunk["dataset_id"] = "MedCordex_IPSL_ad60_605d_97a5" # 4 sec circa
         # chunk["dataset_id"] = "adriaclim_WRF_c3bc_3ecd_2f3c" # monthly 10kk dati 742.37 sec
