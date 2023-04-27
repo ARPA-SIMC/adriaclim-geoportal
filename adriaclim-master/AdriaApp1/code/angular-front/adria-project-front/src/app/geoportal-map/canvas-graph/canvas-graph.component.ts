@@ -40,9 +40,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() spinnerLoadingChild = new EventEmitter<any>();
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
+  dateGraphZoom : any[] = [];
+  valueGraphZoom : any[] = [];
   // startValue: any;
   // endValue: any =  (document.getElementById('main') as HTMLDivElement).getEchartsInstance().getOption().dataZoom[0]
-
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   chartOption: EChartsOption = {};
   chartOptionBars: EChartsOption = {};
@@ -51,6 +52,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   help: any[] = [];
   positive: any[] = [];
   negative: any[] = [];
+  dataRes: any;
+  startZoom: any;
+  endZoom: any;
   data1 = [
     [850, 740, 900, 1200, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
     [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
@@ -485,7 +489,7 @@ optionBoxPlot: any = {
   //   chart: any;
 
 
-  dataRes: any;
+
 
 
   constructor(private httpClient: HttpClient, private httpService: HttpService) {
@@ -546,22 +550,27 @@ optionBoxPlot: any = {
 
   ngAfterViewInit() {
     this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
-    // this.myChart.on('datazoom', (evt: any) => {
-    //   console.log("DATAZOOM =", evt);
 
-    //   var axis = this.myChart.getModel().option.xAxis[0];
-    //   var starttime = axis.data[axis.rangeStart];
-    //   var endtime = axis.data[axis.rangeEnd];
-    //   console.log("START END =", starttime,endtime);
-    // });
 
-    this.myChart.on('dataZoom', () => {
-      var option = this.myChart.getOption();
-      // console.log("OPTIONSSSSSS =", option);
 
-      // console.log("DATI ZOOM GRAFICOoooo =", option.dataZoom[0].startValue, option.dataZoom[0].endValue);
-    });
+  }
 
+  zoomGraphOn(startValue:any, endValue:any){
+    //change the value of the graph
+    console.log("zoom start =", startValue);
+    console.log("zoom end =", endValue);
+
+  }
+
+
+
+  zoomGraph(startValue:any, endValue:any){
+    //change the value of the graph
+    // setTimeout(() => {
+    console.log("zoom start =", startValue);
+    console.log("zoom end =", endValue);
+
+    // }, 1000);
   }
 
 
@@ -618,7 +627,7 @@ optionBoxPlot: any = {
           // console.log("RES DOPO IL PARSE =", response);
 
           let allDataPolygon = response['dataVect'];
-          this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev);
+          this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
 
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
@@ -872,6 +881,9 @@ optionBoxPlot: any = {
 
   }
 
+
+
+
   getDataGraph() {
 
     let data = {
@@ -905,16 +917,17 @@ optionBoxPlot: any = {
       if (typeof response == 'string') {
         response = JSON.parse(response);
       }
-      // console.log("RES FOR GRAPH: ", response);
+      console.log("RES FOR GRAPH: ", response);
       this.dataRes = response;
 
-      this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev);
+      this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
 
       let name = this.dataRes.allData.entries[0];
       if(this.operation === "annualMonth"){
         this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
       }
       this.dataRes.allData[name].forEach((element: any) => {
+        element.date = element.x;
         element.x = this.formatDate(element.x);
         element.y = Number(element.y);
         // if(element.y > 10000) {
@@ -924,6 +937,27 @@ optionBoxPlot: any = {
         //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
         // }
       });
+
+      this.myChart.on('dataZoom', () => {
+        // console.log("PARAMS: ", params);
+        let option = this.myChart.getOption();
+        console.log("OPTIONSSSSSS =", option);
+        this.startZoom = option.dataZoom[0].startValue;
+        this.endZoom = option.dataZoom[0].endValue;
+        console.log("startZoom =", this.startZoom);
+        console.log("endZoom =", this.endZoom);
+        console.log("dateStartZoom =", this.dataRes.allData[name][this.startZoom]["date"]);
+        console.log("dateEndZoom =", this.dataRes.allData[name][this.endZoom]["date"]);
+        console.log("valueStartZoom =", this.dataRes.allData[name][this.startZoom]["y"]);
+        console.log("valueEndZoom =", this.dataRes.allData[name][this.endZoom]["y"]);
+        // console.log("valueStartZoom =", this.valueGraphZoom[this.startZoom]);
+        // console.log("valueEndZoom =", this.valueGraphZoom[this.endZoom]);
+          // this.zoomGraphOn(startZoom, endZoom);
+          // }
+
+      });
+
+
 
       // const yMax = 500;
       // const dataShadow = [];
@@ -1054,6 +1088,8 @@ optionBoxPlot: any = {
 
   onChartEvent(event: any, type: string) {
     // console.log('chart event:', event);
+    // console.log('chart type:', type);
+
     // const startTimestamp = event.batch[0].start;
     // const endTimestamp = event.batch[0].end;
 

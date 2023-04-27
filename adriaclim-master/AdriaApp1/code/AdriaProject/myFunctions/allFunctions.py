@@ -33,6 +33,7 @@ from shapely.geometry import Point as ShapelyPoint
 import shapely.speedups
 from django.forms import model_to_dict
 from postgres_copy import CopyManager
+from sklearn.linear_model import LinearRegression
 
 
 
@@ -2027,12 +2028,37 @@ def getDataGraphicGeneric(
             output=output,
         )
 
+def calculate_trend(dates, values):
+    try:
+        y = np.array(values)
+        # print("Values",y)
+        # converti le date in oggetti datetime
+        dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
+        # print("Dates",dates)
+        # sottrai la data iniziale dal valore di ogni data (in giorni)
+        days = np.array([(d - dates[0]).days for d in dates])
+        # print("Days",days)
+        # normalizza su 1 anno (in secondi)
+        seconds_norm = days * 86400 * 365.25
+        # print("Seconds_norm",seconds_norm)
+        # esegue la regressione lineare
+        model = LinearRegression().fit(seconds_norm.reshape(-1, 1), y)
+        print("Test",model.coef_)
+        # coefficiente angolare
+        coef_angular = model.coef_[0]
+        print("coefficiente angolare",coef_angular)
+        return coef_angular
+    except Exception as e:
+        print("Errore nella funzione",e)
+        return str(e)
 
 def packageGraphData(allData, **kwargs):
     values = allData[0]
     mean_result = mean(values)
     median_result = median(values)
     stdev_result = stdev(values)
+    trend_result = calculate_trend(allData[1],values)
+    print("package graph data=======trend result",trend_result)
     dates = allData[1]
     unit = allData[2]
     layerName = allData[3]
@@ -2043,6 +2069,7 @@ def packageGraphData(allData, **kwargs):
     data["mean"] = mean_result
     data["median"] = median_result
     data["stdev"] = stdev_result
+    data["trend_yr"] = trend_result
     data["entries"] = []
 
     if "output" in kwargs:
@@ -2099,6 +2126,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
         mean_result = mean(values)
         median_result = median(values)
         stdev_result = stdev(values)
+        trend_result = calculate_trend(dates, values)
         pattern = re.compile("\d\d\d\d-(\d\d)-\S*")
         months = [
             "01",
@@ -2141,6 +2169,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             mean_result,
             median_result,
             stdev_result,
+            trend_result,
         ]
 
     if operation == "annualDay":
@@ -2158,6 +2187,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             mean_result = mean(values)
             median_result = median(values)
             stdev_result = stdev(values)
+            trend_result = calculate_trend(dates, values)
             layerName2 = [layerName[0] for value in values]
             # in values ci sono tutti i valori, dates_list tutte le date!
             float_values = [float(value) for value in values]
@@ -2183,6 +2213,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 mean_result,
                 median_result,
                 stdev_result,
+                trend_result,
             ]
         except Exception as e:
             print("EXCEPTION =", e)
@@ -3866,17 +3897,20 @@ def getDataPolygonNew(
                 )
                 df_polygon_model = df_polygon_model.dropna(how="all", axis=1)
                 allData["dataBeforeOp"] = df_polygon_model.to_dict(orient="records")
+                trend_value = calculate_trend(df_polygon_model["date_value"].tolist(),df_polygon_model["value_0"].tolist())
                 df_polygon_model["date_value"] = pd.to_datetime(
                     df_polygon_model["date_value"]
                 )
                 
                 # df_polygon_model["value_0"]
+               
                 mean = df_polygon_model["value_0"].mean()
                 median = df_polygon_model["value_0"].median()
                 std_dev = df_polygon_model["value_0"].std()
                 allData["mean"] = mean
                 allData["median"] = median
                 allData["stdev"] = std_dev
+                allData["trend_yr"] = trend_value
                 cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #lo setta nella cache per 12 ore
                 allData["dataPol"] = operation_before_after_cache(
                     df_polygon_model, statistic, time_op
@@ -4119,6 +4153,7 @@ def getDataPolygonNew(
                 
                 df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
                 allData["dataBeforeOp"] = df_polygon.to_dict(orient="records")
+                trend_value = calculate_trend(df_polygon["date_value"].tolist(), df_polygon["value_0"].tolist())
                 # a seconda del valore di operation e di time_op viene fatta l'operazione7
                 df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
                 mean = df_polygon["value_0"].mean()
@@ -4141,6 +4176,7 @@ def getDataPolygonNew(
                 allData["mean"] = mean
                 allData["median"] = median
                 allData["stdev"] = std_dev
+                allData["trend_yr"] = trend_value
                 # Mi setto la cache prima di fare l'operazione richiesta ma con tutte le date e tutti i valori!
                 cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #12 ore di cache
                 print("DB AND CACHE setted!")

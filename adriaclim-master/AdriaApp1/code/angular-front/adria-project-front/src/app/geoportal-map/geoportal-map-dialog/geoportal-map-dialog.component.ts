@@ -67,6 +67,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   meanValue: any;
   medianValue: any;
   stdevValue: any;
+  trendValue: any;
+
 
   circleCoords: any;
 
@@ -195,6 +197,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       value: "boxPlot"
     }
   ];
+
 
   removeAnnualCycle(o: any): boolean {
 
@@ -576,7 +579,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         this.displayedColumns = this.dataTable.data.table.columnNames;
         let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
 
-        if (dim_unit && dim_unit !== "No") {
+        if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
           this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
         }
         // this.dataTable.data.table.forEach((el: any) => {
@@ -859,7 +862,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     // //console.log("lastCol", lastCol);
     let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
     //console.log("dim_unit", dim_unit);
-    if (dim_unit  && dim_unit !== "No") {
+    if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string" ) {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
     }
 
@@ -917,9 +920,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   meanMedianStdev(event: any){
     let mean_median_stdev = event.split("_");
+    //console.log("mean_median_stdev = ", mean_median_stdev)
     this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
     this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
     this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
+    //console.log("no parseFloat()",mean_median_stdev[3]);
+    this.trendValue = parseFloat(mean_median_stdev[3]);
   }
 
   sendSelGraphPoly() {
