@@ -561,9 +561,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       }
 
       // console.log("RANGE IN GETGRAPHTABLE======",this.range);
+      //console.log("DATA IN GETGRAPHTABLE======", data);
 
       // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
-        this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
+      this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
 
         // this.spinnerLoading = false;
         if (typeof response === 'string') {
@@ -573,11 +574,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
 
         this.displayedColumns = this.dataTable.data.table.columnNames;
-        // let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+        let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
 
-        // if (dim_unit) {
-        //   this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-        // }
+        if (dim_unit && dim_unit !== "No") {
+          this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
+        }
         // this.dataTable.data.table.forEach((el: any) => {
         let objArr: any = {};
         let arr1: any = [];
@@ -856,11 +857,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.displayedColumns = Object.keys(this.dataTable[0]);
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
     // //console.log("lastCol", lastCol);
-    // let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
-    // //console.log("dim_unit", dim_unit);
-    // if (dim_unit) {
-    //   this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-    // }
+    let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
+    //console.log("dim_unit", dim_unit);
+    if (dim_unit  && dim_unit !== "No") {
+      this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
+    }
 
 
 

@@ -434,6 +434,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     va = getIndicatorVariables(ind)
 
+    selVar = [kwargs["variable"]]
+
     tipo = getIndicatorDataFormat(ind)
 
     griddap = tipo == "griddap"
@@ -446,6 +448,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     if skipDimensions:
         di = []
+    
+    va = selVar
 
     query = "?"
 
@@ -1879,6 +1883,7 @@ def getDataTable(
             timeMax=str(time_finish),
             range=str(range_value),
             format="json",
+            variable=str(layer_name),
         )
         print("URL SUPER FUNZIONE =", url)
         # urlTabledap = https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
