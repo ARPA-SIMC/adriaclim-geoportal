@@ -2043,10 +2043,10 @@ def calculate_trend(dates, values):
         # print("Seconds_norm",seconds_norm)
         # esegue la regressione lineare
         model = LinearRegression().fit(seconds_norm.reshape(-1, 1), y)
-        print("Test",model.coef_)
+        #print("Test",model.coef_)
         # coefficiente angolare
         coef_angular = model.coef_[0]
-        print("coefficiente angolare",coef_angular)
+        #print("coefficiente angolare",coef_angular)
         return coef_angular
     except Exception as e:
         print("Errore nella funzione",e)
