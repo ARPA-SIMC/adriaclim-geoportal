@@ -80,11 +80,12 @@
                   </ng-container>
 
                 </div>
-                <div fxFlex fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;">
-                  <span>Mean: {{meanValue}}</span>
-                  <span>Median: {{medianValue}}</span>
-                  <span>Standard deviation: {{stdevValue}}</span>
-                  <span>Trend/Yr: {{trendValue}}</span>
+                <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;">
+                  <span>Mean: <br> {{meanValue}}</span>
+                  <span>Median: <br> {{medianValue}}</span>
+                  <span>Standard deviation: <br> {{stdevValue}}</span>
+                  <span *ngIf="!polygon">Trend/Yr: <br> {{trendValue}}</span>
+                  <button mat-raised-button color="primary" (click)="calcStatistics()">Calc</button>
                 </div>
                 <div fxFlex fxLayout="row" fxLayoutAlign="end center">
                   <section class="example-section">
@@ -94,6 +95,7 @@
               </div>
               <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)" (meanMedianStdev)="meanMedianStdev($event)"
                 (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
+                (statisticCalc)="statisticCalc($event)"
                 class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                 [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
                 [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"

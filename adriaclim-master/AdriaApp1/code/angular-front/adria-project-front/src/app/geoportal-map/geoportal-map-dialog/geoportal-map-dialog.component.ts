@@ -68,6 +68,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   medianValue: any;
   stdevValue: any;
   trendValue: any;
+  statCalc: any;
 
 
   circleCoords: any;
@@ -932,6 +933,35 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.operation = this.form.get('operationSel')?.value;
     this.statistic = this.form.get('statisticSel')?.value;
   }
+
+  statisticCalc(event: any) {
+    this.statCalc = event;
+    console.log("statisticCalc", this.statCalc);
+  }
+
+  calcStatistics() {
+    let data = {
+      dates : this.statCalc.dates,
+      values: this.statCalc.values,
+    }
+    this.httpService.post('test/updateStatistics', data).subscribe({
+      next: (res: any) => {
+        console.log("res", res);
+        this.meanValue = res.newValues.mean.toFixed(3);
+        this.medianValue = res.newValues.median.toFixed(3);
+        this.stdevValue = res.newValues.stdev.toFixed(3);
+        this.trendValue = res.newValues.trend;
+      },
+
+      error: (err: any) => {
+        console.log(err);
+      }
+    });
+
+
+  }
+
+
 
 
 

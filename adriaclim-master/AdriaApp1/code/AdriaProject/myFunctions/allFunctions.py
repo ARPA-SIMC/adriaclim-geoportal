@@ -1,6 +1,7 @@
 import math
 from pydoc import resolve
 from math import isnan
+from scipy import stats
 from termios import VLNEXT
 from statistics import mean, median, stdev
 from django.db import models, transaction
@@ -2031,26 +2032,34 @@ def getDataGraphicGeneric(
 def calculate_trend(dates, values):
     try:
         y = np.array(values)
-        # print("Values",y)
         # converti le date in oggetti datetime
         dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
-        # print("Dates",dates)
         # sottrai la data iniziale dal valore di ogni data (in giorni)
         days = np.array([(d - dates[0]).days for d in dates])
-        # print("Days",days)
         # normalizza su 1 anno (in secondi)
         seconds_norm = days * 86400 * 365.25
-        # print("Seconds_norm",seconds_norm)
         # esegue la regressione lineare
-        model = LinearRegression().fit(seconds_norm.reshape(-1, 1), y)
-        #print("Test",model.coef_)
-        # coefficiente angolare
-        coef_angular = model.coef_[0]
-        #print("coefficiente angolare",coef_angular)
-        return coef_angular
+        slope, intercept, r_value, p_value, std_err = stats.linregress(seconds_norm,y)
+        # model = LinearRegression().fit(seconds_norm.reshape(-1, 1), y)
+        # # coefficiente angolare
+        # coef_angular = model.coef_[0]
+        return slope
     except Exception as e:
         print("Errore nella funzione",e)
         return str(e)
+
+def updateStatistics(new_dates,new_values):
+    try:
+        allData = {}
+        allData["mean"] = mean(new_values)
+        allData["stdev"] = stdev(new_values)
+        allData["median"] = median(new_values)
+        allData["trend"] = calculate_trend(new_dates,new_values)
+        return allData
+    except Exception as e:
+        print("Errore nella funzione",e)
+        return str(e)
+
 
 def packageGraphData(allData, **kwargs):
     values = allData[0]

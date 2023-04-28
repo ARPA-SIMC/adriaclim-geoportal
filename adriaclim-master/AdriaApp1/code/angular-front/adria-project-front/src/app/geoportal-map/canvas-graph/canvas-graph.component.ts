@@ -4,6 +4,7 @@ import { EChartsOption, graphic } from 'echarts';
 import * as echarts from 'echarts';
 import { ElementRef } from '@angular/core';
 import { HttpService } from 'src/app/services/http.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-canvas-graph',
@@ -38,6 +39,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
   @Output() spinnerLoadingChild = new EventEmitter<any>();
+  @Output() statisticCalc = new EventEmitter<any>();
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
   dateGraphZoom : any[] = [];
@@ -627,11 +629,46 @@ optionBoxPlot: any = {
           // console.log("RES DOPO IL PARSE =", response);
 
           let allDataPolygon = response['dataVect'];
+          //console.log("allDataPolygon", allDataPolygon);
+          let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
+          let allDates = _.cloneDeep([...dataBeforeOp]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
+          allDates = allDates.map((el: any) => {
+            return el["date_value"]
+          })
+          allDates = [...new Set(allDates)]; //abbiamo solo le date 20!
+          //console.log("allDates", allDates);
+
+          //   var unique = dataBeforeOp["date_value"].filter(function(elem:any, index:any, self: any) {
+          //     return index === self.indexOf(elem);
+          // })
+          //se di queste usiamo lo zoom e prendiamo le date che stanno nello zoom effettuato
+          this.myChart.on('dataZoom', () => {
+            // console.log("PARAMS: ", params);
+            let option = this.myChart.getOption();
+            // console.log("OPTIONSSSSSS =", option);
+            this.startZoom = option.dataZoom[0].startValue;
+            this.endZoom = option.dataZoom[0].endValue;
+            let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom],allDates[this.endZoom]));
+
+            //console.log("Arraydate after filer zoom:",arrayDate);
+            let valuesFiltered = dataBeforeOp.map((element:any,index:any) => {
+              if (element.date_value && arrayDate.includes(element.date_value)){
+                return element.value_0;
+              }
+            })
+            valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
+
+            this.statisticCalc.emit({
+              dates: arrayDate,
+              values: valuesFiltered
+            })
+
+          });
+
           this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
 
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
-          // console.log("allDataPolygon", allDataPolygon);
 
           if(this.statistic === "min_mean_max" || this.statistic === "min_10thPerc_median_90thPerc_max"){
             //caso di min_mean_max o min_10thPerc..., una linea per ogni statistica
@@ -882,7 +919,9 @@ optionBoxPlot: any = {
   }
 
 
-
+  filterElement(min: any, max: any) {
+    return function (a: any) {return a >= min && a <= max; };
+  }
 
   getDataGraph() {
 
@@ -937,23 +976,42 @@ optionBoxPlot: any = {
         //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
         // }
       });
+      let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
+      let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
+      let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
+      // console.log("all date =", arrayAllDate);
+      // console.log("all value =", arrayAllValue);
+
 
       this.myChart.on('dataZoom', () => {
         // console.log("PARAMS: ", params);
         let option = this.myChart.getOption();
-        console.log("OPTIONSSSSSS =", option);
+        // console.log("OPTIONSSSSSS =", option);
         this.startZoom = option.dataZoom[0].startValue;
         this.endZoom = option.dataZoom[0].endValue;
-        console.log("startZoom =", this.startZoom);
-        console.log("endZoom =", this.endZoom);
-        console.log("dateStartZoom =", this.dataRes.allData[name][this.startZoom]["date"]);
-        console.log("dateEndZoom =", this.dataRes.allData[name][this.endZoom]["date"]);
-        console.log("valueStartZoom =", this.dataRes.allData[name][this.startZoom]["y"]);
-        console.log("valueEndZoom =", this.dataRes.allData[name][this.endZoom]["y"]);
-        // console.log("valueStartZoom =", this.valueGraphZoom[this.startZoom]);
-        // console.log("valueEndZoom =", this.valueGraphZoom[this.endZoom]);
-          // this.zoomGraphOn(startZoom, endZoom);
-          // }
+        // console.log("startZoom =", this.startZoom);
+        // console.log("endZoom =", this.endZoom);
+        // console.log("dateStartZoom =", this.dataRes.allData[name][this.startZoom]["date"]);
+        // console.log("dateEndZoom =", this.dataRes.allData[name][this.endZoom]["date"]);
+        // console.log("valueStartZoom =", this.dataRes.allData[name][this.startZoom]["y"]);
+        // console.log("valueEndZoom =", this.dataRes.allData[name][this.endZoom]["y"]);
+
+        let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
+
+        let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
+          if(element.date && arrayDate.includes(element.date)){
+              // console.log("include date:",element.date)
+              // console.log("element.y",element.y)
+              return element.y;
+          }
+        })
+        arrayValueTest = arrayValueTest.filter((element: any) => element !== undefined);
+        // let arrayValue = arrayAllValue.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["y"], this.dataRes.allData[name][this.endZoom]["y"]));
+
+        this.statisticCalc.emit({
+          dates: arrayDate,
+          values: arrayValueTest
+        })
 
       });
 

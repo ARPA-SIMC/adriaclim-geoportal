@@ -534,3 +534,10 @@ def getDataPolygonNew(request):
     #print("IS INDICATOR:",is_indicator)
     dataVect=allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords)
     return JsonResponse({'dataVect':dataVect})
+
+@api_view(['GET','POST'])
+def updateStatistics(request):
+    new_dates = request.data.get("dates")
+    new_values = request.data.get("values")
+    new_values_calculated = allFunctions.updateStatistics(new_dates,new_values)
+    return JsonResponse({"newValues":new_values_calculated})

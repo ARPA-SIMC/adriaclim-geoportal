@@ -200,7 +200,8 @@
   </div>
 
   <!-- MAT MENU PER TOOLS -->
-  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools">
+  <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools"> -->
+  <div class="overlay-tools">
     <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
         #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuTools">
       <mat-icon> list_alt</mat-icon>
@@ -223,7 +224,8 @@
     </mat-menu>
   </div>
   <!-- MAT MENU PER SCELTA POLIGONI -->
-  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-polygon">
+  <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-polygon"> -->
+  <div class="overlay-polygon">
     <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
         #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuPolygon">
       <mat-icon> list_alt</mat-icon>
@@ -251,7 +253,8 @@
   </div>
 
   <ng-container *ngIf="selData.get('dataSetSel')?.value">
-    <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map">
+    <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map"> -->
+    <div class="overlay-buttons-top-map">
       <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center">
         <mat-card-header>
           <mat-card-title class="bolder-title">Active layer</mat-card-title>
