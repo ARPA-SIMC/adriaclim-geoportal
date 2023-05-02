@@ -152,7 +152,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = enviromentProd;
+  apiUrl = enviromentDev;
 
   markers: L.Marker[] = [];
 
@@ -2255,19 +2255,24 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
         );
       }
-      // labels.push(
-      //   // "<div class='color-number-legend'>" + "<button mat-icon-button><mat-icon>settings</mat-icon></button>" + "</div>"
-      //   "<div class='color-number-legend'>" + "<span style='background-image: url(\"https://material.angular.io/assets/icons/settings-24px.svg\")'></span></button>" + "</div>"
+      labels.push(
+        // "<div class='color-number-legend'>" + "<button mat-icon-button><mat-icon>settings</mat-icon></button>" + "</div>"
+        "<div class='color-number-legend'>" + "<button onclick='this.proviamoStaCosa()'><span class='material-symbols-outlined'>settings</span></button>" + "</div>"
 
-      //   );
+        );
 
-      // console.log("LABELS =", labels);
+      console.log("LABELS =", labels);
       // div.innerHTML = labels.join('<br>');
       div.innerHTML = labels.join('');
       return div;
     };
 
     this.legendNoWms.addTo(this.map);
+
+  }
+
+  proviamoStaCosa() {
+    console.log("PROVIAMO STA COSA");
 
   }
 
