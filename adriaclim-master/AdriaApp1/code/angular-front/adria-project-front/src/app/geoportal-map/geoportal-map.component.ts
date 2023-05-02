@@ -15,6 +15,7 @@ import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
+import { enviromentDev, enviromentProd, enviromentDevProd } from 'src/assets/environments';
 // import "leaflet/dist/leaflet.css";
 
 /**
@@ -151,6 +152,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
+  apiUrl = enviromentProd;
+
   markers: L.Marker[] = [];
 
   polygon = poly;
@@ -181,6 +184,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   circleMarkerArray: any[] = [];
   circleCoords: circleCoords[] = [];
 
+  valueMinColor: any = "#f44336";
+  valueMinMidColor: any = "#e91e63";
+  valueMidColor: any = "#9c27b0";
+  valueMidMaxColor: any = "#673ab7";
+  valueMaxColor: any = "#3f51b5";
 
   value: any;
   valueCustom: any;
@@ -1556,7 +1564,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         //siamo nel caso di layers 2D!!!
         layer_to_attach = {
           layer_name: L.tileLayer.wms(
-            'http://localhost:8000/test/layers2d', {
+            this.apiUrl + 'test/layers2d', {
               attribution: this.metadata[0][6],
               bgcolor: '0x808080',
               crs: L.CRS.EPSG4326,
@@ -1633,7 +1641,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
           layer_to_attach = {
             layer_name: L.tileLayer.wms(
-              'http://localhost:8000/test/layers3d/' + this.extraParam.name, {
+              this.apiUrl + 'test/layers3d/' + this.extraParam.name, {
                 attribution: this.metadata[0][6],
                 bgcolor: '0x808080',
                 crs: L.CRS.EPSG4326,
@@ -1666,7 +1674,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
           layer_to_attach = {
             layer_name: L.tileLayer.wms(
-              'http://localhost:8000/test/layers3d/' + this.extraParam.name, {
+              this.apiUrl + 'test/layers3d/' + this.extraParam.name, {
                 attribution: this.metadata[0][6],
                 bgcolor: '0x808080',
                 crs: L.CRS.EPSG4326,
@@ -1721,7 +1729,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     let overlays = {
       Land: L.tileLayer.wms(
-        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -1732,7 +1740,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         } as ExtendedWMSOptions
       ),
       Coastlines: L.tileLayer.wms(
-        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -1743,7 +1751,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         } as ExtendedWMSOptions
       ),
       LakesAndRivers: L.tileLayer.wms(
-        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -1754,7 +1762,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         } as ExtendedWMSOptions
       ),
       Nations: L.tileLayer.wms(
-        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -1765,7 +1773,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         } as ExtendedWMSOptions
       ),
       States: L.tileLayer.wms(
-        'http://localhost:8000/test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -2207,16 +2215,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     let getColor = (v: any) => {
       return v === value_min
-        ? "#f44336"
+        ? this.valueMinColor
         : v === value_min_mid
-          ? "#e91e63"
+          ? this.valueMinMidColor
           : v === value_mid
-            ? "#9c27b0"
+            ? this.valueMidColor
             : v === value_mid_max
-              ? "#673ab7"
+              ? this.valueMidMaxColor
               : v === value_max
-                ? "#3f51b5"
-                : "#3f51b5";
+                ? this.valueMaxColor
+                : this.valueMaxColor;
     }
 
 
@@ -2244,8 +2252,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
         labels.push(
           "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '"></i> ' +
-          "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>");
+          "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
+        );
       }
+      // labels.push(
+      //   // "<div class='color-number-legend'>" + "<button mat-icon-button><mat-icon>settings</mat-icon></button>" + "</div>"
+      //   "<div class='color-number-legend'>" + "<span style='background-image: url(\"https://material.angular.io/assets/icons/settings-24px.svg\")'></span></button>" + "</div>"
+
+      //   );
+
+      // console.log("LABELS =", labels);
       // div.innerHTML = labels.join('<br>');
       div.innerHTML = labels.join('');
       return div;
