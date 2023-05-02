@@ -938,7 +938,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   statisticCalc(event: any) {
     this.statCalc = event;
-    console.log("statisticCalc", this.statCalc);
+    // console.log("statisticCalc", this.statCalc);
   }
 
   calcStatistics() {
@@ -948,7 +948,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     }
     this.httpService.post('test/updateStatistics', data).subscribe({
       next: (res: any) => {
-        console.log("res", res);
+        // console.log("res", res);
         this.meanValue = res.newValues.mean.toFixed(3);
         this.medianValue = res.newValues.median.toFixed(3);
         this.stdevValue = res.newValues.stdev.toFixed(3);

@@ -1,7 +1,11 @@
 <form [formGroup]="form">
 
   <div *ngIf="!description" class="title-dialog">
-    <h1 mat-dialog-title><span class="info-title-dialog">Polygon's name: </span><span class="title-dialog-bold">{{polName}}</span></h1>
+    <ng-container *ngIf="polName">
+      <h1 mat-dialog-title><span class="info-title-dialog">Polygon's name: </span><span class="title-dialog-bold">{{polName}}</span></h1>
+
+    </ng-container>
+
     <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
   </div>
   <h1 *ngIf="description" mat-dialog-title class="title-dialog-bold">{{description}}</h1>
@@ -87,7 +91,7 @@
                   <span>Mean: <br> {{meanValue}}</span>
                   <span>Median: <br> {{medianValue}}</span>
                   <span>Standard deviation: <br> {{stdevValue}}</span>
-                  <span *ngIf="!polygon">Trend/Yr: <br> {{trendValue}}</span>
+                  <span>Trend/Yr: <br> {{trendValue}}</span>
                   <button mat-raised-button color="primary" (click)="calcStatistics()">Calc</button>
                 </div>
                 <div fxFlex fxLayout="row" fxLayoutAlign="end center">

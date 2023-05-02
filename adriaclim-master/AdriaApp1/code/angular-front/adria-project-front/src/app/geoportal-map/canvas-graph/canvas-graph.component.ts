@@ -559,8 +559,8 @@ optionBoxPlot: any = {
 
   zoomGraphOn(startValue:any, endValue:any){
     //change the value of the graph
-    console.log("zoom start =", startValue);
-    console.log("zoom end =", endValue);
+    // console.log("zoom start =", startValue);
+    // console.log("zoom end =", endValue);
 
   }
 
@@ -569,8 +569,8 @@ optionBoxPlot: any = {
   zoomGraph(startValue:any, endValue:any){
     //change the value of the graph
     // setTimeout(() => {
-    console.log("zoom start =", startValue);
-    console.log("zoom end =", endValue);
+    // console.log("zoom start =", startValue);
+    // console.log("zoom end =", endValue);
 
     // }, 1000);
   }
@@ -651,13 +651,17 @@ optionBoxPlot: any = {
             let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom],allDates[this.endZoom]));
 
             //console.log("Arraydate after filer zoom:",arrayDate);
-            let valuesFiltered = dataBeforeOp.map((element:any,index:any) => {
-              if (element.date_value && arrayDate.includes(element.date_value)){
-                return element.value_0;
+            let valuesFiltered = dataBeforeOp.map((element:any, index:any) => {
+              if (element.date_value && arrayDate.includes(element.date_value) && element.value_0 !== undefined){
+                return {"date": element.date_value, "value": element.value_0};
+              }
+              else {
+                return undefined;
+
               }
             })
             valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
-
+            // console.log("valuesFiltered after filer zoom:",valuesFiltered);
             this.statisticCalc.emit({
               dates: arrayDate,
               values: valuesFiltered
@@ -956,7 +960,7 @@ optionBoxPlot: any = {
       if (typeof response == 'string') {
         response = JSON.parse(response);
       }
-      console.log("RES FOR GRAPH: ", response);
+      // console.log("RES FOR GRAPH: ", response);
       this.dataRes = response;
 
       this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);

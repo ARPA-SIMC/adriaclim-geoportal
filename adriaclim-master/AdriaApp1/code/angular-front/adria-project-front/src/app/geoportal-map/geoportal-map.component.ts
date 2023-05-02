@@ -250,7 +250,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("changes", changes);
+    // console.log("changes", changes);
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -261,7 +261,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
     let polyg: any = [];
-    console.log("this.polygon", this.polygon);
+    // console.log("this.polygon", this.polygon);
 
     this.polygon.features.forEach(f => {
 
@@ -541,7 +541,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
       const polygonsContainingPoint = this.allPolygons.filter((polygon : any) => {
         let copiaPoly = _.cloneDeep(polygon);
-        console.log("Polygon copy: ", copiaPoly);
+        // console.log("Polygon copy: ", copiaPoly);
         if (polygon.pol.getBounds().contains(e.latlng)){
           return polygon;
         }
@@ -2014,7 +2014,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       // const lon_max = corner2.lng;
       // dialogConfig.height = '1000px';
       // console.log("this.circlecoo",this.circleCoords);
-      console.log("POLYGON", polygon);
+      // console.log("POLYGON", polygon);
 
       dialogConfig.data = {
         success: true,
@@ -2029,9 +2029,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         range: this.value,
         openGraph: true,
         extraParamExport: this.extraParamExport,
-        polyExport: polygon[0].pol ? polygon[0].pol.getBounds() : null,
-        polygon: polygon[0].pol ? polygon[0].pol.getLatLngs()[0] : null,
-        polName: polygon[0].polName ? polygon[0].polName : null,
+        polyExport: polygon ? polygon[0].pol.getBounds() : null,
+        polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
+        polName: polygon ? polygon[0].polName : null,
         circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };

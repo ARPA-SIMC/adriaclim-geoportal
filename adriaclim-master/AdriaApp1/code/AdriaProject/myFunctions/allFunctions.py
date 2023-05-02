@@ -2032,10 +2032,17 @@ def getDataGraphicGeneric(
 def calculate_trend(dates, values):
     try:
         y = np.array(values)
+        # print("Y==============",y)
+        
         # converti le date in oggetti datetime
-        dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
+        if type(dates[0]) is str:
+            #è una stringa!
+            dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
         # sottrai la data iniziale dal valore di ogni data (in giorni)
         days = np.array([(d - dates[0]).days for d in dates])
+        # print("Days",days)
+        # print("Length days",len(days))
+        # print("Length y",len(y))
         # normalizza su 1 anno (in secondi)
         seconds_norm = days * 86400 * 365.25
         # esegue la regressione lineare
@@ -2045,19 +2052,35 @@ def calculate_trend(dates, values):
         # coef_angular = model.coef_[0]
         return slope
     except Exception as e:
-        print("Errore nella funzione",e)
+        print("Errore in calculate_trend",e)
         return str(e)
 
 def updateStatistics(new_dates,new_values):
     try:
         allData = {}
-        allData["mean"] = mean(new_values)
-        allData["stdev"] = stdev(new_values)
-        allData["median"] = median(new_values)
-        allData["trend"] = calculate_trend(new_dates,new_values)
+        #print("new_values=============",new_values)
+        if type(new_values[0]) is not dict:
+            allData["mean"] = mean(new_values)
+            allData["stdev"] = stdev(new_values)
+            allData["median"] = median(new_values)
+            allData["trend"] = calculate_trend(new_dates,new_values)
+        else:
+            #is a polygon so we need to calculate mean, stdev, median and trend
+            #print("new_values=====",new_values)
+            df_stats = pd.DataFrame(new_values,columns = ["date","value"])
+            #print("df_stats=====",df_stats)
+            allData["mean"] = mean(df_stats["value"].tolist())
+            allData["stdev"] = stdev(df_stats["value"].tolist())
+            allData["median"] = median(df_stats["value"].tolist())
+            mean_trend = df_stats.groupby("date")["value"].mean().tolist()
+            df_stats = df_stats.drop_duplicates(subset=["date"], keep="first") 
+            #print("Df_stat after drop_duplicates",df_stats)
+            df_stats["date"] = pd.to_datetime(df_stats["date"])
+            allData["trend"] = calculate_trend(df_stats["date"].tolist(),mean_trend)
+
         return allData
     except Exception as e:
-        print("Errore nella funzione",e)
+        print("Errore in update",e)
         return str(e)
 
 
@@ -3906,10 +3929,17 @@ def getDataPolygonNew(
                 )
                 df_polygon_model = df_polygon_model.dropna(how="all", axis=1)
                 allData["dataBeforeOp"] = df_polygon_model.to_dict(orient="records")
-                trend_value = calculate_trend(df_polygon_model["date_value"].tolist(),df_polygon_model["value_0"].tolist())
-                df_polygon_model["date_value"] = pd.to_datetime(
-                    df_polygon_model["date_value"]
-                )
+                date_value_to_list = df_polygon_model.copy()
+                date_value_to_list = date_value_to_list.drop_duplicates(subset="date_value",keep="first")
+                date_value_to_list["date_value"] = pd.to_datetime(date_value_to_list["date_value"])
+
+               
+                # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
+
+                trend_value_mean = df_polygon_model.groupby("date_value")["value_0"].mean().tolist()
+                # print("Trend value_mean",trend_value_mean)
+                trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean)
                 
                 # df_polygon_model["value_0"]
                
@@ -4162,9 +4192,25 @@ def getDataPolygonNew(
                 
                 df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
                 allData["dataBeforeOp"] = df_polygon.to_dict(orient="records")
-                trend_value = calculate_trend(df_polygon["date_value"].tolist(), df_polygon["value_0"].tolist())
+                #calcolare la media di tutti i valori raggruppati per data
+                # date_value_to_list = df_polygon["date_value"].tolist()
+               
+                # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                # print("PRIMA DEL TREND")
+                date_value_to_list = df_polygon.copy()
+                date_value_to_list = date_value_to_list.drop_duplicates(subset="date_value",keep="first")
+                date_value_to_list["date_value"] = pd.to_datetime(date_value_to_list["date_value"])
+
+               
                 # a seconda del valore di operation e di time_op viene fatta l'operazione7
                 df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
+                trend_value_mean = df_polygon.groupby("date_value")["value_0"].mean().tolist()
+                # print("Trend value_mean",trend_value_mean)
+                trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean)
+                # df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"]
+                # trend_value_mean = df_polygon.groupby("date_value")["value_0"].mean().tolist()
+                # print("Trend value_mean",trend_value_mean)
+                # trend_value = calculate_trend(date_value_to_list,trend_value_mean)
                 mean = df_polygon["value_0"].mean()
                 median = df_polygon["value_0"].median()
                 std_dev = df_polygon["value_0"].std()

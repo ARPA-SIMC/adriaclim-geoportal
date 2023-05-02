@@ -12,8 +12,6 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app
 # COPY package.json /app
 
-
-
 # Install dependecies
 #Possiamo provare questo anche
 #RUN npm install -g @angular/cli
