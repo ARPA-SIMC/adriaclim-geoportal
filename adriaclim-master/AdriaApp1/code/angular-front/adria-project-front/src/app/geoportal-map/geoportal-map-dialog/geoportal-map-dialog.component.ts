@@ -80,6 +80,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   isIndicator: any;
   polygon: any;
   polyExport: any;
+  polName: any;
 
   minRange: any;
   maxRange: any;
@@ -295,6 +296,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.isIndicator = data.isIndicator;
     this.polygon = data.polygon;
     this.polyExport = data.polyExport;
+    this.polName = data.polName;
 
     this.circleCoords = data.circleCoords;
 

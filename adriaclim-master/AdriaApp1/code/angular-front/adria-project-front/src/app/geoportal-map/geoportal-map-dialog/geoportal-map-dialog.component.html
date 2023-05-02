@@ -1,6 +1,9 @@
 <form [formGroup]="form">
 
-  <h1 *ngIf="!description" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1>
+  <div *ngIf="!description" class="title-dialog">
+    <h1 mat-dialog-title><span class="info-title-dialog">Polygon's name: </span><span class="title-dialog-bold">{{polName}}</span></h1>
+    <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
+  </div>
   <h1 *ngIf="description" mat-dialog-title class="title-dialog-bold">{{description}}</h1>
   <!-- <h1 *ngIf="!description && openGraph" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1> -->
   <!-- <div *ngIf="success; else ok"> -->

@@ -1,8 +1,14 @@
 .title-dialog-bold {
   font-weight: bolder;
-  font-size: large;
+  font-size: medium;
   text-align: center;
   color: rgb(13,193,213);
+}
+
+.info-title-dialog {
+  font-weight: 500;
+  font-size: medium;
+  text-align: center;
 }
 
 ::ng-deep .tab-graph {
@@ -43,4 +49,16 @@
 
 ::ng-deep .mat-mdc-dialog-content {
   max-height: 80vh !important;
+}
+
+
+
+/**
+* DISPLAY FLEX
+*/
+.title-dialog {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
 }

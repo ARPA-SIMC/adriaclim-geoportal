@@ -261,6 +261,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
     let polyg: any = [];
+    console.log("this.polygon", this.polygon);
+
     this.polygon.features.forEach(f => {
 
       if (f.properties.popupContent !== "") {
@@ -274,7 +276,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         });
 
           let pol = L.polygon(polyg[0]).addTo(this.map);
-          this.allPolygons.push(pol);
+          this.allPolygons.push({
+            "pol": pol,
+            "polName": f.properties.popupContent
+          });
           polyg = [];
       }else{
         f.geometry.coordinates.forEach(c => {
@@ -304,7 +309,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           // poligon = L.polygon(c);
         });
         let pol = L.polygon(polyg[0]).addTo(this.map);
-        this.allPolygons.push(pol);
+        this.allPolygons.push({
+          "pol": pol,
+          "polName": f.properties.popupContent
+        });
         polyg = [];
       }
     });
@@ -324,7 +332,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         let pol = L.polygon(polyg[0]);
         if (f.properties.popupContent !== ""){
           pol.addTo(this.map);
-          this.allPolygons.push(pol);
+          this.allPolygons.push({
+            "pol": pol,
+            "polName": f.properties.popupContent
+          });
         }else{
           this.map.removeLayer(pol);
         }
@@ -364,7 +375,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
                 });
 
                   let pol = L.polygon(polyg[0]).addTo(this.map);
-                  this.allPolygons.push(pol);
+                  this.allPolygons.push({
+                    "pol": pol,
+                    "polName": f.properties.popupContent
+                  });
                   polyg = [];
               });
             }
@@ -525,8 +539,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       //chiamare il backend prendendo tutti i punti e poi filtrare quelli che sono dentro il poligono
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
-      const polygonsContainingPoint = this.allPolygons.filter(polygon => {
-        return polygon.getBounds().contains(e.latlng);
+      const polygonsContainingPoint = this.allPolygons.filter((polygon : any) => {
+        let copiaPoly = _.cloneDeep(polygon);
+        console.log("Polygon copy: ", copiaPoly);
+        if (polygon.pol.getBounds().contains(e.latlng)){
+          return polygon;
+        }
+
+      // return polygon.pol.getBounds().contains(e.latlng);
       }); //poligono che contiene il punto in cui l'utente ha cliccato
       // let latLngObj: any[] = [];
       // const bounds = L.latLngBounds(polygonsContainingPoint[0].getLatLngs());
@@ -539,7 +559,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       // let latlngs: any[] = [];
        if(polygonsContainingPoint.length > 0) {
       //  console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
-        this.openGraphDialog(null, null, polygonsContainingPoint[0])
+        this.openGraphDialog(null, null, polygonsContainingPoint)
       //   let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
       //   splittedVar = splittedVar[splittedVar.length - 1];
       //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
@@ -1994,6 +2014,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       // const lon_max = corner2.lng;
       // dialogConfig.height = '1000px';
       // console.log("this.circlecoo",this.circleCoords);
+      console.log("POLYGON", polygon);
+
       dialogConfig.data = {
         success: true,
         datasetId: dataId,
@@ -2007,8 +2029,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         range: this.value,
         openGraph: true,
         extraParamExport: this.extraParamExport,
-        polyExport: polygon ? polygon.getBounds() : null,
-        polygon: polygon ? polygon.getLatLngs()[0] : null,
+        polyExport: polygon[0].pol ? polygon[0].pol.getBounds() : null,
+        polygon: polygon[0].pol ? polygon[0].pol.getLatLngs()[0] : null,
+        polName: polygon[0].polName ? polygon[0].polName : null,
         circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };
