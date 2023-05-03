@@ -7,7 +7,7 @@ import { enviromentDev, enviromentProd, enviromentDevProd } from 'src/assets/env
 })
 export class HttpService {
 
-  apiUrl = enviromentProd;
+  apiUrl = enviromentDev;
 
   // httpOptions: any = {
   //   headers: new HttpHeaders({

@@ -296,7 +296,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'my_task2': {
         'task': 'AdriaProject.tasks.download_all_data',
-        'schedule': crontab(hour=22, minute=30,day_of_week="tuesday"),
+        'schedule': crontab(hour=1, minute=0,day_of_week="saturday"),
         'options': {'queue': 'my_queue','link':'AdriaProject.tasks.task_get_all_data'}  # Set the queue for this task
     },
 }
