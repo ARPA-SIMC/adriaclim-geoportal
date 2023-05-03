@@ -152,7 +152,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = enviromentDev;
+  apiUrl = enviromentProd;
 
   markers: L.Marker[] = [];
 
@@ -2255,11 +2255,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
         );
       }
-      labels.push(
-        // "<div class='color-number-legend'>" + "<button mat-icon-button><mat-icon>settings</mat-icon></button>" + "</div>"
-        "<div class='color-number-legend'>" + "<button onclick='this.proviamoStaCosa()'><span class='material-symbols-outlined'>settings</span></button>" + "</div>"
+      // labels.push(
+      //   // "<div class='color-number-legend'>" + "<button mat-icon-button><mat-icon>settings</mat-icon></button>" + "</div>"
+      //   "<div class='color-number-legend'>" + "<button mat-raised-button color='primary' onclick='function proviamoStaCosa(){p}'><span class='material-symbols-outlined'>settings</span></button>" + "</div>"
 
-        );
+      //   );
+      let button = L.DomUtil.create('button', 'color-number-legend');
+      button.innerHTML = "<span class='material-symbols-outlined'>settings</span>";
+      button.addEventListener('click', (e) => {console.log("PROVIAMO STA COSA")});
+
+      // let buttonContainer = L.DomUtil.create('div', 'color-number-legend-container');
+      // buttonContainer.innerHTML = button.outerHTML;
+      // let buttonContainer = document.createElement('div');
+      // buttonContainer.classList.add('color-number-legend');
+      // buttonContainer.appendChild(button);
+      labels.push(button.outerHTML);
 
       console.log("LABELS =", labels);
       // div.innerHTML = labels.join('<br>');
@@ -2271,10 +2281,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
 
-  proviamoStaCosa() {
-    console.log("PROVIAMO STA COSA");
+  // proviamoStaCosa = () => {
+  //   console.log("PROVIAMO STA COSA");
 
-  }
+  // }
 
   /**
    *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE

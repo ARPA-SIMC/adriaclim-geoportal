@@ -91,6 +91,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:9000",
     "http://localhost:8000",
+    "https://geoportale-adriaclim.datamb.it"
  ]
 
 CORS_ORIGIN_ALLOW_ALL = True
