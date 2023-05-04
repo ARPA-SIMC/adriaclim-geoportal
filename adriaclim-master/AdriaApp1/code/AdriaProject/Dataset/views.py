@@ -4,6 +4,7 @@ from django.http.response import HttpResponse, JsonResponse,ResponseHeaders
 from django.conf import settings
 from django.shortcuts import render
 from django.db.models import Q
+from AdriaProject.tasks import task_get_data_polygon
 
 # import allFunctions
 from myFunctions import allFunctions
@@ -317,13 +318,17 @@ def getInd(request):
 
 @api_view(['GET', 'POST'])
 def getAllNodes(request):
-    # sync_to_async(allFunctions.getIndicators(),thread_sensitive = True)
-    # ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator"
-    all_nodes = Node.objects.all()
-    data = [model_to_dict(i) for i in all_nodes]
-    # indSer = serializers.serialize('json', data)
-    # indJson = json.loads(indSer)
-    return JsonResponse({"nodes": data})
+    try:
+        # sync_to_async(allFunctions.getIndicators(),thread_sensitive = True)
+        # ind = Indicator.objects.all().filter(adriaclim_dataset = "indicator"
+        all_nodes = Node.objects.all()
+        data = [model_to_dict(i) for i in all_nodes]
+        # indSer = serializers.serialize('json', data)
+        # indJson = json.loads(indSer)
+        return JsonResponse({"nodes": data})
+    except Exception as e:
+        print("ERRORE GET ALL NODES =", e)
+        return str(e)
 
 def rompiamo_tutto(request):
     try:
@@ -504,36 +509,26 @@ def getDataVectorialNew(request):
     dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
     return JsonResponse({'dataVect':dataVect})
 
+
+
 @api_view(['GET','POST'])
 def getDataPolygonNew(request):
-    dataset = request.data.get("dataset")
-    # print("DATASET:",dataset)
-    # print("DATASET ID:",dataset.get('id'))
-    dataset_id = dataset.get('id')
-    date_start = dataset.get('time_start')
-    date_end = dataset.get('time_end')
-    layer_name = request.data.get('selVar')
-    # print("LAYER NAME:",layer_name)
-    range = str(request.data.get('range'))
-    num_param = dataset.get('dimensions')
-    parametro_agg = str(request.data.get('parametro_agg'))
-    # print("PARAMETRO AGG:",parametro_agg)
-    lat_min = dataset.get('lat_min')
-    lat_max = dataset.get('lat_max')
-    lng_min = dataset.get('lng_min')
-    lng_max = dataset.get('lng_max')
-    time_op = request.data.get('operation')
-    statistic = request.data.get('statistic')
-    circle_coords = request.data.get("circleCoords")
-    # print("CIRCLE_COORDS",circle_coords)
-    #print("STATISTIC:",statistic)
-    #print("time_op:",time_op)
-    lat_lng_obj = request.data.get("latLngObj")
-    # print("LAT LNG OBJ: ", lat_lng_obj)
-    is_indicator = request.data.get('isIndicator')
-    #print("IS INDICATOR:",is_indicator)
-    dataVect=allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords)
-    return JsonResponse({'dataVect':dataVect})
+    try:
+        print("REQUEST =", request)
+        request_data = request.data
+        print("REQUEST DATA =", request_data)
+        #call celery task
+        task = task_get_data_polygon.delay(request_data)
+        
+        return HttpResponse("STO CARICANDO")
+    except Exception as e:
+        print("eccezione",e)
+        return str(e)
+
+
+    
+
+
 
 @api_view(['GET','POST'])
 def updateStatistics(request):

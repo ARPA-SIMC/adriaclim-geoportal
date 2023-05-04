@@ -675,9 +675,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   getAllNodes() {
+    console.log("DENTRO GET ALL NODES");
+
     this.httpService.post('test/allNodes', {
     }).subscribe({
       next: (res: any) => {
+        console.log("SUB NEXT");
 
         res.nodes.forEach((node: any) => {
 
@@ -885,6 +888,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
       },
       error: (msg: any) => {
+        console.log("SUB ERROR");
+
         console.log('ALL NODES ERROR: ', msg);
       }
     })

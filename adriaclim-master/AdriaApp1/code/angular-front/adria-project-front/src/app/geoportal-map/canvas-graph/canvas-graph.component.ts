@@ -755,9 +755,10 @@ optionBoxPlot: any = {
                       data: allDataPolygon.dataPol.map((element: any) => element[stat]),
                       name: stat,
                       type: 'line',
-                      stack: 'counts',
+                      stack: this.enableArea ? "counts" : "",
+                      // stack: "",
                       areaStyle: this.enableArea ? {} : undefined,
-                      smooth: false
+                      smooth: false,
                     }
                   })
                   // series: [{

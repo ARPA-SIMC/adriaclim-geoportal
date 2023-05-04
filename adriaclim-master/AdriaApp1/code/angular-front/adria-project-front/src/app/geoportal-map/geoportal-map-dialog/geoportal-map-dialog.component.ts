@@ -316,7 +316,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       statisticSel: new FormControl("avg"),
       typeSel: new FormControl(this.typeOfExport[0].type),
       varSelected: new FormControl(null, Validators.required),
-      enableArea: new FormControl(true),
+      enableArea: new FormControl(false),
       // minSliderDate: new FormControl(this.dateStart),
       // maxSliderDate: new FormControl(this.dateEnd),
       // minSlider
