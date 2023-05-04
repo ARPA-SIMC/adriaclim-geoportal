@@ -11,7 +11,7 @@ services:
       - ./code:/code
       - /static:/static
     command: >
-      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate Dataset  && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue"
+      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate Dataset  && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -74,7 +74,7 @@ services:
     build:
       context: .
     command: >
-      sh -c "cd AdriaProject && celery -A AdriaProject worker --loglevel=info -Q my_queue && celery -A AdriaProject inspect scheduled"
+      sh -c "cd AdriaProject && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25 && celery -A AdriaProject inspect scheduled"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME

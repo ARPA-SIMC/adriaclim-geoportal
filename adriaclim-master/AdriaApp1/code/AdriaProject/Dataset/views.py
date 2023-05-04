@@ -4,7 +4,7 @@ from django.http.response import HttpResponse, JsonResponse,ResponseHeaders
 from django.conf import settings
 from django.shortcuts import render
 from django.db.models import Q
-from AdriaProject.tasks import task_get_data_polygon
+from .tasks import task_get_data_polygon
 
 # import allFunctions
 from myFunctions import allFunctions
@@ -518,9 +518,8 @@ def getDataPolygonNew(request):
         request_data = request.data
         print("REQUEST DATA =", request_data)
         #call celery task
-        task = task_get_data_polygon.delay(request_data)
-        
-        return HttpResponse("STO CARICANDO")
+        task = task_get_data_polygon.apply_async(args=[request_data],queue="my_queue")
+        return JsonResponse({"dataVect":task.get()})
     except Exception as e:
         print("eccezione",e)
         return str(e)
