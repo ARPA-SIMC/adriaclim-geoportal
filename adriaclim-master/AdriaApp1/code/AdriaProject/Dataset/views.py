@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.core import serializers
 from asgiref.sync import sync_to_async
+from celery.result import AsyncResult
 # from celery.schedules import crontab
 # from celery.task import periodic_task
 
@@ -514,15 +515,32 @@ def getDataVectorialNew(request):
 @api_view(['GET','POST'])
 def getDataPolygonNew(request):
     try:
-        print("REQUEST =", request)
+        # print("REQUEST =", request)
         request_data = request.data
-        print("REQUEST DATA =", request_data)
+        # print("REQUEST DATA =", request_data)
         #call celery task
         task = task_get_data_polygon.apply_async(args=[request_data],queue="my_queue")
-        return JsonResponse({"dataVect":task.get()})
+        return JsonResponse({'task_id':task.id})
     except Exception as e:
         print("eccezione",e)
         return str(e)
+
+@api_view(['GET','POST'])
+def check_task_status(request):
+    try:
+        # print("request",request)
+        # print("request.data",request.data.get('task_id'))
+        task = AsyncResult(request.data.get('task_id'))
+        response = {'status': task.status}
+        # print("task.status",task.status)
+        if task.status == 'SUCCESS':
+            response['result'] = task.result
+        # print("response",response)
+        return JsonResponse({"dataVect":response})
+    except Exception as e:
+        print("Eccezione check_task_status",e)
+        response["error"] = str(e)
+        return JsonResponse({"dataVect":response})
 
 
     

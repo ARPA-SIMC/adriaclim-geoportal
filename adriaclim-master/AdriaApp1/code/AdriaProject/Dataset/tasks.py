@@ -1,15 +1,12 @@
 from celery import shared_task
-from rest_framework.decorators import api_view
 
-
-@api_view(['GET','POST'])
 @shared_task
 def task_get_data_polygon(request_data):
     try:
         from myFunctions import allFunctions
-        from django.http.response import JsonResponse
+        # from django.http.response import JsonResponse
         # print("REQUEST DATA CELERY =", request_data)
-        dataset = request_data.data.get("dataset")
+        dataset = request_data["dataset"]
         # print("DATASET:",dataset)
         # print("DATASET ID:",dataset.get('id'))
         dataset_id = request_data["dataset"]['id']
@@ -36,7 +33,8 @@ def task_get_data_polygon(request_data):
         is_indicator = request_data['isIndicator']
         # print("IS INDICATOR:",is_indicator)
         dataVect = allFunctions.getDataPolygonNew(dataset_id,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords)
-        return JsonResponse({"dataVect":dataVect})
+        # print("dataVect:",dataVect)
+        return dataVect
     except Exception as e:
         print("eccezione task",e)
         return str(e)

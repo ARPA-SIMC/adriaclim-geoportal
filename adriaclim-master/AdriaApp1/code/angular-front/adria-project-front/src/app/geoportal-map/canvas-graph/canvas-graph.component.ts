@@ -506,7 +506,7 @@ optionBoxPlot: any = {
       //se c'è il poligono chiamare altra funzione
         this.spinnerLoadingChild.emit(true);
 
-        this.getDataGraphPolygon();
+        this.getDataGraphPolygonInterval();
 
     } else {
       //se non c'è il poligono chiama this.getDataGraph() classica
@@ -604,7 +604,7 @@ optionBoxPlot: any = {
     }
   }
 
-  getDataGraphPolygon() {
+getDataGraphPolygonInterval() {
     let data = {
       dataset: this.dataset,
       selVar: this.variable,
@@ -617,11 +617,54 @@ optionBoxPlot: any = {
       circleCoords: this.circleCoords,
 
     }
-    // console.log("QUESTO PARAMETRO IN DATA =", data);
+  
+    // send HTTP POST request to Django view function
     if(this.statistic !== "boxPlot") {
-      this.httpService.post('test/dataPolygon', data,
-        // { responseType: 'text' }).subscribe((response: any) => {
-        ).subscribe((response: any) => {
+      this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
+        // extract task ID from response
+        let data = {
+          task_id: response.task_id,
+        }
+        console.log("task_id =", data)
+    
+        // periodically check task status
+        let checkTaskStatus = setInterval(() => {
+          console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
+          this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
+            console.log("response",response);
+            let task_status = response.dataVect.status;
+
+            console.log("task_status =", task_status);
+            if (task_status === 'SUCCESS') {
+              clearInterval(checkTaskStatus);
+              // task completed successfully, extract and display result
+              let task_result = {
+                dataVect: response.dataVect.result,
+              };
+              console.log('Task result:', task_result);
+              this.getDataGraphPolygon(task_result);
+
+              
+              //execute the function to create the graph
+              
+            } else if (task_status === 'FAILURE') {
+              // task failed, display error message
+              clearInterval(checkTaskStatus);
+              let task_error = response.dataVect.error;
+              console.error('Task error:', task_error);
+              
+            }
+          });
+        }, 2000);
+      });
+    } //if statistic !== boxPlot
+    else {
+      this.spinnerLoadingChild.emit(false);
+    }
+  }
+
+  getDataGraphPolygon(response:any) {
+    // console.log("QUESTO PARAMETRO IN DATA =", data);
           // console.log("RES PRIMA DEL PARSE =", response);
           if (typeof response == 'string') {
             response = JSON.parse(response);
@@ -890,12 +933,8 @@ optionBoxPlot: any = {
         }
         this.dataTimeExport.emit(allDataPolygon.dataPol);
         this.spinnerLoadingChild.emit(false);
-        });
-      }
-      else {
-        this.spinnerLoadingChild.emit(false);
-        // this.dataTimeExport.emit([]);
-      }
+        
+    }
 
 
     //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
@@ -921,7 +960,7 @@ optionBoxPlot: any = {
     // });
     // }
 
-  }
+  
 
 
   filterElement(min: any, max: any) {
