@@ -1,4 +1,6 @@
 .overlay-buttons-top-map {
+  max-height: 162px;
+  max-width: 420px;
   position: absolute;
   top: 80px;
   // top: 17%;
@@ -12,6 +14,9 @@
 }
 
 .overlay-tools {
+  // max-height: fit-content;
+  max-height: 48px;
+  max-width: 65px;
   position: absolute;
   top: 150px;
   // top: 17%;
@@ -25,6 +30,9 @@
 }
 
 .overlay-polygon {
+  // max-height: fit-content;
+  max-height: 48px;
+  max-width: 65px;
   position: absolute;
   top: 200px;
   // top: 17%;
@@ -201,9 +209,9 @@
 }
 
 .font-bad-script {
-  font-family: 'Bad Script', cursive;
-  font-size: large;
-  font-weight: bold;
+  // font-family: 'Bad Script', cursive;
+  font-size: medium;
+  // font-weight: bold;
 }
 
 .material-symbols-outlined {
@@ -213,3 +221,17 @@
   'GRAD' 0,
   'opsz' 48
 }
+
+::ng-deep .mat-card-active {
+  max-width: 100% !important;
+}
+
+
+/**
+* DISPLAY FLEX + CUSTOM
+*/
+// .main-content {
+//   height: 100%;
+//   display: block !important;
+//   background-color: magenta !important;
+// }

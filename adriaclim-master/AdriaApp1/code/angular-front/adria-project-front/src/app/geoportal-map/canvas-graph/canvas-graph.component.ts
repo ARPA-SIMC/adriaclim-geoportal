@@ -617,7 +617,7 @@ getDataGraphPolygonInterval() {
       circleCoords: this.circleCoords,
 
     }
-  
+
     // send HTTP POST request to Django view function
     if(this.statistic !== "boxPlot") {
       this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
@@ -626,7 +626,7 @@ getDataGraphPolygonInterval() {
           task_id: response.task_id,
         }
         console.log("task_id =", data)
-    
+
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
           console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
@@ -644,15 +644,15 @@ getDataGraphPolygonInterval() {
               console.log('Task result:', task_result);
               this.getDataGraphPolygon(task_result);
 
-              
+
               //execute the function to create the graph
-              
+
             } else if (task_status === 'FAILURE') {
               // task failed, display error message
               clearInterval(checkTaskStatus);
               let task_error = response.dataVect.error;
               console.error('Task error:', task_error);
-              
+
             }
           });
         }, 2000);
@@ -933,7 +933,7 @@ getDataGraphPolygonInterval() {
         }
         this.dataTimeExport.emit(allDataPolygon.dataPol);
         this.spinnerLoadingChild.emit(false);
-        
+
     }
 
 
@@ -960,7 +960,7 @@ getDataGraphPolygonInterval() {
     // });
     // }
 
-  
+
 
 
   filterElement(min: any, max: any) {

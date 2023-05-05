@@ -3,7 +3,7 @@
     font-weight: bold;
   }
 </style>
-<div class="main-content" fxFlex fxLayout="column">
+<div class="main-content">
 
   <div fxFlex class="toolbar">
     <mat-toolbar color="primary">
@@ -245,6 +245,9 @@
           <div>
             <button mat-button matTooltip="Upload a GeoJSON with your polygons" matTooltipPosition="right" (click)="uploadGeo()" class="font-bad-script">Upload a GeoJSON</button>
           </div>
+          <div>
+            <button mat-button matTooltip="Upload a GeoJSON with your polygons" matTooltipPosition="right" (click)="removeAllPolygons()" class="font-bad-script">Remove all</button>
+          </div>
 
         </div>
       </ng-template>
@@ -255,11 +258,11 @@
   <ng-container *ngIf="selData.get('dataSetSel')?.value">
     <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map"> -->
     <div class="overlay-buttons-top-map">
-      <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center">
+      <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center" class="mat-card-active">
         <mat-card-header>
           <mat-card-title class="bolder-title">Active layer</mat-card-title>
         </mat-card-header>
-        <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center">
+        <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center" class="mat-card-active">
           <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
           <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
 

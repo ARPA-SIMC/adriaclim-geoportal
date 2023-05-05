@@ -170,6 +170,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   sliderGroup: FormGroup;
   nodeSelected: any;
 
+  markerPoint!: L.Marker;
+
+  clickPointOnOff: boolean = false;
+  clickPolygonOnOff: boolean = false;
+
   metadata: any;
   dateStart: any;
   dateEnd: any;
@@ -301,8 +306,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   removeAllPolygons(){
-    this.allPolygons.forEach(pol=>{
-      this.map.removeLayer(pol);
+    console.log("allPolygons", this.allPolygons);
+
+    this.allPolygons.forEach(p=>{
+      this.map.removeLayer(p.pol);
     })
     this.allPolygons = [];
   }
@@ -482,12 +489,31 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     //   this.pointBoolean = false;
     // }
     // this.pointBoolean = true;
+    // '../../assets/geojson/geojson.json'
+    // console.log("MAP CONTAINER =", this.map.getContainer().style)
+    this.map.off('click');
+    this.map.getContainer().style.cursor = "url('../../assets/img/pointer-map-marker-removebg.png') 16 31, auto";
+    // this.map.getContainer().style.cursor = "position";
+    // this.map.getContainer().style.cursor = "url('src/assets/img/pointer-map-map-marker.cur')";
+    // this.map.getContainer().style.cursor = "url('../assets/img/pointer-map-map-marker.cur')";
+    this.clickPointOnOff = !this.clickPointOnOff;
+    this.clickPolygonOnOff = false;
     if (this.circleMarkerArray.length > 0) {
       this.circleMarkerArray.forEach((circle: any) => {
         circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
       });
     } else {
-      this.map.on('click', this.onMapClick.bind(this));
+      if(this.clickPointOnOff === true) {
+        this.map.off('click');
+        this.map.on('click', this.onMapClick.bind(this));
+
+      }
+      else {
+        this.map.off('click');
+        this.map.getContainer().style.cursor = "default";
+        // this.map.on('click', this.onMapClick.bind(this));
+
+      }
     }
     // if(this.markerToAdd) {
     //   this.markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(this.markerToAdd.getLatLng().lat,this.markerToAdd.getLatLng().lng));
@@ -501,7 +527,26 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   polygonSelect() {
-    this.map.on('click', this.onPolygonClick.bind(this));
+
+    if(this.markerPoint) {
+      this.map.removeLayer(this.markerPoint);
+    }
+    this.map.off('click');
+    this.map.getContainer().style.cursor = "default";
+    this.clickPolygonOnOff = !this.clickPolygonOnOff;
+    this.clickPointOnOff = false;
+    if(this.clickPolygonOnOff === true) {
+      this.map.off('click');
+      this.map.on('click', this.onPolygonClick.bind(this));
+
+    }
+    else {
+      this.map.off('click');
+      this.map.getContainer().style.cursor = "default";
+      // this.map.on('click', this.onMapClick.bind(this));
+
+    }
+
   }
   // pointInsidePolygon(point: any, polygon: L.Polygon): boolean {
   //   let inside = false;
@@ -537,7 +582,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   // }
   onPolygonClick = (e: L.LeafletMouseEvent) => {
-    this.map.off('click');
+    // this.map.off('click');
     if (this.activeLayersArray.length === 0) {
       //hai cliccato il bottone e un punto ma non ci sono layer attivi
       this.openGraphDialog();
@@ -608,7 +653,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
     // this.pointBoolean = false;
-    this.map.off('click');
+    // this.map.getContainer().style.cursor = 'default';
+    // this.map.off('click');
 
     // imposto la lat e long del marker e le dimensioni della sua icona
     // METODO 1
@@ -638,7 +684,24 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     // marker.addTo(this.map);
     this.markers.push(marker);
-
+    if(this.selData.get("dataSetSel")?.value) {
+      if(this.markerPoint) {
+        this.map.removeLayer(this.markerPoint);
+      }
+      this.markerPoint = L.marker(e.latlng, {
+        icon: L.icon({
+          iconSize: [25, 41],
+          iconAnchor: [13, 41],
+          iconUrl: 'marker-icon.png',
+        })
+      })
+      // .bindPopup("Info marker")
+      .addTo(this.map)
+      // .openPopup();
+      this.markerPoint.bindPopup("Info marker", {
+        offset: [0, -25]
+      }).openPopup();
+    }
   }
 
 
@@ -2115,6 +2178,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             // }
             this.circleMarkerArray.push(this.markerToAdd);
             this.markersLayer.addLayer(this.markerToAdd);
+            // console.log("circleMarkerArray", this.circleMarkerArray);
+
+            // console.log("this.markersLayer", this.markersLayer);
+
             // if(this.pointBoolean) {
             // this.markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(this.markerToAdd.getLatLng().lat,this.markerToAdd.getLatLng().lng));
             //   this.pointBoolean = false;
