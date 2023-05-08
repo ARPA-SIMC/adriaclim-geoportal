@@ -1,3 +1,3 @@
-export const enviromentDev = "http://localhost:8000/";
-export const enviromentProd = "https://geoportale-adriaclim.datamb.it/"
-export const enviromentDevProd = "/"
+export const environmentDev = "http://localhost:8000/";
+export const environmentProd = "https://geoportale-adriaclim.datamb.it/"
+export const environmentDevProd = "/"

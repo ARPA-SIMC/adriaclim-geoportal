@@ -15,7 +15,7 @@ import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
-import { enviromentDev, enviromentProd, enviromentDevProd } from 'src/assets/environments';
+import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
 // import "leaflet/dist/leaflet.css";
 
 /**
@@ -152,7 +152,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = enviromentDev;
+  apiUrl = environmentProd;
 
   markers: L.Marker[] = [];
 
@@ -194,6 +194,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   valueMidColor: any = "#9c27b0";
   valueMidMaxColor: any = "#673ab7";
   valueMaxColor: any = "#3f51b5";
+
+  layer_to_attach: any;
 
   value: any;
   valueCustom: any;
@@ -666,6 +668,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     //     iconUrl: 'marker-icon.png',
     //   })
     // }).addTo(this.map);
+    // console.log("TARGET =", this.layer_to_attach.layer_name.options.crs.latLngToPoint);
+
+
+    // if(bounds.contains(e.latlng)) {
+    //   console.log("SONO DENTRO IL POLIGONO");
+
+    // }
+    // else {
+    //   console.log("NON SONO DENTRO IL POLIGONO");
+    // }
+
     this.coordOnClick = {
       lat: e.latlng.lat,
       lng: e.latlng.lng
@@ -1616,7 +1629,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     //if num_parameters.length > 3, layers3D!!!
     let num_parameters = this.metadata[0][1].split(", ");
-    let layer_to_attach: any;
 
 
     if (this.selData.get("dataSetSel")?.value.name.wms_url === "") {
@@ -1630,7 +1642,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       if (num_parameters.length <= 3) {
         this.isExtraParam = false;
         //siamo nel caso di layers 2D!!!
-        layer_to_attach = {
+        this.layer_to_attach = {
           layer_name: L.tileLayer.wms(
             this.apiUrl + 'test/layers2d', {
               attribution: this.metadata[0][6],
@@ -1707,7 +1719,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         if (controlExtra) {
           this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
 
-          layer_to_attach = {
+          this.layer_to_attach = {
             layer_name: L.tileLayer.wms(
               this.apiUrl + 'test/layers3d/' + this.extraParam.name, {
                 attribution: this.metadata[0][6],
@@ -1740,7 +1752,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           }
 
 
-          layer_to_attach = {
+          this.layer_to_attach = {
             layer_name: L.tileLayer.wms(
               this.apiUrl + 'test/layers3d/' + this.extraParam.name, {
                 attribution: this.metadata[0][6],
@@ -1764,7 +1776,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
       }
-      this.datasetLayer = layer_to_attach.layer_name.addTo(this.map);
+      if (this.legendLayer_src && this.datasetLayer) {
+        this.map.removeLayer(this.datasetLayer);
+
+      }
+      this.datasetLayer = this.layer_to_attach.layer_name.addTo(this.map);
     }
 
 

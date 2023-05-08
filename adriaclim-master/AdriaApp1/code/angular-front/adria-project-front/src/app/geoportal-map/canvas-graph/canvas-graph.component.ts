@@ -40,6 +40,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() dataTablePolygon = new EventEmitter<any>();
   @Output() spinnerLoadingChild = new EventEmitter<any>();
   @Output() statisticCalc = new EventEmitter<any>();
+  @Output() description = new EventEmitter<any>();
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
   dateGraphZoom : any[] = [];
@@ -625,23 +626,23 @@ getDataGraphPolygonInterval() {
         let data = {
           task_id: response.task_id,
         }
-        console.log("task_id =", data)
+        // console.log("task_id =", data)
 
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
-          console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
+          // console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
           this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
-            console.log("response",response);
+            // console.log("response",response);
             let task_status = response.dataVect.status;
 
-            console.log("task_status =", task_status);
+            // console.log("task_status =", task_status);
             if (task_status === 'SUCCESS') {
               clearInterval(checkTaskStatus);
               // task completed successfully, extract and display result
               let task_result = {
                 dataVect: response.dataVect.result,
               };
-              console.log('Task result:', task_result);
+              // console.log('Task result:', task_result);
               this.getDataGraphPolygon(task_result);
 
 
@@ -997,192 +998,195 @@ getDataGraphPolygonInterval() {
 
     // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
-      if (typeof response == 'string') {
-        response = JSON.parse(response);
-      }
-      // console.log("RES FOR GRAPH: ", response);
-      this.dataRes = response;
 
-      this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
+      if (response.allData !== "fuoriWms"){
+        if (typeof response == 'string') {
+          response = JSON.parse(response);
+        }
+        // console.log("RES FOR GRAPH: ", response);
+        this.dataRes = response;
 
-      let name = this.dataRes.allData.entries[0];
-      if(this.operation === "annualMonth"){
-        this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
-      }
-      this.dataRes.allData[name].forEach((element: any) => {
-        element.date = element.x;
-        element.x = this.formatDate(element.x);
-        element.y = Number(element.y);
-        // if(element.y > 10000) {
-        //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-        // }
-        // else if(element.y < 0.001) {
-        //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-        // }
-      });
-      let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
-      let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
-      let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
-      // console.log("all date =", arrayAllDate);
-      // console.log("all value =", arrayAllValue);
+        this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
 
-
-      this.myChart.on('dataZoom', () => {
-        // console.log("PARAMS: ", params);
-        let option = this.myChart.getOption();
-        // console.log("OPTIONSSSSSS =", option);
-        this.startZoom = option.dataZoom[0].startValue;
-        this.endZoom = option.dataZoom[0].endValue;
-        // console.log("startZoom =", this.startZoom);
-        // console.log("endZoom =", this.endZoom);
-        // console.log("dateStartZoom =", this.dataRes.allData[name][this.startZoom]["date"]);
-        // console.log("dateEndZoom =", this.dataRes.allData[name][this.endZoom]["date"]);
-        // console.log("valueStartZoom =", this.dataRes.allData[name][this.startZoom]["y"]);
-        // console.log("valueEndZoom =", this.dataRes.allData[name][this.endZoom]["y"]);
-
-        let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
-
-        let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
-          if(element.date && arrayDate.includes(element.date)){
-              // console.log("include date:",element.date)
-              // console.log("element.y",element.y)
-              return element.y;
-          }
-        })
-        arrayValueTest = arrayValueTest.filter((element: any) => element !== undefined);
-        // let arrayValue = arrayAllValue.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["y"], this.dataRes.allData[name][this.endZoom]["y"]));
-
-        this.statisticCalc.emit({
-          dates: arrayDate,
-          values: arrayValueTest
-        })
-
-      });
+        let name = this.dataRes.allData.entries[0];
+        if(this.operation === "annualMonth"){
+          this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
+        }
+        this.dataRes.allData[name].forEach((element: any) => {
+          element.date = element.x;
+          element.x = this.formatDate(element.x);
+          element.y = Number(element.y);
+          // if(element.y > 10000) {
+          //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
+          // }
+          // else if(element.y < 0.001) {
+          //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
+          // }
+        });
+        let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
+        let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
+        let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
+        // console.log("all date =", arrayAllDate);
+        // console.log("all value =", arrayAllValue);
 
 
+        this.myChart.on('dataZoom', () => {
+          // console.log("PARAMS: ", params);
+          let option = this.myChart.getOption();
+          // console.log("OPTIONSSSSSS =", option);
+          this.startZoom = option.dataZoom[0].startValue;
+          this.endZoom = option.dataZoom[0].endValue;
+          // console.log("startZoom =", this.startZoom);
+          // console.log("endZoom =", this.endZoom);
+          // console.log("dateStartZoom =", this.dataRes.allData[name][this.startZoom]["date"]);
+          // console.log("dateEndZoom =", this.dataRes.allData[name][this.endZoom]["date"]);
+          // console.log("valueStartZoom =", this.dataRes.allData[name][this.startZoom]["y"]);
+          // console.log("valueEndZoom =", this.dataRes.allData[name][this.endZoom]["y"]);
 
-      // const yMax = 500;
-      // const dataShadow = [];
+          let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
 
-      // // tslint:disable-next-line: prefer-for-of
-      // for (let i = 0; i < this.dataRes.allData[name].map((element: any) => element.y).length; i++) {
-      //   dataShadow.push(yMax);
-      // }
-
-      this.chartOption = {
-
-        // title: {
-        //       text: name //title of dataset selected,
-        // },
-
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: this.dataRes.allData[name].map((element: any) => element.x)
-        },
-        yAxis: {
-          type: 'value'
-        },
-        // tooltip: {
-        //   trigger: 'item',
-        //   showDelay: 0,
-        //   transitionDuration: 0.2,
-        // },
-        toolbox: {
-          feature: {
-            dataZoom: {
-              yAxisIndex: 'none'
-            },
-            restore: {},
-            saveAsImage: {}
-          }
-        },
-        tooltip: {
-          trigger: 'axis',
-          formatter: (paramsFormatter: any) => {
-
-            const tooltipHTML = paramsFormatter.map((param: any) => {
-              let value = param.value;
-              if (value > 10000 || value < 0.001 && value !== 0) {
-                value = value.toExponential().replace(/e\+?/, ' x 10^');
-              }
-              return `${param.marker} ${param.seriesName}: ${value}`;
-            }).join('<br>');
-
-            return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
-
-          },
-          transitionDuration: 0.2,
-          axisPointer: {
-            type: 'cross',
-            label: {
-              backgroundColor: '#6a7985'
+          let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
+            if(element.date && arrayDate.includes(element.date)){
+                // console.log("include date:",element.date)
+                // console.log("element.y",element.y)
+                return element.y;
             }
-          }
-        },
-        legend: {
-          data: [name]
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true
-        },
+          })
+          arrayValueTest = arrayValueTest.filter((element: any) => element !== undefined);
+          // let arrayValue = arrayAllValue.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["y"], this.dataRes.allData[name][this.endZoom]["y"]));
 
-        dataZoom: [
-          {
-            show: true,
-            realtime: true,
-            type: 'inside',
+          this.statisticCalc.emit({
+            dates: arrayDate,
+            values: arrayValueTest
+          })
+
+        });
+
+
+
+        // const yMax = 500;
+        // const dataShadow = [];
+
+        // // tslint:disable-next-line: prefer-for-of
+        // for (let i = 0; i < this.dataRes.allData[name].map((element: any) => element.y).length; i++) {
+        //   dataShadow.push(yMax);
+        // }
+
+        this.chartOption = {
+
+          // title: {
+          //       text: name //title of dataset selected,
+          // },
+
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: this.dataRes.allData[name].map((element: any) => element.x)
+          },
+          yAxis: {
+            type: 'value'
+          },
+          // tooltip: {
+          //   trigger: 'item',
+          //   showDelay: 0,
+          //   transitionDuration: 0.2,
+          // },
+          toolbox: {
+            feature: {
+              dataZoom: {
+                yAxisIndex: 'none'
+              },
+              restore: {},
+              saveAsImage: {}
+            }
+          },
+          tooltip: {
+            trigger: 'axis',
+            formatter: (paramsFormatter: any) => {
+
+              const tooltipHTML = paramsFormatter.map((param: any) => {
+                let value = param.value;
+                if (value > 10000 || value < 0.001 && value !== 0) {
+                  value = value.toExponential().replace(/e\+?/, ' x 10^');
+                }
+                return `${param.marker} ${param.seriesName}: ${value}`;
+              }).join('<br>');
+
+              return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+
+            },
+            transitionDuration: 0.2,
+            axisPointer: {
+              type: 'cross',
+              label: {
+                backgroundColor: '#6a7985'
+              }
+            }
+          },
+          legend: {
+            data: [name]
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
           },
 
-        ],
-        series: [{
-          data: this.dataRes.allData[name].map((element: any) => element.y),
-          name: name,
-          type: 'line',
-          stack: 'counts',
-          areaStyle: this.enableArea ? {} : undefined,
-          smooth: false
-        },
-        // {
-        //   name: 'X-1',
-        //   type: 'line',
-        //   stack: 'counts',
-        //   areaStyle: {},
-        //   smooth: true,
-        //   data: [2.3, 3.2, 1.01, 1.34, 3.0, 2.30, 2.10]
-        // },
-      ]
+          dataZoom: [
+            {
+              show: true,
+              realtime: true,
+              type: 'inside',
+            },
+
+          ],
+          series: [{
+            data: this.dataRes.allData[name].map((element: any) => element.y),
+            name: name,
+            type: 'line',
+            stack: 'counts',
+            areaStyle: this.enableArea ? {} : undefined,
+            smooth: false
+          },
+          // {
+          //   name: 'X-1',
+          //   type: 'line',
+          //   stack: 'counts',
+          //   areaStyle: {},
+          //   smooth: true,
+          //   data: [2.3, 3.2, 1.01, 1.34, 3.0, 2.30, 2.10]
+          // },
+        ]
+        }
+
+        // this.chartOptionBars = {
+
+        // };
+
+
+        //   this.chartOptions = {
+        //     title: {
+        //       text: this.dataset.title //title of dataset selected
+        //     },
+        //     zoomEnabled: true,
+        //     animationEnabled: true,
+        //     theme: "light2",
+        //     data: [{
+        //       type: "line",
+        //       //xValueFormatString: "YYYY",
+        //       // yValueFormatString: "$#,###.##",
+        //       dataPoints: this.dataRes.allData[name]
+        //       // [
+
+        //       // ]
+        //     }]
+
+        //   };
+        // console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
+        this.dataTimeExport.emit(this.dataRes.allData[name]);
+        this.spinnerLoadingChild.emit(false);
       }
-
-      // this.chartOptionBars = {
-
-      // };
-
-
-      //   this.chartOptions = {
-      //     title: {
-      //       text: this.dataset.title //title of dataset selected
-      //     },
-      //     zoomEnabled: true,
-      //     animationEnabled: true,
-      //     theme: "light2",
-      //     data: [{
-      //       type: "line",
-      //       //xValueFormatString: "YYYY",
-      //       // yValueFormatString: "$#,###.##",
-      //       dataPoints: this.dataRes.allData[name]
-      //       // [
-
-      //       // ]
-      //     }]
-
-      //   };
-      // console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
-      this.dataTimeExport.emit(this.dataRes.allData[name]);
-      this.spinnerLoadingChild.emit(false);
 
 
     });

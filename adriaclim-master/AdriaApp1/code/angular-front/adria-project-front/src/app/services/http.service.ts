@@ -1,13 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { enviromentDev, enviromentProd, enviromentDevProd } from 'src/assets/environments';
+import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpService {
 
-  apiUrl = enviromentDev;
+  apiUrl = environmentProd;
 
   // httpOptions: any = {
   //   headers: new HttpHeaders({

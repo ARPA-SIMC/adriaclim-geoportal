@@ -344,7 +344,10 @@ def download_with_cache(u):
     # print("output_value: ",output_value)
     if output_value == None:
         # if is none we save it in the cache and returns it
-        output_value = urllib.request.urlopen(cache_key).read()
+        try:
+            output_value = urllib.request.urlopen(cache_key).read()
+        except Exception as e:
+            return "fuoriWms"
         if output_value:
             output_value = output_value.decode("utf-8")
             cache.set(key=cache_key, value=output_value,timeout=cache_time)
@@ -365,11 +368,14 @@ def download_with_cache(u):
 
 
 def download_with_cache_as_csv(u):
-    q = download_with_cache(u)
-    if q:
-        return io.StringIO(q)
-    else:
-        return None
+    try:
+        q = download_with_cache(u)
+        if q:
+            return io.StringIO(q)
+        else:
+            return None
+    except Exception as e:
+        return "fuoriWms"
 
 
 def getIndicator(id):
@@ -1904,7 +1910,7 @@ def getDataTable(
 
     except Exception as e:
         print("EXEPTION =", e)
-        return e
+        return "fuoriWms"
 
 
 def getDataGraphicGeneric(
@@ -1923,134 +1929,145 @@ def getDataGraphicGeneric(
     long_end,
     **kwargs
 ):
-    onlyone = 0
-    cache = 0
-    if "context" in kwargs and kwargs["context"] == "one":
-        onlyone = 1
-    if "cache" in kwargs and kwargs["cache"] == "yes":
-        cache = 1
-    onlylat = None
-    onlylong = None
-    operation = None
+    try:
+        onlyone = 0
+        cache = 0
+        if "context" in kwargs and kwargs["context"] == "one":
+            onlyone = 1
+        if "cache" in kwargs and kwargs["cache"] == "yes":
+            cache = 1
+        onlylat = None
+        onlylong = None
+        operation = None
 
-    if "operation" in kwargs and kwargs["operation"] != "":
-        operation = kwargs["operation"]
+        if "operation" in kwargs and kwargs["operation"] != "":
+            operation = kwargs["operation"]
 
-    if lat_start == "no":
-        lat_start = latitude
-    if lat_end == "no":
-        lat_end = latitude
-    if long_start == "no":
-        long_start = longitude
-    if long_end == "no":
-        long_end = longitude
+        if lat_start == "no":
+            lat_start = latitude
+        if lat_end == "no":
+            lat_end = latitude
+        if long_start == "no":
+            long_start = longitude
+        if long_end == "no":
+            long_end = longitude
 
-    url = getIndicatorQueryUrl(
-        dataset_id,
-        False,
-        False,
-        latitude=latitude,
-        longitude=longitude,
-        latitudeMin=lat_start,
-        latitudeMax=lat_end,
-        longitudeMin=long_start,
-        longitudeMax=long_end,
-        range=range_value,
-        variable=layer_name,
-        format="csv",
-        timeMin=time_start,
-        timeMax=time_finish,
-    )
-    if cache == 1:
-        url = download_with_cache_as_csv(url)
-    df = pd.read_csv(url, dtype="unicode")
-    if df[layer_name] is not None:
-        unit = df[layer_name][0]
-    else:
-        unit = layer_name
-    unit = ""
-    df = df.iloc[1:, :]
-    n_values = len(df)
-    allData = []
-    values = []
-    dates = []
-    layerName = []
-    lats = []
-    longs = []
-    i = 0
-    if n_values <= x:  # all the data
-        for index, row in df.iterrows():
-            if onlyone == 1 and onlylat is None:
-                onlylat = row["latitude"]
-                onlylong = row["longitude"]
-            if (
-                row[layer_name] == row[layer_name]
-                and row[layer_name] != "NaN"
-                and (
-                    onlyone == 0
-                    or (onlylat == row["latitude"] and onlylong == row["longitude"])
-                )
-            ):
-                lats.insert(i, row["latitude"])
-                longs.insert(i, row["longitude"])
-                layerName.insert(i, layer_name)
-                values.insert(i, float(row[layer_name]))
-                dates.insert(i, row["time"])
-                i += 1
-    else:  # one every nvalues/x data
-        every_nth_rows = int(n_values / x)
-        df = df[::every_nth_rows]
-        for index, row in df.iterrows():
-            if (
-                row[layer_name] == row[layer_name]
-                and row[layer_name] != "NaN"
-                and (
-                    onlyone == 0
-                    or (onlylat == row["latitude"] and onlylong == row["longitude"])
-                )
-            ):
-                lats.insert(i, row["latitude"])
-                longs.insert(i, row["longitude"])
-                layerName.insert(i, layer_name)
-                values.insert(i, float(row[layer_name]))
-                dates.insert(i, row["time"])
-                i += 1
-
-    allData = [values, dates, unit, layerName, lats, longs]
-    if operation is None:
-        return allData
-    else:
-        output = None
-        if "output" in kwargs:
-            output = kwargs["output"]
-
-        return packageGraphData(
-            processOperation(operation, values, dates, unit, layerName, lats, longs),
-            output=output,
+        url = getIndicatorQueryUrl(
+            dataset_id,
+            False,
+            False,
+            latitude=latitude,
+            longitude=longitude,
+            latitudeMin=lat_start,
+            latitudeMax=lat_end,
+            longitudeMin=long_start,
+            longitudeMax=long_end,
+            range=range_value,
+            variable=layer_name,
+            format="csv",
+            timeMin=time_start,
+            timeMax=time_finish,
         )
+        if cache == 1:
+            url = download_with_cache_as_csv(url)
+        if url == "fuoriWms":
+            return url
+        try:
+            df = pd.read_csv(url, dtype="unicode")
+        except Exception as e:
+            return "fuoriWms"
+        if df[layer_name] is not None:
+            unit = df[layer_name][0]
+        else:
+            unit = layer_name
+        unit = ""
+        df = df.iloc[1:, :]
+        n_values = len(df)
+        allData = []
+        values = []
+        dates = []
+        layerName = []
+        lats = []
+        longs = []
+        i = 0
+        if n_values <= x:  # all the data
+            for index, row in df.iterrows():
+                if onlyone == 1 and onlylat is None:
+                    onlylat = row["latitude"]
+                    onlylong = row["longitude"]
+                if (
+                    row[layer_name] == row[layer_name]
+                    and row[layer_name] != "NaN"
+                    and (
+                        onlyone == 0
+                        or (onlylat == row["latitude"] and onlylong == row["longitude"])
+                    )
+                ):
+                    lats.insert(i, row["latitude"])
+                    longs.insert(i, row["longitude"])
+                    layerName.insert(i, layer_name)
+                    values.insert(i, float(row[layer_name]))
+                    dates.insert(i, row["time"])
+                    i += 1
+        else:  # one every nvalues/x data
+            every_nth_rows = int(n_values / x)
+            df = df[::every_nth_rows]
+            for index, row in df.iterrows():
+                if (
+                    row[layer_name] == row[layer_name]
+                    and row[layer_name] != "NaN"
+                    and (
+                        onlyone == 0
+                        or (onlylat == row["latitude"] and onlylong == row["longitude"])
+                    )
+                ):
+                    lats.insert(i, row["latitude"])
+                    longs.insert(i, row["longitude"])
+                    layerName.insert(i, layer_name)
+                    values.insert(i, float(row[layer_name]))
+                    dates.insert(i, row["time"])
+                    i += 1
+
+        allData = [values, dates, unit, layerName, lats, longs]
+        if operation is None:
+            return allData
+        else:
+            output = None
+            if "output" in kwargs:
+                output = kwargs["output"]
+
+            return packageGraphData(
+                processOperation(operation, values, dates, unit, layerName, lats, longs),
+                output=output,
+            )
+    except Exception as e:
+        return "fuoriWms"
 
 def calculate_trend(dates, values):
     try:
         y = np.array(values)
-        # print("Y==============",y)
-        
+        # print("dates inside calculate_trend==============",dates)
+        print(type(dates[0]))
         # converti le date in oggetti datetime
         if type(dates[0]) is str:
+            if dates[0].startswith("0000"):
+                #annual month by month
+                dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%dT%H:%M:%SZ") for d in dates]
+            elif len(dates[0].split("-")) == 2: #01-01 1 gennaio 2000-01-01
+                 #annual day by day
+                 dates = [dt.datetime.strptime("2000-" + d, "%Y-%d-%m") for d in dates]
+            else:
             #è una stringa!
-            dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
-        # sottrai la data iniziale dal valore di ogni data (in giorni)
-        days = np.array([(d - dates[0]).days for d in dates])
+                dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
+       
+        days = np.array([d.timestamp() for d in dates])
         # print("Days",days)
-        # print("Length days",len(days))
-        # print("Length y",len(y))
-        # normalizza su 1 anno (in secondi)
-        seconds_norm = days * 86400 * 365.25
         # esegue la regressione lineare
-        slope, intercept, r_value, p_value, std_err = stats.linregress(seconds_norm,y)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(days,y)
         # model = LinearRegression().fit(seconds_norm.reshape(-1, 1), y)
         # # coefficiente angolare
         # coef_angular = model.coef_[0]
-        return slope
+        return slope * 86400 * 365.25
     except Exception as e:
         print("Errore in calculate_trend",e)
         return str(e)
@@ -2143,7 +2160,12 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
     if operation == "default":
         return [values, dates, unit, layerName, lats, longs]
     values2 = []
-
+    
+    dates_trend = dates.copy()
+    mean_result = mean(values)
+    median_result = median(values)
+    stdev_result = stdev(values)
+    trend_result = calculate_trend(dates_trend,values)
     dates2 = []
     layerName2 = []
     lats2 = []
@@ -2155,10 +2177,6 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
     pattern = None
 
     if operation == "annualMonth":
-        mean_result = mean(values)
-        median_result = median(values)
-        stdev_result = stdev(values)
-        trend_result = calculate_trend(dates, values)
         pattern = re.compile("\d\d\d\d-(\d\d)-\S*")
         months = [
             "01",
@@ -2216,10 +2234,6 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             # print("DATES_LIST======",dates_list)
             lats2 = [0 for value in values]
             longs2 = [0 for value in values]
-            mean_result = mean(values)
-            median_result = median(values)
-            stdev_result = stdev(values)
-            trend_result = calculate_trend(dates, values)
             layerName2 = [layerName[0] for value in values]
             # in values ci sono tutti i valori, dates_list tutte le date!
             float_values = [float(value) for value in values]

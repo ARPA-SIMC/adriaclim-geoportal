@@ -572,42 +572,48 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
       this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
 
-        // this.spinnerLoading = false;
-        if (typeof response === 'string') {
-          response = JSON.parse(response);
+        if(response.data !== "fuoriWms") {
+          // this.spinnerLoading = false;
+          if (typeof response === 'string') {
+            response = JSON.parse(response);
+          }
+          this.dataTable = response;
+
+
+          this.displayedColumns = this.dataTable.data.table.columnNames;
+          let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+
+          if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
+            this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
+          }
+          // this.dataTable.data.table.forEach((el: any) => {
+          let objArr: any = {};
+          let arr1: any = [];
+          // console.log("K = ", k);
+
+          this.dataTable.data.table.rows.forEach((arr: any) => {
+            objArr = {};
+
+            this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
+              objArr[key] = arr[i];
+
+            })
+            arr1.push(objArr);
+
+          });
+          this.dataTable.data.table.rows = [...arr1];
+
+          if (this.dataTable.data.table.rows.length > 0) {
+            this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
+            // bypass ngIf for paginator
+            this.setDataSourceAttributes();
+
+
+          }
+
         }
-        this.dataTable = response;
-
-
-        this.displayedColumns = this.dataTable.data.table.columnNames;
-        let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
-
-        if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
-          this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
-        }
-        // this.dataTable.data.table.forEach((el: any) => {
-        let objArr: any = {};
-        let arr1: any = [];
-        // console.log("K = ", k);
-
-        this.dataTable.data.table.rows.forEach((arr: any) => {
-          objArr = {};
-
-          this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
-            objArr[key] = arr[i];
-
-          })
-          arr1.push(objArr);
-
-        });
-        this.dataTable.data.table.rows = [...arr1];
-
-        if (this.dataTable.data.table.rows.length > 0) {
-          this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
-          // bypass ngIf for paginator
-          this.setDataSourceAttributes();
-
-
+        else {
+          this.description = "The selected point is outside the WMS coverage";
         }
 
       });
@@ -928,7 +934,16 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
     this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
     //console.log("no parseFloat()",mean_median_stdev[3]);
-    this.trendValue = parseFloat(mean_median_stdev[3]);
+    // console.log("MEAN_MEDIAN_STDEV", mean_median_stdev[3]);
+
+    this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    if(this.trendValue.includes("x 10^0")) {
+      this.trendValue = this.trendValue.replace("x 10^0", "");
+    }
+    // console.log("this.trendValue", this.trendValue);
+
+    // toLocaleString('fullwide', {useGrouping: false}).replace(/\.(\d+)/, (match, p1) => '.' + p1.slice(0, 5))
+    // .toExponential().replace(/e\+?/, ' x 10^')
   }
 
   sendSelGraphPoly() {
@@ -952,7 +967,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         this.meanValue = res.newValues.mean.toFixed(3);
         this.medianValue = res.newValues.median.toFixed(3);
         this.stdevValue = res.newValues.stdev.toFixed(3);
-        this.trendValue = res.newValues.trend;
+        this.trendValue = res.newValues.trend.toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+        if(this.trendValue.includes("x 10^0")) {
+          this.trendValue = this.trendValue.replace("x 10^0", "");
+        }
       },
 
       error: (err: any) => {
