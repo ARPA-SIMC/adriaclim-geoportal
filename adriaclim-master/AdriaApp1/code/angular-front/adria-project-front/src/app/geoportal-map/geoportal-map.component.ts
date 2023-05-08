@@ -152,7 +152,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentProd;
+  apiUrl = environmentDev;
 
   markers: L.Marker[] = [];
 
@@ -308,7 +308,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   removeAllPolygons(){
-    console.log("allPolygons", this.allPolygons);
+    // console.log("allPolygons", this.allPolygons);
 
     this.allPolygons.forEach(p=>{
       this.map.removeLayer(p.pol);
@@ -751,12 +751,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   getAllNodes() {
-    console.log("DENTRO GET ALL NODES");
+    // console.log("DENTRO GET ALL NODES");
 
     this.httpService.post('test/allNodes', {
     }).subscribe({
       next: (res: any) => {
-        console.log("SUB NEXT");
+        // console.log("SUB NEXT");
 
         res.nodes.forEach((node: any) => {
 
@@ -2359,7 +2359,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       // buttonContainer.appendChild(button);
       labels.push(button.outerHTML);
 
-      console.log("LABELS =", labels);
+      // console.log("LABELS =", labels);
       // div.innerHTML = labels.join('<br>');
       div.innerHTML = labels.join('');
       return div;

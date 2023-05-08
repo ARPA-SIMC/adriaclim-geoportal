@@ -8,6 +8,6 @@ class DatasetConfig(AppConfig):
     def ready(self):
         from myFunctions import allFunctions
         from .models import Node
-        print("Ci entro in init.py")
+        # print("Ci entro in init.py")
         if Node.objects.count() == 0:
             allFunctions.getAllDatasets()

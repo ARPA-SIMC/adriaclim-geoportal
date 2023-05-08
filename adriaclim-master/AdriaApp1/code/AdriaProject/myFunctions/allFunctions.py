@@ -2047,7 +2047,7 @@ def calculate_trend(dates, values):
     try:
         y = np.array(values)
         # print("dates inside calculate_trend==============",dates)
-        print(type(dates[0]))
+        # print(type(dates[0]))
         # converti le date in oggetti datetime
         if type(dates[0]) is str:
             if dates[0].startswith("0000"):
@@ -2107,7 +2107,7 @@ def packageGraphData(allData, **kwargs):
     median_result = median(values)
     stdev_result = stdev(values)
     trend_result = calculate_trend(allData[1],values)
-    print("package graph data=======trend result",trend_result)
+    # print("package graph data=======trend result",trend_result)
     dates = allData[1]
     unit = allData[2]
     layerName = allData[3]
