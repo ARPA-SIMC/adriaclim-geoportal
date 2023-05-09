@@ -14,6 +14,8 @@ from pathlib import Path
 from kombu import Queue
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
+from datetime import datetime
+import json
 # import mimetypes
 # mimetypes.add_type("text/css", ".css", True)
 # mimetypes.add_type('text/html', '.html', True)
@@ -21,9 +23,12 @@ from dotenv import load_dotenv, find_dotenv
 # # mimetypes.add_type('text/javascript', '.js', True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+#remove celerybeat-schedule file
 USE_TZ = True
 TIME_ZONE = "Europe/Rome"
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,13 +44,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
-#cache, we use memcached as our default backend cache
-# CACHES = {
-#     'default':{
-#     'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#     'LOCATION': 'memcached:11211'
-#     }
-# }
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -56,18 +55,7 @@ CACHES = {
     }
 }
 
-#celery settings
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-# CELERY_TIMEZONE = 'UTC'
-# CELERY_BEAT_SCHEDULE = {
-#     'my_task': {
-#         'task': 'AdriaProject.tasks.task_get_all_data',
-#         'schedule': crontab(hour=11, minute=38),
-#     },
-# }
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -296,7 +284,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'my_task2': {
         'task': 'AdriaProject.tasks.download_big_data_yearly',
-        'schedule': crontab(hour=22, minute=30,day_of_week="monday"),
+        'schedule': crontab(hour=22, minute=30,day_of_week="tuesday"),
         'options': {'queue': 'my_queue','link':'AdriaProject.tasks.task_get_all_data'}  # Set the queue for this task
     },
     'my_task3': {

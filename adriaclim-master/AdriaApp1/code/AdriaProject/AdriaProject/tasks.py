@@ -7,8 +7,12 @@ def task_get_all_data():
     from myFunctions import allFunctions
     # print("get_all_datasets!")
     # Call your function here
+    # if server_start == False:
+    #     server_start = True
+    #     print("NON AVVIO FUNZIONE")
+    # elif server_start == True:
+    #     print("AVVIO FUNZIONE")
     allFunctions.getAllDatasets()
-
 
 @shared_task
 def download_big_data_yearly():

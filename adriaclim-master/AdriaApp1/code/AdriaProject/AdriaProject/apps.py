@@ -3,7 +3,7 @@
 # from django.conf import settings
 # from django.core.management import call_command
 # from myFunctions import allFunctions
-# #frm 
+# #frm
 
 
 # class AdriaProjectConfig(AppConfig):
