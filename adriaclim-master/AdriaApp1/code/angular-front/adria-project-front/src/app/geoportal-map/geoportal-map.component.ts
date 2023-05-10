@@ -16,6 +16,7 @@ import * as poly from '../../assets/geojson/geojson.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
 import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+import { GeoportalColorDialogComponent } from './geoportal-color-dialog/geoportal-color-dialog.component';
 // import "leaflet/dist/leaflet.css";
 
 /**
@@ -152,7 +153,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   markers: L.Marker[] = [];
 
@@ -169,6 +170,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   activeLayersGroup: FormGroup;
   sliderGroup: FormGroup;
   nodeSelected: any;
+  valueMin: any;
+  valueMid: any;
+  valueMax: any;
 
   markerPoint!: L.Marker;
 
@@ -691,7 +695,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       icon: L.icon({
         // iconSize: [25, 41],
         iconSize: [32, 32],
-        iconAnchor: [13, 41],
+        iconAnchor: [16, 32],
         // iconUrl: 'marker-icon.png',
         iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
       })
@@ -708,7 +712,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         icon: L.icon({
           // iconSize: [25, 41],
           iconSize: [32, 32],
-          iconAnchor: [13, 41],
+          iconAnchor: [16, 32],
           // iconUrl: 'marker-icon.png',
           iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
         })
@@ -2178,6 +2182,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         } else {
           value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
         }
+        this.valueMin = parseFloat(value_min);
+        this.valueMax = parseFloat(value_max);
+        this.valueMid = value_mid;
         this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
@@ -2356,18 +2363,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       //   );
       let button = L.DomUtil.create('button', 'color-number-legend');
       button.innerHTML = "<span class='material-symbols-outlined'>settings</span>";
-      button.addEventListener('click', (e) => {console.log("PROVIAMO STA COSA")});
+      button.addEventListener('click', (e) => this.proviamoStaCosa());
 
       // let buttonContainer = L.DomUtil.create('div', 'color-number-legend-container');
       // buttonContainer.innerHTML = button.outerHTML;
       // let buttonContainer = document.createElement('div');
       // buttonContainer.classList.add('color-number-legend');
       // buttonContainer.appendChild(button);
-      labels.push(button.outerHTML);
+      // labels.push(button.outerHTML);
 
       // console.log("LABELS =", labels);
       // div.innerHTML = labels.join('<br>');
       div.innerHTML = labels.join('');
+      div.appendChild(button);
       return div;
     };
 
@@ -2375,10 +2383,41 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
 
-  // proviamoStaCosa = () => {
-  //   console.log("PROVIAMO STA COSA");
+  proviamoStaCosa = (title?: string) => {
 
-  // }
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    dialogConfig.data = {
+      success: true,
+      description: "I need to create a modal for choosing the color!",
+      openGraph: true,
+      datasetName: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.title : title,
+    };
+
+
+    const dialogRef = this.dialog.open(GeoportalColorDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(async result => {
+      // console.log("RESULT =", result);
+
+        // console.log("RESULT =", result.colorMinMid);
+        // console.log("RESULT =", result.colorMid);
+        // console.log("RESULT =", result.colorMidMax);
+        // console.log("RESULT =", result.colorMax);
+        this.valueMinColor = result["minColor"];
+        this.valueMinMidColor = result["minMidColor"];
+        this.valueMidColor = result["midColor"];
+        this.valueMidMaxColor = result["midMaxColor"];
+        this.valueMaxColor = result["maxColor"];
+        // console.log("this.valueMinColor =", this.valueMinColor);
+        this.map.removeControl(this.legendNoWms);
+        this.createLegend(this.valueMin,this.valueMax,this.valueMid);
+        //this.createLegend(this.valueMin, this.valueMax, this.valueMid);
+    });
+
+  }
 
   /**
    *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE

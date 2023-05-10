@@ -51,6 +51,7 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { LeafletModule } from "@asymmetrik/ngx-leaflet";
 import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
+import { GeoportalColorDialogComponent } from './geoportal-map/geoportal-color-dialog/geoportal-color-dialog.component';
 registerLocaleData(localeFr);
 registerLocaleData(localeIt);
 
@@ -61,7 +62,7 @@ registerLocaleData(localeIt);
     GeoportalMapDialogComponent,
     FilterPipe, //added pipe filter
     HighlightDirective, //added directive highlight
-    CanvasGraphComponent
+    CanvasGraphComponent, GeoportalColorDialogComponent
   ],
   imports: [
     BrowserModule,
