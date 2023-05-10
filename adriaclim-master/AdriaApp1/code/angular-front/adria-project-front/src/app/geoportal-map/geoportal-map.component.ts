@@ -495,6 +495,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     // console.log("MAP CONTAINER =", this.map.getContainer().style)
     this.map.off('click');
     this.map.getContainer().style.cursor = "url('../../assets/img/pointer-map-marker-removebg.png') 16 31, auto";
+    // this.map.getContainer().style.cursor = "url('../../assets/img/plane.png'), auto";
     // this.map.getContainer().style.cursor = "position";
     // this.map.getContainer().style.cursor = "url('src/assets/img/pointer-map-map-marker.cur')";
     // this.map.getContainer().style.cursor = "url('../assets/img/pointer-map-map-marker.cur')";
@@ -688,9 +689,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     // METODO 2
     const marker = L.marker(e.latlng, {
       icon: L.icon({
-        iconSize: [25, 41],
+        // iconSize: [25, 41],
+        iconSize: [32, 32],
         iconAnchor: [13, 41],
-        iconUrl: 'marker-icon.png',
+        // iconUrl: 'marker-icon.png',
+        iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
       })
     });
     marker.on('click', this.onMarkerClick.bind(this));
@@ -703,16 +706,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       }
       this.markerPoint = L.marker(e.latlng, {
         icon: L.icon({
-          iconSize: [25, 41],
+          // iconSize: [25, 41],
+          iconSize: [32, 32],
           iconAnchor: [13, 41],
-          iconUrl: 'marker-icon.png',
+          // iconUrl: 'marker-icon.png',
+          iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
         })
       })
       // .bindPopup("Info marker")
       .addTo(this.map)
       // .openPopup();
-      this.markerPoint.bindPopup("Info marker", {
-        offset: [0, -25]
+      let lat_lng = this.markerPoint.getLatLng();
+      this.markerPoint.bindPopup("Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5), {
+        offset: [0, -25] 
       }).openPopup();
     }
   }

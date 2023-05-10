@@ -37,6 +37,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     // });
 
     // this.getPippo("ciao");
+    //this.getMBIndicator("monthly"); //2138.8134632110596 MB per yearly, 8442.947506904602  MB seasonal, 25252.07095527649  MB monthly
 
     /**
      *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
@@ -93,6 +94,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   })
   }
+
+  getMBIndicator(timeperiod: string){
+    this.httpService.post('test/discover_mb', {
+      timeperiod: timeperiod
+  }).subscribe({
+    next(position: any) {
+        console.log("MB_SIZE=======",position)
+    },
+    error(msg: any) {
+      // console.log('Error ALL DATA: ', msg);
+    }
+  })
+  }
+
 
 
 

@@ -106,6 +106,7 @@ urlpatterns = [
     path("test/dataPolygon",data_views.getDataPolygonNew),
     path("test/updateStatistics",data_views.updateStatistics),
     path('test/check_task_status',data_views.check_task_status),
+    path("test/discover_mb",data_views.discover_mb_indicator),
   
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

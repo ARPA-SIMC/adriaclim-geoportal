@@ -552,7 +552,12 @@ def check_task_status(request):
         response["error"] = str(e)
         return JsonResponse({"dataVect":response})
 
-
+@api_view(['GET','POST'])
+def discover_mb_indicator(request):
+        # print("request",request)
+        # print("request.data",request.data.get('task_id'))
+    mb_indicator = allFunctions.discover_how_mb_indicator_are(request.data.get('timeperiod'))
+    return JsonResponse({"mb":mb_indicator})
     
 
 

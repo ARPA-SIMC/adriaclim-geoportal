@@ -35,6 +35,7 @@ import shapely.speedups
 from django.forms import model_to_dict
 from postgres_copy import CopyManager
 from sklearn.linear_model import LinearRegression
+from django.db import connection
 
 
 
@@ -957,7 +958,8 @@ def getAllDatasets():
                     "griddap_url": griddap_url,
                     "wms_url": wms_url,
                 }
-                Node.objects.update_or_create(id=node_id, defaults=defaults)
+                if not is_database_almost_full():
+                    Node.objects.update_or_create(id=node_id, defaults=defaults)
             else:
                 # print("row1")
                 # now we create our datasets that we put in our db
@@ -3055,9 +3057,183 @@ def getDataAnnualPolygon(
         )[layer_name].mean()
         return df.to_json()
 
+def is_database_almost_full(threshold_percentage=90):
+    # Get the current database size
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_size_pretty(pg_database_size(current_database()));")
+        database_size = cursor.fetchone()[0]
+
+    # Calculate the percentage of database usage
+    total_size = connection.settings_dict['CONN_MAX_AGE']  # Maximum database size
+    used_percentage = (float(database_size.replace(' kB', '')) / float(total_size.replace(' kB', ''))) * 100
+
+    # Check if the database usage exceeds the threshold
+    return used_percentage >= threshold_percentage
+
 
 # AdriaClim Indicators | adriaclim_WRF | yearly | hist | r95p
 # tempo 4709 secondi circa
+CHUNK_SIZE = 1024  # Size of each chunk in bytes
+
+def get_remote_file_size(url):
+    try:
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            total_size = 0
+            for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                if chunk:
+                    total_size += len(chunk)
+            file_size_mb = total_size / (1024 * 1024)  # Convert bytes to megabytes
+            print("file size",file_size_mb)
+            return file_size_mb
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
+    
+def discover_how_mb_indicator_are(timeperiod):
+    file_size = 0
+    count = 0
+    # print("time_period",timeperiod)
+    all_datasets = Node.objects.filter(Q(adriaclim_dataset="indicator") & Q(adriaclim_timeperiod=timeperiod))
+    num_dataset = len(all_datasets)
+    print("number of datasets",num_dataset)
+    for dataset in all_datasets:
+        url_csv = ""
+        if dataset.griddap_url != "":
+            # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_bda7_23d0_0f98.csv?consecutive_summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,number_of_csu_periods_with_more_than_5days_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_wave_duration_index_wrt_mean_of_reference_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_waves_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tropical_nights_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D
+            # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/WAVES_VTM10_5da8_8ef6_cf64
+            url_csv += dataset.griddap_url + ".csv?"
+            variable_names = dataset.variable_names.split(" ")
+            for index, var in enumerate(variable_names):
+                if dataset.dimensions > 3:
+                    if index < len(variable_names) - 1:
+                        # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+                        url_csv += (
+                            var
+                            + "%5B("
+                            + dataset.time_start
+                            + "):1:("
+                            + dataset.time_end
+                            + ")%5D%5B("
+                            + str(dataset.param_min)
+                            + "):1:("
+                            + str(dataset.param_max)
+                            + ")%5D%5B("
+                            + dataset.lat_max
+                            + "):1:("
+                            + dataset.lat_min
+                            + ")%5D%5B("
+                            + dataset.lng_min
+                            + "):1:("
+                            + dataset.lng_max
+                            + ")%5D,"
+                        )
+                    else:
+                        url_csv += (
+                            var
+                            + "%5B("
+                            + dataset.time_start
+                            + "):1:("
+                            + dataset.time_end
+                            + ")%5D%5B("
+                            + str(dataset.param_min)
+                            + "):1:("
+                            + str(dataset.param_max)
+                            + ")%5D%5B("
+                            + dataset.lat_max
+                            + "):1:("
+                            + dataset.lat_min
+                            + ")%5D%5B("
+                            + dataset.lng_min
+                            + "):1:("
+                            + dataset.lng_max
+                            + ")%5D"
+                        )
+
+                else:
+                    #niente param aggiuntivo
+                    if index < len(variable_names) - 1:
+                        url_csv += (
+                            var
+                            + "%5B("
+                            + dataset.time_start
+                            + "):1:("
+                            + dataset.time_end
+                            + ")%5D%5B("
+                            + dataset.lat_max
+                            + "):1:("
+                            + dataset.lat_min
+                            + ")%5D%5B("
+                            + dataset.lng_min
+                            + "):1:("
+                            + dataset.lng_max
+                            + ")%5D,"
+                        )
+                    else:
+                        url_csv += (
+                            var
+                            + "%5B("
+                            + dataset.time_start
+                            + "):1:("
+                            + dataset.time_end
+                            + ")%5D%5B("
+                            + dataset.lat_max
+                            + "):1:("
+                            + dataset.lat_min
+                            + ")%5D%5B("
+                            + dataset.lng_min
+                            + "):1:("
+                            + dataset.lng_max
+                            + ")%5D"
+                        )
+
+
+            # print("url_csv=======", url_csv)
+            # generic_big_data_download(url_csv,dataset,dataset.variables,False)
+            # print("url_csv",url_csv)
+            count += 1
+            print("Siamo ad un numero di file pari a: ",count)
+            file_size += get_remote_file_size(url_csv)
+            print("Siamo ad un peso pari a: ",file_size," MB")
+
+        else:
+            #siamo nel caso di tabledap!
+            url_csv += dataset.tabledap_url + ".csv?"
+            variable_names = dataset.variable_names.split(" ")
+            for index, var in enumerate(variable_names):
+                if index < len(variable_names) - 1:
+                    url_csv += var + "%2C"
+                else:
+                    url_csv += var + "&"
+
+            url_csv += (
+                "time%3E="
+                + dataset.time_start
+                + "&time%3C="
+                + dataset.time_end
+                + "&latitude%3E="
+                + dataset.lat_min
+                + "&latitude%3C="
+                + dataset.lat_max
+                + "&longitude%3E="
+                + dataset.lng_min
+                + "&longitude%3C="
+                + dataset.lng_max
+            )
+            # print("url_csv=======", url_csv)
+            # generic_big_data_download(url_csv,dataset,dataset.variables,True)
+            count += 1
+            print("Siamo ad un numero di file pari a: ",count)
+            file_size += get_remote_file_size(url_csv)
+            print("Siamo ad un peso pari a: ",file_size," MB")
+
+
+    print("PESO TOTALE DI TUTTI GLI INDICATORI",str(timeperiod).upper(),"======",file_size," MB")
+    return file_size
+
+
 
 
 def download_big_data(timeperiod):
@@ -3237,13 +3413,14 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
             }
 
             try:
+                if not is_database_almost_full():
 
-                Polygon.copy_manager.from_csv(
-                    csv_file,
-                    mapping,
-                
-                )
-                
+                    Polygon.copy_manager.from_csv(
+                        csv_file,
+                        mapping,
+                    
+                    )
+                    
 
             except Exception as e:
                 print("Eccezione", e)
@@ -3297,11 +3474,11 @@ def generic_big_data_download(url_dataset,dataset,num_variables,is_tabledap):
             }
 
             try:
-
-                Polygon.copy_manager.from_csv(
-                    csv_file,
-                    mapping,
-                )
+                if not is_database_almost_full():
+                    Polygon.copy_manager.from_csv(
+                        csv_file,
+                        mapping,
+                    )
                 
             except Exception as e:
                 print("Eccezione", e)
@@ -4127,14 +4304,15 @@ def getDataPolygonNew(
                                     "pol_vertices_str": pol_vertices_str,
                                     "parametro_agg": row[parametro_agg],
                                 }
-                                Polygon.objects.update_or_create(
-                                                dataset_id=Node.objects.get(id=dataset_id),
-                                                date_value=convertToTime(row["time"]),
-                                                latitude=float(row["latitude"]),
-                                                longitude=float(row["longitude"]),
-                                                coordinate = Point(float(row["longitude"]), float(row["latitude"])),
-                                                defaults=defaults,
-                                                                )
+                                if not is_database_almost_full():
+                                    Polygon.objects.update_or_create(
+                                                    dataset_id=Node.objects.get(id=dataset_id),
+                                                    date_value=convertToTime(row["time"]),
+                                                    latitude=float(row["latitude"]),
+                                                    longitude=float(row["longitude"]),
+                                                    coordinate = Point(float(row["longitude"]), float(row["latitude"])),
+                                                    defaults=defaults,
+                                                                    )
                                 # pol = Polygon(pol_vertices_str = pol_vertices_str, value_0 = float(row[layer_name]), dataset_id = Node.objects.get(id=dataset_id), date_value = convertToTime(row["time"]),
                                 #               latitude = float(row["latitude"]), longitude = float(row["longitude"]), parametro_agg = row[parametro_agg])
                                 # pol.save()
@@ -4181,14 +4359,15 @@ def getDataPolygonNew(
                                     "value_0": float(row[layer_name]),
                                     "pol_vertices_str": pol_vertices_str,
                                 }
-                                Polygon.objects.update_or_create(
-                                                dataset_id=Node.objects.get(id=dataset_id),
-                                                date_value=convertToTime(row["time"]),
-                                                latitude=float(row["latitude"]),
-                                                longitude=float(row["longitude"]),
-                                                coordinate = Point(float(row["longitude"]), float(row["latitude"])),
-                                                defaults=defaults,
-                                                                )
+                                if not is_database_almost_full():
+                                    Polygon.objects.update_or_create(
+                                                    dataset_id=Node.objects.get(id=dataset_id),
+                                                    date_value=convertToTime(row["time"]),
+                                                    latitude=float(row["latitude"]),
+                                                    longitude=float(row["longitude"]),
+                                                    coordinate = Point(float(row["longitude"]), float(row["latitude"])),
+                                                    defaults=defaults,
+                                                                    )
                                 # dataTable.append({"time": row["time"], "latitude": row["latitude"],"longitude": row["longitude"],layer_name:row[layer_name]})
                                 i += 1
                                 # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
