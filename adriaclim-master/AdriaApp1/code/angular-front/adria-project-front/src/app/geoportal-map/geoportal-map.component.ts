@@ -2198,13 +2198,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
-        let center = allLatCoordinates.length / 2;
+        let center = Math.round(allLatCoordinates.length / 2);
         console.log("Center",center);
         let centerLat = allLatCoordinates[center];
         let centerLong = allLongCoordinates[center];
         console.log("centerlat",centerLat);
         console.log("centerlng",centerLong);
-        let zoomTest = L.latLng(centerLong, centerLat);
+        let zoomTest = L.latLng(centerLat, centerLong);
         this.map.setView(zoomTest,14);
         for (let i = 0; i < allLatCoordinates.length; i++) {
           if (this.isIndicator) {
