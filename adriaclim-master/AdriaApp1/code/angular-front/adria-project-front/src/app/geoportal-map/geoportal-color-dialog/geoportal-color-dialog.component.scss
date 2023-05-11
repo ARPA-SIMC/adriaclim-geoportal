@@ -4,55 +4,55 @@
     text-align: center;
     color: rgb(13,193,213);
   }
-  
+
   .info-title-dialog {
     font-weight: 500;
     font-size: medium;
     text-align: center;
   }
-  
+
   ::ng-deep .tab-graph {
     max-width: none !important;
     width: 100% !important;
   }
-  
+
   :ng-deep .canvas-graph {
     width: 100% !important;
     height: 100 !important;
   }
-  
+
   ::ng-deep .tab-group {
     width: 80vw !important;
     height: fit-content !important;
   }
-  
+
   ::ng-deep .export-tab {
     max-width: 10vw !important;
     width: fit-content !important;
     height: fit-content !important;
   }
-  
+
   ::ng-deep .menu-var .mat-mdc-form-field-bottom-align::before {
     display: none !important;
   }
-  
+
   ::ng-deep .menu-var .mdc-text-field {
     border-bottom-right-radius: 4px !important;
     border-bottom-left-radius: 4px !important;
   }
-  
+
   ::ng-deep .select-overlay-pane-dialog {
     width: fit-content !important;
     max-width: 300px !important;
     word-break: break-all !important;
   }
-  
+
   ::ng-deep .mat-mdc-dialog-content {
     max-height: 80vh !important;
   }
-  
-  
-  
+
+
+
   /**
   * DISPLAY FLEX
   */
@@ -62,4 +62,26 @@
     align-items: center;
     flex-direction: row;
   }
-  
+
+  .choose-color-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    .color-value {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+      width: 100%;
+      gap: 10px;
+      .width-choose {
+        width: 20%;
+      }
+      .width-color {
+        width: 20%;
+      }
+    }
+  }
+

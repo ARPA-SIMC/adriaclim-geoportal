@@ -153,7 +153,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentProd;
+  apiUrl = environmentDev;
 
   markers: L.Marker[] = [];
 
@@ -722,7 +722,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       // .openPopup();
       let lat_lng = this.markerPoint.getLatLng();
       this.markerPoint.bindPopup("Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5), {
-        offset: [0, -25] 
+        offset: [0, -25]
       }).openPopup();
     }
   }
