@@ -2205,7 +2205,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         console.log("centerlat",centerLat);
         console.log("centerlng",centerLong);
         let zoomTest = L.latLng(centerLat, centerLong);
-        this.map.setView(zoomTest,14);
+        this.map.setView(zoomTest,8);
         for (let i = 0; i < allLatCoordinates.length; i++) {
           if (this.isIndicator) {
             this.circleCoords.push(
