@@ -449,7 +449,9 @@ def overlaysNew(request,dataset_id):
 @api_view(['GET','POST'])
 def get_metadata_table(request):#*****************************************************************
     dataset_id = request.data.get("idMeta")
+    # print("dataset_id",dataset_id)
     metadata=allFunctions.getMetadataOfASpecificDataset(dataset_id)
+    # print("metadata",metadata)
     return JsonResponse({"metadata":metadata})
     # return HttpResponse(metadata)
 

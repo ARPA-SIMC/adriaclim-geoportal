@@ -88,7 +88,7 @@
                           style="max-width: none !important; width: fit-content;">
                           <button matTooltip="Info about the layer" matTooltipPosition="left"><mat-icon fxFlex="90"
                               [ngStyle]="{'color': 'blue'}"
-                              (click)="openTableDialog(node.name['id'], node.name['title'])">info</mat-icon></button>
+                              (click)="openTableDialog(node.name['id'], node.name['title'], node)">info</mat-icon></button>
                           <mat-radio-button fxFlex [value]="node"
                             (change)="getMeta(node.name['id']); getSelectedNode(node); addToActiveLayers(node)">{{node.name["title"]}}</mat-radio-button>
 

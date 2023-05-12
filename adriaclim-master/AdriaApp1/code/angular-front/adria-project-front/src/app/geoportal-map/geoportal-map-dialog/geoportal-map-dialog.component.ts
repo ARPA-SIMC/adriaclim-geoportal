@@ -421,8 +421,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     let data = {
       idMeta: this.datasetId
     }
+    //console.log("idMeta:",data);
     // this.httpService.post('test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/metadataTable', data).subscribe((response: any) => {
+      //console.log("Response======",response);
     //   if (typeof response === 'string') {
     //     response = JSON.parse(response);
     //   }

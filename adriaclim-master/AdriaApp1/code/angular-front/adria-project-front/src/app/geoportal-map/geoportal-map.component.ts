@@ -153,7 +153,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   markers: L.Marker[] = [];
 
@@ -2027,8 +2027,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   //   !!node.children && node.children.length > 0;
 
 
-  openTableDialog(idMeta?: string, title?: string) {
+  openTableDialog(idMeta?: any, title?: any, n?: any) {
     let dataId: any;
+    // console.log("ID META =", idMeta);
+    // console.log("title =====",title);
+    // console.log("N =", n);
+
     if (!idMeta) {
       if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
@@ -2046,9 +2050,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     dialogConfig.data = {
       success: true,
-      datasetId: this.selData.get("dataSetSel")?.value ? dataId : idMeta,
-      datasetName: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.title : title,
+      datasetId: idMeta ? idMeta : dataId,
+      datasetName: title ? title : this.selData.get("dataSetSel")?.value.name.title,
     };
+    console.log("DIALOG CONF DATA =", dialogConfig.data);
+
 
 
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
@@ -2199,11 +2205,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
         let center = Math.round(allLatCoordinates.length / 2);
-        console.log("Center",center);
+        // console.log("Center",center);
         let centerLat = allLatCoordinates[center];
         let centerLong = allLongCoordinates[center];
-        console.log("centerlat",centerLat);
-        console.log("centerlng",centerLong);
+        // console.log("centerlat",centerLat);
+        // console.log("centerlng",centerLong);
         let zoomTest = L.latLng(centerLat, centerLong);
         this.map.setView(zoomTest,8);
         for (let i = 0; i < allLatCoordinates.length; i++) {
@@ -2395,7 +2401,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
       let colorStorageObj: any;
       if (colorStorage) {
-        console.log("Entro nell'if del localstorage COLOR,this is ", colorStorage);
+        // console.log("Entro nell'if del localstorage COLOR,this is ", colorStorage);
         colorStorageObj = JSON.parse(colorStorage);
         return v === value_min
           ? colorStorageObj?.minColor
@@ -2578,7 +2584,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
         }
 
-        console.log("RESULT =", result);
+        // console.log("RESULT =", result);
       }
       else if (result === "restoreDefault") {
         this.restoreDefaultColors();

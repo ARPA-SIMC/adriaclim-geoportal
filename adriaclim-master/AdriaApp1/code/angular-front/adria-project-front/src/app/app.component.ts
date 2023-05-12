@@ -23,7 +23,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   }
   ngOnInit() {
-    console.log('AppComponent ngOnInit');
+    // console.log('AppComponent ngOnInit');
     // this.getAllData();
     // this.httpClient.post('http://localhost:8000/test/prova', {
 

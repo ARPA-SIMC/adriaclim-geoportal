@@ -1792,9 +1792,12 @@ def getMetadataOfASpecificDataset(dataset_id):
     is_indicator = False
     try:
         x = Node.objects.get(id=dataset_id)
+        print("X==",x)
         url = x.metadata_url.replace(".csv", ".json")
+        print("url==========",url)
         r = requests.get(url=url)
         data = r.json()
+        print("data===============",data)
         return data
         # df = pd.read_csv(x.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
         # df1 = df.replace(np.nan,"Value not available",regex=True)
@@ -1809,9 +1812,12 @@ def getMetadataOfASpecificDataset(dataset_id):
     if is_indicator:
         try:
             indicator = Indicator.objects.get(pk=dataset_id)
+            print("Indicator========",indicator)
             url = indicator.metadata_url.replace(".csv", ".json")
+            print("url==========",url)
             r = requests.get(url=url)
             data = r.json()
+            print("data===============",data)
             return data
             # df = pd.read_csv(indicator.metadata_url,header=None,sep=",",names=["Row Type","Variable Name","Attribute Name","Data Type","Value"],na_values="Value not available")
             # df1 = df.replace(np.nan,"Value not available",regex=True)
@@ -3064,8 +3070,18 @@ def is_database_almost_full(threshold_percentage=90):
         database_size = cursor.fetchone()[0]
 
     # Calculate the percentage of database usage
-    total_size = connection.settings_dict['CONN_MAX_AGE']  # Maximum database size
-    used_percentage = (float(database_size.replace(' kB', '')) / float(total_size.replace(' kB', ''))) * 100
+    # total_size = str(connection.settings_dict['CONN_MAX_AGE'])  # Maximum database size
+    total_size = 110 * 1024  # Maximum database size
+    # print("TOTAL SIZE =", total_size)
+    # print("DATABASE SIZE =", database_size)
+    # print("TOTAL SIZE TYPE =", type(total_size))
+    # print("DATABASE SIZE TYPE =", type(database_size))
+    if ' kB' in database_size:
+        used_percentage = (float(database_size.replace(' kB', '')) / (float(total_size) * 1024)) * 100
+    elif ' MB' in database_size:
+        used_percentage = (float(database_size.replace(' MB', '')) / float(total_size)) * 100
+    elif ' GB' in database_size:
+        used_percentage = (float(database_size.replace(' GB', '')) / (float(total_size) / 1024)) * 100
 
     # Check if the database usage exceeds the threshold
     return used_percentage >= threshold_percentage
@@ -3073,172 +3089,172 @@ def is_database_almost_full(threshold_percentage=90):
 
 # AdriaClim Indicators | adriaclim_WRF | yearly | hist | r95p
 # tempo 4709 secondi circa
-CHUNK_SIZE = 1024  # Size of each chunk in bytes
+# CHUNK_SIZE = 1024  # Size of each chunk in bytes
 
-def get_remote_file_size(url):
-    try:
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            total_size = 0
-            for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
-                if chunk:
-                    total_size += len(chunk)
-            file_size_mb = total_size / (1024 * 1024)  # Convert bytes to megabytes
-            print("file size",file_size_mb)
-            return file_size_mb
-        else:
-            return None
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
-        return None
+# def get_remote_file_size(url):
+#     try:
+#         response = requests.get(url, stream=True)
+#         if response.status_code == 200:
+#             total_size = 0
+#             for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+#                 if chunk:
+#                     total_size += len(chunk)
+#             file_size_mb = total_size / (1024 * 1024)  # Convert bytes to megabytes
+#             print("file size",file_size_mb)
+#             return file_size_mb
+#         else:
+#             return None
+#     except requests.exceptions.RequestException as e:
+#         print(f"An error occurred: {e}")
+#         return None
     
-def discover_how_mb_indicator_are(timeperiod):
-    file_size = 0
-    count = 0
-    # print("time_period",timeperiod)
-    all_datasets = Node.objects.filter(Q(adriaclim_dataset="indicator") & Q(adriaclim_timeperiod=timeperiod))
-    num_dataset = len(all_datasets)
-    print("number of datasets",num_dataset)
-    for dataset in all_datasets:
-        url_csv = ""
-        if dataset.griddap_url != "":
-            # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_bda7_23d0_0f98.csv?consecutive_summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,number_of_csu_periods_with_more_than_5days_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_wave_duration_index_wrt_mean_of_reference_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_waves_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tropical_nights_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D
-            # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/WAVES_VTM10_5da8_8ef6_cf64
-            url_csv += dataset.griddap_url + ".csv?"
-            variable_names = dataset.variable_names.split(" ")
-            for index, var in enumerate(variable_names):
-                if dataset.dimensions > 3:
-                    if index < len(variable_names) - 1:
-                        # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-                        url_csv += (
-                            var
-                            + "%5B("
-                            + dataset.time_start
-                            + "):1:("
-                            + dataset.time_end
-                            + ")%5D%5B("
-                            + str(dataset.param_min)
-                            + "):1:("
-                            + str(dataset.param_max)
-                            + ")%5D%5B("
-                            + dataset.lat_max
-                            + "):1:("
-                            + dataset.lat_min
-                            + ")%5D%5B("
-                            + dataset.lng_min
-                            + "):1:("
-                            + dataset.lng_max
-                            + ")%5D,"
-                        )
-                    else:
-                        url_csv += (
-                            var
-                            + "%5B("
-                            + dataset.time_start
-                            + "):1:("
-                            + dataset.time_end
-                            + ")%5D%5B("
-                            + str(dataset.param_min)
-                            + "):1:("
-                            + str(dataset.param_max)
-                            + ")%5D%5B("
-                            + dataset.lat_max
-                            + "):1:("
-                            + dataset.lat_min
-                            + ")%5D%5B("
-                            + dataset.lng_min
-                            + "):1:("
-                            + dataset.lng_max
-                            + ")%5D"
-                        )
+# def discover_how_mb_indicator_are(timeperiod):
+#     file_size = 0
+#     count = 0
+#     # print("time_period",timeperiod)
+#     all_datasets = Node.objects.filter(Q(adriaclim_dataset="indicator") & Q(adriaclim_timeperiod=timeperiod))
+#     num_dataset = len(all_datasets)
+#     print("number of datasets",num_dataset)
+#     for dataset in all_datasets:
+#         url_csv = ""
+#         if dataset.griddap_url != "":
+#             # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_bda7_23d0_0f98.csv?consecutive_summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,number_of_csu_periods_with_more_than_5days_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_wave_duration_index_wrt_mean_of_reference_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,heat_waves_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,summer_days_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,tropical_nights_index_per_time_period%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D,txx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(46.88878):1:(37.28878)%5D%5B(10.24039):1:(21.66346)%5D
+#             # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/WAVES_VTM10_5da8_8ef6_cf64
+#             url_csv += dataset.griddap_url + ".csv?"
+#             variable_names = dataset.variable_names.split(" ")
+#             for index, var in enumerate(variable_names):
+#                 if dataset.dimensions > 3:
+#                     if index < len(variable_names) - 1:
+#                         # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+#                         url_csv += (
+#                             var
+#                             + "%5B("
+#                             + dataset.time_start
+#                             + "):1:("
+#                             + dataset.time_end
+#                             + ")%5D%5B("
+#                             + str(dataset.param_min)
+#                             + "):1:("
+#                             + str(dataset.param_max)
+#                             + ")%5D%5B("
+#                             + dataset.lat_max
+#                             + "):1:("
+#                             + dataset.lat_min
+#                             + ")%5D%5B("
+#                             + dataset.lng_min
+#                             + "):1:("
+#                             + dataset.lng_max
+#                             + ")%5D,"
+#                         )
+#                     else:
+#                         url_csv += (
+#                             var
+#                             + "%5B("
+#                             + dataset.time_start
+#                             + "):1:("
+#                             + dataset.time_end
+#                             + ")%5D%5B("
+#                             + str(dataset.param_min)
+#                             + "):1:("
+#                             + str(dataset.param_max)
+#                             + ")%5D%5B("
+#                             + dataset.lat_max
+#                             + "):1:("
+#                             + dataset.lat_min
+#                             + ")%5D%5B("
+#                             + dataset.lng_min
+#                             + "):1:("
+#                             + dataset.lng_max
+#                             + ")%5D"
+#                         )
 
-                else:
-                    #niente param aggiuntivo
-                    if index < len(variable_names) - 1:
-                        url_csv += (
-                            var
-                            + "%5B("
-                            + dataset.time_start
-                            + "):1:("
-                            + dataset.time_end
-                            + ")%5D%5B("
-                            + dataset.lat_max
-                            + "):1:("
-                            + dataset.lat_min
-                            + ")%5D%5B("
-                            + dataset.lng_min
-                            + "):1:("
-                            + dataset.lng_max
-                            + ")%5D,"
-                        )
-                    else:
-                        url_csv += (
-                            var
-                            + "%5B("
-                            + dataset.time_start
-                            + "):1:("
-                            + dataset.time_end
-                            + ")%5D%5B("
-                            + dataset.lat_max
-                            + "):1:("
-                            + dataset.lat_min
-                            + ")%5D%5B("
-                            + dataset.lng_min
-                            + "):1:("
-                            + dataset.lng_max
-                            + ")%5D"
-                        )
-
-
-            # print("url_csv=======", url_csv)
-            # generic_big_data_download(url_csv,dataset,dataset.variables,False)
-            # print("url_csv",url_csv)
-            count += 1
-            print("Siamo ad un numero di file pari a: ",count)
-            file_size += get_remote_file_size(url_csv)
-            print("Siamo ad un peso pari a: ",file_size," MB")
-
-        else:
-            #siamo nel caso di tabledap!
-            url_csv += dataset.tabledap_url + ".csv?"
-            variable_names = dataset.variable_names.split(" ")
-            for index, var in enumerate(variable_names):
-                if index < len(variable_names) - 1:
-                    url_csv += var + "%2C"
-                else:
-                    url_csv += var + "&"
-
-            url_csv += (
-                "time%3E="
-                + dataset.time_start
-                + "&time%3C="
-                + dataset.time_end
-                + "&latitude%3E="
-                + dataset.lat_min
-                + "&latitude%3C="
-                + dataset.lat_max
-                + "&longitude%3E="
-                + dataset.lng_min
-                + "&longitude%3C="
-                + dataset.lng_max
-            )
-            # print("url_csv=======", url_csv)
-            # generic_big_data_download(url_csv,dataset,dataset.variables,True)
-            count += 1
-            print("Siamo ad un numero di file pari a: ",count)
-            file_size += get_remote_file_size(url_csv)
-            print("Siamo ad un peso pari a: ",file_size," MB")
+#                 else:
+#                     #niente param aggiuntivo
+#                     if index < len(variable_names) - 1:
+#                         url_csv += (
+#                             var
+#                             + "%5B("
+#                             + dataset.time_start
+#                             + "):1:("
+#                             + dataset.time_end
+#                             + ")%5D%5B("
+#                             + dataset.lat_max
+#                             + "):1:("
+#                             + dataset.lat_min
+#                             + ")%5D%5B("
+#                             + dataset.lng_min
+#                             + "):1:("
+#                             + dataset.lng_max
+#                             + ")%5D,"
+#                         )
+#                     else:
+#                         url_csv += (
+#                             var
+#                             + "%5B("
+#                             + dataset.time_start
+#                             + "):1:("
+#                             + dataset.time_end
+#                             + ")%5D%5B("
+#                             + dataset.lat_max
+#                             + "):1:("
+#                             + dataset.lat_min
+#                             + ")%5D%5B("
+#                             + dataset.lng_min
+#                             + "):1:("
+#                             + dataset.lng_max
+#                             + ")%5D"
+#                         )
 
 
-    print("PESO TOTALE DI TUTTI GLI INDICATORI",str(timeperiod).upper(),"======",file_size," MB")
-    return file_size
+#             # print("url_csv=======", url_csv)
+#             # generic_big_data_download(url_csv,dataset,dataset.variables,False)
+#             # print("url_csv",url_csv)
+#             count += 1
+#             print("Siamo ad un numero di file pari a: ",count)
+#             file_size += get_remote_file_size(url_csv)
+#             print("Siamo ad un peso pari a: ",file_size," MB")
+
+#         else:
+#             #siamo nel caso di tabledap!
+#             url_csv += dataset.tabledap_url + ".csv?"
+#             variable_names = dataset.variable_names.split(" ")
+#             for index, var in enumerate(variable_names):
+#                 if index < len(variable_names) - 1:
+#                     url_csv += var + "%2C"
+#                 else:
+#                     url_csv += var + "&"
+
+#             url_csv += (
+#                 "time%3E="
+#                 + dataset.time_start
+#                 + "&time%3C="
+#                 + dataset.time_end
+#                 + "&latitude%3E="
+#                 + dataset.lat_min
+#                 + "&latitude%3C="
+#                 + dataset.lat_max
+#                 + "&longitude%3E="
+#                 + dataset.lng_min
+#                 + "&longitude%3C="
+#                 + dataset.lng_max
+#             )
+#             # print("url_csv=======", url_csv)
+#             # generic_big_data_download(url_csv,dataset,dataset.variables,True)
+#             count += 1
+#             print("Siamo ad un numero di file pari a: ",count)
+#             file_size += get_remote_file_size(url_csv)
+#             print("Siamo ad un peso pari a: ",file_size," MB")
+
+
+#     print("PESO TOTALE DI TUTTI GLI INDICATORI",str(timeperiod).upper(),"======",file_size," MB")
+#     return file_size
 
 
 
 
 def download_big_data(timeperiod):
     start_effettivo = time.time()
-    all_datasets = Node.objects.filter(Q(adriaclim_dataset="indicator") & Q(adriaclim_timeperiod=timeperiod))
+    all_datasets = Node.objects.filter(Q(adriaclim_dataset="indicator") & Q(adriaclim_timeperiod=timeperiod))[:2]
     for dataset in all_datasets:
         start_time = time.time()
         print("Sono iniziata ora final version!!!")
@@ -3332,7 +3348,7 @@ def download_big_data(timeperiod):
                         )
 
 
-            print("url_csv=======", url_csv)
+            # print("url_csv=======", url_csv)
             generic_big_data_download(url_csv,dataset,dataset.variables,False)
 
         else:
@@ -3359,7 +3375,7 @@ def download_big_data(timeperiod):
                 + "&longitude%3C="
                 + dataset.lng_max
             )
-            print("url_csv=======", url_csv)
+            # print("url_csv=======", url_csv)
             generic_big_data_download(url_csv,dataset,dataset.variables,True)
             
         print("TIME FOR A DATASET {:.2f} seconds".format(time.time() - start_time))

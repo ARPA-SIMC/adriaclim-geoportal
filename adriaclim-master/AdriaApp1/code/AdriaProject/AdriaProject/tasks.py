@@ -16,10 +16,13 @@ def task_get_all_data():
 
 @shared_task
 def download_big_data_yearly():
-    from myFunctions import allFunctions
-    # print("yearly!")
-    # Call your function here
-    allFunctions.download_big_data("yearly")
+    try:
+        from myFunctions import allFunctions
+        # print("yearly!")
+        # Call your function here
+        allFunctions.download_big_data("yearly")
+    except Exception as e:
+        print("Errore TASK =", e)
 
 @shared_task
 def download_big_data_seasonal():

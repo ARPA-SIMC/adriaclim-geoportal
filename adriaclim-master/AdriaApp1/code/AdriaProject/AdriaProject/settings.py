@@ -15,6 +15,7 @@ from kombu import Queue
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
+# import AdriaProject 
 import json
 # import mimetypes
 # mimetypes.add_type("text/css", ".css", True)
@@ -279,18 +280,18 @@ CELERY_QUEUES = (
 CELERY_BEAT_SCHEDULE = {
     'my_task': {
         'task': 'AdriaProject.tasks.task_get_all_data',
-        'schedule': crontab(hour=22, minute=10),
+        'schedule': crontab(hour=22, minute=0),
         'options': {'queue': 'my_queue'}  # Set the queue for this task
     },
     'my_task2': {
         'task': 'AdriaProject.tasks.download_big_data_yearly',
-        'schedule': crontab(hour=22, minute=30,day_of_week="wednesday"),
-        'options': {'queue': 'my_queue','link':'AdriaProject.tasks.task_get_all_data'}  # Set the queue for this task
+        'schedule': crontab(hour=22, minute=10,day_of_week="friday"),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
     },
     'my_task3': {
-        'task': 'AdriaProject.tasks.download_big_data_monthly',
-        'schedule': crontab(hour=1, minute=0,day_of_week="saturday"),
-        'options': {'queue': 'my_queue','link':'AdriaProject.tasks.task_get_all_data'}  # Set the queue for this task
+        'task': 'AdriaProject.tasks.download_big_data_seasonal',
+        'schedule': crontab(hour=22, minute=30,day_of_week="saturday"),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
     }
 }
 

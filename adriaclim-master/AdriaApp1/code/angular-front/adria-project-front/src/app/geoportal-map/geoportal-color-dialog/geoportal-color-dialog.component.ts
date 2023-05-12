@@ -115,8 +115,8 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
     this.valueMidColor = this.form.get('midColor')?.value;
     this.valueMidMaxColor = this.mixColors(this.valueMidColor, this.valueMaxColor);
     this.valueMinMidColor = this.mixColors(this.valueMinColor,this.valueMidColor);
-    console.log("this.valueMaxMidColor",this.valueMidMaxColor);
-    console.log("this.valueMinMidColor",this.valueMinMidColor);
+    // console.log("this.valueMaxMidColor",this.valueMidMaxColor);
+    // console.log("this.valueMinMidColor",this.valueMinMidColor);
     this.form.get('minMidColor')?.setValue(this.valueMinMidColor);
     this.form.get('midMaxColor')?.setValue(this.valueMidMaxColor);
 
