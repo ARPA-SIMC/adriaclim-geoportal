@@ -595,7 +595,25 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   //   return inside;
   // }
 
+  isPointInsidePolygon(coords: any, poly: any) {
 
+    let polyPoints = poly.getLatLngs()[0];
+
+    let x = coords.lat
+    let y = coords.lng;
+
+    let inside = false;
+    for (let i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+        let xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+        let xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+        let intersect = ((yi > y) != (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+
+    return inside;
+};
   // }
   onPolygonClick = (e: L.LeafletMouseEvent) => {
     // this.map.off('click');
@@ -611,9 +629,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       const polygonsContainingPoint = this.allPolygons.filter((polygon: any) => {
         let copiaPoly = _.cloneDeep(polygon);
         // console.log("Polygon copy: ", copiaPoly);
-        if (polygon.pol.getBounds().contains(e.latlng)) {
+        if(this.isPointInsidePolygon(e.latlng, polygon.pol)) {
           return polygon;
         }
+        // if (polygon.pol.getBounds().contains(e.latlng)) {
+        //   return polygon;
+        // }
 
         // return polygon.pol.getBounds().contains(e.latlng);
       }); //poligono che contiene il punto in cui l'utente ha cliccato
@@ -728,16 +749,62 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       })
         // .bindPopup("Info marker")
         .addTo(this.map)
-      // .openPopup();
+
+      // const button = L.DomUtil.create('button', 'button-remove-marker');
+      // button.innerHTML = 'Clicca';
+      // button.addEventListener('click', () => {
+      //   this.removeMarker();
+      // });
+      // // const content = document.createElement('div');
+      // // content.appendChild(button);
+      // const container = L.DomUtil.create('div', 'popup-container-marker');
+      // container.innerHTML = "Lat: " + e.latlng.lat.toFixed(5) + ", Lng: " + e.latlng.lng.toFixed(5) + "<br>";
+      // container.appendChild(button);
+
+      const button = document.createElement('button');
+      button.innerHTML = "<span class='material-icons' style='color: red; font-size: 20px'>delete</span>";
+      // <i class="material-icons" style="font-size:48px;color:red">delete</i>
+      button.addEventListener('click', () => {
+        this.map.removeLayer(this.markerPoint);
+      });
+
       let lat_lng = this.markerPoint.getLatLng();
-      this.markerPoint.bindPopup("Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5), {
-        offset: [0, -25]
+
+      const content = document.createElement('div');
+      content.style.display = 'flex';
+      content.style.flexDirection = 'column';
+      content.style.alignItems = 'center';
+      content.style.justifyContent = 'center';
+      content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
+      // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
+      content.appendChild(button);
+
+      // .openPopup();
+      // this.markerPoint.bindPopup("Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + " " + container, {
+
+      // this.markerPoint.on('click', this.markerPointClick.bind(this));
+      this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
+
+      this.markerPoint.bindPopup(content, {
+        offset: [0, -25],
       }).openPopup();
+
     }
+  }
+
+  markerPointClick() {
+    console.log("MARKER POINT CLICKED");
+    this.openGraphDialog();
+  }
+
+  removeMarker() {
+    // this.map.removeLayer(this.markerPoint);
+    console.log("SONO DENTRO REMOVE MARKER");
   }
 
 
   onMarkerClick(event: any) {
+    console.log("MARKER CLICKED");
     const marker = event.target;
 
     this.map.removeLayer(marker);

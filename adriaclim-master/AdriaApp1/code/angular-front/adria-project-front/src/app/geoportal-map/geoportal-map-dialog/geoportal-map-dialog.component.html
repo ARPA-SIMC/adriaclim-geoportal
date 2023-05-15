@@ -7,7 +7,14 @@
     </ng-container>
 
     <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
+    <ng-container *ngIf="!polName">
+      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng}}</span></h1>
+
+    </ng-container>
+
   </div>
+  <!-- <div *ngIf="!polName"> -->
+  <!-- </div> -->
   <h1 *ngIf="description" mat-dialog-title class="title-dialog-bold">{{description}}</h1>
   <!-- <h1 *ngIf="!description && openGraph" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1> -->
   <!-- <div *ngIf="success; else ok"> -->

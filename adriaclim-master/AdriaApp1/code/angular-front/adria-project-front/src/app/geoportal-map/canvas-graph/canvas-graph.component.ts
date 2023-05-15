@@ -693,7 +693,9 @@ getDataGraphPolygonInterval() {
           let allDataPolygon = response['dataVect'];
           //console.log("allDataPolygon", allDataPolygon);
           let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
+
           let allDates = _.cloneDeep([...dataBeforeOp]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
+
           allDates = allDates.map((el: any) => {
             return el["date_value"]
           })
