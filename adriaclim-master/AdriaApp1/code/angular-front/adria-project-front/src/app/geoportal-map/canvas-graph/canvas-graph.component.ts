@@ -48,6 +48,20 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   // startValue: any;
   // endValue: any =  (document.getElementById('main') as HTMLDivElement).getEchartsInstance().getOption().dataZoom[0]
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  seasons : any = {
+    0: "Winter",
+    1: "Winter",
+    2: "Spring",
+    3: "Spring",
+    4: "Spring",
+    5: "Summer",
+    6: "Summer",
+    7: "Summer",
+    8: "Autumn",
+    9: "Autumn",
+    10: "Autumn",
+    11: "Winter",
+  }
   chartOption: EChartsOption = {};
   chartOptionBars: EChartsOption = {};
   option: any;
@@ -582,7 +596,7 @@ optionBoxPlot: any = {
     if (this.operation !== "annualDay") {
       //console.log("d",d);
       d = new Date(d);
-      //console.log("!= annualDay", d);
+      // console.log("!= annualDay", d);
 
     }
     if (this.operation === "annualMonth") {
@@ -594,6 +608,10 @@ optionBoxPlot: any = {
       //console.log("=== annualDay");
 
       return d;
+    }
+    else if(this.operation === "annualSeason"){
+      // console.log("this.season",d);
+      return this.seasons[d.getMonth()];
     }
     else {
       let month = d.getMonth() + 1

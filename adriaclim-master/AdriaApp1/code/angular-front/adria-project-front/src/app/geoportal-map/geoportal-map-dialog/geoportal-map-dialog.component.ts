@@ -151,6 +151,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       value: "annualMonth"
     },
     {
+      label: "Annual Season by Season",
+      value: "annualSeason"
+    },
+    {
       label: "Annual Day by Day",
       value: "annualDay"
     },
@@ -208,6 +212,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         return true;
       }
       else if(o.value === "annualDay") {
+        return true;
+      }
+      else if(o.value === "annualSeason"){
         return true;
       }
       else {
