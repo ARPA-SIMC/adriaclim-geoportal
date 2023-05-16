@@ -69,7 +69,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   stdevValue: any;
   trendValue: any;
   statCalc: any;
+  prodDev = this.httpService.apiUrl === "http://localhost:8000/" ? "dev" : "prod";
 
+  info: any = false;
+  // yesInfo = document.getElementById("yesInfo");
 
   circleCoords: any;
 
@@ -280,6 +283,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<GeoportalMapDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: any) {
+    // if(this.yesInfo != null) {
+    //   this.yesInfo.style.display = "none";
+
+    // }
 
     this.description = data.description;
     this.success = data.success;
@@ -367,6 +374,56 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     }
   }
 
+  // devProd() {
+  //   if(this.httpService.apiUrl === "http://localhost:8000/") {
+  //     return true;
+  //   }
+  //   else {
+  //     return false;
+  //   }
+  // }
+
+  showInfo() {
+    // this.info = !this.info;
+    let noInfo = document.getElementById("noInfo");
+    let yesInfo = document.getElementById("yesInfo");
+    if(noInfo && yesInfo) {
+      if(noInfo.style.display == "none") {
+        noInfo.style.display = "block";
+        yesInfo.style.display = "none";
+      }
+      else {
+        noInfo.style.display = "none";
+        yesInfo.style.display = "flex";
+      }
+    }
+
+    // if(this.info) {
+    //   // yesInfo?.style.setProperty("display", "block");
+    //   // noInfo?.style.setProperty("display", "none");
+    //   if(noInfo != null) {
+    //     noInfo.style.display = "none";
+
+    //   }
+    //   if(yesInfo != null) {
+    //     yesInfo.style.display = "flex";
+
+    //   }
+    // }
+    // else {
+    //   // yesInfo?.style.setProperty("display", "none");
+    //   // noInfo?.style.setProperty("display", "block");
+    //   if(yesInfo != null) {
+    //     yesInfo.style.display = "none";
+
+    //   }
+    //   if(noInfo != null) {
+    //     noInfo.style.display = "block";
+
+    //   }
+    // }
+  }
+
   ngAfterContentChecked(): void {
     this.changeDetector.detectChanges();
   }
@@ -381,6 +438,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   ngOnInit() {
+
     if (!this.openGraph) {
       this.getMetadataTable();
       // this.setDataSourceAttributes();

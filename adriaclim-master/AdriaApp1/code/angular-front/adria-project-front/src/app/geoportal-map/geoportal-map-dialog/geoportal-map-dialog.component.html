@@ -12,6 +12,8 @@
 
     </ng-container>
 
+    <button *ngIf="prodDev === 'dev'" mat-raised-button color="primary" (click)="showInfo()">Info</button>
+
   </div>
   <!-- <div *ngIf="!polName"> -->
   <!-- </div> -->
@@ -19,7 +21,8 @@
   <!-- <h1 *ngIf="!description && openGraph" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1> -->
   <!-- <div *ngIf="success; else ok"> -->
   <div *ngIf="success">
-    <div mat-dialog-content>
+    <!-- <div mat-dialog-content *ngIf="info === false; else infoDialog"> -->
+    <div mat-dialog-content id="noInfo">
 
       <!-- <div>
         <mat-form-field appearance="fill">
@@ -187,6 +190,12 @@
       </ng-template>
 
     </div>
+    <!-- <ng-template #infoDialog> -->
+    <div mat-dialog-content id="yesInfo" class="info-content">
+      <app-info-page class="info-page-component"></app-info-page>
+    </div>
+    <!-- </ng-template> -->
+
 
     <mat-dialog-actions fxLayoutAlign="center center">
 
@@ -205,3 +214,4 @@
   </ng-template> -->
 
 </form>
+
