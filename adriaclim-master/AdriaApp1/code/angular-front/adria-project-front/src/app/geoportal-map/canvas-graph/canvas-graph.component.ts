@@ -590,6 +590,16 @@ optionBoxPlot: any = {
     // }, 1000);
   }
 
+  formatNumber(number:any) {
+    const decimalCount = (number.toString().split('.')[1] || '').length;
+  
+    if (decimalCount > 2) {
+      return number.toFixed(2);
+    }
+  
+    return number.toString();
+  }
+
 
 
   formatDate(d: any) {
@@ -683,8 +693,6 @@ getDataGraphPolygonInterval() {
   }
 
   getDataGraphPolygon(response:any) {
-    // console.log("QUESTO PARAMETRO IN DATA =", data);
-          // console.log("RES PRIMA DEL PARSE =", response);
           if (typeof response == 'string') {
             response = JSON.parse(response);
           }
@@ -700,11 +708,6 @@ getDataGraphPolygonInterval() {
             return el["date_value"]
           })
           allDates = [...new Set(allDates)]; //abbiamo solo le date 20!
-          //console.log("allDates", allDates);
-
-          //   var unique = dataBeforeOp["date_value"].filter(function(elem:any, index:any, self: any) {
-          //     return index === self.indexOf(elem);
-          // })
           //se di queste usiamo lo zoom e prendiamo le date che stanno nello zoom effettuato
           this.myChart.on('dataZoom', () => {
             // console.log("PARAMS: ", params);
@@ -816,7 +819,7 @@ getDataGraphPolygonInterval() {
                   ],
                   series: allStats.map((stat: any) => {
                     return {
-                      data: allDataPolygon.dataPol.map((element: any) => element[stat]),
+                      data: allDataPolygon.dataPol.map((element: any) => this.formatNumber(element[stat])),
                       name: stat,
                       type: 'line',
                       stack: this.enableArea ? "counts" : "",
@@ -825,31 +828,6 @@ getDataGraphPolygonInterval() {
                       smooth: false,
                     }
                   })
-                  // series: [{
-                  //   data: allDataPolygon.dataPol.map((element: any) => element.mean),
-                  //   name: "Mean",
-                  //   type: 'line',
-                  //   stack: 'counts',
-                  //   areaStyle: {},
-                  //   smooth: true
-                  //   },
-                  //   {
-                  //   data: allDataPolygon.dataPol.map((element: any) => element.min),
-                  //   name: "Min",
-                  //   type: 'line',
-                  //   stack: 'counts',
-                  //   areaStyle: {},
-                  //   smooth: true
-                  // },
-                  // {
-                  //   data: allDataPolygon.dataPol.map((element: any) => element.max),
-                  //   name: "Max",
-                  //   type: 'line',
-                  //   stack: 'counts',
-                  //   areaStyle: {},
-                  //   smooth: true
-                  // },
-                  // ]
                 }
 
 
@@ -862,35 +840,20 @@ getDataGraphPolygonInterval() {
              */
             // element.x = this.formatDate(element.x);
             element.y = Number(element.y);
-            // if(element.y> 10000) {
-            //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-            // }
-            // else if(element.y < 0.001) {
-            //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-            // }
           });
           let name = this.variable;
 
           this.chartOption = {
 
-            // title: {
-            //       text: name //title of dataset selected,
-            // },
-
             xAxis: {
               type: 'category',
               boundaryGap: false,
-              // data: this.dataRes.allData[name].map((element: any) => element.x)
+          
               data: allDataPolygon.dataPol.map((element: any) => element.x)
             },
             yAxis: {
               type: 'value'
             },
-            // tooltip: {
-            //   trigger: 'item',
-            //   showDelay: 0,
-            //   transitionDuration: 0.2,
-            // },
             tooltip: {
               trigger: 'axis',
               formatter: (paramsFormatter: any) => {
@@ -942,7 +905,7 @@ getDataGraphPolygonInterval() {
 
             ],
             series: [{
-              data: allDataPolygon.dataPol.map((element: any) => element.y),
+              data: allDataPolygon.dataPol.map((element: any) => this.formatNumber(element.y)),
               name: name,
               type: 'line',
               stack: 'counts',
@@ -958,28 +921,6 @@ getDataGraphPolygonInterval() {
     }
 
 
-    //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
-    //   dataset: this.selData.get("dataSetSel")?.value.name,
-    //   selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-    //   isIndicator: this.isIndicator ? "true" : "false",
-    //   selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
-    //   range: this.value ? Math.abs(this.value) : 0,
-    //   latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
-    // }).subscribe({
-    //   next: (res: any) => {
-    //     console.log("RES =", res);
-    //     let allDataPolygon = res['dataVect'];
-    //     let valuesPol = allDataPolygon[0]; //media dei valori
-    //     let datesPol = allDataPolygon[1]; //tutte le date!
-
-
-    //   },
-    //   error: (msg: any) => {
-    //     console.log('METADATA ERROR: ', msg);
-    //   }
-
-    // });
-    // }
 
 
 
@@ -1036,39 +977,21 @@ getDataGraphPolygonInterval() {
           element.date = element.x;
           element.x = this.formatDate(element.x);
           element.y = Number(element.y);
-          // if(element.y > 10000) {
-          //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-          // }
-          // else if(element.y < 0.001) {
-          //   element.y = element.y.toExponential().replace(/e\+?/, ' x 10^');
-          // }
         });
         let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
         let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
         let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
-        // console.log("all date =", arrayAllDate);
-        // console.log("all value =", arrayAllValue);
 
 
         this.myChart.on('dataZoom', () => {
-          // console.log("PARAMS: ", params);
           let option = this.myChart.getOption();
-          // console.log("OPTIONSSSSSS =", option);
           this.startZoom = option.dataZoom[0].startValue;
           this.endZoom = option.dataZoom[0].endValue;
-          // console.log("startZoom =", this.startZoom);
-          // console.log("endZoom =", this.endZoom);
-          // console.log("dateStartZoom =", this.dataRes.allData[name][this.startZoom]["date"]);
-          // console.log("dateEndZoom =", this.dataRes.allData[name][this.endZoom]["date"]);
-          // console.log("valueStartZoom =", this.dataRes.allData[name][this.startZoom]["y"]);
-          // console.log("valueEndZoom =", this.dataRes.allData[name][this.endZoom]["y"]);
 
           let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
 
           let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
             if(element.date && arrayDate.includes(element.date)){
-                // console.log("include date:",element.date)
-                // console.log("element.y",element.y)
                 return element.y;
             }
           })
@@ -1084,19 +1007,7 @@ getDataGraphPolygonInterval() {
 
 
 
-        // const yMax = 500;
-        // const dataShadow = [];
-
-        // // tslint:disable-next-line: prefer-for-of
-        // for (let i = 0; i < this.dataRes.allData[name].map((element: any) => element.y).length; i++) {
-        //   dataShadow.push(yMax);
-        // }
-
         this.chartOption = {
-
-          // title: {
-          //       text: name //title of dataset selected,
-          // },
 
           xAxis: {
             type: 'category',
@@ -1106,11 +1017,6 @@ getDataGraphPolygonInterval() {
           yAxis: {
             type: 'value'
           },
-          // tooltip: {
-          //   trigger: 'item',
-          //   showDelay: 0,
-          //   transitionDuration: 0.2,
-          // },
           toolbox: {
             feature: {
               dataZoom: {
@@ -1162,48 +1068,16 @@ getDataGraphPolygonInterval() {
 
           ],
           series: [{
-            data: this.dataRes.allData[name].map((element: any) => element.y),
+            data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
             name: name,
             type: 'line',
             stack: 'counts',
             areaStyle: this.enableArea ? {} : undefined,
             smooth: false
           },
-          // {
-          //   name: 'X-1',
-          //   type: 'line',
-          //   stack: 'counts',
-          //   areaStyle: {},
-          //   smooth: true,
-          //   data: [2.3, 3.2, 1.01, 1.34, 3.0, 2.30, 2.10]
-          // },
         ]
         }
 
-        // this.chartOptionBars = {
-
-        // };
-
-
-        //   this.chartOptions = {
-        //     title: {
-        //       text: this.dataset.title //title of dataset selected
-        //     },
-        //     zoomEnabled: true,
-        //     animationEnabled: true,
-        //     theme: "light2",
-        //     data: [{
-        //       type: "line",
-        //       //xValueFormatString: "YYYY",
-        //       // yValueFormatString: "$#,###.##",
-        //       dataPoints: this.dataRes.allData[name]
-        //       // [
-
-        //       // ]
-        //     }]
-
-        //   };
-        // console.log("CHART OPTIONS: ", this.dataRes.allData[name]);
         this.dataTimeExport.emit(this.dataRes.allData[name]);
         this.spinnerLoadingChild.emit(false);
       }
@@ -1211,21 +1085,6 @@ getDataGraphPolygonInterval() {
 
     });
   }
-
-  onChartEvent(event: any, type: string) {
-    // console.log('chart event:', event);
-    // console.log('chart type:', type);
-
-    // const startTimestamp = event.batch[0].start;
-    // const endTimestamp = event.batch[0].end;
-
-  }
-  // }
-
-
-  // enableDisable
-
-
 
 
 }

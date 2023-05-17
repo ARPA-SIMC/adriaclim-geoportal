@@ -17,23 +17,11 @@ from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 # import AdriaProject 
 import json
-# import mimetypes
-# mimetypes.add_type("text/css", ".css", True)
-# mimetypes.add_type('text/html', '.html', True)
-# # mimetypes.add_type('application/javascript', '.js', True)
-# # mimetypes.add_type('text/javascript', '.js', True)
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-#remove celerybeat-schedule file
 USE_TZ = True
 TIME_ZONE = "Europe/Rome"
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 load_dotenv(find_dotenv())
@@ -100,21 +88,6 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-# CORS_ALLOW_HEADERS = [
-#     "accept",
-#     "accept-encoding",
-#     "authorization",
-#     "content-type",
-#     "dnt",
-#     "origin",
-#     "user-agent",
-#     "x-csrftoken",
-#     "x-requested-with",
-#     # for upload
-#     "x-skipcontenttypeinterceptor",
-#     "enctype"
-# ]
-
 
 CORS_ALLOW_HEADERS = (
     'accept',
@@ -140,11 +113,6 @@ CSRF_COOKIE_SAMESITE = None
 CSRF_TRUSTED_ORIGINS = ["*"]
 CSRF_USE_SESSIONS = True
 
-# CSRF_USE_SESSIONS = False
-# CSRF_COOKIE_HTTPONLY = False  # this is the default, and should be kept this way
-# CSRF_COOKIE_NAME = 'XSRF-TOKEN'
-# CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
-# Application definition
 
 
 REST_FRAMEWORK = {
@@ -251,7 +219,6 @@ USE_TZ = True
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
 #STATIC_ROOT=os.path.join(BASE_DIR,'static/assets')

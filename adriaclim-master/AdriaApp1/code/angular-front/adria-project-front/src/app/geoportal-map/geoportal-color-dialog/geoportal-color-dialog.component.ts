@@ -48,33 +48,14 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       this.valueMidColor = data.valueMidColor;
       this.valueMinMidColor = data.valueMinMidColor;
       this.valueMidMaxColor = data.valueMidMaxColor;
-      // this.valueMaxMidColor = this.mixColors(this.valueMidColor, this.valueMaxColor);
-      // this.valueMinMidColor = this.mixColors(this.valueMinColor,this.valueMidColor);
       this.form = this.fb.group({
         minColor: new FormControl(this.valueMinColor),
         midColor: new FormControl(this.valueMidColor),
         maxColor: new FormControl(this.valueMaxColor),
-        // minMidColor: new FormControl(this.mixColors(this.valueMinColor,this.valueMidColor)),
-        // midMaxColor: new FormControl(this.mixColors(this.valueMidColor, this.valueMaxColor)),
         minMidColor: new FormControl(this.valueMinMidColor),
         midMaxColor: new FormControl(this.valueMidMaxColor),
       })
       let colorStorage = localStorage.getItem(this.datasetName);
-      // let colorStorage: any;
-      // for (let i = 0; i < localStorage.length; i++) {
-      //   let key: any = localStorage.key(i);
-      //   let value: any = localStorage.getItem(key);
-      //   console.log("CHIAVE =", key,"VALORE =", value);
-      //   if(key === this.datasetName){
-      //     colorStorage = localStorage.getItem(key);
-      //     let colorStorageJson = JSON.parse(colorStorage);
-      //     this.form.get('minColor')?.setValue(colorStorageJson.minColor);
-      //     this.form.get('midColor')?.setValue(colorStorageJson.midColor);
-      //     this.form.get('maxColor')?.setValue(colorStorageJson.maxColor);
-      //     this.form.get('minMidColor')?.setValue(colorStorageJson.minMidColor);
-      //     this.form.get('midMaxColor')?.setValue(colorStorageJson.midMaxColor);
-      //   }
-      // };
       if(colorStorage) {
         let colorStorageJson = JSON.parse(colorStorage);
         this.form.get('minColor')?.setValue(colorStorageJson.minColor);
@@ -83,20 +64,6 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
         this.form.get('minMidColor')?.setValue(colorStorageJson.minMidColor);
         this.form.get('midMaxColor')?.setValue(colorStorageJson.midMaxColor);
       }
-    // nel caso di local storage
-      // if(colorStorage){
-        //è memorizzato nella cache
-        // this.valueMinColor = colorStorageJson.valueMinColor;
-        // this.valueMinMidColor = colorStorageJson.valueMinMidColor;
-        // this.valueMidColor = colorStorageJson.valueMidColor;
-        // this.valueMidMaxColor = colorStorageJson.valueMidMaxColor;
-        // this.valueMaxColor = colorStorageJson.valueMaxColor;
-
-
-      // }
-      // else {
-
-      // }
     }
 
   close() {
@@ -115,8 +82,6 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
     this.valueMidColor = this.form.get('midColor')?.value;
     this.valueMidMaxColor = this.mixColors(this.valueMidColor, this.valueMaxColor);
     this.valueMinMidColor = this.mixColors(this.valueMinColor,this.valueMidColor);
-    // console.log("this.valueMaxMidColor",this.valueMidMaxColor);
-    // console.log("this.valueMinMidColor",this.valueMinMidColor);
     this.form.get('minMidColor')?.setValue(this.valueMinMidColor);
     this.form.get('midMaxColor')?.setValue(this.valueMidMaxColor);
 
@@ -134,14 +99,10 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       }
 
     }
-    // console.log("LOCAL STORAGE =", localStorage.getItem(this.datasetName));
 
     //i colori nuovi ci sono, ora bisogna aggiornare la legenda e la mappa
     //step 1: aggiornare la legenda
     this.dialogRef.close(this.form.value);
-
-    //step 2: aggiornare la mappa
-    // this.close();
   }
 
   mixColors(color1: string, color2: string): string {
