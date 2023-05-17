@@ -920,6 +920,9 @@ getDataGraphPolygonInterval() {
 
     }
 
+    onChartEvent(event: any, nameEvent:any ){
+      
+    }
 
 
 
