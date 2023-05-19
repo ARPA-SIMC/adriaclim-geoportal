@@ -689,38 +689,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
-    // this.pointBoolean = false;
-    // this.map.getContainer().style.cursor = 'default';
-    // this.map.off('click');
-
-    // imposto la lat e long del marker e le dimensioni della sua icona
-    // METODO 1
-    // let marker = null;
-    // marker = L.marker(e.latlng, {
-    //   icon: L.icon({
-    //     iconSize: [25, 41],
-    //     iconAnchor: [13, 41],
-    //     iconUrl: 'marker-icon.png',
-    //   })
-    // }).addTo(this.map);
-    // console.log("TARGET =", this.layer_to_attach.layer_name.options.crs.latLngToPoint);
-
-
-    // if(bounds.contains(e.latlng)) {
-    //   console.log("SONO DENTRO IL POLIGONO");
-
-    // }
-    // else {
-    //   console.log("NON SONO DENTRO IL POLIGONO");
-    // }
 
     this.coordOnClick = {
       lat: e.latlng.lat,
       lng: e.latlng.lng
     }
     this.openGraphDialog();
-    // this.pointBoolean = false;
-    // METODO 2
     const marker = L.marker(e.latlng, {
       icon: L.icon({
         // iconSize: [25, 41],
@@ -750,16 +724,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         // .bindPopup("Info marker")
         .addTo(this.map)
 
-      // const button = L.DomUtil.create('button', 'button-remove-marker');
-      // button.innerHTML = 'Clicca';
-      // button.addEventListener('click', () => {
-      //   this.removeMarker();
-      // });
-      // // const content = document.createElement('div');
-      // // content.appendChild(button);
-      // const container = L.DomUtil.create('div', 'popup-container-marker');
-      // container.innerHTML = "Lat: " + e.latlng.lat.toFixed(5) + ", Lng: " + e.latlng.lng.toFixed(5) + "<br>";
-      // container.appendChild(button);
 
       const button = document.createElement('button');
       button.innerHTML = "<span class='material-icons' style='color: red; font-size: 20px'>delete</span>";
@@ -778,9 +742,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
       // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
       content.appendChild(button);
-
-      // .openPopup();
-      // this.markerPoint.bindPopup("Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + " " + container, {
 
       // this.markerPoint.on('click', this.markerPointClick.bind(this));
       this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
@@ -837,7 +798,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   getAllNodes() {
-    // console.log("DENTRO GET ALL NODES");
 
     this.httpService.post('test/allNodes', {
     }).subscribe({
@@ -1026,8 +986,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             }
 
           }
-          // let observations = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0]
-
           this.dataAllNodes.push(
             { name: node }
           );
@@ -1093,27 +1051,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   addToActiveLayers(node: any) {
-    // this.selData.get("dataSetSel")?.value
-    // if(this.selData.get("dataSetSel")?.value) {
     if (this.activeLayersArray.indexOf(node) === -1) {
       this.activeLayersArray.push(node);
     }
 
-    // console.log("ACTIVE LAYERS ARRAY =", this.activeLayersArray)
     this.selData.get("dataSetSel")?.setValue(node);
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
-    // console.log("IS INDICATOR ==", this.isIndicator);
     if (!this.isIndicator) {
       this.legendNoWms = undefined;
     }
-    // console.log("Added layer====", this.activeLayersArray);
     // }
   }
 
   selActiveLayer(event: any) {
-    // console.log("SELECTED LAYER =", event.value);
-    // // this.selData.get("dataSetSel")?.setValue();
-    // console.log("COSA C'E' IN STO SELDATA ==", this.selData.get("dataSetSel")?.value);
 
     let metaId: any;
     if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
@@ -1124,21 +1074,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     else if (this.selData.get("dataSetSel")?.value.name.id) {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
-    // if(event.value.dataset_id) {
-    //   /**
-    //   *  controllare anche qui!
-    //   */
-
-    //   metaId = event.value.dataset_id;
-
-    // }
-    // else if(event.value.id) {
-    //   /**
-    //    * constrollare qui con console.log
-    //    */
-    //   metaId = event.value.id;
-
-    // }
 
     this.getSelectedNode(event.value);
     this.getMeta(metaId);
@@ -1503,18 +1438,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           }
         }
 
-        //} //CHECK PER VEDERE SE ERAVAMO A GENNAIO CHE POSSIAMO TOGLIERE!!!
-
-        // else {
-        //   selD.setMonth(selD.getMonth() - 3);
-        //   if(selD < this.dateStart){
-        //     this.navigateDateLeftSeason = true;
-        //   }else{
-        //     this.selectedDate.get("dateSel")?.setValue(selD);
-        //     this.navigateDateLeftSeason = false;
-        //   }
-        // }
-
       } //FINE ARROW LEFT!!
       else if (arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
@@ -1647,7 +1570,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           }
         }
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
-          //FUNZIONA PERO BOH.........
           //SAME DAY AND 3 MONTHS DIFFERENCE BETWEEN DAYS!
           //GESTIRE ULTIMO GIORNO DEL MESE
           let d1 = _.cloneDeep(this.dateEnd);
@@ -2158,47 +2080,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
       splittedVar = splittedVar[splittedVar.length - 1];
 
-      // if(polygon){
-
-      //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
-      //   dataset: this.selData.get("dataSetSel")?.value.name,
-      //   selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-      //   isIndicator: this.isIndicator ? "true" : "false",
-      //   selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
-      //   range: this.value ? Math.abs(this.value) : 0,
-      //   latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
-      // }).subscribe({
-      //   next: (res: any) => {
-      //     console.log("RES =", res);
-      //     let allDataPolygon = res['dataVect'];
-      //     let valuesPol = allDataPolygon[0]; //media dei valori
-      //     let datesPol = allDataPolygon[1]; //tutte le date!
-
-
-      //   },
-      //   error: (msg: any) => {
-      //     console.log('METADATA ERROR: ', msg);
-      //   }
-
-      // });
-      // }
-
-
       if (lat) {
         this.coordOnClick = { "lat": lat, "lng": lng };
       }
-
-      // const corner1 = bounds.getSouthWest();
-      // const corner2 = bounds.getNorthEast();
-
-      // // Get the latitudes and longitudes of the corners
-      // const lat_min = corner1.lat;
-      // const lon_min = corner1.lng;
-      // const lat_max = corner2.lat;
-      // const lon_max = corner2.lng;
-      // dialogConfig.height = '1000px';
-      // console.log("this.circlecoo",this.circleCoords);
-      // console.log("POLYGON", polygon);
 
       dialogConfig.data = {
         success: true,
@@ -2298,36 +2182,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
               varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
             }
             this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
-            // let rectangle = L.rectangle(bounds, { fillOpacity: .2, opacity: .2, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r,varColor.g,varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-            // this.rettangoliLayer.addLayer(rectangle);
-            // if(markerToAdd) {
-            //   this.pointBoolean = true;
-            // }
             this.circleMarkerArray.push(this.markerToAdd);
             this.markersLayer.addLayer(this.markerToAdd);
-            // console.log("circleMarkerArray", this.circleMarkerArray);
-
-            // console.log("this.markersLayer", this.markersLayer);
-
-            // if(this.pointBoolean) {
-            // this.markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(this.markerToAdd.getLatLng().lat,this.markerToAdd.getLatLng().lng));
-            //   this.pointBoolean = false;
-            // }
 
             this.map.addLayer(this.markersLayer);
           } else {
             //griddap case with rectangle, NON SERVONO I MARKER!
 
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            // bounds = [[parseFloat(allLatCoordinates[i]) - 0.010001, parseFloat(allLongCoordinates[i]) - 0.0105387], [parseFloat(allLatCoordinates[i]) + 0.010001, parseFloat(allLongCoordinates[i]) + 0.0105387]];
-            // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
-            //   // icon: L.icon({
-            //   //   iconSize: [25, 41],
-            //   //   iconAnchor: [13, 41],
-            //   //   iconUrl: 'marker-icon.png',
-            //   // })
-            // })
-            //this.markersLayer.addLayer(markerToAdd);
             let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
             let varColor: any;
             if (colorStorage) {
@@ -2346,27 +2208,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
 
-            // let center: L.LatLngExpression = [42.744388161339, 12.0809380292276]; // Centro Italia
-            // zoom = 6;
-            // this.map = L.map("map").setView(this.center, this.zoom);
 
           }
-          // markerToAdd.on('click',this.openGraphDialog.bind(this));
-
-          //this.markersLayer.addLayer(markerToAdd);
         }
-        //zoomare sulla mappa al centro dei rettangoli o circleMarker
-        // zoomCenter: L.LatLngExpression = [centerLat, centerLong];
-        // let zoomCenter: L.LatLngExpression = [centerLat, centerLong]; // Centro Italia
-        // let zoom = 10;
-        // this.map.setView(zoomCenter, zoom);
-        // this.map.setView(zoomCenter, 8);
-        // console.log("CIRCLE COORDS: ", this.circleCoords);
-        //test
-        // this.map.setView(zoomTest,18);
-        // this.center = [centerLat, centerLong];
-        // this.zoom = 10;
-
 
       },
       error: (msg: any) => {
@@ -2451,19 +2295,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
 
-    // let getColor = (v: any) => {
-    //   return v === value_min
-    //     ? this.valueMinColor
-    //     : v === value_min_mid
-    //       ? this.valueMinMidColor
-    //       : v === value_mid
-    //         ? this.valueMidColor
-    //         : v === value_mid_max
-    //           ? this.valueMidMaxColor
-    //           : v === value_max
-    //             ? this.valueMaxColor
-    //             : this.valueMaxColor;
-    // }
     let getColor = (v: any) => {
       let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
       let colorStorageObj: any;
@@ -2500,12 +2331,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       }
     }
 
-
-    // this.legendNoWms = new L.Control({ position: 'bottomright' });
-    // console.log("value_min =", value_min);
-    // console.log("value_mid =", value_mid);
-    // console.log("value_max =", value_max);
-
     this.legendNoWms.onAdd = (map: any) => {
       let div = L.DomUtil.create('div', 'info legend');
       let grades = [value_min, value_min_mid, value_mid, value_mid_max, value_max];
@@ -2516,36 +2341,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       for (let i = 0; i < grades.length; i++) {
         from = grades[i];
         to = grades[i + 1];
-        // console.log("from =", from);
-        // console.log("from + 1 =", (from + 1));
-        // console.log("GET COLOR =", getColor(from));
-        // console.log("GET COLOR + 1 =", getColor(from + 1));
-
-
 
         labels.push(
           "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
           "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
         );
       }
-      // labels.push(
-      //   // "<div class='color-number-legend'>" + "<button mat-icon-button><mat-icon>settings</mat-icon></button>" + "</div>"
-      //   "<div class='color-number-legend'>" + "<button mat-raised-button color='primary' onclick='function proviamoStaCosa(){p}'><span class='material-symbols-outlined'>settings</span></button>" + "</div>"
-
-      //   );
       let button = L.DomUtil.create('button', 'color-number-legend');
       button.innerHTML = "<span class='material-symbols-outlined'>settings</span>";
       button.addEventListener('click', (e) => this.changeLegendColors());
 
-      // let buttonContainer = L.DomUtil.create('div', 'color-number-legend-container');
-      // buttonContainer.innerHTML = button.outerHTML;
-      // let buttonContainer = document.createElement('div');
-      // buttonContainer.classList.add('color-number-legend');
-      // buttonContainer.appendChild(button);
-      // labels.push(button.outerHTML);
-
-      // console.log("LABELS =", labels);
-      // div.innerHTML = labels.join('<br>');
       div.innerHTML = labels.join('');
       div.appendChild(button);
       return div;
@@ -2576,23 +2381,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     const dialogRef = this.dialog.open(GeoportalColorDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(async result => {
-      // console.log("RESULT =", result);
-
-      // console.log("RESULT =", result.colorMinMid);
-      // console.log("RESULT =", result.colorMid);
-      // console.log("RESULT =", result.colorMidMax);
-      // console.log("RESULT =", result.colorMax);
       if (result !== '' && result !== "restoreDefault") {
         let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title)
-        // let colorStorage: any;
-        // for (let i = 0; i < localStorage.length; i++) {
-        //   let key: any = localStorage.key(i);
-        //   let value: any = localStorage.getItem(key);
-        //   console.log("CHIAVE =", key,"VALORE =", value);
-        //   if(key === this.selData.get("dataSetSel")?.value.name.title){
-        //     colorStorage = localStorage.getItem(key);
-        //   }
-        // };
         this.valueMinColor = result["minColor"];
         this.valueMinMidColor = result["minMidColor"];
         this.valueMidColor = result["midColor"];
@@ -2634,14 +2424,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           //aggiungere quelli nuovi
           for (let i = 0; i < allLatCoordinates.length; i++) {
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
-            //   // icon: L.icon({
-            //   //   iconSize: [25, 41],
-            //   //   iconAnchor: [13, 41],
-            //   //   iconUrl: 'marker-icon.png',
-            //   // })
-            // })
-            //this.markersLayer.addLayer(markerToAdd);
             let varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
 
             let rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
@@ -2692,14 +2474,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           //aggiungere quelli nuovi
           for (let i = 0; i < allLatCoordinates.length; i++) {
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            // let markerToAdd = L.marker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], {
-            //   // icon: L.icon({
-            //   //   iconSize: [25, 41],
-            //   //   iconAnchor: [13, 41],
-            //   //   iconUrl: 'marker-icon.png',
-            //   // })
-            // })
-            //this.markersLayer.addLayer(markerToAdd);
             let varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
 
             let rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
@@ -2737,18 +2511,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     }
     // if (treeFiltrato.length === 0) {
     if (!filterValue) {
-      // console.log("COLLAPSE");
-
-      // this.dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-      // this.dataAllNodesTree.data = TREE_DATA;
       return this.dataAllNodesTree.data;
     }
     else {
-      // console.log("EXPAND");
-      // this.treeControl.expandAll();
-      // this.treeControl.dataNodes = treeFiltrato;
-      // this.dataAllNodesTree.data = TREE_DATA;
-      // this.dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
       return this.dataAllNodesTree.data = treeFiltrato;
     }
   }

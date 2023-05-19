@@ -352,36 +352,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
               return value.toString();
             }
           },
-          // combineLabels: (minValue: number, maxValue: number): string => {
-
-          // }
         };
-
-        // this.form = this.fb.group({
-        //   // cod: new FormControl(this.element.cod_algo_type),
-        //   cod: new FormControl(null),
-        //   operationSel: new FormControl("default"),
-        //   typeSel: new FormControl("csv"),
-        //   // minSliderDate: new FormControl(this.dateStart),
-        //   // maxSliderDate: new FormControl(this.dateEnd),
-        //   // minSliderRange: new FormControl(this.extraParamExport.minValue),
-        //   // maxSliderRange: new FormControl(this.extraParamExport.maxValue),
-        // })
-
 
       }
 
     }
   }
-
-  // devProd() {
-  //   if(this.httpService.apiUrl === "http://localhost:8000/") {
-  //     return true;
-  //   }
-  //   else {
-  //     return false;
-  //   }
-  // }
 
   showInfo() {
     // this.info = !this.info;
@@ -398,30 +374,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       }
     }
 
-    // if(this.info) {
-    //   // yesInfo?.style.setProperty("display", "block");
-    //   // noInfo?.style.setProperty("display", "none");
-    //   if(noInfo != null) {
-    //     noInfo.style.display = "none";
-
-    //   }
-    //   if(yesInfo != null) {
-    //     yesInfo.style.display = "flex";
-
-    //   }
-    // }
-    // else {
-    //   // yesInfo?.style.setProperty("display", "none");
-    //   // noInfo?.style.setProperty("display", "block");
-    //   if(yesInfo != null) {
-    //     yesInfo.style.display = "none";
-
-    //   }
-    //   if(noInfo != null) {
-    //     noInfo.style.display = "block";
-
-    //   }
-    // }
   }
 
   ngAfterContentChecked(): void {
@@ -457,16 +409,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     // this.getAlgoType();
   }
 
-  // getAlgoType() {
-  //   this.httpService.post("adminAlgorithmConfiguration", {
-  //     call: "algoType",
-  //   }).subscribe((res: any) => {
-  //     console.log("RESSSSSSSSSSSSS =", res);
-
-  //     this.algoType = res;
-  //   })
-  // }
-
   save() {
     // if(this.element) {
     //   // this.updateAlgoConfig();
@@ -489,92 +431,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     //console.log("idMeta:",data);
     // this.httpService.post('test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/metadataTable', data).subscribe((response: any) => {
-      //console.log("Response======",response);
-    //   if (typeof response === 'string') {
-    //     response = JSON.parse(response);
-    //   }
-    //   this.dataTable = response;
-    //   console.log("datatable=======",this.dataTable.metadata);
-    //   this.displayedColumns = this.dataTable.metadata.table.columnNames;
-    //   console.log("displayedColumns", this.displayedColumns);
-    //   let objArr: any = {};
-    //   let arr1: any = [];
-    //   // console.log("K = ", k);
-
-    //   this.dataTable.metadata.table.rows.forEach((arr: any) => {
-    //     objArr = {};
-
-    //     this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
-    //       objArr[key] = arr[i];
-
-    //     })
-    //     arr1.push(objArr);
-
-    //   });
-    //   this.dataTable.metadata.table.rows = [...arr1];
-
-    //   if (this.dataTable.metadata.table.rows.length > 0) {
-    //     this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
-    //     // bypass ngIf for paginator
-    //     this.setDataSourceAttributes();
-    //   }
-
-    //   console.log("this.dataSource", this.dataSource);
-
-    //   let htmlToAdd = `<table mat-table [dataSource]='${this.dataSource}'>`;
-    //   this.displayedColumns.forEach((column: any) => {
-    //     let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
-    //     this.dataTable.metadata.table.rows.forEach((row: any,index:number) => {
-    //       let element = this.dataTable.metadata.table.rows[index][column];
-    //       htmlToAdd += `<ng-container [matColumnDef]='${column}'>
-    //       <th mat-header-cell *matHeaderCellDef> ${columnToDisplay} </th>
-    //       <td mat-cell *matCellDef='let element'> ${element} </td>
-    //       </ng-container>`;
-    //     });
-
-    //   });
-    //   htmlToAdd += `
-    //      <tr mat-header-row *matHeaderRowDef='${this.displayedColumns}'></tr>
-    //      <tr mat-row *matRowDef='let row; columns: ${this.displayedColumns};'></tr>
-    //      </table>
-
-    //      <mat-paginator [pageSizeOptions]='[10, 20, 30]'
-    //                    showFirstLastButtons
-    //                   aria-label='Select page of periodic elements'>
-
-    //   </mat-paginator>
-    //     `;
-
-    //   //  this.displayedColumns.forEach((column: any) => {
-    //   //   let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
-    //   //   this.dataTable.metadata.table.rows.forEach((element: any) => {
-    //   //     htmlToAdd += `<ng-container [matColumnDef]='${column}'>
-    //   //       <th mat-header-cell *matHeaderCellDef> ${columnToDisplay} </th>
-    //   //       <td mat-cell *matCellDef='let element'> ${element[column]} </td>
-    //   //     </ng-container>`;
-    //   //   });
-    //   //  });
-    //   // this.displayedColumns.map((column: any) => {
-    //   //   let columnToDisplay = column.charAt(0).toUpperCase() + column.slice(1);
-    //   //   let element = this.dataSource.metadata.table.rows[][column]
-    //   //   htmlToAdd += `<ng-container [matColumnDef]='${column}'>
-    //   //     <th mat-header-cell *matHeaderCellDef> ${columnToDisplay} </th>
-    //   //     <td mat-cell *matCellDef='let element'> ${element}[${column}] </td>
-    //   //   </ng-container>`;
-    //   // })
-    // //   htmlToAdd += `
-    // //   <tr mat-header-row *matHeaderRowDef='${this.displayedColumns}'></tr>
-    // //   <tr mat-row *matRowDef='let row; columns: ${this.displayedColumns};'></tr>
-    // //   </table>
-
-    // //   <mat-paginator [pageSizeOptions]='[10, 20, 30]'
-    // //                 showFirstLastButtons
-    // //                 aria-label='Select page of periodic elements'>
-
-    // //   </mat-paginator>
-    // // `;
-    // this.spinnerLoading = false;
-        // console.log("RESPONSE METADATA TABLE==",response);
         if (typeof response === 'string') {
           response = JSON.parse(response);
         }
@@ -800,100 +656,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   }
 
-
-  // downloadFile(url: any): any {
-  //   //console.log("QUI CI ENRO");
-  //   // const headerDict = {
-  //   //   'Access-Control-Allow-Origin': '*',
-  //   // }
-  //   // const requestOptions = {
-  //   //   headers: new Headers(headerDict),
-  //   //   responseType: 'blob'
-  //   // };
-
-  //   return this.httpClient.get(url, {
-  //     responseType: 'blob', headers: {
-  //       'Access-Control-Allow-Origin': '*',
-  //       "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
-  //       "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"
-  //     }
-  //   });
-  // }
-
-  // download() {
-  //   // console.log("INIZIO DOWNLOAD");
-
-  //   let erddapUrl: any;
-  //   if (this.dataset.dimensions === 3) {
-  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-  //   }
-  //   else {
-  //     //caso parametro aggiuntivo DA FARE!!!
-  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-  //   }
-  //   // console.log("ERDDAP URL", erddapUrl);
-
-  //   this.downloadFile(erddapUrl).subscribe((response: any) => {
-  //     // console.log("Before blob===========", response);
-  //     let blob: any = new Blob([response], { type: 'text/json' });
-  //     // const url= window.URL.createObjectURL(blob);
-  //     //window.open(url);
-  //     saveAs(blob, this.datasetId + this.form.get('typeSel')?.value);
-
-  //     // const a = document.createElement('a');
-  //     // const objectUrl = URL.createObjectURL(blob);
-  //     // a.href = objectUrl;
-  //     // a.download = this.datasetId + "." + this.form.get('typeSel')?.value;
-  //     // a.click();
-  //     // URL.revokeObjectURL(objectUrl);
-  //     // console.log("DOWNLOAD CLICK QUI");
-
-  //   }), (error: any) => console.log('Error downloading the file'),
-  //     () => console.info('File downloaded successfully');
-  // }
-
-
-  // downloadWithService() {
-  //   let erddapUrl: any;
-  //   if (this.dataset.dimensions === 3) {
-  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-  //   }
-  //   //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_4d78_6f74_63bc.json?wind10m%5B(1969-12-30T00:00:00Z):1:(2005-11-20T00:00:00Z)%5D%5B(42.87742828483367):1:(42.87742828483367)%5D%5B(11.656494140625002):1:(11.656494140625002)%5D
-  //   else {
-  //     //caso parametro aggiuntivo DA FARE!!!
-  //     //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-  //     erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + this.form.get('typeSel')?.value + "?" + this.variable + "%5B(" + this.formatDateExport(this.dateStart) + "):1:(" + this.formatDateExport(this.dateEnd) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-  //   }
-
-  //   this.httpService.downloadFile().subscribe((response: any) => {
-  //     // console.log("RESPONSE DOWNLOAD", response);
-
-  //     let blob: any = new Blob([response], { type: 'text/json; charset=utf-8' });
-  //     const url = window.URL.createObjectURL(blob);
-  //     saveAs(blob, "employees.json");
-  //   }),
-
-  //     (error: any) => console.log('Error downloading the file'),
-  //     () => console.info('File downloaded successfully');
-
-
-  // }
-
-
   addDataTimeExport(graph: any) {
     // Array di timestamp a partire dalle date presenti in 'graph'
     const timestampArray = graph.map((element: any) => {
-      // let dateParts: any;
-      // if(element.x.includes('/')) {
-      //   dateParts = element.x.split('/');
-
-      // }
-      // else {
-      //   dateParts = element.x
-      // }
       const dateParts = element.x.split('/');
 
       const date = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
@@ -972,18 +737,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       return new Date(a.time).getTime() - new Date(b.time).getTime();
     });
 
-    //console.log("this.dataTable after everything!!", this.dataTable);
-
-
-
-    // console.log("this.dataTable after everything!!", this.dataTable);
-
     if (this.dataTable.length > 0) {
       this.dataSource = new MatTableDataSource(this.dataTable);
       //console.log(this.dataSource);
       // bypass ngIf for paginator
       this.setDataSourceAttributes();
-
 
     }
   }
@@ -1000,17 +758,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
     this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
     this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
-    //console.log("no parseFloat()",mean_median_stdev[3]);
-    // console.log("MEAN_MEDIAN_STDEV", mean_median_stdev[3]);
 
     this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
     if(this.trendValue.includes("x 10^0")) {
       this.trendValue = this.trendValue.replace("x 10^0", "");
     }
-    // console.log("this.trendValue", this.trendValue);
-
-    // toLocaleString('fullwide', {useGrouping: false}).replace(/\.(\d+)/, (match, p1) => '.' + p1.slice(0, 5))
-    // .toExponential().replace(/e\+?/, ' x 10^')
   }
 
   sendSelGraphPoly() {

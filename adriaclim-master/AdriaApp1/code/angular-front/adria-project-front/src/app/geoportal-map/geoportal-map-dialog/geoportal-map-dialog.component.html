@@ -24,19 +24,6 @@
     <!-- <div mat-dialog-content *ngIf="info === false; else infoDialog"> -->
     <div mat-dialog-content id="noInfo">
 
-      <!-- <div>
-        <mat-form-field appearance="fill">
-          <mat-label>Select type</mat-label>
-          <mat-select formControlName="cod">
-            <mat-option *ngFor="let a of algoType" [value]="a.cod_algo_type">
-              {{a.des_algo_type}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div> -->
-      <!-- <span>PROVA</span>
-      <input type="text"> -->
-
       <div #metadataTable *ngIf="!openGraph; else graph">
         <mat-spinner *ngIf="spinnerLoading" fxLayoutAlign="center center"></mat-spinner>
         <table mat-table [dataSource]="dataSource">
@@ -204,14 +191,6 @@
 
     </mat-dialog-actions>
   </div>
-
-
-  <!-- <ng-template #ok>
-    <h2 mat-dialog-title>{{description}}</h2>
-    <mat-dialog-actions>
-      <button mat-raised-button color="primary" (click)="close()">Ok</button>
-    </mat-dialog-actions>
-  </ng-template> -->
 
 </form>
 

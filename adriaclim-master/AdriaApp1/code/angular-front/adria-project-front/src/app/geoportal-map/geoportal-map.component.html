@@ -171,27 +171,6 @@
 
           </div>
 
-        <!-- <mat-menu #myMenu2="matMenu">
-          <ng-template matMenuContent>
-              <ng-container *ngFor="let v of variableArray">
-            </ng-container>
-              <button mat-menu-item>A 2</button>
-                <button mat-menu-item>A 3</button>
-
-          </ng-template>
-
-        </mat-menu> -->
-        <!-- <mat-icon>settings</mat-icon> -->
-        <!-- <button mat-icon-button><mat-icon> place</mat-icon></button> -->
-
-        <!-- <mat-expansion-panel class="expansion-panel-class" #panel (mouseenter)="panel.open()" (mouseleave)="panel.close()">
-            <mat-expansion-panel-header>
-            HEAD
-            </mat-expansion-panel-header>
-            <button mat-menu-item>A 1</button>
-            <button mat-menu-item>A 2</button>
-            <button mat-menu-item>A 3</button>
-          </mat-expansion-panel> -->
       </div>
       <!-- <div fxFlex *ngIf="selectedDate.get('dateSel')?.value">
         {{selectedDate.get("dateSel")?.value}}
@@ -291,13 +270,6 @@
               </button>
 
             </div>
-            <!-- {{selData.get("dataSetSel")?.value | json}} -->
-            <!-- <span>{{selData.get("dataSetSel")?.value.name.title}}</span> -->
-
-
-            <!-- <mat-selection-list fxFlex="100" [multiple]="false" fxLayoutAlign="center center" fxLayout="row wrap" style="word-wrap: break-word; overflow-wrap: break-word">
-                  <mat-list-option fxFlex="100" fxLayoutAlign="start center" [value]="elem" *ngFor="let elem of dataInd">{{elem.title}}</mat-list-option>
-                </mat-selection-list> -->
           </div>
 
           <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center">
@@ -342,25 +314,8 @@
               </div>
               <!-- [disabled]="disabled" -->
               <ngx-slider [(value)]="value" [options]="options" (userChangeEnd)="sliderControl($event)"></ngx-slider>
-              <!-- <mat-slider
-                  style="width: 80%;"
-                  class="example-margin"
-                  [max]="extraParam.maxValue.toFixed(4)"
-                  [min]="extraParam.minValue.toFixed(4)"
-                  [step]="extraParam.stepSize.toFixed(4)"
-                  discrete
-                  showTickMarks
-                  [displayWith]="formatLabel">
-                <input matSliderThumb formControlName="sliderControl" (mouseup)="sliderControl($event)">
-              </mat-slider> -->
 
             </form>
-            <!-- <mat-slider style="width: 80%;"
-                class="example-margin"
-                [displayWith]="formatLabel"
-                >
-              <input matSliderThumb>
-            </mat-slider> -->
           </div>
           <!-- </div> -->
         </mat-card-content>
