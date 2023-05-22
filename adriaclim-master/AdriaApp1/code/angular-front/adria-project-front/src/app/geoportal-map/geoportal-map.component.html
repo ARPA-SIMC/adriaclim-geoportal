@@ -3,20 +3,22 @@
     font-weight: bold;
   }
 </style>
-<div class="main-content">
+<div class="main-content col-12">
 
-  <div fxFlex class="toolbar">
+  <div class="col-12">
     <mat-toolbar color="primary">
 
-      <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 85%;"
-        class="toolbar-buttons">
+      <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 85%;" -->
+      <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons h-75">
 
-        <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+        <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
+        <button class="col-2" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
           #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span
             class="text-menu"> Full list </span>
         </button>
 
-        <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+        <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
+        <button class="col-2" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
           #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span
             class="text-menu"> Dataset </span>
         </button>
@@ -27,11 +29,14 @@
             <mat-menu #myMenu2="matMenu" class="menu-full-list">
               <ng-template matMenuContent>
                 <!-- <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season"> -->
-                <div fxFlex fxLayout="column" fxLayoutAlign="center start">
-                  <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center"
+                <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
+                <div class="col-12 d-flex flex-column h-100 justify-content-center align-items-start">
+                  <!-- <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center" -->
+                  <div class="d-flex flex-row col-12 justify-content-center align-items-center"
                     (click)="$event.stopPropagation();">
                     <mat-form-field class="example-full-width" color="primary" appearance="outline">
-                      <mat-label fxFlex="80">Filter title or institution</mat-label>
+                      <!-- <mat-label fxFlex="80">Filter title or institution</mat-label> -->
+                      <mat-label>Filter title or institution</mat-label>
                       <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
                       <input type="text" matInput formControlName="searchText">
                       <button matSuffix mat-icon-button aria-label="Clear">
@@ -42,7 +47,8 @@
                   </div>
                   <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value">
                     <!-- <ng-container *ngFor="let n of dataAllNodes | highlight: selData.get('searchText')?.value"> -->
-                    <div fxFlex fxLayout="row" fxLayoutAlign="center center">
+                    <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center"> -->
+                    <div class="d-flex flex-row justify-content-center align-items-center">
                       <!-- <mat-radio-button fxFlex class="example-radio-button"  appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
                         {{n.name.title}}
                       </mat-radio-button> -->
@@ -61,11 +67,14 @@
             </mat-menu>
 
             <mat-menu #myMenu1="matMenu" class="menu">
-              <div fxFlex fxLayout="column" fxLayoutAlign="center start">
-                <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center"
+              <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
+              <div class="d-flex flex-column justify-content-center align-items-start">
+                <!-- <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center" -->
+                <div class="d-flex flex-row justify-content-center align-items-center col-12"
                   (click)="$event.stopPropagation();">
                   <mat-form-field class="example-full-width" color="primary" appearance="outline">
-                    <mat-label fxFlex="100">Filter title or institution</mat-label>
+                    <!-- <mat-label fxFlex="100">Filter title or institution</mat-label> -->
+                    <mat-label>Filter title or institution</mat-label>
                     <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
                     <input type="text" matInput formControlName="searchTextDataset">
                     <button matSuffix mat-icon-button aria-label="Clear">
@@ -82,11 +91,14 @@
                     <!-- {{node | json}} -->
                     <!-- <ng-container *ngIf="node.expandable === false && node.level > 2; else noRadio"> -->
                     <ng-container *ngIf="node.expandable === false && !isAString(node.name); else noRadio">
-                      <div fxFlex fxLayout="column" fxLayoutAlign="center start"
+                      <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"
+                        style="max-width: none !important; width: fit-content;"> -->
+                      <div class="d-flex flex-column justify-content-center align-items-start"
                         style="max-width: none !important; width: fit-content;">
-                        <div fxFlex fxLayout="row" fxLayoutAlign="center center"
+                        <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center" -->
+                        <div class="d-flex flex-row justify-content-center align-items-center"
                           style="max-width: none !important; width: fit-content;">
-                          <button matTooltip="Info about the layer" matTooltipPosition="left"><mat-icon fxFlex="90"
+                          <button matTooltip="Info about the layer" matTooltipPosition="left" class="no-border-button-icon"><mat-icon fxFlex="90"
                               [ngStyle]="{'color': 'blue'}"
                               (click)="openTableDialog(node.name['id'], node.name['title'], node)">info</mat-icon></button>
                           <mat-radio-button fxFlex [value]="node"
@@ -134,42 +146,43 @@
           [matMenuTriggerFor]="myMenu2"> <span class="text-menu"> Variable </span></button> -->
         <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
 
-          <div fxFlex="20" fxLayout="row" class="menu-var" LayoutAlign="center center">
-            <form [formGroup]="variableGroup">
-              <ng-container *ngIf="variableArray.length > 0; else noVariable">
-                <!-- <ng-container *ngFor="let v of variableArray; let lastItem = last">
+        <!-- <div fxFlex="20" fxLayout="row" class="menu-var" LayoutAlign="center center"> -->
+        <div class="menu-var col-2 row" LayoutAlign="center center">
+          <form [formGroup]="variableGroup">
+            <ng-container *ngIf="variableArray.length > 0; else noVariable">
+              <!-- <ng-container *ngFor="let v of variableArray; let lastItem = last">
 
-                  <button mat-menu-item>{{v}}</button>
-                  <mat-divider *ngIf="!lastItem"></mat-divider>
-                </ng-container> -->
+                <button mat-menu-item>{{v}}</button>
+                <mat-divider *ngIf="!lastItem"></mat-divider>
+              </ng-container> -->
 
-                <mat-form-field appearance="fill" class="prova-form">
-                  <mat-label>Select variable</mat-label>
-                  <mat-select formControlName="variableControl" class="prova-select"
-                    (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">
-                    <mat-option *ngFor="let v of variableArray" [value]="v" class="prova-option">
-                      {{v}}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </ng-container>
+              <mat-form-field appearance="fill" class="prova-form">
+                <mat-label>Select variable</mat-label>
+                <mat-select formControlName="variableControl" class="no-border-focus"
+                  (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">
+                  <mat-option *ngFor="let v of variableArray" [value]="v" class="prova-option">
+                    {{v}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </ng-container>
 
 
-              <ng-template #noVariable>
-                <!-- <span>First select dataset</span> -->
-                <mat-form-field appearance="fill">
-                  <mat-label>First select dataset</mat-label>
-                  <mat-select>
-                    <mat-option>
-                      First select dataset
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </ng-template>
+            <ng-template #noVariable>
+              <!-- <span>First select dataset</span> -->
+              <mat-form-field appearance="fill">
+                <mat-label>First select dataset</mat-label>
+                <mat-select>
+                  <mat-option>
+                    First select dataset
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </ng-template>
 
-            </form>
+          </form>
 
-          </div>
+        </div>
 
       </div>
       <!-- <div fxFlex *ngIf="selectedDate.get('dateSel')?.value">
@@ -181,7 +194,8 @@
   <!-- MAT MENU PER TOOLS -->
   <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools"> -->
   <div class="overlay-tools">
-    <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+    <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
+    <button class="col-12" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
         #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuTools">
       <mat-icon> list_alt</mat-icon>
       <span class="text-menu"> Tools </span>
@@ -189,7 +203,8 @@
 
     <mat-menu #myMenuTools="matMenu" class="menu-tools">
       <ng-template matMenuContent>
-        <div fxFlex fxLayout="column" fxLayoutAlign="center start">
+        <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
+        <div class="d-flex flex-column justify-content-center align-items-start">
           <div>
             <button mat-icon-button matTooltip="Select a single point on the map" matTooltipPosition="right" (click)="pointSelect()"><mat-icon> place</mat-icon></button>
           </div>
@@ -205,7 +220,8 @@
   <!-- MAT MENU PER SCELTA POLIGONI -->
   <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-polygon"> -->
   <div class="overlay-polygon">
-    <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+    <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
+    <button class="col-12" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
         #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuPolygon">
       <mat-icon> list_alt</mat-icon>
       <span class="text-menu"> Areas </span>
@@ -214,7 +230,8 @@
     <!--Modifichiamo dopo!-->
     <mat-menu #myMenuPolygon="matMenu" class="polygon-tools">
       <ng-template matMenuContent>
-        <div fxFlex fxLayout="column" fxLayoutAlign="center start">
+        <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
+        <div class="d-flex flex-column justify-content-center align-items-start">
           <div>
             <button mat-button matTooltip="Select the Adriatic view" matTooltipPosition="right" (click)="adriaticView()" class="font-bad-script">Adriatic View</button>
           </div>
@@ -237,18 +254,24 @@
   <ng-container *ngIf="selData.get('dataSetSel')?.value">
     <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map"> -->
     <div class="overlay-buttons-top-map">
-      <mat-card class="dataset-panel" fxFlex fxLayout="column" fxLayoutAlign="start center" class="mat-card-active">
+      <!-- <mat-card class="dataset-panel mat-card-active" fxFlex fxLayout="column" fxLayoutAlign="start center"> -->
+      <mat-card class="dataset-panel mat-card-active d-flex flex-column justify-content-start align-items-center">
         <mat-card-header>
           <mat-card-title class="bolder-title">Active layer</mat-card-title>
         </mat-card-header>
-        <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center" class="mat-card-active">
+        <!-- <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center" class="mat-card-active"> -->
+        <mat-card-content style="height: 100%;" class="mat-card-active d-flex flex-row flex-wrap justify-content-center align-items-center col-12">
           <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
-          <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px">
+          <!-- <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px"> -->
+          <div class="d-flex flex-row justify-content-between align-items-center col-12 edit-icon-size">
 
-            <div fxFlex fxLayout="row" class="menu-var" fxLayoutAlign="center center">
-              <form [formGroup]="selData" fxFlex>
+            <!-- <div fxFlex fxLayout="row" class="menu-var" fxLayoutAlign="center center"> -->
+            <div class="menu-var col-8 d-flex flex-row justify-content-center align-items-center">
+              <!-- <form [formGroup]="selData" fxFlex> -->
+              <form [formGroup]="selData" class="col-12">
 
-                <mat-form-field appearance="fill" fxFlex>
+                <!-- <mat-form-field appearance="fill" fxFlex> -->
+                <mat-form-field appearance="fill" class="col-12">
                   <mat-label>Select Layers</mat-label>
                   <!-- <mat-select formControlName="activeLayersControl" (selectionChange)="getMeta(activeLayersGroup.get('activeLayersControl')?.value.name.dataset_id, 'ok')"> -->
                   <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)">
@@ -261,26 +284,36 @@
               </form>
 
             </div>
-            <div fxFlex="25" fxLayout="row" fxLayoutAlign="space-evenly center">
-              <button fxFlex="40" matTooltip="Info about the layer"><mat-icon [ngStyle]="{'color': 'blue'}"
+            <!-- <div fxFlex="25" fxLayout="row" fxLayoutAlign="space-evenly center"> -->
+            <div class="d-flex flex-row justify-content-center align-items-center col-3 gap-1">
+              <!-- <button fxFlex="40" matTooltip="Info about the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'blue'}" -->
+              <button matTooltip="Info about the layer" class="no-border-button-icon col-6"><mat-icon [ngStyle]="{'color': 'blue'}"
                   (click)="openTableDialog()">info</mat-icon>
               </button>
-              <button fxFlex="40" matTooltip="Remove the layer"><mat-icon [ngStyle]="{'color': 'red'}"
+              <!-- <button fxFlex="40" matTooltip="Remove the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'red'}" -->
+              <button matTooltip="Remove the layer" class="no-border-button-icon col-6"><mat-icon [ngStyle]="{'color': 'red'}"
                   (click)="deleteLayer(); deleteElActiveLayers()">delete</mat-icon>
               </button>
 
             </div>
           </div>
 
-          <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center">
-            <form [formGroup]="selectedDate" fxFlex="50">
-              <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker">
-                <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center">
+          <!-- <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center"> -->
+          <div class="d-flex flex-row justify-content-between align-items-center col-12" style="margin: 10px 0px 5px 0px;">
+            <!-- <form [formGroup]="selectedDate" fxFlex="50"> -->
+            <form [formGroup]="selectedDate" class="col-6">
+              <!-- <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker"> -->
+              <div class="form-datepicker d-flex flex-row justify-content-center align-items-center col-12">
+                <!-- <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center"> -->
+                <mat-form-field appearance="fill" class="d-flex flex-row justify-content-center align-items-center col-12">
                   <mat-label>DD/MM/YYYY</mat-label>
+                  <!-- <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart"
+                    [max]="dateEnd" formControlName="dateSel" fxFlex> -->
                   <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart"
-                    [max]="dateEnd" formControlName="dateSel" fxFlex>
+                    [max]="dateEnd" formControlName="dateSel" class="col-12">
                   <!-- <mat-hint>DD/MM/YYYY</mat-hint> -->
-                  <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+                  <!-- <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle> -->
+                  <mat-datepicker-toggle class="col-12" matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
                   <mat-datepicker #datepicker>
                     <mat-datepicker-actions>
                       <button mat-button matDatepickerCancel>Cancel</button>
@@ -292,25 +325,32 @@
 
               </div>
             </form>
-            <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center">
+            <!-- <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center"> -->
+            <div class="d-flex flex-row justify-content-center align-items-center col-6">
               <!-- DA FARE!! -->
-              <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
+              <!-- <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button> -->
+              <button mat-icon-button class="col-12" (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
               <!-- dateStart: {{dateStart}} dateEnd: {{dateEnd}} -->
-              <button mat-icon-button fxFlex (click)="changeDate('left')"
+              <!-- <button mat-icon-button fxFlex (click)="changeDate('left')" -->
+              <button mat-icon-button class="col-12" (click)="changeDate('left')"
                 [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason || dateStart?.toString() === dateEnd?.toString()"><mat-icon>navigate_before</mat-icon></button>
-              <button mat-icon-button fxFlex (click)="changeDate('right')"
+              <!-- <button mat-icon-button fxFlex (click)="changeDate('right')" -->
+              <button mat-icon-button class="col-12" (click)="changeDate('right')"
                 [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason || dateStart === dateEnd"><mat-icon>navigate_next</mat-icon></button>
-              <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
+              <!-- <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button> -->
+              <button mat-icon-button class="col-12" (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
 
             </div>
           </div>
 
-          <div fxFlex="90" style="margin: 10px 0px 5px 0px; height: fit-content;" fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtraParam">
-            <form [formGroup]="sliderGroup" fxFlex fxLayout="column" style="width: 100%;" fxLayoutAlign="center center">
-              <div class="example-label-container" style="width: 80%;" fxLayout="row" fxLayoutAlign="space-between center">
-                <label fxFlex fxLayoutAlign="center center" id="example-name-label" class="example-name-label">{{extraParam.name}}</label>
-                <!-- <label class="example-value-label">{{value}}</label> -->
-                <!-- <label fxFlex fxLayoutAlign="center center" class="example-value-label">5</label> -->
+          <!-- <div fxFlex="90" style="margin: 10px 0px 5px 0px; height: fit-content;" fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtraParam"> -->
+          <div class="col-12 d-flex flex-column justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="isExtraParam">
+            <!-- <form [formGroup]="sliderGroup" fxFlex fxLayout="column" style="width: 100%;" fxLayoutAlign="center center"> -->
+            <form [formGroup]="sliderGroup" class="col-12 d-flex flex-column justify-content-center align-items-center">
+              <!-- <div class="example-label-container" style="width: 80%;" fxLayout="row" fxLayoutAlign="center center"> -->
+              <div class="example-label-container col-9 d-flex flex-row justify-content-center align-items-center">
+                <!-- <label fxFlex fxLayoutAlign="center center" id="example-name-label" class="example-name-label">{{extraParam.name}}</label> -->
+                <label id="example-name-label" class="example-name-label col-12 d-flex justify-content-center align-items-center">{{extraParam.name}}</label>
               </div>
               <!-- [disabled]="disabled" -->
               <ngx-slider [(value)]="value" [options]="options" (userChangeEnd)="sliderControl($event)"></ngx-slider>
@@ -323,11 +363,12 @@
     </div>
   </ng-container>
 
-  <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-image">
+  <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-image"> -->
+  <div class="overlay-image col-auto d-flex flex-row justify-content-center align-items-center" style="max-height: fit-content;">
     <ng-container *ngIf="this.selData.get('dataSetSel')?.value">
       <!-- <ng-container *ngIf="legendLayer_src; else legendTabledap"> -->
       <ng-container *ngIf="legendLayer_src">
-        <img [src]="legendLayer_src">
+        <img [src]="legendLayer_src" style="height: 100px;">
 
       </ng-container>
       <!-- <ng-template #legendTabledap>

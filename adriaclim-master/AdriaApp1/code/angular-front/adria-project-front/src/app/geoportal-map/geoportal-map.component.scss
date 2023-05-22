@@ -60,13 +60,14 @@
   height: fit-content;
   // height: 480px;
   width: 420px;
+  font-size: 16px;
 }
 
 .overlay-image {
   position: absolute;
-  top: 80vh;
-  left: 25px;
-  bottom: 0;
+  // top: 80vh;
+  left: 20px;
+  bottom: 35px;
   // bottom: 150px;
   // width: 100%;
   // height: 100%;
@@ -80,7 +81,7 @@
 }
 
 .text-menu {
-  font-size: 1.2em;
+  font-size: 1.0em;
   font-weight: bold;
   color: #fff;
   // text-shadow: 1px 1px 1px #000;
@@ -202,6 +203,7 @@
 ::ng-deep .toolbar-buttons .mat-mdc-raised-button {
   height: 100% !important;
   font-size: medium !important;
+  // font-size: 16px !important;
 }
 
 .font-weight-bold {
@@ -234,3 +236,29 @@
 //   display: block !important;
 //   background-color: magenta !important;
 // }
+// .main-content {
+//   width: 100%;
+// }
+// :focus:not(.focus--mouse) {
+//   outline: none !important;
+// }
+// .no-border-focus:focus(.focus--mouse) {
+//   border: none !important;
+// }
+// .no-border-focus:focus {
+//   outline: none !important;
+// }
+
+:focus:not(.focus--mouse), .form-check [type=checkbox]:focus+label, .form-check [type=radio]:focus+label, .toggles label input[type=checkbox]:focus+.lever {
+  border: #995c00 !important;
+  box-shadow: 0 0 0 0px #995c00 !important;
+  outline: none !important;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+  top: 28px;
+}
+
+::ng-deep .no-border-button-icon {
+  border-radius: revert !important;
+}
