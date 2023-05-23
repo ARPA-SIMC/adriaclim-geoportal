@@ -1,12 +1,15 @@
 <form [formGroup]="form">
 
-  <div *ngIf="!description" class="title-dialog">
-    <ng-container *ngIf="polName">
-      <h1 mat-dialog-title><span class="info-title-dialog">Polygon's name: </span><span class="title-dialog-bold">{{polName}}</span></h1>
+  <div *ngIf="!description" class="d-flex flex-row justify-content-center align-items-center">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+      <ng-container *ngIf="polName">
+        <h1 mat-dialog-title><span class="info-title-dialog">Polygon's name: </span><span class="title-dialog-bold">{{polName}}</span></h1>
 
-    </ng-container>
+      </ng-container>
 
-    <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
+      <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
+
+    </div>
     <ng-container *ngIf="!polName && openGraph">
       <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng}}</span></h1>
 
@@ -53,14 +56,16 @@
           <!-- <mat-tab-group *ngIf="!spinnerLoading" class="tab-group"> -->
           <mat-tab-group class="tab-group" [ngStyle]="{'visibility': spinnerLoading ? 'hidden' : 'visible'}">
 
-            <mat-tab label="Graph" class="tab-graph">
-              <div fxLayout="row" fxLayoutAlign="space-between center" style="height: 55px;">
+            <mat-tab label="Graph" class="tab-graph col-12">
+              <!-- <div fxLayout="row" fxLayoutAlign="space-between center" style="height: 55px;"> -->
+              <div class="col-12 d-flex flex-row justify-content-between align-items-center" style="height: 55px;">
 
-                <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <!-- <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px"> -->
+                <div class="d-flex flex-row justify-content-start align-items-center gap-2">
                   <!-- <div> -->
                   <!-- <h4>Select graph</h4> -->
 
-                  <mat-form-field appearance="fill">
+                  <mat-form-field appearance="fill" class="col">
                     <mat-label>Time scale</mat-label>
                     <mat-select formControlName="operationSel">
                       <mat-option *ngFor="let o of optionTimeScale" [disabled]="removeAnnualCycle(o)"
@@ -71,28 +76,31 @@
 
                   <ng-container *ngIf="polygon">
                     <!-- STATISTICS PER I POLIGONI -->
-                    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="10px">
-                      <mat-form-field appearance="fill">
+                    <!-- <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="10px"> -->
+                    <div class="col d-flex flex-row justify-content-center align-items-center gap-1">
+                      <mat-form-field appearance="fill" class="col-12">
                         <mat-label>Statistics</mat-label>
                         <mat-select formControlName="statisticSel">
                           <mat-option *ngFor="let s of optionStatistics" [value]="s.value">{{s.label}}</mat-option>
                         </mat-select>
                       </mat-form-field>
 
-                      <button mat-raised-button color="primary" (click)="sendSelGraphPoly()">Update</button>
 
                     </div>
+                    <button mat-raised-button color="primary" (click)="sendSelGraphPoly()">Update</button>
                   </ng-container>
 
                 </div>
-                <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;">
+                <!-- <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;"> -->
+                <div class="col-4 d-flex flex-row justify-content-between align-items-center">
                   <span>Mean: <br> {{meanValue}}</span>
                   <span>Median: <br> {{medianValue}}</span>
                   <span>Stddev: <br> {{stdevValue}}</span>
                   <span>Trend/Yr: <br> {{trendValue}}</span>
                   <button mat-raised-button color="primary" (click)="calcStatistics()">Calc</button>
                 </div>
-                <div fxFlex fxLayout="row" fxLayoutAlign="end center">
+                <!-- <div fxFlex fxLayout="row" fxLayoutAlign="end center"> -->
+                <div class="d-flex flex-row justify-content-end align-items-center">
                   <section class="example-section">
                     <mat-checkbox class="example-margin" formControlName="enableArea">Enable area</mat-checkbox>
                   </section>
@@ -130,24 +138,29 @@
               </mat-paginator>
 
             </mat-tab>
-            <mat-tab label="Export" fxFlex fxLayout="row" fxLayoutAlign="center center" class="export-tab">
-
+            <!-- <mat-tab label="Export" fxFlex fxLayout="row" fxLayoutAlign="center center" class="export-tab"> -->
+            <mat-tab label="Export" class="export-tab col-12 d-flex flex-row justify-content-center align-items-center">
               <!-- QUI CI VA IL CODICE PER EXPORT -->
-              <div fxFlex fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="max-height: 100% !important; overflow: hidden !important;">
+              <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="max-height: 100% !important; overflow: hidden !important;"> -->
+              <div class="col-12 d-flex flex-column justify-content-center align-items-center gap-2 mh-100" style="overflow: hidden !important;">
 
-                <div fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;">
-                  <span fxFlex="100" fxLayoutAlign="center center"><b>Time range</b></span>
-                  <ngx-slider fxFlex="100" [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider>
-
+                <!-- <div fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;"> -->
+                <div class="d-flex col-12 flex-row flex-wrap justify-content-center align-items-center w-100">
+                  <!-- <span fxFlex="100" fxLayoutAlign="center center"><b>Time range</b></span> -->
+                  <span class="col-12 d-flex flex-row justify-content-center align-items-center"><b>Time range</b></span>
+                  <!-- <ngx-slider fxFlex="100" [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider> -->
+                  <ngx-slider class="col-12" [(value)]="minValue" [(highValue)]="maxValue" [options]="options"></ngx-slider>
                 </div>
 
-                <div *ngIf="dataset.dimensions > 3" fxFlex fxLayout="row wrap" fxLayoutAlign="center center"
-                  style="width: 100%;">
-                  <span fxFlex="100" fxLayoutAlign="center center"><b>{{extraParamExport.name}}</b></span>
-                  <ngx-slider fxFlex="100" [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider>
+                <!-- <div *ngIf="dataset.dimensions > 3" fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;"> -->
+                <div *ngIf="dataset.dimensions > 3" class="d-flex flex-row flex-wrap col-12 justify-content-center align-items-center">
+                  <!-- <span fxFlex="100" fxLayoutAlign="center center"><b>{{extraParamExport.name}}</b></span> -->
+                  <span class="col-12 d-flex justify-content-center align-items-center"><b>{{extraParamExport.name}}</b></span>
+                  <!-- <ngx-slider fxFlex="100" [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider> -->
+                  <ngx-slider class="col-12" [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider>
                 </div>
                 <div class="menu-var">
-                  <h4>Variable</h4>
+                  <h6 class="text-center">Variable</h6>
                   <mat-form-field appearance="fill">
                     <mat-label>Please select a variable</mat-label>
                     <mat-select formControlName="varSelected" multiple>
@@ -157,7 +170,7 @@
                   <!-- {{form.get('varSelected')?.value | json}} -->
                 </div>
                 <div class="menu-var">
-                  <h4>File Type:</h4>
+                  <h6 class="text-center">File Type</h6>
                   <mat-form-field appearance="fill">
                     <mat-label>Select the type of file</mat-label>
                     <mat-select formControlName="typeSel">
@@ -185,10 +198,11 @@
     <!-- </ng-template> -->
 
 
-    <mat-dialog-actions fxLayoutAlign="center center">
+    <mat-dialog-actions class="col-12 d-flex justify-content-center align-items-center">
 
       <!-- <button fxFlex="22" mat-raised-button color="primary" (click)="save()">Save</button> -->
-      <button fxFlex="22" mat-raised-button color="accent" (click)="close()">Cancel</button>
+      <!-- <button fxFlex="22" mat-raised-button color="accent" (click)="close()">Cancel</button> -->
+      <button class="col-2" mat-raised-button color="accent" (click)="close()">Cancel</button>
 
     </mat-dialog-actions>
   </div>

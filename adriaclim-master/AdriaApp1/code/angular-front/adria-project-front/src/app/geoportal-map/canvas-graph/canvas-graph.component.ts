@@ -592,11 +592,11 @@ optionBoxPlot: any = {
 
   formatNumber(number:any) {
     const decimalCount = (number.toString().split('.')[1] || '').length;
-  
+
     if (decimalCount > 2) {
       return number.toFixed(2);
     }
-  
+
     return number.toString();
   }
 
@@ -848,7 +848,7 @@ getDataGraphPolygonInterval() {
             xAxis: {
               type: 'category',
               boundaryGap: false,
-          
+
               data: allDataPolygon.dataPol.map((element: any) => element.x)
             },
             yAxis: {
@@ -921,7 +921,7 @@ getDataGraphPolygonInterval() {
     }
 
     onChartEvent(event: any, nameEvent:any ){
-      
+
     }
 
 
@@ -1034,8 +1034,11 @@ getDataGraphPolygonInterval() {
             formatter: (paramsFormatter: any) => {
 
               const tooltipHTML = paramsFormatter.map((param: any) => {
-                let value = param.value;
+                let value: any = Number(param.value);
                 if (value > 10000 || value < 0.001 && value !== 0) {
+                  console.log("VALUE = ", value);
+                  console.log("VALUE = ", typeof value);
+
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
                 }
                 return `${param.marker} ${param.seriesName}: ${value}`;

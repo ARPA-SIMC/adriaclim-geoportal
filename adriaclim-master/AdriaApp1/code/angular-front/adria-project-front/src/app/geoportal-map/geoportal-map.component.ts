@@ -726,7 +726,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
       const button = document.createElement('button');
-      button.innerHTML = "<span class='material-icons' style='color: red; font-size: 20px'>delete</span>";
+      // button.classList.add('btn');
+      button.className = 'border btn btn-xs btn-icon px-0 col-3 d-flex flex-row justify-content-center align-items-center';
+      button.style.backgroundColor = '#F0F0F0';
+      button.innerHTML = "<span class='material-icons col-12' style='color: red; font-size: 20px'>delete</span>";
+      // button.innerHTML = "<span class='material-icons col-12' style='color: red;>delete</span>";
+      // <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
+      //         (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
+      //         <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
+      //         </button>
       // <i class="material-icons" style="font-size:48px;color:red">delete</i>
       button.addEventListener('click', () => {
         this.map.removeLayer(this.markerPoint);
