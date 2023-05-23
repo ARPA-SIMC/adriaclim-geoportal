@@ -48,11 +48,12 @@
                   <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value">
                     <!-- <ng-container *ngFor="let n of dataAllNodes | highlight: selData.get('searchText')?.value"> -->
                     <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center"> -->
-                    <div class="d-flex flex-row justify-content-center align-items-center">
+                    <div class="d-flex flex-row justify-content-center align-items-center col-12">
                       <!-- <mat-radio-button fxFlex class="example-radio-button"  appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
                         {{n.name.title}}
                       </mat-radio-button> -->
-                      <mat-radio-button fxFlex class="example-radio-button" [value]="n"
+                      <!-- <mat-radio-button fxFlex class="example-radio-button" [value]="n" -->
+                      <mat-radio-button class="example-radio-button col-12" [value]="n"
                         (change)="getMeta(n.name.id); addToActiveLayers(n); getSelectedNode(n); ">
                         {{n.name.title}}
                       </mat-radio-button>
@@ -96,12 +97,15 @@
                       <div class="d-flex flex-column justify-content-center align-items-start"
                         style="max-width: none !important; width: fit-content;">
                         <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center" -->
-                        <div class="d-flex flex-row justify-content-center align-items-center"
+                        <div class="d-flex flex-row justify-content-center align-items-center col-12"
                           style="max-width: none !important; width: fit-content;">
-                          <button matTooltip="Info about the layer" matTooltipPosition="left" class="no-border-button-icon"><mat-icon fxFlex="90"
+                          <button (click)="openTableDialog(node.name['id'], node.name['title'], node)" matTooltip="Info about the layer" matTooltipPosition="left"
+                            style="background-color: #F0F0F0;" class="col-1 border btn btn-xs btn-icon ms-1 d-flex flex-row justify-content-center align-items-center">
+                            <mat-icon class="col-12"
                               [ngStyle]="{'color': 'blue'}"
-                              (click)="openTableDialog(node.name['id'], node.name['title'], node)">info</mat-icon></button>
-                          <mat-radio-button fxFlex [value]="node"
+                              >info</mat-icon>
+                          </button>
+                          <mat-radio-button [value]="node"
                             (change)="getMeta(node.name['id']); getSelectedNode(node); addToActiveLayers(node)">{{node.name["title"]}}</mat-radio-button>
 
                         </div>
@@ -287,13 +291,21 @@
             <!-- <div fxFlex="25" fxLayout="row" fxLayoutAlign="space-evenly center"> -->
             <div class="d-flex flex-row justify-content-center align-items-center col-3 gap-1">
               <!-- <button fxFlex="40" matTooltip="Info about the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'blue'}" -->
-              <button matTooltip="Info about the layer" class="no-border-button-icon col-6"><mat-icon [ngStyle]="{'color': 'blue'}"
-                  (click)="openTableDialog()">info</mat-icon>
+              <!-- <button mat-raised-button color="disabled" (click)="openTableDialog()" matTooltip="Info about the layer" class="no-border-button-icon w-50"><mat-icon [ngStyle]="{'color': 'blue'}"
+                  >info</mat-icon>
+              </button> -->
+              <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
+              (click)="openTableDialog()" matTooltip="Info about the layer">
+                <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
+              </button>
+              <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
+              (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
+              <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
               </button>
               <!-- <button fxFlex="40" matTooltip="Remove the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'red'}" -->
-              <button matTooltip="Remove the layer" class="no-border-button-icon col-6"><mat-icon [ngStyle]="{'color': 'red'}"
-                  (click)="deleteLayer(); deleteElActiveLayers()">delete</mat-icon>
-              </button>
+              <!-- <button (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"><mat-icon [ngStyle]="{'color': 'red'}"
+                  >delete</mat-icon>
+              </button> -->
 
             </div>
           </div>
