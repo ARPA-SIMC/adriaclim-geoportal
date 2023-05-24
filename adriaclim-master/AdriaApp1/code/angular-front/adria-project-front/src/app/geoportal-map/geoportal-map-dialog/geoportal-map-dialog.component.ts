@@ -54,6 +54,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   stepDate: any;
   stepMilliseconds: any;
   variable: any;
+  confronto: any;
   range: any;
   arrayVariable: any;
   extraParamExport: any;
@@ -296,6 +297,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.datasetId = data.datasetId;
     this.datasetName = data.datasetName;
     this.openGraph = data.openGraph;
+    this.confronto = data.confronto;
 
     this.dataset = data.dataset;
     this.latlng = data.latlng;

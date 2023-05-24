@@ -264,13 +264,14 @@
           <mat-card-title class="bolder-title">Active layer</mat-card-title>
         </mat-card-header>
         <!-- <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center" class="mat-card-active"> -->
-        <mat-card-content style="height: 100%;" class="mat-card-active d-flex flex-row flex-wrap justify-content-center align-items-center col-12">
+        <mat-card-content style="height: 100%;" class="mat-card-active row p-0 col-12">
           <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
           <!-- <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px"> -->
-          <div class="d-flex flex-row justify-content-between align-items-center col-12 edit-icon-size">
+          <!-- <div class="d-flex flex-row justify-content-start align-items-center col-12 edit-icon-size gap-3"> -->
+          <div class="row justify-content-start">
 
             <!-- <div fxFlex fxLayout="row" class="menu-var" fxLayoutAlign="center center"> -->
-            <div class="menu-var col-8 d-flex flex-row justify-content-center align-items-center">
+            <div class="menu-var d-flex flex-row justify-content-center align-items-center col">
               <!-- <form [formGroup]="selData" fxFlex> -->
               <form [formGroup]="selData" class="col-12">
 
@@ -289,16 +290,23 @@
 
             </div>
             <!-- <div fxFlex="25" fxLayout="row" fxLayoutAlign="space-evenly center"> -->
-            <div class="d-flex flex-row justify-content-center align-items-center col-3 gap-1">
+            <div class="d-flex flex-row justify-content-center align-items-center col-4 gap-1">
               <!-- <button fxFlex="40" matTooltip="Info about the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'blue'}" -->
               <!-- <button mat-raised-button color="disabled" (click)="openTableDialog()" matTooltip="Info about the layer" class="no-border-button-icon w-50"><mat-icon [ngStyle]="{'color': 'blue'}"
                   >info</mat-icon>
               </button> -->
-              <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
+              <div [matTooltip]="activeLayersArray.length < 2 ? 'Please select two datasets for compare' : 'Compare two datasets'">
+                <button style="background-color: #F0F0F0;" class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
+                (click)="compareDialogModal()" [disabled]="activeLayersArray.length < 2">
+                  <mat-icon class="col-12">compare_arrows</mat-icon>
+                </button>
+
+              </div>
+              <button style="background-color: #F0F0F0;" class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
               (click)="openTableDialog()" matTooltip="Info about the layer">
                 <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
               </button>
-              <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
+              <button style="background-color: #F0F0F0;" class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
               (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
               <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
               </button>

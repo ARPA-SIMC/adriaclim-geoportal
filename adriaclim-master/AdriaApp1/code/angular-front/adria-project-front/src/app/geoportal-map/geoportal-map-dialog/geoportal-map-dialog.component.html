@@ -106,15 +106,24 @@
                   </section>
                 </div>
               </div>
-              <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
-                (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
-                (statisticCalc)="statisticCalc($event)"
-                class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
-                [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
-                [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"
-                [extraParam]="extraParamExport" [enableArea]="form.get('enableArea')?.value"
-                [circleCoords]="circleCoords"
-                [context]="'one'"></app-canvas-graph>
+              <!-- <ng-container *ngIf="confronto; else noConfronto">
+                <app-canvas-graph-compare></app-canvas-graph-compare>
+              </ng-container> -->
+               <!-- <ng-template #noConfronto> -->
+                <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
+                  (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
+                  (statisticCalc)="statisticCalc($event)"
+                  class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
+                  [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
+                  [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"
+                  [extraParam]="extraParamExport" [enableArea]="form.get('enableArea')?.value"
+                  [circleCoords]="circleCoords"
+                  [context]="'one'">
+                </app-canvas-graph>
+
+              <!-- </ng-template> -->
+
+
               <!-- <ng-template matTabContent> -->
 
               <!-- </ng-template> -->

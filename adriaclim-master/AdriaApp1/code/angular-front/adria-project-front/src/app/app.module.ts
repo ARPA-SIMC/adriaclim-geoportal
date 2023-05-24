@@ -53,6 +53,8 @@ import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 import { GeoportalColorDialogComponent } from './geoportal-map/geoportal-color-dialog/geoportal-color-dialog.component';
 import { InfoPageComponent } from './info-page/info-page.component';
+import { CanvasGraphCompareComponent } from './geoportal-map/canvas-graph-compare/canvas-graph-compare.component';
+import { GeoportalCompareDialogComponent } from './geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 registerLocaleData(localeFr);
 registerLocaleData(localeIt);
 
@@ -63,7 +65,7 @@ registerLocaleData(localeIt);
     GeoportalMapDialogComponent,
     FilterPipe, //added pipe filter
     HighlightDirective, //added directive highlight
-    CanvasGraphComponent, GeoportalColorDialogComponent, InfoPageComponent
+    CanvasGraphComponent, GeoportalColorDialogComponent, InfoPageComponent, CanvasGraphCompareComponent, GeoportalCompareDialogComponent
   ],
   imports: [
     BrowserModule,

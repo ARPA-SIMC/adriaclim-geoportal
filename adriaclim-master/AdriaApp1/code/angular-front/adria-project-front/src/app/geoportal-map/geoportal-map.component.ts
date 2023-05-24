@@ -17,6 +17,8 @@ import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-ma
 import { HttpService } from '../services/http.service';
 import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
 import { GeoportalColorDialogComponent } from './geoportal-color-dialog/geoportal-color-dialog.component';
+import { GeoportalCompareDialogComponent } from './geoportal-compare-dialog/geoportal-compare-dialog.component';
+
 // import "leaflet/dist/leaflet.css";
 
 /**
@@ -179,6 +181,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   clickPointOnOff: boolean = false;
   clickPolygonOnOff: boolean = false;
+  confronto: boolean = false;
 
   metadata: any;
   dateStart: any;
@@ -234,6 +237,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   navigateDateRightMonth = true;
   navigateDateLeftSeason = false;
   navigateDateRightSeason = true;
+
+  datasetCompare: any = null;
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService) {
     this.selData = new FormGroup({
@@ -2070,57 +2075,101 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       });
     }
 
-    let dataId: any;
+
+    // if(this.confronto) {
+    //   // firstDataset: this.form.get('firstDataset')?.value,
+    //   // secondDataset: this.form.get('secondDataset')?.value,
+    //   // firstVarSel: this.form.get('variableFirstData')?.value,
+    //   // secondVarSel: this.form.get('variableSecondData')?.value,
+    //   let dataId = this.datasetCompare.firstDataset.name.dataset_id;
+    //   let title = this.datasetCompare.firstDataset.name.title;
+    //   let firstDataset = this.datasetCompare.firstDataset;
+    //   let secondDataset = this.datasetCompare.secondDataset;
+    //   let firstVariable = this.datasetCompare.firstVarSel;
+    //   let secondVariable = this.datasetCompare.secondVarSel;
+
+    //   dialogConfig.data = {
+    //     success: true,
+    //     datasetId: dataId,
+    //     datasetName: title,
+    //     confronto: this.confronto,
+    //     firstDataset: firstDataset,
+    //     seconddataset: secondDataset,
+    //     latlng: this.coordOnClick,
+    //     firstVariable: firstVariable,
+    //     secondVariable: secondVariable,
+
+    //     dateStart: this.dateStart,
+    //     dateEnd: this.dateEnd,
+
+    //     // arrayVariable: this.variableArray,
+    //     // range: this.value,
+    //     openGraph: true,
+    //     // extraParamExport: this.extraParamExport,
+    //     // polyExport: polygon ? polygon[0].pol.getBounds() : null,
+    //     // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
+    //     // polName: polygon ? polygon[0].polName : null,
+    //     // circleCoords: this.circleCoords,
+    //     isIndicator: this.isIndicator ? "true" : "false",
+    //   };
 
 
-    if (this.selData.get("dataSetSel")?.value) {
 
-      // CASO DATASET SELEZIONATO
-      let title = this.selData.get("dataSetSel")?.value.name.title;
 
-      if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
-        dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+    // }
+    // else {
+      let dataId: any;
+      if (this.selData.get("dataSetSel")?.value) {
+
+        // CASO DATASET SELEZIONATO
+        let title = this.selData.get("dataSetSel")?.value.name.title;
+
+        if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
+          dataId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+        }
+        else if (this.selData.get("dataSetSel")?.value.name.id) {
+          dataId = this.selData.get("dataSetSel")?.value.name.id;
+
+        }
+        let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
+        splittedVar = splittedVar[splittedVar.length - 1];
+
+        if (lat) {
+          this.coordOnClick = { "lat": lat, "lng": lng };
+        }
+
+        dialogConfig.data = {
+          success: true,
+          datasetId: dataId,
+          datasetName: title,
+          confronto: this.confronto,
+          dataset: this.selData.get("dataSetSel")?.value.name,
+          latlng: this.coordOnClick,
+          dateStart: this.dateStart,
+          dateEnd: this.dateEnd,
+          variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+          arrayVariable: this.variableArray,
+          range: this.value,
+          openGraph: true,
+          extraParamExport: this.extraParamExport,
+          polyExport: polygon ? polygon[0].pol.getBounds() : null,
+          polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
+          polName: polygon ? polygon[0].polName : null,
+          circleCoords: this.circleCoords,
+          isIndicator: this.isIndicator ? "true" : "false",
+        };
+
       }
-      else if (this.selData.get("dataSetSel")?.value.name.id) {
-        dataId = this.selData.get("dataSetSel")?.value.name.id;
-
-      }
-      let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
-      splittedVar = splittedVar[splittedVar.length - 1];
-
-      if (lat) {
-        this.coordOnClick = { "lat": lat, "lng": lng };
+      else {
+        //CASO DATASET NON SELEZIONATO
+        dialogConfig.data = {
+          success: true,
+          description: "Select a dataset to visualize the graph",
+          openGraph: true,
+        };
       }
 
-      dialogConfig.data = {
-        success: true,
-        datasetId: dataId,
-        datasetName: title,
-        dataset: this.selData.get("dataSetSel")?.value.name,
-        latlng: this.coordOnClick,
-        dateStart: this.dateStart,
-        dateEnd: this.dateEnd,
-        variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-        arrayVariable: this.variableArray,
-        range: this.value,
-        openGraph: true,
-        extraParamExport: this.extraParamExport,
-        polyExport: polygon ? polygon[0].pol.getBounds() : null,
-        polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-        polName: polygon ? polygon[0].polName : null,
-        circleCoords: this.circleCoords,
-        isIndicator: this.isIndicator ? "true" : "false",
-      };
-
-    }
-    else {
-      //CASO DATASET NON SELEZIONATO
-      dialogConfig.data = {
-        success: true,
-        description: "Select a dataset to visualize the graph",
-        openGraph: true,
-      };
-    }
+    // }
 
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
 
@@ -2365,6 +2414,28 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     };
 
     this.legendNoWms.addTo(this.map);
+
+  }
+  compareDialogModal = () => {
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    //dobbiamo passargli la lista dei layers attivi!
+    dialogConfig.data = {
+      activeLayersArray: this.activeLayersArray,
+    };
+
+    const dialogRef = this.dialog.open(GeoportalCompareDialogComponent, dialogConfig);
+    //prendere i due layers selezionati!
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result != ""){
+        console.log("result =", result);
+        this.datasetCompare = result;
+        this.confronto = true;
+        this.pointSelect();
+      }
+    })
 
   }
 

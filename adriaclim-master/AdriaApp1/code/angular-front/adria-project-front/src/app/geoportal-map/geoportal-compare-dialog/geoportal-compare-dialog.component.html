@@ -1,0 +1,73 @@
+<form [formGroup]="form" style="width: 500px;">
+
+    <h1 mat-dialog-title><span class="info-title-dialog">Compare Two Datasets</span></h1>
+    <!-- <h1 *ngIf="!description && openGraph" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1> -->
+    <!-- <div *ngIf="success; else ok"> -->
+    <!-- <div> -->
+      <!-- <div mat-dialog-content class="choose-color-flex col-12"> -->
+      <div mat-dialog-content class="col-12">
+
+        <div class="row">
+          <mat-form-field appearance="fill" class="col-12">
+            <mat-label>Select first dataset</mat-label>
+            <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
+            <mat-select formControlName="firstDataset" (selectionChange)="getSelectedVarFirstDataset()">
+              <mat-option *ngFor="let a of activeLayersArray" [value]="a">
+                {{a.name.title}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        </div>
+        <div class="row">
+          <mat-form-field appearance="fill" class="col-12">
+            <mat-label>Select variable</mat-label>
+            <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
+            <mat-select formControlName="variableFirstData">
+              <mat-option *ngFor="let a of firstDatasetVariables" [value]="a">
+                {{a}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        </div>
+        <div class="row">
+          <mat-form-field appearance="fill" class="col-12">
+            <mat-label>Select second dataset</mat-label>
+            <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
+            <mat-select formControlName="secondDataset" (selectionChange)="getSelectedVarSecondDataset()">
+              <mat-option *ngFor="let a of activeLayersArray" [value]="a">
+                {{a.name.title}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        </div>
+        <div class="row">
+          <mat-form-field appearance="fill" class="col-12">
+            <mat-label>Select variable</mat-label>
+            <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
+            <mat-select formControlName="variableSecondData">
+              <mat-option *ngFor="let a of secondDatasetVariables" [value]="a">
+                {{a}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        </div>
+
+
+
+      </div>
+
+      <!-- <mat-dialog-actions fxLayoutAlign="center center"> -->
+      <mat-dialog-actions class="row justify-content-center">
+
+        <button mat-raised-button color="primary" class="col-3" (click)="compareDatasets()">Ok</button>
+        <button mat-raised-button color="accent" class="col-3" (click)="close()">Cancel</button>
+
+      </mat-dialog-actions>
+    <!-- </div> -->
+
+
+  </form>
