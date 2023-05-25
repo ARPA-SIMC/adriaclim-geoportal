@@ -295,13 +295,13 @@
               <!-- <button mat-raised-button color="disabled" (click)="openTableDialog()" matTooltip="Info about the layer" class="no-border-button-icon w-50"><mat-icon [ngStyle]="{'color': 'blue'}"
                   >info</mat-icon>
               </button> -->
-              <div [matTooltip]="activeLayersArray.length < 2 ? 'Please select two datasets for compare' : 'Compare two datasets'">
+              <!-- <div [matTooltip]="activeLayersArray.length < 2 ? 'Please select two datasets for compare' : 'Compare two datasets'">
                 <button style="background-color: #F0F0F0;" class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
                 (click)="compareDialogModal()" [disabled]="activeLayersArray.length < 2">
                   <mat-icon class="col-12">compare_arrows</mat-icon>
                 </button>
 
-              </div>
+              </div> -->
               <button style="background-color: #F0F0F0;" class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
               (click)="openTableDialog()" matTooltip="Info about the layer">
                 <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
