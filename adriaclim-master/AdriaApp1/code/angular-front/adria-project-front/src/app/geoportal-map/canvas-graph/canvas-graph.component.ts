@@ -536,6 +536,7 @@ optionBoxPlot: any = {
 
   }
 
+
   ngOnInit() {
     this.isLoading = true;
 
@@ -646,10 +647,13 @@ getDataGraphPolygonInterval() {
       circleCoords: this.circleCoords,
 
     }
+    console.log("data =", data);
 
     // send HTTP POST request to Django view function
     if(this.statistic !== "boxPlot") {
       this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
+        console.log("PRIMA RESPONSE", response);
+
         // extract task ID from response
         let data = {
           task_id: response.task_id,
@@ -659,16 +663,25 @@ getDataGraphPolygonInterval() {
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
           // console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
-          this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
+          // console.log("PRIMA DEL CHECK");
+
+          // this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
+          this.httpService.post('test/check_task_status',data).subscribe({
+          next: (res: any) => {
+            console.log("SECONDA RESPONSE", res);
+
             // console.log("response",response);
-            let task_status = response.dataVect.status;
+            // console.log("SONO DENTRO IL CHECK");
+
+            let task_status = res.dataVect.status;
+            // console.log("task_status =", task_status);
 
             // console.log("task_status =", task_status);
             if (task_status === 'SUCCESS') {
               clearInterval(checkTaskStatus);
               // task completed successfully, extract and display result
               let task_result = {
-                dataVect: response.dataVect.result,
+                dataVect: res.dataVect.result,
               };
               // console.log('Task result:', task_result);
               this.getDataGraphPolygon(task_result);
@@ -683,6 +696,11 @@ getDataGraphPolygonInterval() {
               console.error('Task error:', task_error);
 
             }
+          },
+
+          error: (err: any) => {
+            console.log("ERROR =", err);
+          }
           });
         }, 2000);
       });
@@ -692,14 +710,36 @@ getDataGraphPolygonInterval() {
     }
   }
 
+
+  zoomFunctionGraph(allDates: any,dataBeforeOp:any){
+
+      let valuesFiltered = dataBeforeOp.map((element:any, index:any) => {
+        if (element.date_value && allDates.includes(element.date_value) && element.value_0 !== undefined){
+          return {"date": element.date_value, "value": element.value_0};
+        }
+        else {
+          return undefined;
+
+        }
+      })
+      valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
+      // console.log("valuesFiltered after filer zoom:",valuesFiltered);
+      this.statisticCalc.emit({
+        dates: allDates,
+        values: valuesFiltered
+      })
+
+  }
+
   getDataGraphPolygon(response:any) {
+
           if (typeof response == 'string') {
             response = JSON.parse(response);
           }
           // console.log("RES DOPO IL PARSE =", response);
 
           let allDataPolygon = response['dataVect'];
-          //console.log("allDataPolygon", allDataPolygon);
+          // console.log("allDataPolygon", allDataPolygon);
           let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
 
           let allDates = _.cloneDeep([...dataBeforeOp]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
@@ -709,34 +749,32 @@ getDataGraphPolygonInterval() {
           })
           allDates = [...new Set(allDates)]; //abbiamo solo le date 20!
           //se di queste usiamo lo zoom e prendiamo le date che stanno nello zoom effettuato
+          this.zoomFunctionGraph(allDates, dataBeforeOp);
           this.myChart.on('dataZoom', () => {
-            // console.log("PARAMS: ", params);
             let option = this.myChart.getOption();
             // console.log("OPTIONSSSSSS =", option);
             this.startZoom = option.dataZoom[0].startValue;
             this.endZoom = option.dataZoom[0].endValue;
             let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom],allDates[this.endZoom]));
-
-            //console.log("Arraydate after filer zoom:",arrayDate);
-            let valuesFiltered = dataBeforeOp.map((element:any, index:any) => {
-              if (element.date_value && arrayDate.includes(element.date_value) && element.value_0 !== undefined){
-                return {"date": element.date_value, "value": element.value_0};
-              }
-              else {
-                return undefined;
-
-              }
-            })
-            valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
-            // console.log("valuesFiltered after filer zoom:",valuesFiltered);
-            this.statisticCalc.emit({
-              dates: arrayDate,
-              values: valuesFiltered
-            })
+            this.zoomFunctionGraph(arrayDate,dataBeforeOp);
 
           });
+          // this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
+          console.log("allDataPolygon", allDataPolygon);
 
           this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
+          let arrayDataDate = allDataPolygon.dataPol.map((el: any) => {
+            return el["x"]
+          });
+          // arrayDataDate = [...new Set(arrayDataDate)];
+          let arrayDataValue = allDataPolygon.dataPol.map((el: any) => {
+            return el["y"]
+          });
+          // arrayDataValue = [...new Set(arrayDataValue)];
+          this.statisticCalc.emit({
+            dates: arrayDataDate,
+            values: arrayDataValue
+          });
 
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
@@ -857,12 +895,12 @@ getDataGraphPolygonInterval() {
             tooltip: {
               trigger: 'axis',
               formatter: (paramsFormatter: any) => {
-                console.log("PARAMS FORMATTER =", paramsFormatter);
+                // console.log("PARAMS FORMATTER =", paramsFormatter);
 
                 const tooltipHTML = paramsFormatter.map((param: any) => {
                   let value: any = Number(param.value);
-                  console.log("VALUE =", value);
-                  console.log("VALUE TYPE =", typeof value);
+                  // console.log("VALUE =", value);
+                  // console.log("VALUE TYPE =", typeof value);
 
                   if (value > 10000 || value < 0.001 && value !== 0) {
                     value = value.toExponential().replace(/e\+?/, ' x 10^');

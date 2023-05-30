@@ -431,8 +431,10 @@ def check_task_status(request):
     try:
         task = AsyncResult(request.data.get('task_id'))
         response = {'status': task.status}
+        print("Task status",task.status)
         if task.status == 'SUCCESS':
             response['result'] = task.result
+            # print("response============",response)
         return JsonResponse({"dataVect":response})
     except Exception as e:
         print("Eccezione check_task_status",e)

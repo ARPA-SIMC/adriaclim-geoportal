@@ -2137,6 +2137,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         if (lat) {
           this.coordOnClick = { "lat": lat, "lng": lng };
         }
+        console.log("POLYGON =", polygon);
 
         dialogConfig.data = {
           success: true,
@@ -2158,6 +2159,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           circleCoords: this.circleCoords,
           isIndicator: this.isIndicator ? "true" : "false",
         };
+
+        console.log("RANGE =", this.value);
+        console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
+
+
 
       }
       else {

@@ -1,4 +1,5 @@
 from celery import shared_task
+import numpy as np
 
 @shared_task
 def task_get_data_polygon(request_data):

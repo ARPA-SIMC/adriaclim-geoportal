@@ -1452,10 +1452,8 @@ def getDataGraphicGeneric(
 def calculate_trend(dates, values):
     try:
         y = np.array(values)
-        if len(dates) == 4:
-            #annual
-            dates = [dt.datetime.strptime("2000-1-" + d, "%Y-%d-%m") for d in dates]
-        elif type(dates[0]) is str:
+        print("Dates==========",dates)
+        if type(dates[0]) is str:
             if dates[0].startswith("0000"):
                 #annual month by month
                 dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%dT%H:%M:%SZ") for d in dates]
@@ -1490,7 +1488,7 @@ def updateStatistics(new_dates,new_values):
             allData["median"] = median(df_stats["value"].tolist())
             mean_trend = df_stats.groupby("date")["value"].mean().tolist()
             df_stats = df_stats.drop_duplicates(subset=["date"], keep="first") 
-            df_stats["date"] = pd.to_datetime(df_stats["date"])
+            # df_stats["date"] = pd.to_datetime(df_stats["date"])
             allData["trend"] = calculate_trend(df_stats["date"].tolist(),mean_trend)
 
         return allData
@@ -2433,6 +2431,7 @@ def getDataPolygonNew(
 ):
     start_time = time.time()
     print("STARTED GETDATAPOLYGONNEW!")
+    print("Parametro_agg======",parametro_agg)
     vertices = []
     vertices_geos_poly = []
 
@@ -2468,8 +2467,15 @@ def getDataPolygonNew(
         #prendere tutti i dati memorizzati nella cache ed elaborarli e passarli al frontend
         pol_from_cache = json.loads(cache_result)
         dataframe_from_dict = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"])
+        dataframe_from_dict = dataframe_from_dict.dropna(how="any")
         dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
+        if parametro_agg != "None":
+            pol_from_cache["dataTable"][0][parametro_agg] = (
+                pol_from_cache["dataTable"][0][parametro_agg]
+                if not pd.isna(pol_from_cache["dataTable"][0][parametro_agg])
+                else "Value not defined"
+                ) 
         return pol_from_cache
 
     else:
@@ -2494,7 +2500,7 @@ def getDataPolygonNew(
                     data_table[layer_name] = pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
                     
                     if parametro_agg != "None":
-                        data_table[parametro_agg] = pol.parametro_agg
+                        data_table[parametro_agg] = pol.parametro_agg if not pd.isna(pol.parametro_agg) else "Value not defined"
                     data_table_list.append(data_table)
                         
                         
@@ -2656,7 +2662,11 @@ def getDataPolygonNew(
                                 dat_tab["time"] = row["time"]
                                 dat_tab["latitude"] = row["latitude"]
                                 dat_tab["longitude"] = row["longitude"]
-                                dat_tab[parametro_agg] = row[parametro_agg]
+                                dat_tab[parametro_agg] = (
+                                    row[parametro_agg]
+                                    if not pd.isna(row[parametro_agg])
+                                    else "Value not defined"
+                                )
                                 dat_tab[layer_name] = (
                                     row[layer_name]
                                     if not pd.isna(row[layer_name])
@@ -2670,7 +2680,11 @@ def getDataPolygonNew(
                                 dat_tab["time"] = convertToTime(row["time"])
                                 dat_tab["latitude"] = row["latitude"]
                                 dat_tab["longitude"] = row["longitude"]
-                                dat_tab[parametro_agg] = row[parametro_agg]
+                                dat_tab[parametro_agg] = (
+                                    row[parametro_agg]
+                                    if not pd.isna(row[parametro_agg])
+                                    else "Value not defined"
+                                )
                                 dat_tab[layer_name] = (
                                     row[layer_name]
                                     if not pd.isna(row[layer_name])

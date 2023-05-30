@@ -490,6 +490,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         variable: this.variable,
         range: this.range ? Math.abs(this.range) : null
       }
+      console.log("RANGE IN DIALOG ======", this.range);
+
 
       // console.log("RANGE IN GETGRAPHTABLE======",this.range);
       //console.log("DATA IN GETGRAPHTABLE======", data);
@@ -503,6 +505,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             response = JSON.parse(response);
           }
           this.dataTable = response;
+          console.log("datatable graph =======", this.dataTable);
+
 
 
           this.displayedColumns = this.dataTable.data.table.columnNames;
@@ -698,13 +702,13 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     //console.log("EVENT", event);
     // this.spinnerLoading = false;
     this.dataTable = event;
-    //console.log("datatable graph=======", this.dataTable);
+    // console.log("datatable graph=======", this.dataTable);
 
     this.displayedColumns = Object.keys(this.dataTable[0]);
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
-    // //console.log("lastCol", lastCol);
+    // console.log("lastCol", lastCol);
     let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
-    //console.log("dim_unit", dim_unit);
+    // console.log("dim_unit", dim_unit);
     if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string" ) {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
     }
@@ -756,12 +760,71 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   meanMedianStdev(event: any){
     let mean_median_stdev = event.split("_");
-    //console.log("mean_median_stdev = ", mean_median_stdev)
-    this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
-    this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
-    this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
+    console.log("SONO DENTRO MEAN MEDIAN STDEV EVENT");
+    console.log("mean_median_stdev = ", mean_median_stdev);
 
-    this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    //console.log("mean_median_stdev = ", mean_median_stdev)
+    // this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
+    // this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
+    // this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
+    this.expoFormat(mean_median_stdev);
+    // this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');;
+    // this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');;
+    // this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');;
+
+    // this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    // if(this.meanValue.includes("x 10^0")) {
+    //   this.meanValue = this.meanValue.replace("x 10^0", "");
+
+    // }
+    // if(this.medianValue.includes("x 10^0")) {
+    //   this.medianValue = this.medianValue.replace("x 10^0", "");
+
+    // }
+    // if(this.stdevValue.includes("x 10^0")){
+    //   this.stdevValue = this.stdevValue.replace("x 10^0", "");
+
+    // }
+    // if(this.trendValue.includes("x 10^0")) {
+    //   this.trendValue = this.trendValue.replace("x 10^0", "");
+    // }
+  }
+
+  expoFormat(mean_median_stdev: any) {
+    //caso media
+    this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
+    this.medianValue = Number(mean_median_stdev[1]).toFixed(3);
+    this.stdevValue = Number(mean_median_stdev[2]).toFixed(3);
+    this.trendValue = Number(mean_median_stdev[3]).toFixed(3);
+    if (this.meanValue > 10000 || this.meanValue < 0.001 && this.meanValue != 0){
+      this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    }
+    if (this.medianValue > 10000 || this.medianValue < 0.001 && this.medianValue != 0){
+      this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    }
+    if (this.stdevValue > 10000 || this.stdevValue < 0.001 && this.stdevValue != 0){
+      this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    }
+    if (this.trendValue > 10000 || this.trendValue < 0.001 && this.trendValue != 0){
+      this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    }
+    // this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    // this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    // this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+
+    // this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    if(this.meanValue.includes("x 10^0")) {
+      this.meanValue = this.meanValue.replace("x 10^0", "");
+
+    }
+    if(this.medianValue.includes("x 10^0")) {
+      this.medianValue = this.medianValue.replace("x 10^0", "");
+
+    }
+    if(this.stdevValue.includes("x 10^0")){
+      this.stdevValue = this.stdevValue.replace("x 10^0", "");
+
+    }
     if(this.trendValue.includes("x 10^0")) {
       this.trendValue = this.trendValue.replace("x 10^0", "");
     }
@@ -773,8 +836,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   statisticCalc(event: any) {
+    // console.log("before event:",this.statCalc);
     this.statCalc = event;
-    // console.log("statisticCalc", this.statCalc);
+    this.calcStatistics();
+    console.log("STAT CALC =", this.statCalc);
+
+    // this.calcStatistics();
   }
 
   calcStatistics() {
@@ -782,16 +849,20 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       dates : this.statCalc.dates,
       values: this.statCalc.values,
     }
+    console.log("data", data);
+
     this.httpService.post('test/updateStatistics', data).subscribe({
       next: (res: any) => {
         // console.log("res", res);
-        this.meanValue = res.newValues.mean.toFixed(3);
-        this.medianValue = res.newValues.median.toFixed(3);
-        this.stdevValue = res.newValues.stdev.toFixed(3);
-        this.trendValue = res.newValues.trend.toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-        if(this.trendValue.includes("x 10^0")) {
-          this.trendValue = this.trendValue.replace("x 10^0", "");
-        }
+        // this.meanValue = res.newValues.mean.toFixed(3);
+        // this.medianValue = res.newValues.median.toFixed(3);
+        // this.stdevValue = res.newValues.stdev.toFixed(3);
+        // this.trendValue = res.newValues.trend.toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+        // if(this.trendValue.includes("x 10^0")) {
+        //   this.trendValue = this.trendValue.replace("x 10^0", "");
+        // }
+        let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
+        this.expoFormat(mean_median_stdev);
       },
 
       error: (err: any) => {
