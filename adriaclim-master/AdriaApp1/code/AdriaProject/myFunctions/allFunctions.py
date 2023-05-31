@@ -1449,21 +1449,60 @@ def getDataGraphicGeneric(
     except Exception as e:
         return "fuoriWms"
 
+
+def check_dates_format_trend(dates):
+    #gestire tutti i possibili formati delle date per i trend!!!!!!!!!
+    if type(dates[0]) is str:
+        if dates[0].startswith("0000"):
+                #annual month by month point
+            for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
+                try:
+                    dates = [dt.datetime.strptime(d.replace("0000","2000"), fmt) for d in dates]
+                except ValueError:
+                    pass
+                # dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%d") for d in dates]
+        elif len(dates[0].split("-")) == 2: #01-01 1 gennaio 2000-01-01
+                 #annual day by day point
+            for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
+                try:
+                    dates = [dt.datetime.strptime("2000-" + d, fmt) for d in dates]
+                except ValueError:
+                    pass
+        elif dates[0] == "Jan":
+                #annual month by month polygon
+            create_dates = []
+            for d in dates:
+            #annual month by month polygon
+                for key, val in months.items():
+                    if val ==  d:
+                        month_number = key
+                        create_dates.append(dt.datetime.strptime("2000-01-" + str(month_number), "%Y-%d-%m"))
+
+            dates = list(create_dates)
+        elif dates[0] == "Winter" or dates[0] == "Spring" or dates[0] == "Summer" or dates[0] == "Autumn":
+            #annual season by season polygon
+            create_dates = []
+            for d in dates:
+                for key, val in seasons.items():
+                    if val == d:
+                        season_number = key
+                        create_dates.append(dt.datetime.strptime("2000-01-" + str(season_number), "%Y-%d-%m"))
+            
+            dates = list(create_dates)
+        else:
+            for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
+                try:
+                    dates = [dt.datetime.strptime(str(d), fmt) for d in dates]
+                except ValueError:
+                    pass
+             
+    return dates
+
 def calculate_trend(dates, values):
     try:
         y = np.array(values)
         print("Dates==========",dates)
-        if type(dates[0]) is str:
-            if dates[0].startswith("0000"):
-                #annual month by month
-                dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%dT%H:%M:%SZ") for d in dates]
-            elif len(dates[0].split("-")) == 2: #01-01 1 gennaio 2000-01-01
-                 #annual day by day
-                 dates = [dt.datetime.strptime("2000-" + d, "%Y-%d-%m") for d in dates]
-            else:
-            #è una stringa!
-                dates = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in dates]
-       
+        dates = check_dates_format_trend(dates)
         days = np.array([d.timestamp() for d in dates])
         # esegue la regressione lineare
         slope, intercept, r_value, p_value, std_err = stats.linregress(days,y)
@@ -2323,6 +2362,7 @@ def convertToTime(date_str):
     return dt.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
 
 
+
 def operation_before_after_cache(df_polygon, statistic, time_op):
     try:
         ops = {
@@ -2357,7 +2397,8 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         )  # AGG IS USED TO APPLY AN AGGREGATE FUNCTION
         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
         if time_op == "default":
-            list_time = list(res_values.index.strftime("%d/%m/%Y"))
+            # list_time = list(res_values.index.strftime("%d/%m/%Y"))
+            list_time = list(res_values.index.strftime('%Y-%m-%dT%H:%M:%SZ'))
         elif time_op == "annualMonth":
             list_time = [months[index] for index in res_values.index.tolist()]
         elif time_op == "annualDay":
@@ -2470,6 +2511,21 @@ def getDataPolygonNew(
         dataframe_from_dict = dataframe_from_dict.dropna(how="any")
         dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
+
+        # a seconda del valore di operation e di time_op viene fatta l'operazione7
+        # df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
+        # pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
+        # # date_value_to_list = pol_from_cache_dataframe.copy()
+        # # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
+        # # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
+        # trend_value = calculate_trend(pol_from_cache_dataframe["x"].tolist(),pol_from_cache_dataframe["y"].tolist())
+        # mean = pol_from_cache_dataframe["y"].mean()
+        # median = pol_from_cache_dataframe["y"].median()
+        # std_dev = pol_from_cache_dataframe["y"].std()
+        # pol_from_cache["mean"] = mean
+        # pol_from_cache["median"] = median
+        # pol_from_cache["stdev"] = std_dev
+        # pol_from_cache["trend_yr"] = trend_value
         if parametro_agg != "None":
             pol_from_cache["dataTable"][0][parametro_agg] = (
                 pol_from_cache["dataTable"][0][parametro_agg]

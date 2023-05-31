@@ -519,9 +519,10 @@ optionBoxPlot: any = {
 
     if (this.polygon) {
       //se c'è il poligono chiamare altra funzione
-        this.spinnerLoadingChild.emit(true);
+      this.spinnerLoadingChild.emit(true);
+      console.log("SONO NEL CHANGES CON POLYGON");
 
-        this.getDataGraphPolygonInterval();
+      this.getDataGraphPolygonInterval();
 
     } else {
       //se non c'è il poligono chiama this.getDataGraph() classica
@@ -652,7 +653,7 @@ getDataGraphPolygonInterval() {
     // send HTTP POST request to Django view function
     if(this.statistic !== "boxPlot") {
       this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
-        console.log("PRIMA RESPONSE", response);
+        // console.log("PRIMA RESPONSE", response);
 
         // extract task ID from response
         let data = {
@@ -668,7 +669,7 @@ getDataGraphPolygonInterval() {
           // this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
           this.httpService.post('test/check_task_status',data).subscribe({
           next: (res: any) => {
-            console.log("SECONDA RESPONSE", res);
+            // console.log("SECONDA RESPONSE", res);
 
             // console.log("response",response);
             // console.log("SONO DENTRO IL CHECK");
@@ -711,19 +712,34 @@ getDataGraphPolygonInterval() {
   }
 
 
-  zoomFunctionGraph(allDates: any,dataBeforeOp:any){
+  zoomFunctionGraph(allDates: any,dataInGraph:any){
 
-      let valuesFiltered = dataBeforeOp.map((element:any, index:any) => {
-        if (element.date_value && allDates.includes(element.date_value) && element.value_0 !== undefined){
-          return {"date": element.date_value, "value": element.value_0};
+    // versione nuova
+      let valuesFiltered = dataInGraph.map((element:any, index:any) => {
+        if (element.x && allDates.includes(element.x) && element.y !== undefined){
+          return element.y;
         }
         else {
           return undefined;
-
         }
       })
+
+      // versione vecchia
+      // let valuesFiltered = dataBeforeOp.map((element:any, index:any) => {
+      //   if (element.date_value && allDates.includes(element.date_value) && element.value_0 !== undefined){
+      //     return element.value_0;
+      //   }
+      //   else {
+      //     return undefined;
+      //   }
+      // })
+
+
+      // console.log("valuesFilter before filter:",valuesFiltered);
       valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
       // console.log("valuesFiltered after filer zoom:",valuesFiltered);
+      // console.log("valuesFiltered after filer zoom:",valuesFiltered);
+
       this.statisticCalc.emit({
         dates: allDates,
         values: valuesFiltered
@@ -739,30 +755,41 @@ getDataGraphPolygonInterval() {
           // console.log("RES DOPO IL PARSE =", response);
 
           let allDataPolygon = response['dataVect'];
-          // console.log("allDataPolygon", allDataPolygon);
-          let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
+          // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
+          // let dataBeforeOp = _.cloneDeep([...allDataPolygon["dataBeforeOp"]]) //abbiamo tutte le date e i valori
+          console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
+          // let dataPolygonDeep = _.cloneDeep([...allDataPolygon["dataPol"]]);
+          let dataInGraph = _.cloneDeep([...allDataPolygon["dataPol"]]);
+          // console.log("dataInGraph", dataInGraph);
+          let allDates = _.cloneDeep([...dataInGraph]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
 
-          let allDates = _.cloneDeep([...dataBeforeOp]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
-
-          allDates = allDates.map((el: any) => {
-            return el["date_value"]
+          allDates = dataInGraph.map((el: any) => {
+            return el.x;
           })
+
+          console.log("Before set=========",allDates);
           allDates = [...new Set(allDates)]; //abbiamo solo le date 20!
+          console.log("AllDates======",allDates);
           //se di queste usiamo lo zoom e prendiamo le date che stanno nello zoom effettuato
-          this.zoomFunctionGraph(allDates, dataBeforeOp);
+          //this.zoomFunctionGraph(allDates, dataBeforeOp);
           this.myChart.on('dataZoom', () => {
             let option = this.myChart.getOption();
-            // console.log("OPTIONSSSSSS =", option);
+            console.log("OPTIONSSSSSS =", option);
             this.startZoom = option.dataZoom[0].startValue;
             this.endZoom = option.dataZoom[0].endValue;
+            console.log("startZoom", this.startZoom, typeof this.startZoom);
+            console.log("endZoom", this.endZoom, typeof this.endZoom);
+
             let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom],allDates[this.endZoom]));
-            this.zoomFunctionGraph(arrayDate,dataBeforeOp);
+            console.log("arrayDate", arrayDate);
+
+            this.zoomFunctionGraph(arrayDate,dataInGraph);
 
           });
           // this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
           console.log("allDataPolygon", allDataPolygon);
 
-          this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
+          // this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
           let arrayDataDate = allDataPolygon.dataPol.map((el: any) => {
             return el["x"]
           });
@@ -775,7 +802,7 @@ getDataGraphPolygonInterval() {
             dates: arrayDataDate,
             values: arrayDataValue
           });
-
+          this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
 
@@ -957,6 +984,16 @@ getDataGraphPolygonInterval() {
           ]
           }
         }
+        console.log("ALL DATA POLY MEAN =", allDataPolygon.mean);
+        console.log("ALL DATA POLY MEDIAN =", allDataPolygon.median);
+        console.log("ALL DATA POLY STDEV =", allDataPolygon.stdev);
+        console.log("ALL DATA POLY TREND =", allDataPolygon.trend_yr);
+
+        console.log("ARRAY DATA DATE =", arrayDataDate);
+        console.log("ARRAY DATA VALUE =", arrayDataValue);
+
+
+
         this.dataTimeExport.emit(allDataPolygon.dataPol);
         this.spinnerLoadingChild.emit(false);
 
@@ -971,7 +1008,14 @@ getDataGraphPolygonInterval() {
 
 
   filterElement(min: any, max: any) {
-    return function (a: any) {return a >= min && a <= max; };
+    return function (a: any) {
+      console.log("A =", a);
+      let p = a >= min && a <= max;
+      console.log("P =", p);
+
+      // return a >= min && a <= max;
+      return p;
+    };
   }
 
   getDataGraph() {

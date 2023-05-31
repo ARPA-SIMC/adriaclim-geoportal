@@ -27,6 +27,8 @@ import { last } from 'lodash';
 })
 export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentChecked {
 
+
+
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -333,6 +335,13 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       typeSel: new FormControl(this.typeOfExport[0].type),
       varSelected: new FormControl(null, Validators.required),
       enableArea: new FormControl(false),
+
+      meanValue: new FormControl(null),
+      medianValue: new FormControl(null),
+      stdevValue: new FormControl(null),
+      trendValue: new FormControl(null),
+
+      prova: new FormControl(null),
       // minSliderDate: new FormControl(this.dateStart),
       // maxSliderDate: new FormControl(this.dateEnd),
       // minSlider
@@ -490,7 +499,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         variable: this.variable,
         range: this.range ? Math.abs(this.range) : null
       }
-      console.log("RANGE IN DIALOG ======", this.range);
+      // console.log("RANGE IN DIALOG ======", this.range);
 
 
       // console.log("RANGE IN GETGRAPHTABLE======",this.range);
@@ -505,7 +514,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             response = JSON.parse(response);
           }
           this.dataTable = response;
-          console.log("datatable graph =======", this.dataTable);
+          // console.log("datatable graph =======", this.dataTable);
 
 
 
@@ -760,7 +769,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   meanMedianStdev(event: any){
     let mean_median_stdev = event.split("_");
-    console.log("SONO DENTRO MEAN MEDIAN STDEV EVENT");
+    // console.log("SONO DENTRO MEAN MEDIAN STDEV EVENT");
     console.log("mean_median_stdev = ", mean_median_stdev);
 
     //console.log("mean_median_stdev = ", mean_median_stdev)
@@ -791,28 +800,31 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   expoFormat(mean_median_stdev: any) {
-    //caso media
+
+    // Variable version
+    console.log("expoFormat mean_median_stdev = ", mean_median_stdev);
+
     this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
     this.medianValue = Number(mean_median_stdev[1]).toFixed(3);
     this.stdevValue = Number(mean_median_stdev[2]).toFixed(3);
     this.trendValue = Number(mean_median_stdev[3]).toFixed(3);
     if (this.meanValue > 10000 || this.meanValue < 0.001 && this.meanValue != 0){
-      this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    }
+        this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+      }
     if (this.medianValue > 10000 || this.medianValue < 0.001 && this.medianValue != 0){
       this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
     }
     if (this.stdevValue > 10000 || this.stdevValue < 0.001 && this.stdevValue != 0){
-      this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+        this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
     }
     if (this.trendValue > 10000 || this.trendValue < 0.001 && this.trendValue != 0){
       this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
     }
-    // this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    // this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    // this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
 
-    // this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
     if(this.meanValue.includes("x 10^0")) {
       this.meanValue = this.meanValue.replace("x 10^0", "");
 
@@ -822,12 +834,48 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
     }
     if(this.stdevValue.includes("x 10^0")){
-      this.stdevValue = this.stdevValue.replace("x 10^0", "");
+        this.stdevValue = this.stdevValue.replace("x 10^0", "");
 
     }
     if(this.trendValue.includes("x 10^0")) {
       this.trendValue = this.trendValue.replace("x 10^0", "");
     }
+
+    // Form control version
+    // this.form.get("meanValue")?.setValue(Number(mean_median_stdev[0]).toFixed(3));
+    // this.form.get("medianValue")?.setValue(Number(mean_median_stdev[1]).toFixed(3));
+    // this.form.get("stdevValue")?.setValue(Number(mean_median_stdev[2]).toFixed(3));
+    // this.form.get("trendValue")?.setValue(Number(mean_median_stdev[3]).toFixed(3));
+    // if (this.form.get("meanValue")?.value > 10000 || this.form.get("meanValue")?.value < 0.001 && this.form.get("meanValue")?.value != 0){
+    //   this.form.get("meanValue")?.setValue(parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'));
+    // }
+    // if (this.form.get("medianValue")?.value > 10000 || this.form.get("medianValue")?.value < 0.001 && this.form.get("medianValue")?.value != 0){
+    //   this.form.get("medianValue")?.setValue(parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'));
+    // }
+    // if (this.form.get("stdevValue")?.value > 10000 || this.form.get("stdevValue")?.value < 0.001 && this.form.get("stdevValue")?.value != 0){
+    //   this.form.get("stdevValue")?.setValue(parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'))
+    // }
+    // if (this.form.get("stdevValue")?.value > 10000 || this.form.get("stdevValue")?.value < 0.001 && this.form.get("stdevValue")?.value != 0){
+    //   this.form.get("stdevValue")?.setValue(parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'))
+    // }
+
+    // if(this.form.get("meanValue")?.value.includes("x 10^0")) {
+    //   this.form.get("meanValue")?.setValue(this.form.get("meanValue")?.value.replace("x 10^0", ""));
+
+    // }
+    // if(this.form.get("medianValue")?.value.includes("x 10^0")) {
+    //   // this.medianValue = this.medianValue.replace("x 10^0", "");
+    //   this.medianValue = this.medianValue.replace("x 10^0", "");
+    //   this.form.get("medianValue")?.setValue(this.form.get("medianValue")?.value.replace("x 10^0", ""));
+    // }
+    // if(this.form.get("stdevValue")?.value.includes("x 10^0")){
+    //   this.stdevValue = this.stdevValue.replace("x 10^0", "");
+    //   this.form.get("stdevValue")?.setValue(this.form.get("stdevValue")?.value.replace("x 10^0", ""));
+    // }
+    // if(this.form.get("trendValue")?.value.includes("x 10^0")) {
+    //   this.trendValue = this.trendValue.replace("x 10^0", "");
+    //   this.form.get("trendValue")?.setValue(this.form.get("trendValue")?.value.replace("x 10^0", ""));
+    // }
   }
 
   sendSelGraphPoly() {
@@ -838,7 +886,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   statisticCalc(event: any) {
     // console.log("before event:",this.statCalc);
     this.statCalc = event;
-    this.calcStatistics();
+    // this.calcStatistics();
     console.log("STAT CALC =", this.statCalc);
 
     // this.calcStatistics();
