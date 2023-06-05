@@ -11,7 +11,7 @@
 
     </div>
     <ng-container *ngIf="!polName && openGraph">
-      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng}}</span></h1>
+      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat.toFixed(5)}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng.toFixed(5)}}</span></h1>
 
     </ng-container>
 
@@ -58,10 +58,12 @@
 
             <mat-tab label="Graph" class="tab-graph col-12">
               <!-- <div fxLayout="row" fxLayoutAlign="space-between center" style="height: 55px;"> -->
-              <div class="col-12 d-flex flex-row justify-content-between align-items-center" style="height: 55px;">
+              <!-- <div class="col-12 d-flex flex-row justify-content-between align-items-center" style="height: 55px;"> -->
+              <div class="col-12 row" style="height: 55px;">
 
                 <!-- <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px"> -->
-                <div class="d-flex flex-row justify-content-start align-items-center gap-2">
+                <!-- <div class="col-4 d-flex flex-row justify-content-start align-items-center gap-2"> -->
+                <div [ngClass]="[polygon ? 'col-5' : 'col-3', 'd-flex', 'flex-row', 'justify-content-start', 'align-items-center', 'gap-2']">
                   <!-- <div> -->
                   <!-- <h4>Select graph</h4> -->
 
@@ -77,22 +79,22 @@
                   <ng-container *ngIf="polygon">
                     <!-- STATISTICS PER I POLIGONI -->
                     <!-- <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="10px"> -->
-                    <div class="col d-flex flex-row justify-content-center align-items-center gap-1">
+                    <div class="col-5 d-flex flex-row justify-content-center align-items-center gap-1">
                       <mat-form-field appearance="fill" class="col-12">
                         <mat-label>Statistics</mat-label>
                         <mat-select formControlName="statisticSel">
-                          <mat-option *ngFor="let s of optionStatistics" [value]="s.value">{{s.label}}</mat-option>
+                          <mat-option *ngFor="let s of optionStatistics" [matTooltip]="'Disabled on default graph'" [matTooltipDisabled]="!disableStatistics(s)" [disabled]="disableStatistics(s)" [value]="s.value">{{s.label}}</mat-option>
                         </mat-select>
                       </mat-form-field>
 
-
+                      <!-- {{form.get('statisticSel')?.value | json}} -->
                     </div>
-                    <button mat-raised-button color="primary" (click)="sendSelGraphPoly()">Update</button>
+                    <button class="col-2" mat-raised-button color="primary" (click)="sendSelGraphPoly()">Update</button>
                   </ng-container>
 
                 </div>
                 <!-- <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;"> -->
-                <div class="col-4 d-flex flex-row justify-content-between align-items-center">
+                <div class="col d-flex flex-row justify-content-between align-items-center">
                   <span>Mean: <br> {{meanValue}}</span>
                   <span>Median: <br> {{medianValue}}</span>
                   <span>Stddev: <br> {{stdevValue}}</span>
@@ -104,7 +106,7 @@
                   <button mat-raised-button color="primary" (click)="calcStatistics()">Calc</button>
                 </div>
                 <!-- <div fxFlex fxLayout="row" fxLayoutAlign="end center"> -->
-                <div class="d-flex flex-row justify-content-end align-items-center">
+                <div class="col-1 d-flex flex-row justify-content-end align-items-center">
                   <section class="example-section">
                     <mat-checkbox class="example-margin" formControlName="enableArea">Enable area</mat-checkbox>
                   </section>

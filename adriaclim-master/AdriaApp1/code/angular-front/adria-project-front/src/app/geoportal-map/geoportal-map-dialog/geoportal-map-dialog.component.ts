@@ -241,6 +241,16 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   }
 
+  disableStatistics(s: any): boolean {
+    // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
+    if(s.value === 'boxPlot' && this.form.get('operationSel')?.value === 'default') {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   formatDate(d: any) {
     let month = d.getMonth() + 1
     let day = d.getDate()
