@@ -59,7 +59,7 @@
             <mat-tab label="Graph" class="tab-graph col-12">
               <!-- <div fxLayout="row" fxLayoutAlign="space-between center" style="height: 55px;"> -->
               <!-- <div class="col-12 d-flex flex-row justify-content-between align-items-center" style="height: 55px;"> -->
-              <div class="col-12 row" style="height: 55px;">
+              <div class="col-12 row justify-content-between" style="height: 55px;">
 
                 <!-- <div fxFlex fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px"> -->
                 <!-- <div class="col-4 d-flex flex-row justify-content-start align-items-center gap-2"> -->
@@ -89,12 +89,12 @@
 
                       <!-- {{form.get('statisticSel')?.value | json}} -->
                     </div>
-                    <button class="col-2" mat-raised-button color="primary" (click)="sendSelGraphPoly()">Update</button>
+                    <button class="col-2" mat-raised-button color="primary" (click)="sendSelGraphPoly(); showStat()">Update</button>
                   </ng-container>
 
                 </div>
                 <!-- <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;"> -->
-                <div class="col d-flex flex-row justify-content-between align-items-center">
+                <div class="col d-flex flex-row justify-content-between align-items-center" *ngIf="showStatistic">
                   <span>Mean: <br> {{meanValue}}</span>
                   <span>Median: <br> {{medianValue}}</span>
                   <span>Stddev: <br> {{stdevValue}}</span>

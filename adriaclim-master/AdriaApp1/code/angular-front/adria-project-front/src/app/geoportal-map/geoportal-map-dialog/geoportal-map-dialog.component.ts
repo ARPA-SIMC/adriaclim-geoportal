@@ -104,6 +104,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   start: any;
   end: any;
 
+  showStatistic: boolean = true;
+
   typeOfExport = [
     {
       type: ".csv",
@@ -210,6 +212,14 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     }
   ];
 
+  showStat() {
+    if(this.operation === "default") {
+      this.showStatistic = true;
+    }
+    else {
+      this.showStatistic = false;
+    }
+  }
 
   removeAnnualCycle(o: any): boolean {
 
