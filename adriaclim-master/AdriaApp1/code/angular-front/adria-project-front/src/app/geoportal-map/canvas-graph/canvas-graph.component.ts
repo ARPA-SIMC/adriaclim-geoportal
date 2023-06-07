@@ -514,7 +514,7 @@ optionBoxPlot: any = {
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
       //console.log("d",d);
-      d = new Date(d);
+        d = new Date(d);
       // console.log("!= annualDay", d);
 
     }
@@ -1235,7 +1235,11 @@ getDataGraphPolygonInterval() {
         }
         this.dataRes.allData[name].forEach((element: any) => {
           element.date = element.x;
-          element.x = this.formatDate(element.x);
+          if (this.formatDate(element.x) === undefined){
+            element.x = element.x;
+          }else{
+            element.x = this.formatDate(element.x);
+          }
           element.y = Number(element.y);
         });
         let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);

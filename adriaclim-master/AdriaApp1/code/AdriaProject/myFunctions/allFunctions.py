@@ -1533,6 +1533,7 @@ def packageGraphData(allData, **kwargs):
     mean_result = mean(values)
     median_result = median(values)
     stdev_result = stdev(values)
+    print("allData[1]==========",allData[1])
     trend_result = calculate_trend(allData[1],values)
     dates = allData[1]
     unit = allData[2]
@@ -1634,6 +1635,8 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 values2.insert(i, aggregateGraphicValues("avg", vals))
 
             vals = []
+        
+
 
         return [
             values2,
@@ -1692,20 +1695,6 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
         try:
             # operation is annual cycle but season by season
             # I need to take that particular day for every season!!
-            season_mapping = {
-                1: "Winter",
-                2: "Winter",
-                3: "Spring",
-                4: "Spring",
-                5: "Spring",
-                6: "Summer",
-                7: "Summer",
-                8: "Summer",
-                9: "Autumn",
-                10: "Autumn",
-                11: "Autumn",
-                12: "Winter",
-         }
             dates_list = [
                 dt.datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ").date()
                 for date in dates
@@ -1715,15 +1704,17 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             longs2 = [0 for value in values]
             layerName2 = [layerName[0] for value in values]
             # in values ci sono tutti i valori, dates_list tutte le date!
-            seasons = [season_mapping[date.month] for date in dates_list] #list of seasons
             float_values = [float(value) for value in values]
-            df = pd.DataFrame({"datetime": dates_list, "value": float_values,"season":seasons})
+            df = pd.DataFrame({"datetime": dates_list, "value": float_values})
+            df["datetime"] = pd.to_datetime(df["datetime"])
+            df["season"] = df["datetime"].apply(get_season)
             grouped = df.groupby("season")["value"].mean()
-            # print("test",df["day_month"].head())
+            list_time = [seasons[index] for index in grouped.index.tolist()]
+            print("list_time:",list_time)
 
             return [
                 grouped.values,
-                list(grouped.index),
+                list_time,
                 unit,
                 layerName2,
                 lats2,
