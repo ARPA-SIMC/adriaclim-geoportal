@@ -89,7 +89,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   //   [3, 5, 8, 6, 20]
   // ]
   data1: any[] = [];
-  quantityBoxPlot: any[] = [];
+  quantityBoxPlot = new Set();
 
 
   /**********************TEST BOX PLOT */
@@ -362,112 +362,6 @@ optionBoxPlot: any = {
       ]
 };
 
-  optionBoxPlotOld: any = {
-    title: [
-      {
-        text: 'Michelson-Morley Experiment',
-        left: 'center'
-      },
-      {
-        text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
-        borderColor: '#999',
-        borderWidth: 1,
-        textStyle: {
-          fontWeight: 'normal',
-          fontSize: 14,
-          lineHeight: 20
-        },
-        left: '10%',
-        top: '90%'
-      }
-    ],
-    dataset: [
-      {
-        // prettier-ignore
-        source: [
-          [850, 740, 900, 1070, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
-          [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
-          [880, 880, 880, 860, 720, 720, 620, 860, 970, 950, 880, 910, 850, 870, 840, 840, 850, 840, 840, 840],
-          [890, 810, 810, 820, 800, 770, 760, 740, 750, 760, 910, 920, 890, 860, 880, 720, 840, 850, 850, 780],
-          [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870]
-        ]
-      },
-      {
-        transform: {
-          type: 'boxplot',
-          config: { itemNameFormatter: 'expr {value}' }
-        }
-      },
-      {
-        fromDatasetIndex: 1,
-        fromTransformResult: 1
-      },
-
-    ],
-    toolbox: {
-      feature: {
-        dataZoom: {
-          yAxisIndex: 'none'
-        },
-        restore: {},
-        saveAsImage: {}
-      }
-    },
-    tooltip: {
-      trigger: 'item',
-      axisPointer: {
-        type: 'cross'
-      }
-    },
-    grid: {
-      left: '10%',
-      right: '10%',
-      bottom: '15%'
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: true,
-      nameGap: 30,
-      splitArea: {
-        show: false
-      },
-      splitLine: {
-        show: false
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: 'km/s minus 299,000',
-      splitArea: {
-        show: true
-      }
-    },
-    series: [
-      {
-        name: 'boxplot',
-        type: 'boxplot',
-        datasetIndex: 1,
-        tooltip: {
-          formatter: function(param:any) {
-            // console.log("param:",param);
-              return [
-                  "Experiment " + param.name + ": ",
-                  "upper: " + param.data[5],
-                  "Q3: " + param.data[4],
-                  "median: " + param.data[3],
-                  "Q1: " + param.data[2],
-                  "lower: " + param.data[1]
-              ].join("<br/>");
-          }
-        }
-      },
-      {
-        name: 'outlier',
-        type: 'scatter',
-        datasetIndex: 2
-      }
-    ]
-  };
 
   dataAxis: any = [
     'A',
@@ -754,9 +648,21 @@ getDataGraphPolygonInterval() {
 
               ]
             });
+
+            let showName = res.dataVect.result.dataPol.map((el:any) => {
+              return [
+                el['x']
+              ]
+            });
+            console.log("DATA1 =", this.data1);
+            console.log("showName =", showName);
+
             let i = 0;
-            this.data1.forEach((element: any) => {
-              this.quantityBoxPlot.push("Box" + " " + i);
+            this.quantityBoxPlot = new Set();
+            showName.forEach((element: any) => {
+              // this.quantityBoxPlot.add("Box" + " " + i);
+              this.quantityBoxPlot.add(element[0]);
+              // this.quantityBoxPlot = [...new Set(this.quantityBoxPlot)];
               i++;
 
             });
@@ -799,7 +705,12 @@ getDataGraphPolygonInterval() {
               //datasetIndex 1
               transform: {
               type: 'boxplot',
-              config: { itemNameFormatter: 'Box {value}' },
+              config: { itemNameFormatter: function (params: any) {
+                console.log("PARAMS =", params);
+
+                return params.value;
+                }
+              },
               }
               },
               //datasetindex 2
@@ -834,7 +745,7 @@ getDataGraphPolygonInterval() {
               xAxis: {
               type: 'category',
               // data: ["Expr 0","Expr 1","Expr 2","Expr 3","Expr 4", "Expr 5", "Expr 6", "Expr 7", "Expr 8", "Expr 9", "Expr 10", "Expr 11"]
-              data: this.quantityBoxPlot
+              data: [...this.quantityBoxPlot]
               },
               yAxis: {
               type: 'value',
@@ -852,11 +763,16 @@ getDataGraphPolygonInterval() {
                   const param_smaller = "<span style='display:inline-block;margin-bottom:3px; margin-left:18px; border-radius:5px;width:5px;height:5px;background-color:#c23531;'></span>"
                     return [
                         param.marker + " " + param.name.charAt(0).toUpperCase() + param.name.slice(1) + ": ",
-                        param_smaller  + " " + "Upper: " + param.data[5],
-                        param_smaller  + " " +  "Q3: " + param.data[4],
+                        // param_smaller  + " " + "Upper: " + param.data[5],
+                        // param_smaller  + " " +  "Q3: " + param.data[4],
+                        // param_smaller  + " " + "Median: " + param.data[3],
+                        // param_smaller  + " " + "Q1: " + param.data[2],
+                        // param_smaller  + " " + "Lower: " + param.data[1]
+                        param_smaller  + " " + "Max: " + param.data[5],
+                        param_smaller  + " " +  "90th Percentile: " + param.data[4],
                         param_smaller  + " " + "Median: " + param.data[3],
-                        param_smaller  + " " + "Q1: " + param.data[2],
-                        param_smaller  + " " + "Lower: " + param.data[1]
+                        param_smaller  + " " + "10th Percentile: " + param.data[2],
+                        param_smaller  + " " + "Min: " + param.data[1]
                     ].join("<br/>");
                 }
               },
@@ -1055,7 +971,17 @@ getDataGraphPolygonInterval() {
                     boundaryGap: false,
                     data: allDataPolygon.dataPol.map((element: any) => {
                       let elDate = new Date(element.x).toLocaleDateString();
-                      return elDate;
+                      console.log("element.x", element.x);
+
+                      if (elDate !== "Invalid Date") {
+                        console.log("elDate", elDate);
+                        return elDate;
+                      }
+                      else {
+                        console.log();
+
+                        return element.x;
+                      }
                     })
                   },
                   yAxis: {
@@ -1145,8 +1071,20 @@ getDataGraphPolygonInterval() {
               type: 'category',
               boundaryGap: false,
               data: allDataPolygon.dataPol.map((element: any) => {
+
+                console.log("element.x", element.x);
+
                 let elDate = new Date(element.x).toLocaleDateString();
-                return elDate;
+                if (elDate !== "Invalid Date") {
+                  console.log("elDate", elDate);
+                  return elDate;
+                }
+                else {
+                  console.log();
+
+                  return element.x;
+                }
+
               })
             },
             yAxis: {
@@ -1286,7 +1224,7 @@ getDataGraphPolygonInterval() {
         if (typeof response == 'string') {
           response = JSON.parse(response);
         }
-        // console.log("RES FOR GRAPH: ", response);
+        console.log("RES FOR GRAPH: ", response);
         this.dataRes = response;
 
         this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
@@ -1328,7 +1266,7 @@ getDataGraphPolygonInterval() {
         });
 
         let provaDataRes = this.dataRes.allData[name].map((element: any) => element.x);
-          console.log("prova", typeof provaDataRes[0]);
+          // console.log("DATA RES", this.dataRes);
 
         this.chartOption = {
 
@@ -1337,8 +1275,20 @@ getDataGraphPolygonInterval() {
             boundaryGap: false,
             // data: this.dataRes.allData[name].map((element: any) => element.x)
             data: this.dataRes.allData[name].map((element: any) => {
+              // console.log("element.x", element.x);
+              console.log("ELEMENT SINGOLO PUNTO", element);
+
               let elDate = new Date(element.x).toLocaleDateString();
-              return elDate;
+              console.log("elDate", elDate);
+              if(elDate !== "Invalid Date"){
+                return elDate;
+              }
+              else {
+                console.log("element.x", element.x);
+
+                return element.x;
+              }
+
             })
           },
           yAxis: {

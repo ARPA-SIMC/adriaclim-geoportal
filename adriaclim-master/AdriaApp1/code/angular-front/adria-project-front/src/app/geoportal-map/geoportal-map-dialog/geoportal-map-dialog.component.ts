@@ -253,7 +253,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   disableStatistics(s: any): boolean {
     // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
-    if(s.value === 'boxPlot' && this.form.get('operationSel')?.value === 'default') {
+    if(s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
       return true;
     }
     else {

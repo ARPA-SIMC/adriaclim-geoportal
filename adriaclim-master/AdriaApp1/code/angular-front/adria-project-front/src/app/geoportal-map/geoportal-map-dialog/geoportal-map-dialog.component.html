@@ -83,7 +83,7 @@
                       <mat-form-field appearance="fill" class="col-12">
                         <mat-label>Statistics</mat-label>
                         <mat-select formControlName="statisticSel">
-                          <mat-option *ngFor="let s of optionStatistics" [matTooltip]="'Disabled on default graph'" [matTooltipDisabled]="!disableStatistics(s)" [disabled]="disableStatistics(s)" [value]="s.value">{{s.label}}</mat-option>
+                          <mat-option *ngFor="let s of optionStatistics" [matTooltip]="'Disabled on this time scale'" [matTooltipDisabled]="!disableStatistics(s)" [disabled]="disableStatistics(s)" [value]="s.value">{{s.label}}</mat-option>
                         </mat-select>
                       </mat-form-field>
 

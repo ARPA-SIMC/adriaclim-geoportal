@@ -54,18 +54,10 @@ months = {
     12: "Dec",
 }
 seasons = {
-    1: "Winter",
-    2: "Winter",
-    3: "Spring",
-    4: "Spring",
-    5: "Spring",
-    6: "Summer",
-    7: "Summer",
-    8: "Summer",
-    9: "Autumn",
-    10: "Autumn",
-    11: "Autumn",
-    12: "Winter",
+    0: "Winter",
+    1: "Spring",
+    2: "Summer",
+    3: "Autumn",
 }
 # I need to save in the cache the url and corresponding value!
 
@@ -1718,6 +1710,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 dt.datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ").date()
                 for date in dates
             ]
+            # print("dates_list=============",dates_list)
             lats2 = [0 for value in values]
             longs2 = [0 for value in values]
             layerName2 = [layerName[0] for value in values]
@@ -1726,17 +1719,11 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             float_values = [float(value) for value in values]
             df = pd.DataFrame({"datetime": dates_list, "value": float_values,"season":seasons})
             grouped = df.groupby("season")["value"].mean()
-            df["datetime"] = pd.to_datetime(df["datetime"]) #converto in data 
-            df["day_month"] = df["datetime"] 
-            df["day_month"] = df["day_month"].apply(lambda x: x.replace(year=2000))
-            df = df.sort_values(by=["day_month"])
-            df["day_month"] = df["day_month"].apply(lambda x: x.strftime("%m"))
-           
-            removeDuplicates = df.drop_duplicates(subset=["day_month"])
-            print("test",df["day_month"].head())
+            # print("test",df["day_month"].head())
+
             return [
                 grouped.values,
-                list(removeDuplicates["day_month"]),
+                list(grouped.index),
                 unit,
                 layerName2,
                 lats2,
@@ -1749,45 +1736,6 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
         except Exception as e:
             print("EXCEPTION =", e)
     
-    if operation == "annualDay":
-        try:
-            # operation is annual cycle but day by day
-            # I need to take that particular day for every year!!
-            dates_list = [
-                dt.datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ").date()
-                for date in dates
-            ]
-            lats2 = [0 for value in values]
-            longs2 = [0 for value in values]
-            layerName2 = [layerName[0] for value in values]
-            # in values ci sono tutti i valori, dates_list tutte le date!
-            float_values = [float(value) for value in values]
-            df = pd.DataFrame({"datetime": dates_list, "value": float_values})
-            df["datetime"] = pd.to_datetime(df["datetime"])
-            # Replace February 29th with February 28th
-            df["datetime"] = df["datetime"].apply(
-                lambda x: x.replace(day=28) if x.month == 2 and x.day == 29 else x
-            )
-            df["day_month"] = df["datetime"]
-            df["day_month"] = df["day_month"].apply(lambda x: x.replace(year=2000))
-            df = df.sort_values(by=["day_month"])
-            grouped = df.groupby("day_month")["value"].mean()
-            df["day_month"] = df["day_month"].apply(lambda x: x.strftime("%d-%m"))
-            removeDuplicates = df.drop_duplicates(subset=["day_month"])
-            return [
-                grouped.values,
-                list(removeDuplicates["day_month"]),
-                unit,
-                layerName2,
-                lats2,
-                longs2,
-                mean_result,
-                median_result,
-                stdev_result,
-                trend_result,
-            ]
-        except Exception as e:
-            print("EXCEPTION =", e)
 
     for n in range(len(values)):
         if lastDate is None:
@@ -2362,6 +2310,23 @@ def convertToTime(date_str):
     return dt.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
 
 
+def get_season(date):
+    year = str(date.year)
+    seasons = {
+        'spring': pd.date_range(start=pd.Timestamp(year+'-03-01'), end=pd.Timestamp(year+'-05-31')),
+        'summer': pd.date_range(start=pd.Timestamp(year+'-06-01'), end=pd.Timestamp(year+'-08-31')),
+        'autumn': pd.date_range(start=pd.Timestamp(year+'-09-01'), end=pd.Timestamp(year+'-11-30'))
+    }
+    if date in seasons['spring']:
+        return 1
+    elif date in seasons['summer']:
+        return 2
+    elif date in seasons['autumn']:
+        return 3
+    else:
+        return 0
+
+
 
 def operation_before_after_cache(df_polygon, statistic, time_op):
     try:
@@ -2376,14 +2341,20 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
             "min_mean_max": "min_mean_max",
             "min_10thPerc_median_90thPerc_max": "min_10thPerc_median_90thPerc_max",
         }
-        groupby_col = (
-            "date_value"
-            if time_op == "default"
-            else df_polygon["date_value"].dt.month
-            if time_op == "annualMonth" or time_op == "annualSeason"
-            else df_polygon["date_value"].dt.day
-        )
-        # print("groupby_col", groupby_col)
+        if time_op == "annualSeason":
+            df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
+            df_polygon["season"] = df_polygon["date_value"].apply(get_season)
+        
+        if time_op == "default":
+            groupby_col = "date_value"
+        elif time_op == "annualMonth":
+            groupby_col = df_polygon["date_value"].dt.month
+        elif time_op == "annualSeason":
+            groupby_col = df_polygon["season"]
+        else: 
+            groupby_col = df_polygon["date_value"].dt.day
+            
+
         if ops[statistic] == "min_mean_max":
             agg_func = ["min", "mean", "max"]
         elif ops[statistic] == "min_10thPerc_median_90thPerc_max":
@@ -2395,6 +2366,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         res_values = df_polygon.groupby(groupby_col)["value_0"].agg(
             agg_func
         )  # AGG IS USED TO APPLY AN AGGREGATE FUNCTION
+        print("res_values", res_values)
         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
         if time_op == "default":
             # list_time = list(res_values.index.strftime("%d/%m/%Y"))
