@@ -155,7 +155,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentProd;
+  apiUrl = environmentDev;
 
   markers: L.Marker[] = [];
 
@@ -377,7 +377,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  //FUNZIONA! PROVATO ANCHE AL CLICK NEL TOOL DEL POLIGONO DOPO LA SELEZIONE DEL DATASET,
   //MOSTRA I DATI DEL POLIGONO CARICATO E SELEZIONATO!
   uploadGeo(): Promise<File> {
     //come funziona
