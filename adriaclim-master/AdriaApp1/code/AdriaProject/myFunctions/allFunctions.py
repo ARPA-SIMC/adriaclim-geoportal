@@ -1447,6 +1447,7 @@ def check_dates_format_trend(dates):
     if type(dates[0]) is str:
         if dates[0].startswith("0000"):
                 #annual month by month point
+            print("month by month point",dates[0])
             for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
                 try:
                     dates = [dt.datetime.strptime(d.replace("0000","2000"), fmt) for d in dates]
@@ -1495,6 +1496,7 @@ def calculate_trend(dates, values):
         y = np.array(values)
         print("Dates==========",dates)
         dates = check_dates_format_trend(dates)
+        print("check dates format",dates)
         days = np.array([d.timestamp() for d in dates])
         # esegue la regressione lineare
         slope, intercept, r_value, p_value, std_err = stats.linregress(days,y)
@@ -1592,7 +1594,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
     mean_result = mean(values)
     median_result = median(values)
     stdev_result = stdev(values)
-    trend_result = calculate_trend(dates_trend,values)
+    # trend_result = calculate_trend(dates_trend,values)
     dates2 = []
     layerName2 = []
     lats2 = []
@@ -1648,7 +1650,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             mean_result,
             median_result,
             stdev_result,
-            trend_result,
+            # trend_result,
         ]
 
     if operation == "annualDay":
@@ -1686,7 +1688,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 mean_result,
                 median_result,
                 stdev_result,
-                trend_result,
+                # trend_result,
             ]
         except Exception as e:
             print("EXCEPTION =", e)
@@ -1722,7 +1724,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 mean_result,
                 median_result,
                 stdev_result,
-                trend_result,
+                # trend_result,
             ]
         except Exception as e:
             print("EXCEPTION =", e)
