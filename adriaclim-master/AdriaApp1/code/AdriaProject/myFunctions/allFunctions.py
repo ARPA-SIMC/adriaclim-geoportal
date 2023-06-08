@@ -59,6 +59,13 @@ seasons = {
     2: "Summer",
     3: "Autumn",
 }
+
+season_trend = {
+    "01": "Winter",
+    "02": "Spring",
+    "03": "Summer",
+    "04": "Autumn",
+}
 # I need to save in the cache the url and corresponding value!
 
 
@@ -1447,12 +1454,11 @@ def check_dates_format_trend(dates):
     if type(dates[0]) is str:
         if dates[0].startswith("0000"):
                 #annual month by month point
-            print("month by month point",dates[0])
-            for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
-                try:
-                    dates = [dt.datetime.strptime(d.replace("0000","2000"), fmt) for d in dates]
-                except ValueError:
-                    pass
+            # print("month by month point",dates[0])
+            try:
+                dates = [dt.datetime.strptime(d.replace("0000","2000"), "%Y-%m-%dT%H:%M:%SZ") for d in dates]
+            except Exception as e: 
+                return 'Invalid date format: '+ str(e)
                 # dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%d") for d in dates]
         elif len(dates[0].split("-")) == 2: #01-01 1 gennaio 2000-01-01
                  #annual day by day point
@@ -1476,7 +1482,7 @@ def check_dates_format_trend(dates):
             #annual season by season polygon
             create_dates = []
             for d in dates:
-                for key, val in seasons.items():
+                for key, val in season_trend.items():
                     if val == d:
                         season_number = key
                         create_dates.append(dt.datetime.strptime("2000-01-" + str(season_number), "%Y-%d-%m"))
@@ -1494,9 +1500,9 @@ def check_dates_format_trend(dates):
 def calculate_trend(dates, values):
     try:
         y = np.array(values)
-        print("Dates==========",dates)
+        # print("Dates==========",dates)
         dates = check_dates_format_trend(dates)
-        print("check dates format",dates)
+        # print("check dates format",dates)
         days = np.array([d.timestamp() for d in dates])
         # esegue la regressione lineare
         slope, intercept, r_value, p_value, std_err = stats.linregress(days,y)
@@ -1535,7 +1541,7 @@ def packageGraphData(allData, **kwargs):
     mean_result = mean(values)
     median_result = median(values)
     stdev_result = stdev(values)
-    print("allData[1]==========",allData[1])
+    # print("allData[1]==========",allData[1])
     trend_result = calculate_trend(allData[1],values)
     dates = allData[1]
     unit = allData[2]
@@ -1712,7 +1718,7 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
             df["season"] = df["datetime"].apply(get_season)
             grouped = df.groupby("season")["value"].mean()
             list_time = [seasons[index] for index in grouped.index.tolist()]
-            print("list_time:",list_time)
+            # print("list_time:",list_time)
 
             return [
                 grouped.values,
@@ -2359,7 +2365,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         res_values = df_polygon.groupby(groupby_col)["value_0"].agg(
             agg_func
         )  # AGG IS USED TO APPLY AN AGGREGATE FUNCTION
-        print("res_values", res_values)
+        # print("res_values", res_values)
         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
         if time_op == "default":
             # list_time = list(res_values.index.strftime("%d/%m/%Y"))
@@ -2437,7 +2443,7 @@ def getDataPolygonNew(
 ):
     start_time = time.time()
     print("STARTED GETDATAPOLYGONNEW!")
-    print("Parametro_agg======",parametro_agg)
+    # print("Parametro_agg======",parametro_agg)
     vertices = []
     vertices_geos_poly = []
 
@@ -2504,7 +2510,7 @@ def getDataPolygonNew(
         polygons = Polygon.objects.filter(
             Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
         if polygons.exists():
-            print("DOPO FILTER")
+            # print("DOPO FILTER")
             
             # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
             try:

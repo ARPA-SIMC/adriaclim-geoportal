@@ -427,7 +427,7 @@ optionBoxPlot: any = {
     if (this.polygon) {
       //se c'è il poligono chiamare altra funzione
       this.spinnerLoadingChild.emit(true);
-      console.log("SONO NEL CHANGES CON POLYGON");
+      // console.log("SONO NEL CHANGES CON POLYGON");
 
       this.getDataGraphPolygonInterval();
 
@@ -555,7 +555,7 @@ getDataGraphPolygonInterval() {
       circleCoords: this.circleCoords,
 
     }
-    console.log("data =", data);
+    // console.log("data =", data);
 
     // send HTTP POST request to Django view function
     if(this.statistic !== "boxPlot") {
@@ -577,7 +577,7 @@ getDataGraphPolygonInterval() {
           this.httpService.post('test/check_task_status',data).subscribe({
           next: (res: any) => {
 
-            console.log("SECONDA RESPONSE", res);
+            // console.log("SECONDA RESPONSE", res);
 
             // console.log("SONO DENTRO IL CHECK");
 
@@ -636,7 +636,7 @@ getDataGraphPolygonInterval() {
           this.httpService.post('test/check_task_status',data).subscribe({
           next: (res: any) => {
 
-            console.log("RES BOXPLOT =", res);
+            // console.log("RES BOXPLOT =", res);
 
             this.data1 = res.dataVect.result.dataPol.map((el:any) => {
               return [
@@ -654,8 +654,8 @@ getDataGraphPolygonInterval() {
                 el['x']
               ]
             });
-            console.log("DATA1 =", this.data1);
-            console.log("showName =", showName);
+            // console.log("DATA1 =", this.data1);
+            // console.log("showName =", showName);
 
             let i = 0;
             this.quantityBoxPlot = new Set();
@@ -666,7 +666,7 @@ getDataGraphPolygonInterval() {
               i++;
 
             });
-            console.log("QUANTITY BOXPLOT =", this.quantityBoxPlot);
+            // console.log("QUANTITY BOXPLOT =", this.quantityBoxPlot);
 
 
             this.optionBoxPlot = {
@@ -706,7 +706,7 @@ getDataGraphPolygonInterval() {
               transform: {
               type: 'boxplot',
               config: { itemNameFormatter: function (params: any) {
-                console.log("PARAMS =", params);
+                // console.log("PARAMS =", params);
 
                 return params.value;
                 }
@@ -719,14 +719,14 @@ getDataGraphPolygonInterval() {
               fromTransformResult: 1
               },
 
-              {
-              source:  this.data1.map((item, index) => {
-              const average = item.reduce((prev: any, curr: any) => prev + curr) / item.length;
-              return [index, average];
+              // {
+              // source:  this.data1.map((item, index) => {
+              // const average = item.reduce((prev: any, curr: any) => prev + curr) / item.length;
+              // return [index, average];
 
-              }
-              )
-              }
+              // }
+              // )
+              // }
 
 
 
@@ -784,27 +784,27 @@ getDataGraphPolygonInterval() {
               datasetIndex: 2,
 
               },
-              {
-              name: 'Mean',
-              type: 'scatter',
-              datasetIndex: 3,
-              symbolSize: 10,
-              itemStyle: {
-              color: 'red',
-              },
-              z:10,
-
-              // tooltip: {
-              //     formatter: function(param) {
-              //         return [
-              //             param.marker + "Mean:",
-              //             + param.data[1]
-              //         ].join("<br/>");
-              //     }
+              // {
+              // name: 'Mean',
+              // type: 'scatter',
+              // datasetIndex: 3,
+              // symbolSize: 10,
+              // itemStyle: {
+              // color: 'red',
               // },
+              // z:10,
+
+              // // tooltip: {
+              // //     formatter: function(param) {
+              // //         return [
+              // //             param.marker + "Mean:",
+              // //             + param.data[1]
+              // //         ].join("<br/>");
+              // //     }
+              // // },
 
 
-              }
+              // }
 
               ]
         };
@@ -898,7 +898,7 @@ getDataGraphPolygonInterval() {
           let allDataPolygon = response['dataVect'];
           // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
           // let dataBeforeOp = _.cloneDeep([...allDataPolygon["dataBeforeOp"]]) //abbiamo tutte le date e i valori
-          console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
+          // console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
           // let dataPolygonDeep = _.cloneDeep([...allDataPolygon["dataPol"]]);
           let dataInGraph = _.cloneDeep([...allDataPolygon["dataPol"]]);
           // console.log("dataInGraph", dataInGraph);
@@ -908,27 +908,27 @@ getDataGraphPolygonInterval() {
             return el.x;
           })
 
-          console.log("Before set=========",allDates);
+          // console.log("Before set=========",allDates);
           allDates = [...new Set(allDates)]; //abbiamo solo le date 20!
-          console.log("AllDates======",allDates);
+          // console.log("AllDates======",allDates);
           //se di queste usiamo lo zoom e prendiamo le date che stanno nello zoom effettuato
           //this.zoomFunctionGraph(allDates, dataBeforeOp);
           this.myChart.on('dataZoom', () => {
             let option = this.myChart.getOption();
-            console.log("OPTIONSSSSSS =", option);
+            // console.log("OPTIONSSSSSS =", option);
             this.startZoom = option.dataZoom[0].startValue;
             this.endZoom = option.dataZoom[0].endValue;
-            console.log("startZoom", this.startZoom, typeof this.startZoom);
-            console.log("endZoom", this.endZoom, typeof this.endZoom);
+            // console.log("startZoom", this.startZoom, typeof this.startZoom);
+            // console.log("endZoom", this.endZoom, typeof this.endZoom);
 
             let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom],allDates[this.endZoom]));
-            console.log("arrayDate", arrayDate);
+            // console.log("arrayDate", arrayDate);
 
             this.zoomFunctionGraph(arrayDate,dataInGraph);
 
           });
           // this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
-          console.log("allDataPolygon", allDataPolygon);
+          // console.log("allDataPolygon", allDataPolygon);
 
           // this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
           let arrayDataDate = allDataPolygon.dataPol.map((el: any) => {
@@ -961,7 +961,7 @@ getDataGraphPolygonInterval() {
 
             });
             let prova = allDataPolygon.dataPol.map((element: any) => element.x);
-            console.log("prova", new Date(prova[0]));
+            // console.log("prova", new Date(prova[0]));
 
             // let statsName = this.statistic.split("_");
                 this.chartOption = {
@@ -971,14 +971,13 @@ getDataGraphPolygonInterval() {
                     boundaryGap: false,
                     data: allDataPolygon.dataPol.map((element: any) => {
                       let elDate = new Date(element.x).toLocaleDateString();
-                      console.log("element.x", element.x);
+                      // console.log("element.x", element.x);
 
                       if (elDate !== "Invalid Date") {
-                        console.log("elDate", elDate);
+                        // console.log("elDate", elDate);
                         return elDate;
                       }
                       else {
-                        console.log();
 
                         return element.x;
                       }
@@ -1072,15 +1071,14 @@ getDataGraphPolygonInterval() {
               boundaryGap: false,
               data: allDataPolygon.dataPol.map((element: any) => {
 
-                console.log("element.x", element.x);
+                // console.log("element.x", element.x);
 
                 let elDate = new Date(element.x).toLocaleDateString();
                 if (elDate !== "Invalid Date") {
-                  console.log("elDate", elDate);
+                  // console.log("elDate", elDate);
                   return elDate;
                 }
                 else {
-                  console.log();
 
                   return element.x;
                 }
@@ -1155,13 +1153,13 @@ getDataGraphPolygonInterval() {
           ]
           }
         }
-        console.log("ALL DATA POLY MEAN =", allDataPolygon.mean);
-        console.log("ALL DATA POLY MEDIAN =", allDataPolygon.median);
-        console.log("ALL DATA POLY STDEV =", allDataPolygon.stdev);
-        console.log("ALL DATA POLY TREND =", allDataPolygon.trend_yr);
+        // console.log("ALL DATA POLY MEAN =", allDataPolygon.mean);
+        // console.log("ALL DATA POLY MEDIAN =", allDataPolygon.median);
+        // console.log("ALL DATA POLY STDEV =", allDataPolygon.stdev);
+        // console.log("ALL DATA POLY TREND =", allDataPolygon.trend_yr);
 
-        console.log("ARRAY DATA DATE =", arrayDataDate);
-        console.log("ARRAY DATA VALUE =", arrayDataValue);
+        // console.log("ARRAY DATA DATE =", arrayDataDate);
+        // console.log("ARRAY DATA VALUE =", arrayDataValue);
 
 
 
@@ -1180,9 +1178,9 @@ getDataGraphPolygonInterval() {
 
   filterElement(min: any, max: any) {
     return function (a: any) {
-      console.log("A =", a);
+      // console.log("A =", a);
       let p = a >= min && a <= max;
-      console.log("P =", p);
+      // console.log("P =", p);
 
       // return a >= min && a <= max;
       return p;
@@ -1224,7 +1222,7 @@ getDataGraphPolygonInterval() {
         if (typeof response == 'string') {
           response = JSON.parse(response);
         }
-        console.log("RES FOR GRAPH: ", response);
+        // console.log("RES FOR GRAPH: ", response);
         this.dataRes = response;
 
         this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
@@ -1280,15 +1278,15 @@ getDataGraphPolygonInterval() {
             // data: this.dataRes.allData[name].map((element: any) => element.x)
             data: this.dataRes.allData[name].map((element: any) => {
               // console.log("element.x", element.x);
-              console.log("ELEMENT SINGOLO PUNTO", element);
+              // console.log("ELEMENT SINGOLO PUNTO", element);
 
               let elDate = new Date(element.x).toLocaleDateString();
-              console.log("elDate", elDate);
+              // console.log("elDate", elDate);
               if(elDate !== "Invalid Date"){
                 return elDate;
               }
               else {
-                console.log("element.x", element.x);
+                // console.log("element.x", element.x);
 
                 return element.x;
               }

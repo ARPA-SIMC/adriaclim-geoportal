@@ -332,8 +332,8 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
               const tooltipHTML = paramsFormatter.map((param: any) => {
                 let value: any = Number(param.value);
                 if (value > 10000 || value < 0.001 && value !== 0) {
-                  console.log("VALUE = ", value);
-                  console.log("VALUE = ", typeof value);
+                  // console.log("VALUE = ", value);
+                  // console.log("VALUE = ", typeof value);
 
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
                 }

@@ -155,7 +155,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   markers: L.Marker[] = [];
 
@@ -767,18 +767,18 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   markerPointClick() {
-    console.log("MARKER POINT CLICKED");
+    // console.log("MARKER POINT CLICKED");
     this.openGraphDialog();
   }
 
   removeMarker() {
     // this.map.removeLayer(this.markerPoint);
-    console.log("SONO DENTRO REMOVE MARKER");
+    // console.log("SONO DENTRO REMOVE MARKER");
   }
 
 
   onMarkerClick(event: any) {
-    console.log("MARKER CLICKED");
+    // console.log("MARKER CLICKED");
     const marker = event.target;
 
     this.map.removeLayer(marker);
@@ -2055,7 +2055,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       datasetId: idMeta ? idMeta : dataId,
       datasetName: title ? title : this.selData.get("dataSetSel")?.value.name.title,
     };
-    console.log("DIALOG CONF DATA =", dialogConfig.data);
+    // console.log("DIALOG CONF DATA =", dialogConfig.data);
 
 
 
@@ -2137,7 +2137,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         if (lat) {
           this.coordOnClick = { "lat": lat, "lng": lng };
         }
-        console.log("POLYGON =", polygon);
+        // console.log("POLYGON =", polygon);
 
         dialogConfig.data = {
           success: true,
@@ -2160,8 +2160,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           isIndicator: this.isIndicator ? "true" : "false",
         };
 
-        console.log("RANGE =", this.value);
-        console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
+        // console.log("RANGE =", this.value);
+        // console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
 
 
 
@@ -2436,7 +2436,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != ""){
-        console.log("result =", result);
+        // console.log("result =", result);
         this.datasetCompare = result;
         this.confronto = true;
         this.pointSelect();

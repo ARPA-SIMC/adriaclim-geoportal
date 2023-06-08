@@ -214,10 +214,26 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   showStat() {
     if(this.operation === "default") {
+
       this.showStatistic = true;
     }
     else {
+
       this.showStatistic = false;
+    }
+  }
+
+  showStatPointSelected(checkPoly: any) {
+    if(!checkPoly) {
+      if(this.form.get('operationSel')?.value === "default") {
+
+        this.showStatistic = true;
+      }
+      else {
+
+        this.showStatistic = false;
+      }
+
     }
   }
 
@@ -790,7 +806,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   meanMedianStdev(event: any){
     let mean_median_stdev = event.split("_");
     // console.log("SONO DENTRO MEAN MEDIAN STDEV EVENT");
-    console.log("mean_median_stdev = ", mean_median_stdev);
+    // console.log("mean_median_stdev = ", mean_median_stdev);
 
     //console.log("mean_median_stdev = ", mean_median_stdev)
     // this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
@@ -822,7 +838,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   expoFormat(mean_median_stdev: any) {
 
     // Variable version
-    console.log("expoFormat mean_median_stdev = ", mean_median_stdev);
+    // console.log("expoFormat mean_median_stdev = ", mean_median_stdev);
 
     this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
     this.medianValue = Number(mean_median_stdev[1]).toFixed(3);
@@ -907,7 +923,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     // console.log("before event:",this.statCalc);
     this.statCalc = event;
     // this.calcStatistics();
-    console.log("STAT CALC =", this.statCalc);
+    // console.log("STAT CALC =", this.statCalc);
 
     // this.calcStatistics();
   }
@@ -917,7 +933,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       dates : this.statCalc.dates,
       values: this.statCalc.values,
     }
-    console.log("data", data);
+    // console.log("data", data);
 
     this.httpService.post('test/updateStatistics', data).subscribe({
       next: (res: any) => {
