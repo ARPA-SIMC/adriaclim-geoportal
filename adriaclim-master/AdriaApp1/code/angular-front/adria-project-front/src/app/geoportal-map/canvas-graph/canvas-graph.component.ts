@@ -1190,6 +1190,7 @@ getDataGraphPolygonInterval() {
   getDataGraph() {
 
     let data = {
+      dataset: this.dataset,
       idMeta: this.idMeta,
       variable: this.variable,
       range: this.range ? Math.abs(this.range) : null,

@@ -375,6 +375,8 @@ def getDataTableNew(request):
 def getDataGraphicNewCanvas(request):
     try:
         dataset_id = request.data.get("idMeta")
+        dataset = request.data.get('dataset')
+        adriaclim_timeperiod = dataset.get('adriaclim_timeperiod')
         latitude = str(request.data.get("lat"))
         longitude = str(request.data.get("lng"))
         time_start = str(request.data.get("dateStart"))
@@ -388,7 +390,7 @@ def getDataGraphicNewCanvas(request):
         lng_max =str(request.data.get("lng_max"))
         operation = request.data.get("operation") #default or type of operation
         context = request.data.get("context") #one or poylgon
-        allData = allFunctions.getDataGraphicGeneric(dataset_id,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+        allData = allFunctions.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:
@@ -453,5 +455,8 @@ def discover_mb_indicator(request):
 def updateStatistics(request):
     new_dates = request.data.get("dates")
     new_values = request.data.get("values")
-    new_values_calculated = allFunctions.updateStatistics(new_dates,new_values)
+    dataset = request.data.get("dataset")
+    polygon = request.data.get("polygon")
+    adriaclim_timeperiod = dataset.get("adriaclim_timeperiod")
+    new_values_calculated = allFunctions.updateStatistics(new_dates,new_values,adriaclim_timeperiod,polygon)
     return JsonResponse({"newValues":new_values_calculated})

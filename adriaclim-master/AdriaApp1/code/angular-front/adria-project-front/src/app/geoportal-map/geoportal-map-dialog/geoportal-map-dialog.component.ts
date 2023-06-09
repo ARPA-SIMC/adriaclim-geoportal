@@ -932,6 +932,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     let data = {
       dates : this.statCalc.dates,
       values: this.statCalc.values,
+      dataset: this.dataset,
+      polygon: this.polygon,
     }
     // console.log("data", data);
 
