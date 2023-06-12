@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     // if(tempoRimanente > 0) {
     //   setTimeout(() => {
-    //     this.getAllData();
+    // this.getAllData();
     //   }, tempoRimanente);
     // }
 

@@ -88,6 +88,18 @@ def download_with_cache(u):
         return output_value
 
 
+def remove_from_cache(u):
+    cache_key = u  # needs to be unique
+    output_value = cache.get(key=cache_key)  # returns None if no key-value pair
+    # print("output_value: ",output_value)
+    if output_value:
+        output_value = output_value.decode("utf-8")
+        cache.delete(key=cache_key)
+        return output_value
+    else:
+        return None
+
+
 
 def download_with_cache_as_csv(u):
     try:
@@ -98,6 +110,7 @@ def download_with_cache_as_csv(u):
             return None
     except Exception as e:
         return "fuoriWms"
+
 
 
 def getIndicator(id):
@@ -153,16 +166,17 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
     if type(ind) == str:
         ind = getIndicator(ind)
 
-    # print("INDICATOR ========",ind)
+    print("INDICATOR ========",ind)
     url = getIndicatorBaseUrl(ind)
 
-    # print("URL ========",url)
+    print("URL GET INDICATOR QUERY URL ========",url)
     if "format" in kwargs:
         url = url + "." + kwargs["format"]
 
     di = getIndicatorDimensions(ind)
 
     va = getIndicatorVariables(ind)
+    print("All VARIABLES=========",va)
 
     selVar = [kwargs["variable"]]
 
@@ -179,12 +193,14 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
     if skipDimensions:
         di = []
     
-    va = selVar
+    # va = selVar       
 
     query = "?"
 
     if griddap:
         for v in va:
+            print("VARIABLE GRIDDAP:",v)
+
             if query != "?":
                 query = query + ","
             query = query + v
@@ -223,6 +239,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     else:
         for v in va:
+            print("VARIABLE TABLEDAP:",v)
+            print("URL + QUERY =", url + query)
             if query != "?":
                 query = query + "%2C"
             query = query + v
@@ -561,6 +579,8 @@ def getAllDatasets():
     start_time = time.time()
     print("Started getAllDatasets()")
     url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
+    # asyncio.run(cache.clear())
+    # cache.clear()
     # node_list = []
     asyncio.run(delete_all("Node"))  # delete all existing nodes
     try:
@@ -1376,7 +1396,8 @@ def getDataGraphicGeneric(
             timeMax=time_finish,
         )
 
-        
+        print("ARRIVO QUI")
+        print("PRIMA URL=====")
         if cache == 1:
             url = download_with_cache_as_csv(url)
         if url == "fuoriWms":
@@ -1391,6 +1412,7 @@ def getDataGraphicGeneric(
             unit = layer_name
         unit = ""
         df = df.iloc[1:, :]
+        print("DF Test",df.head())
         n_values = len(df)
         allData = []
         values = []
@@ -1399,6 +1421,7 @@ def getDataGraphicGeneric(
         lats = []
         longs = []
         i = 0
+        print("ARRIVO QUO")
         if n_values <= x:  # all the data
             for index, row in df.iterrows():
                 if onlyone == 1 and onlylat is None:
@@ -1436,7 +1459,7 @@ def getDataGraphicGeneric(
                     values.insert(i, float(row[layer_name]))
                     dates.insert(i, row["time"])
                     i += 1
-
+        print("ARRIVO QUA")
         allData = [values, dates, unit, layerName, lats, longs]
         if operation is None:
             return allData
@@ -1452,7 +1475,8 @@ def getDataGraphicGeneric(
                 adriaclim_timeperiod=adriaclim_timeperiod,
             )
     except Exception as e:
-        return "fuoriWms"
+        print("ECCEZIONE NO WMS ==", e)
+        return str(e)
 
 
 def check_dates_format_trend(dates):
@@ -1529,6 +1553,7 @@ def subtract_mean_trend(dates,values,timeperiod):
 def calculate_trend(dates, values, **kwargs):
     try:
         y = np.array(values)
+        print("CALCULATE TREND===========",y)
         if "timeperiod" in kwargs and kwargs["timeperiod"] != "yearly":
             y = subtract_mean_trend(dates,y,kwargs["timeperiod"])
 
@@ -1590,17 +1615,25 @@ def packageGraphData(allData, **kwargs):
 
     if "operation" in kwargs:
         if kwargs["operation"] == "default":
-            mean_result = mean(values)
-            median_result = median(values)
-            stdev_result = stdev(values)
-            # print("dates==========",dates)
-            # print("values===========",values)
-            # print("len values===========",len(values))
-            trend_result = calculate_trend(dates,values, timeperiod=kwargs["adriaclim_timeperiod"])
-            data["mean"] = mean_result
-            data["median"] = median_result
-            data["stdev"] = stdev_result
-            data["trend_yr"] = trend_result
+            try:
+                mean_result = mean(values)
+                median_result = median(values)
+                stdev_result = stdev(values)
+                # print("dates==========",dates)
+                # print("values===========",values)
+                # print("len values===========",len(values))
+                trend_result = calculate_trend(dates,values, timeperiod=kwargs["adriaclim_timeperiod"])
+                data["mean"] = mean_result
+                data["median"] = median_result
+                data["stdev"] = stdev_result
+                data["trend_yr"] = trend_result
+            except Exception as e:
+                if str(e) == "variance requires at least two data points":
+                    data["mean"] = values
+                    data["stdev"] = values
+                    data["median"] = values
+                    data["trend_yr"] = values
+                    # print("Errore in update",e)
 
 
 
@@ -2538,18 +2571,27 @@ def getDataPolygonNew(
 
         # a seconda del valore di operation e di time_op viene fatta l'operazione7
         # df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
-        # pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
-        # # date_value_to_list = pol_from_cache_dataframe.copy()
-        # # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
-        # # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
-        # trend_value = calculate_trend(pol_from_cache_dataframe["x"].tolist(),pol_from_cache_dataframe["y"].tolist())
-        # mean = pol_from_cache_dataframe["y"].mean()
-        # median = pol_from_cache_dataframe["y"].median()
-        # std_dev = pol_from_cache_dataframe["y"].std()
-        # pol_from_cache["mean"] = mean
-        # pol_from_cache["median"] = median
-        # pol_from_cache["stdev"] = std_dev
-        # pol_from_cache["trend_yr"] = trend_value
+        pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
+        # date_value_to_list = pol_from_cache_dataframe.copy()
+        # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
+        # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
+        pol_from_cache_values = pol_from_cache_dataframe["y"].tolist()
+        if len(pol_from_cache_values) == 1:
+            # print("LEN 1 =", pol_from_cache_values)
+            mean = pol_from_cache_values[0]
+            median = pol_from_cache_values[0]
+            std_dev = pol_from_cache_values[0]
+            trend_value = pol_from_cache_values[0]
+        else:
+            trend_value = calculate_trend(pol_from_cache_dataframe["x"].tolist(),pol_from_cache_dataframe["y"].tolist())
+            mean = pol_from_cache_dataframe["y"].mean()
+            median = pol_from_cache_dataframe["y"].median()
+            std_dev = pol_from_cache_dataframe["y"].std()
+        
+        pol_from_cache["mean"] = mean
+        pol_from_cache["median"] = median
+        pol_from_cache["stdev"] = std_dev
+        pol_from_cache["trend_yr"] = trend_value
         if parametro_agg != "None":
             pol_from_cache["dataTable"][0][parametro_agg] = (
                 pol_from_cache["dataTable"][0][parametro_agg]
@@ -2610,12 +2652,24 @@ def getDataPolygonNew(
                     # a seconda del valore di operation e di time_op viene fatta l'operazione7
                     df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
 
+                    pol_from_db_values = df_polygon_model["value_0"].tolist()
                     trend_value_mean = df_polygon_model.groupby("date_value")["value_0"].mean().tolist()
-                    trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean,timeperiod=adriaclim_timeperiod)
-
-                    mean = df_polygon_model["value_0"].mean()
-                    median = df_polygon_model["value_0"].median()
-                    std_dev = df_polygon_model["value_0"].std()
+                    if len(pol_from_db_values) == 1:
+                        # print("LEN DB =", pol_from_db_values)
+                        mean = pol_from_db_values[0]
+                        median = pol_from_db_values[0]
+                        std_dev = pol_from_db_values[0]
+                        trend_value = pol_from_db_values[0]
+                    else:
+                        if len(trend_value_mean) == 1:
+                            trend_value = trend_value_mean[0]
+                        else:
+                            trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean,timeperiod=adriaclim_timeperiod)
+                            
+                        mean = df_polygon_model["value_0"].mean()
+                        median = df_polygon_model["value_0"].median()
+                        std_dev = df_polygon_model["value_0"].std()
+                    
                     allData["mean"] = mean
                     allData["median"] = median
                     allData["stdev"] = std_dev
@@ -2869,11 +2923,25 @@ def getDataPolygonNew(
                 
                     # a seconda del valore di operation e di time_op viene fatta l'operazione7
                     df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
+                    pol_values = df_polygon["value_0"].tolist()
+
+                    # print("POL_VALUESSSS=============",pol_values)
                     trend_value_mean = df_polygon.groupby("date_value")["value_0"].mean().tolist()
-                    trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean,timeperiod=adriaclim_timeperiod)
-                    mean = df_polygon["value_0"].mean()
-                    median = df_polygon["value_0"].median()
-                    std_dev = df_polygon["value_0"].std()
+                    if len(pol_values) == 1:
+                        trend_value = pol_values[0]
+                        mean = pol_values[0]
+                        median = pol_values[0]
+                        std_dev = pol_values[0]
+                    else:
+                        if len(trend_value_mean) == 1:
+                            trend_value = trend_value_mean[0]
+                        else:
+                            trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean,timeperiod=adriaclim_timeperiod)
+        
+                        mean = df_polygon["value_0"].mean()
+                        median = df_polygon["value_0"].median()
+                        std_dev = df_polygon["value_0"].std()
+                    
                     allData["mean"] = mean
                     allData["median"] = median
                     allData["stdev"] = std_dev

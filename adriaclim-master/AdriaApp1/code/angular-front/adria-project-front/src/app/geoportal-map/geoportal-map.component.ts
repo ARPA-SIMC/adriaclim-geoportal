@@ -2355,7 +2355,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
       value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
     }
-
+    this.formatNumber(value_min, 5);
+    this.formatNumber(value_min_mid, 5);
+    this.formatNumber(value_mid, 5);
+    this.formatNumber(value_mid_max, 5);
+    this.formatNumber(value_max, 5);
 
     let getColor = (v: any) => {
       let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
@@ -2600,6 +2604,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     else {
       return this.dataAllNodesTree.data = treeFiltrato;
     }
+  }
+
+  formatNumber(number:any, fix: number) {
+    const decimalCount = (number.toString().split('.')[1] || '').length;
+
+    if (decimalCount > fix) {
+      return number.toFixed(fix);
+    }
+
+    return number.toString();
   }
 
   /**
