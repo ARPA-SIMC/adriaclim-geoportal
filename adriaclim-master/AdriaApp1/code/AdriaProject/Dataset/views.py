@@ -401,21 +401,34 @@ def getDataGraphicNewCanvas(request):
 
 @api_view(['GET','POST'])
 def getDataVectorialNew(request):
-    dataset = request.data.get("dataset")
+    try:
 
-    dataset_id = dataset.get('id')
-    sel_date = str(request.data.get('selDate'))
-    layer_name = request.data.get('selVar')
-    num_param = dataset.get('variables')
-    lat_min = dataset.get('lat_min')
-    lat_max = dataset.get('lat_max')
-    lng_min = dataset.get('lng_min')
-    lng_max = dataset.get('lng_max')
-    is_indicator = request.data.get('isIndicator')
-    dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
-    return JsonResponse({'dataVect':dataVect})
-
-
+        dataset = request.data.get("dataset")
+        dataset_id = dataset.get('id')
+        sel_date = str(request.data.get('selDate'))
+        layer_name = request.data.get('selVar')
+        num_param = dataset.get('variables')
+        lat_min = dataset.get('lat_min')
+        lat_max = dataset.get('lat_max')
+        lng_min = dataset.get('lng_min')
+        lng_max = dataset.get('lng_max')
+        is_indicator = request.data.get('isIndicator')
+        print("DATASET ID =", dataset_id)
+        print("SEL DATE =", sel_date)
+        print("LAYER NAME =", layer_name)
+        print("NUM PARAM =", num_param)
+        print("LAT MIN =", lat_min)
+        print("LAT MAX =", lat_max)
+        print("LNG MIN =", lng_min)
+        print("LNG MAX =", lng_max)
+        print("IS INDICATOR =", is_indicator)
+        
+        print("DATASET =", dataset)
+        dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
+        return JsonResponse({'dataVect': dataVect})
+    except Exception as e:
+        print("ERRORE GET VECTORIAL FINALE =", e)
+        return str(e)
 
 @api_view(['GET','POST'])
 def getDataPolygonNew(request):

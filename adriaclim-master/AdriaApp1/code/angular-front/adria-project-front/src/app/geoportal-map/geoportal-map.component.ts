@@ -2355,11 +2355,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
       value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
     }
-    this.formatNumber(value_min, 5);
-    this.formatNumber(value_min_mid, 5);
-    this.formatNumber(value_mid, 5);
-    this.formatNumber(value_mid_max, 5);
-    this.formatNumber(value_max, 5);
+    console.log("VALUE MIN =", value_min);
+    console.log("VALUE MIN MID =", value_min_mid);
+    console.log("VALUE MID =", value_mid);
+    console.log("VALUE MID MAX =", value_mid_max);
+    console.log("VALUE MAX =", value_max);
+
+    value_min = this.formatNumber(value_min, 5);
+    value_min_mid = this.formatNumber(value_min_mid, 5);
+    value_mid = this.formatNumber(value_mid, 5);
+    value_mid_max = this.formatNumber(value_mid_max, 5);
+    value_max = this.formatNumber(value_max, 5);
 
     let getColor = (v: any) => {
       let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
@@ -2606,11 +2612,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  formatNumber(number:any, fix: number) {
+  formatNumber(number: any, fix: number) {
     const decimalCount = (number.toString().split('.')[1] || '').length;
 
     if (decimalCount > fix) {
-      return number.toFixed(fix);
+      let fixed = number.toFixed(fix);
+
+      return fixed;
     }
 
     return number.toString();

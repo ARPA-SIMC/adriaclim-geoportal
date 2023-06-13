@@ -2344,46 +2344,52 @@ def getDataVectorial(
     range_value,
     is_indicator,
 ):
-    url = url_is_indicator(
-        is_indicator,
-        False,
-        True,
-        dataset_id=dataset_id,
-        layer_name=layer_name,
-        date_start=date_start,
-        latitude_start=latitude_start,
-        latitude_end=latitude_end,
-        longitude_start=longitude_start,
-        longitude_end=longitude_end,
-        num_param=num_param,
-        range_value=range_value,
-    )
-    start_time = time.time()
-    df = pd.read_csv(url, dtype="unicode")
-    allData = []
-    values = []
-    lat_coordinates = []
-    long_coordinates = []
-    df = df.dropna(how="any", axis=0)
+    try:
+        url = url_is_indicator(
+            is_indicator,
+            False,
+            True,
+            dataset_id=dataset_id,
+            layer_name=layer_name,
+            date_start=date_start,
+            latitude_start=latitude_start,
+            latitude_end=latitude_end,
+            longitude_start=longitude_start,
+            longitude_end=longitude_end,
+            num_param=num_param,
+            range_value=range_value,
+        )
+        print("QUI")
+        print("URL =", url)
+        start_time = time.time()
+        df = pd.read_csv(url, dtype="unicode")
+        print("QUO")
+        allData = []
+        values = []
+        lat_coordinates = []
+        long_coordinates = []
+        df = df.dropna(how="any", axis=0)
+        print("QUA")
+        i = 0
+        for index, row in df.iterrows():
+            values.insert(i, row[layer_name])
+            lat_coordinates.insert(i, row["latitude"])
+            long_coordinates.insert(i, row["longitude"])
+            i += 1
+        del values[0]
+        del lat_coordinates[0]
+        del long_coordinates[0]
 
-    i = 0
-    for index, row in df.iterrows():
-        values.insert(i, row[layer_name])
-        lat_coordinates.insert(i, row["latitude"])
-        long_coordinates.insert(i, row["longitude"])
-        i += 1
-    del values[0]
-    del lat_coordinates[0]
-    del long_coordinates[0]
+        [float(i) for i in values]
+        value_min = min(values)
+        value_max = max(values)
 
-    [float(i) for i in values]
+        allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
 
-    value_min = min(values)
-    value_max = max(values)
-
-    allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
-
-    return allData
+        return allData
+    except Exception as e:
+        print("ECCEZIONE VETTORIALE", e)
+        return str(e)
 
 
 def convertToTime(date_str):
