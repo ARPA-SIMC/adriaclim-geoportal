@@ -946,7 +946,11 @@ getDataGraphPolygonInterval() {
           this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
           this.dataTablePolygon.emit(allDataPolygon.dataTable);
 
-
+          let value = allDataPolygon.dataPol.map((element: any) => element.y);
+          let minMaxValue = {
+            min: Math.min(...value).toFixed(0),
+            max: Math.max(...value).toFixed(0)
+          }
           if(this.statistic === "min_mean_max" || this.statistic === "min_10thPerc_median_90thPerc_max"){
             //caso di min_mean_max o min_10thPerc..., una linea per ogni statistica
 
@@ -961,6 +965,7 @@ getDataGraphPolygonInterval() {
 
             });
             let prova = allDataPolygon.dataPol.map((element: any) => element.x);
+
             // console.log("prova", new Date(prova[0]));
 
             // let statsName = this.statistic.split("_");
@@ -984,7 +989,9 @@ getDataGraphPolygonInterval() {
                     })
                   },
                   yAxis: {
-                    type: 'value'
+                    type: 'value',
+                    // min: minMaxValue.min,
+                    // max: minMaxValue.max,
                   },
 
                   tooltip: {
@@ -1086,7 +1093,9 @@ getDataGraphPolygonInterval() {
               })
             },
             yAxis: {
-              type: 'value'
+              type: 'value',
+              // min: minMaxValue.min,
+              // max: minMaxValue.max,
             },
             tooltip: {
               trigger: 'axis',
@@ -1268,9 +1277,13 @@ getDataGraphPolygonInterval() {
 
         });
 
-        let provaDataRes = this.dataRes.allData[name].map((element: any) => element.x);
-          // console.log("DATA RES", this.dataRes);
-
+        let value = this.dataRes.allData[name].map((element: any) => element.y);
+        let minMaxValue = {
+          min: Math.min(...value).toFixed(0),
+          max: Math.max(...value).toFixed(0),
+        }
+        // console.log("DATA RES", this.dataRes);
+        // console.log("MINIMUM VALUE", minMaxValue);
         this.chartOption = {
 
           xAxis: {
@@ -1295,7 +1308,9 @@ getDataGraphPolygonInterval() {
             })
           },
           yAxis: {
-            type: 'value'
+            type: 'value',
+            // min: minMaxValue.min,
+            // max: minMaxValue.max,
           },
           toolbox: {
             feature: {

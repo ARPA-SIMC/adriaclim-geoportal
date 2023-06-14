@@ -8,6 +8,8 @@ from .tasks import task_get_data_polygon
 
 # import allFunctions
 from myFunctions import allFunctions
+from myFunctions.getDataFunctions import functionPoint, functionPolygon, functionTable
+
 from .forms import DatasetForm
 import requests
 import os
@@ -358,6 +360,18 @@ def get_metadata_table(request):
     metadata=allFunctions.getMetadataOfASpecificDataset(dataset_id)
     return JsonResponse({"metadata":metadata})
 
+# @api_view(['GET','POST'])
+# def getDataTableNew(request):
+#     dataset_id = request.data.get("idMeta")
+#     latitude = request.data.get("lat")
+#     longitude = request.data.get("lng")
+#     time_start = request.data.get("dateStart")
+#     time_finish = request.data.get("dateEnd")
+#     layer_name = request.data.get("variable")
+#     num_parameters = request.data.get("dimensions")
+#     range_value = request.data.get("range")
+#     data = allFunctions.getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
+#     return JsonResponse({"data":data})
 @api_view(['GET','POST'])
 def getDataTableNew(request):
     dataset_id = request.data.get("idMeta")
@@ -368,8 +382,36 @@ def getDataTableNew(request):
     layer_name = request.data.get("variable")
     num_parameters = request.data.get("dimensions")
     range_value = request.data.get("range")
-    data = allFunctions.getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
+    data = functionTable.getDataFunctionsTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
     return JsonResponse({"data":data})
+
+# @api_view(['GET','POST'])
+# def getDataGraphicNewCanvas(request):
+#     try:
+#         dataset_id = request.data.get("idMeta")
+#         dataset = request.data.get('dataset')
+#         adriaclim_timeperiod = dataset.get('adriaclim_timeperiod')
+#         latitude = str(request.data.get("lat"))
+#         longitude = str(request.data.get("lng"))
+#         time_start = str(request.data.get("dateStart"))
+#         time_finish = str(request.data.get("dateEnd"))
+#         layer_name = request.data.get("variable")
+#         num_parameters = request.data.get("dimensions")
+#         range_value = str(request.data.get("range"))
+#         lat_min = str(request.data.get("lat_min"))
+#         lat_max =str(request.data.get("lat_max"))
+#         lng_min = str(request.data.get("lng_min"))
+#         lng_max =str(request.data.get("lng_max"))
+#         operation = request.data.get("operation") #default or type of operation
+#         context = request.data.get("context") #one or poylgon
+#         allData = allFunctions.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+#         if allData == "fuoriWms":
+#             return JsonResponse({"allData":allData})
+#         else:
+#             return JsonResponse({'allData':allData})
+#     except Exception as e:
+#         print("ERRORE:",e)
+#         return "fuoriWms"
 
 @api_view(['GET','POST'])
 def getDataGraphicNewCanvas(request):
@@ -390,7 +432,7 @@ def getDataGraphicNewCanvas(request):
         lng_max =str(request.data.get("lng_max"))
         operation = request.data.get("operation") #default or type of operation
         context = request.data.get("context") #one or poylgon
-        allData = allFunctions.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+        allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:
@@ -408,6 +450,8 @@ def getDataVectorialNew(request):
         sel_date = str(request.data.get('selDate'))
         layer_name = request.data.get('selVar')
         num_param = dataset.get('variables')
+        num_dimensions = dataset.get('dimensions')
+
         lat_min = dataset.get('lat_min')
         lat_max = dataset.get('lat_max')
         lng_min = dataset.get('lng_min')
@@ -416,12 +460,22 @@ def getDataVectorialNew(request):
         print("DATASET ID =", dataset_id)
         print("SEL DATE =", sel_date)
         print("LAYER NAME =", layer_name)
-        print("NUM PARAM =", num_param)
+        # print("NUM PARAM =", num_param)
+        # print("NUM PARAM TYPE =", type(num_param))
+        # print("NUM DIMENSIONS =", num_dimensions)
+        # print("NUM DIMENSIONS TYPE =", type(num_dimensions))
         print("LAT MIN =", lat_min)
         print("LAT MAX =", lat_max)
         print("LNG MIN =", lng_min)
         print("LNG MAX =", lng_max)
         print("IS INDICATOR =", is_indicator)
+        if is_indicator == "false":
+            num_param = int(num_dimensions)
+        
+        print("NUM PARAM =", num_param)
+        print("NUM PARAM TYPE =", type(num_param))
+        print("NUM DIMENSIONS =", num_dimensions)
+        print("NUM DIMENSIONS TYPE =", type(num_dimensions))
         
         print("DATASET =", dataset)
         dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)

@@ -710,6 +710,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   addDataTimeExport(graph: any) {
     // Array di timestamp a partire dalle date presenti in 'graph'
     const timestampArray = graph.map((element: any) => {
+      if(element.x.indexOf("T") > -1){
+          //siamo nel caso del poligono, formattare la data in maniera corretta
+
+          element.x = this.formatDate(new Date(element.x));
+      }
       const dateParts = element.x.split('/');
 
       const date = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));

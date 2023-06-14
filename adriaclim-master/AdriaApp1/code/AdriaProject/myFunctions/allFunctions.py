@@ -1314,8 +1314,7 @@ def getDataTable(
     range_value,
 ):
     try:
-        # vedere se si tratta di un poligono e nel caso prendere tutti i punti che stanno nel poligono e per ogni punto chiamare questa funzione e costruire il json?
-
+        
         url = getIndicatorQueryUrl(
             dataset_id,
             False,

@@ -1103,7 +1103,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     }).subscribe({
       next: (res: any) => {
         this.metadata = res;
-        // console.log("METADATA =", this.metadata);
+        console.log("METADATA =", this.metadata);
 
 
         if (controlDate === "ok") {
@@ -1649,9 +1649,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     //if num_parameters.length > 3, layers3D!!!
     let num_parameters = this.metadata[0][1].split(", ");
+    // console.log("NUM PARAMETERS =", num_parameters.length);
+
 
 
     if (this.selData.get("dataSetSel")?.value.name.wms_url === "") {
+      //GESTIONE PARAMETRO AGGIUNTIVO PER I GRIDDAP SENZA WMS!!!!!
       this.getDataVectorialTabledap();
 
     }
@@ -1677,6 +1680,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
               opacity: 0.7,
             } as ExtendedWMSOptions)
         };
+        // console.log("NON ENTRO NEL PARAMETRO AGGIUNTIVO");
 
         this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
 
@@ -1689,6 +1693,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         let min = Number(min_max_value[0]);
         let max = Number(min_max_value[1]);
         let step = Number(this.metadata[0][5].split("=")[1]);
+        // console.log("ENTRO NEL CASO DEL PARAMETRO AGGIUNTIVO!");
+        // console.log("NOME PARAMETRO AGGIUNTIVO======",name);
+        // console.log("VALORE MIN",min);
+        // console.log("VALORE MAX",max);
+        // console.log("STEP",step);
 
         //se non c'è ci sono questi due if, se c'è hai sempre
         if (name === "depth") {
