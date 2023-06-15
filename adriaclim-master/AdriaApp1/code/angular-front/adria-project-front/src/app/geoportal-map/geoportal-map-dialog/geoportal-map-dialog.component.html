@@ -7,7 +7,16 @@
 
       </ng-container>
 
-      <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
+      <ng-container *ngIf="compareObj; else notCompare">
+
+        <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{compareObj.firstDataset.name.title}}</span></h1>
+        <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{compareObj.secondDataset.name.title}}</span></h1>
+      </ng-container>
+
+      <ng-template #notCompare>
+        <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{datasetName}}</span></h1>
+
+      </ng-template>
 
     </div>
     <ng-container *ngIf="!polName && openGraph">
@@ -67,7 +76,7 @@
                   <!-- <div> -->
                   <!-- <h4>Select graph</h4> -->
 
-                  <mat-form-field appearance="fill" class="col">
+                  <mat-form-field appearance="fill" class="col" *ngIf="!compareObj">
                     <mat-label>Time scale</mat-label>
                       <mat-select formControlName="operationSel" (selectionChange)="showStatPointSelected(polygon)">
                         <mat-option *ngFor="let o of optionTimeScale" [disabled]="removeAnnualCycle(o)"
@@ -113,22 +122,31 @@
                   </section>
                 </div>
               </div>
-              <!-- <ng-container *ngIf="confronto; else noConfronto">
-                <app-canvas-graph-compare></app-canvas-graph-compare>
-              </ng-container> -->
-               <!-- <ng-template #noConfronto> -->
+              <ng-container *ngIf="compareObj; else noConfronto">
+                <app-canvas-graph-compare [compareObj]="compareObj" (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
+                  (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
+                  (statisticCalc)="statisticCalc($event)"
+                  class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
+                  [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
+                  [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"
+                  [extraParam]="extraParamExport" [enableArea]="form.get('enableArea')?.value"
+                  [circleCoords]="circleCoords"
+                  [context]="'one'">
+                </app-canvas-graph-compare>
+              </ng-container>
+               <ng-template #noConfronto>
                 <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
                   (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
                   (statisticCalc)="statisticCalc($event)"
                   class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                   [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
                   [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"
-                  [extraParam]="extraParamExport" [enableArea]="form.get('enableArea')?.value" 
+                  [extraParam]="extraParamExport" [enableArea]="form.get('enableArea')?.value"
                   [circleCoords]="circleCoords"
                   [context]="'one'">
                 </app-canvas-graph>
 
-              <!-- </ng-template> -->
+              </ng-template>
 
 
               <!-- <ng-template matTabContent> -->

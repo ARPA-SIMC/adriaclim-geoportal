@@ -106,6 +106,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   showStatistic: boolean = true;
 
+  compareObj: any;
+
   typeOfExport = [
     {
       type: ".csv",
@@ -353,6 +355,8 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.polName = data.polName;
 
     this.circleCoords = data.circleCoords;
+
+    this.compareObj = data.compareObj;
 
 
     // this.start = this.dateStart.getTime();

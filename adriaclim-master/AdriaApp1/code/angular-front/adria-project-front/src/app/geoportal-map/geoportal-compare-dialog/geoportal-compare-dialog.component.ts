@@ -56,6 +56,12 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit, A
       secondVarSel: this.form.get('variableSecondData')?.value,
     }
     this.dialogRef.close(data);
+
+    // console.log("FIRST DATASET: ", this.form.get('firstDataset')?.value);
+    // console.log("SECOND DATASET: ", this.form.get('secondDataset')?.value);
+    // console.log("FIRST VAR: ", this.form.get('variableFirstData')?.value);
+    // console.log("SECOND VAR: ", this.form.get('variableSecondData')?.value);
+
   }
 
   getSelectedVarFirstDataset(){

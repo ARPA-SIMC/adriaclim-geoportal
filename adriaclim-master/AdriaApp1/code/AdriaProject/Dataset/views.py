@@ -527,3 +527,50 @@ def updateStatistics(request):
     adriaclim_timeperiod = dataset.get("adriaclim_timeperiod")
     new_values_calculated = allFunctions.updateStatistics(new_dates,new_values,adriaclim_timeperiod,polygon)
     return JsonResponse({"newValues":new_values_calculated})
+
+@api_view(['GET','POST'])
+def compareDatasets(request):
+    try:
+        # print("Request",request)
+        compare_obj = request.data
+        # print("compare_obj",compare_obj)
+        context = "one"
+        operation = "default"
+        latitude = str(compare_obj.get('latlng')["lat"])
+        longitude = str(compare_obj.get('latlng')["lng"])
+        first_dataset = compare_obj.get('firstDataset')["name"]
+        # print("First_dataset: ",first_dataset)
+        first_dataset_id = first_dataset["id"]
+        # print("First_dataset_id: ",first_dataset_id)
+        first_dataset_timeperiod = first_dataset["adriaclim_timeperiod"]
+        first_dataset_layer_name = str(compare_obj.get('firstVarSel'))
+        first_dataset_time_start = first_dataset["time_start"]
+        first_dataset_time_end = first_dataset["time_end"]
+        # print()
+        # print("Latitude: ",latitude)
+        # print("Longitude: ",longitude)
+        # print()
+        first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,0,0,"no","no","no","no",operation=operation,context=context)
+        # print("FIRST_RESULT: ",first_result)
+        second_dataset = compare_obj.get('secondDataset')["name"]
+        # print("Second_dataset: ",second_dataset)
+        second_dataset_id = second_dataset["id"]
+        second_dataset_timeperiod = second_dataset["adriaclim_timeperiod"]
+        second_dataset_layer_name = str(compare_obj.get('secondVarSel'))
+        second_dataset_time_start = second_dataset["time_start"]
+        second_dataset_time_end = second_dataset["time_end"]
+        second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,0,0,"no","no","no","no",operation=operation,context=context)
+        # print("SECOND_RESULT",second_result)
+        allData = {
+            "firstResult": first_result,
+            "secondResult": second_result,
+        }
+        # allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+        # if allData == "fuoriWms":
+        #     return JsonResponse({"compareResult":allData})
+        # else:
+        #     return JsonResponse({'compareResult':allData})
+        return JsonResponse({"compareResult": allData})
+    except Exception as e:
+        print("Eccezione",e)
+        return str(e)

@@ -166,17 +166,17 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
     if type(ind) == str:
         ind = getIndicator(ind)
 
-    print("INDICATOR ========",ind)
+    # print("INDICATOR ========",ind)
     url = getIndicatorBaseUrl(ind)
 
-    print("URL GET INDICATOR QUERY URL ========",url)
+    # print("URL GET INDICATOR QUERY URL ========",url)
     if "format" in kwargs:
         url = url + "." + kwargs["format"]
 
     di = getIndicatorDimensions(ind)
 
     va = getIndicatorVariables(ind)
-    print("All VARIABLES=========",va)
+    # print("All VARIABLES=========",va)
 
     selVar = [kwargs["variable"]]
 
@@ -199,7 +199,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     if griddap:
         for v in va:
-            print("VARIABLE GRIDDAP:",v)
+            # print("VARIABLE GRIDDAP:",v)
 
             if query != "?":
                 query = query + ","
@@ -239,7 +239,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     else:
         for v in va:
-            print("VARIABLE TABLEDAP:",v)
+            # print("VARIABLE TABLEDAP:",v)
             print("URL + QUERY =", url + query)
             if query != "?":
                 query = query + "%2C"

@@ -34,6 +34,11 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @Output() statisticCalc = new EventEmitter<any>();
   @Output() description = new EventEmitter<any>();
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
+
+  @Input() compareObj: any;
+
+  // @ViewChild("parent") parent!: ElementRef<HTMLElement>;
+
   myChart: any;
   dateGraphZoom : any[] = [];
   valueGraphZoom : any[] = [];
@@ -80,107 +85,11 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
     // } else {
       //se non c'è il poligono chiama this.getDataGraph() classica
       this.spinnerLoadingChild.emit(true);
-      this.optionsCompare = {
-        color: this.colors,
-        tooltip: {
-          trigger: 'none',
-          axisPointer: {
-            type: 'cross'
-          }
-        },
-        legend: {},
-        grid: {
-          top: 70,
-          bottom: 50
-        },
-        xAxis: [
-          {
-            type: 'category',
-            axisTick: {
-              alignWithLabel: true
-            },
-            axisLine: {
-              onZero: false,
-              lineStyle: {
-                color: this.colors[1]
-              }
-            },
-            axisPointer: {
-              label: {
-                formatter: function (params:any) {
-                  return (
-                    'Precipitation  ' +
-                    params.value +
-                    (params.seriesData.length ? '：' + params.seriesData[0].data : '')
-                  );
-                }
-              }
-            },
-            // prettier-ignore
-            data: ['2016-1', '2016-2', '2016-3', '2016-4', '2016-5', '2016-6', '2016-7', '2016-8', '2016-9', '2016-10', '2016-11', '2016-12']
-          },
-          {
-            type: 'category',
-            axisTick: {
-              alignWithLabel: true
-            },
-            axisLine: {
-              onZero: false,
-              lineStyle: {
-                color: this.colors[0]
-              }
-            },
-            axisPointer: {
-              label: {
-                formatter: function (params:any) {
-                  return (
-                    'Precipitation  ' +
-                    params.value +
-                    (params.seriesData.length ? '：' + params.seriesData[0].data : '')
-                  );
-                }
-              }
-            },
-            // prettier-ignore
-            data: ['2015-1', '2015-2', '2015-3', '2015-4', '2015-5', '2015-6', '2015-7', '2015-8', '2015-9', '2015-10', '2015-11', '2015-12']
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value'
-          }
-        ],
-        series: [
-          {
-            name: 'Precipitation(2015)',
-            type: 'line',
-            xAxisIndex: 1,
-            smooth: true,
-            emphasis: {
-              focus: 'series'
-            },
-            data: [
-              2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3
-            ]
-          },
-          {
-            name: 'Precipitation(2016)',
-            type: 'line',
-            smooth: true,
-            emphasis: {
-              focus: 'series'
-            },
-            data: [
-              3.9, 5.9, 11.1, 18.7, 48.3, 69.2, 231.6, 46.6, 55.4, 18.4, 10.3, 0.7
-            ]
-          }
-        ]
-      };
-
-      // this.getDataGraph();
-    // }
+      this.getGraphCompare();
 
     // console.log("ECHARTS =", echarts);
+    this.spinnerLoadingChild.emit(false);
+
 
   }
 
@@ -191,7 +100,8 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
 
   ngAfterViewInit() {
-    this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
+    // this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
+    this.myChart = echarts.init(this.parentRef.nativeElement);
   }
 
   formatNumber(number:any) {
@@ -384,6 +294,177 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
         this.spinnerLoadingChild.emit(false);
       }
 
+
+    });
+  }
+
+
+
+  getGraphCompare() {
+    console.log('COMPARE OBJ: ', this.compareObj);
+    // this.compareObj["operation"] = this.operation;
+    let data = this.compareObj;
+    this.httpService.post('test/compareDatasets', data).subscribe({
+      next: (res: any) => {
+        console.log('COMPARE RES: ', res);
+        let firstDataset = res.compareResult.firstResult;
+        let secondDataset = res.compareResult.secondResult;
+        let firstKey = this.compareObj.firstVarSel;
+        let secondKey = this.compareObj.secondVarSel;
+
+        console.log('FIRST DATASET: ', firstDataset);
+        console.log('SECOND DATASET: ', secondDataset);
+        console.log('FIRST KEY: ', firstKey);
+        console.log('SECOND KEY: ', secondKey);
+
+        let namesArray = [firstKey, secondKey];
+
+        this.chartOption = {
+          color: this.colors,
+          xAxis: [
+            {
+              name: "firstAxisName",
+              type: 'category',
+              boundaryGap: false,
+              axisLine:{
+                // onZero: false,
+                lineStyle:{
+                  color: this.colors[1]
+                }
+              },
+              data: firstDataset[firstKey].map((element: any) => {
+                let elDate = new Date(element.x).toLocaleDateString();
+                if (elDate !== "Invalid Date") {
+                  return elDate;
+                }
+                else {
+                  return element.x;
+                }
+
+              })
+            },
+            {
+              name: "secondAxisName",
+              type: 'category',
+              boundaryGap: false,
+              axisLine:{
+                // onZero: false,
+                lineStyle:{
+                  color: this.colors[0]
+                }
+              },
+              data: secondDataset[secondKey].map((element: any) => {
+                let elDate = new Date(element.x).toLocaleDateString();
+                if (elDate !== "Invalid Date") {
+                  return elDate;
+                }
+                else {
+                  return element.x;
+                }
+
+              })
+            }
+          ],
+          yAxis: {
+            type: 'value',
+            // min: minMaxValue.min,
+            // max: minMaxValue.max,
+          },
+          toolbox: {
+            feature: {
+              dataZoom: {
+                yAxisIndex: 'none'
+              },
+              restore: {},
+              saveAsImage: {}
+            }
+          },
+          tooltip: {
+            // trigger: 'axis',
+            // axis: 'x1',
+            formatter: (paramsFormatter: any) => {
+              console.log("PARAMSFORMATTER", paramsFormatter);
+              // let prova1 = paramsFormatter[0].dataIndex;
+              // let prova2 = paramsFormatter[0].axisIndex;
+              // let selectedxAxis = this.chartOption.xAxis[0].data.[prova1];
+              // let count = 0;
+              const tooltipHTML = paramsFormatter.map((param: any, index:number) => {
+                console.log("PARAM",param);
+                let value: any = Number(param.value);
+                if (value > 10000 || value < 0.001 && value !== 0) {
+                  value = value.toExponential().replace(/e\+?/, ' x 10^');
+                }
+                let date: string;
+                if (index === 0) {
+                  // First x-axis data
+                  date = firstDataset[firstKey][param.dataIndex].x;
+                } else if (index === 1) {
+                  // Second x-axis data
+                  date = secondDataset[secondKey][param.dataIndex].x;
+                }
+                return `<span style="color:${this.colors[index]}">${param.name}</span><br>${param.marker} ${param.seriesName}: ${value}`;
+              }).join('<br>');
+
+
+              return `${tooltipHTML}`;
+
+            },
+            transitionDuration: 0.2,
+            axisPointer: {
+              type: 'cross',
+              label: {
+                backgroundColor: '#6a7985'
+              }
+            }
+          },
+          legend: {
+            // data:
+            orient: 'horizontal',
+            itemGap: 70,
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+
+          dataZoom: [
+            {
+              show: true,
+              realtime: true,
+              type: 'inside',
+            },
+
+          ],
+          series: [
+            {
+              data: firstDataset[firstKey].map((element: any) => this.formatNumber(element.y)),
+              name: "Pippo",
+              type: 'line',
+              stack: '',
+              areaStyle: undefined,
+              smooth: false
+            },
+            {
+              data: secondDataset[secondKey].map((element: any) => this.formatNumber(element.y)),
+              name: "Pluto",
+              type: 'line',
+              stack: '',
+              areaStyle: undefined,
+              smooth: false
+            },
+          ]
+        }
+
+        // this.dataTimeExport.emit(this.dataRes.allData[name]);
+        this.spinnerLoadingChild.emit(false);
+
+
+      },
+      error: (msg: any) => {
+        console.log('COMPARE ERROR: ', msg);
+      }
 
     });
   }

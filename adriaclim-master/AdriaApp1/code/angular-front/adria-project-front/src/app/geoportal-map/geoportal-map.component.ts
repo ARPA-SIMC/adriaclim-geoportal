@@ -182,6 +182,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   clickPointOnOff: boolean = false;
   clickPolygonOnOff: boolean = false;
   confronto: boolean = false;
+  compare: boolean = false;
 
   metadata: any;
   dateStart: any;
@@ -208,6 +209,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   valueMidColorDefault: any = "#9c27b0";
   valueMidMaxColorDefault: any = "#673ab7";
   valueMaxColorDefault: any = "#3f51b5";
+
+  compareObj: any = {};
 
 
   layer_to_attach: any;
@@ -510,6 +513,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     // this.pointBoolean = true;
     // '../../assets/geojson/geojson.json'
     // console.log("MAP CONTAINER =", this.map.getContainer().style)
+
     this.map.off('click');
     this.map.getContainer().style.cursor = "url('../../assets/img/pointer-map-marker-removebg.png') 16 31, auto";
     // this.map.getContainer().style.cursor = "url('../../assets/img/plane.png'), auto";
@@ -522,7 +526,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       this.circleMarkerArray.forEach((circle: any) => {
         circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
       });
-    } else {
+    }
+    else {
       if (this.clickPointOnOff === true) {
         this.map.off('click');
         this.map.on('click', this.onMapClick.bind(this));
@@ -2183,6 +2188,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         };
       }
 
+      if(this.datasetCompare != null && this.compare) {
+        this.compareObj = {
+          firstDataset: this.datasetCompare.firstDataset,
+          firstVarSel: this.datasetCompare.firstVarSel,
+          secondDataset: this.datasetCompare.secondDataset,
+          secondVarSel: this.datasetCompare.secondVarSel,
+          latlng: this.coordOnClick,
+          compare: this.compare,
+        }
+        dialogConfig.data["compareObj"] = this.compareObj;
+        this.compare = false;
+        this.datasetCompare = null;
+      }
+      console.log("DIALOG CONFIG DATA =", dialogConfig.data);
+
     // }
 
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
@@ -2457,7 +2477,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         // console.log("result =", result);
         this.datasetCompare = result;
         this.confronto = true;
+        this.compare = true;
+        console.log("this.datasetCompare =", this.datasetCompare);
         this.pointSelect();
+
       }
     })
 
