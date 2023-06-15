@@ -380,7 +380,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
             }
           },
           tooltip: {
-            // trigger: 'axis',
+            trigger: 'axis',
             // axis: 'x1',
             formatter: (paramsFormatter: any) => {
               console.log("PARAMSFORMATTER", paramsFormatter);
@@ -394,15 +394,15 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
                 if (value > 10000 || value < 0.001 && value !== 0) {
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
                 }
-                let date: string;
-                if (index === 0) {
+                let date;
+                if (param.seriesIndex === 1) {
                   // First x-axis data
-                  date = firstDataset[firstKey][param.dataIndex].x;
-                } else if (index === 1) {
+                  date = this.formatDate(firstDataset[firstKey][param.dataIndex].x);
+                } else if (param.seriesIndex === 0) {
                   // Second x-axis data
-                  date = secondDataset[secondKey][param.dataIndex].x;
+                  date = this.formatDate(secondDataset[secondKey][param.dataIndex].x);
                 }
-                return `<span style="color:${this.colors[index]}">${param.name}</span><br>${param.marker} ${param.seriesName}: ${value}`;
+                return `<span style="color:${this.colors[index]}">${date}</span><br>${param.marker} ${param.seriesName}: ${value}`;
               }).join('<br>');
 
 
@@ -440,7 +440,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           series: [
             {
               data: firstDataset[firstKey].map((element: any) => this.formatNumber(element.y)),
-              name: "Pippo",
+              name:  this.compareObj.firstVarSel,
               type: 'line',
               stack: '',
               areaStyle: undefined,
@@ -448,7 +448,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
             },
             {
               data: secondDataset[secondKey].map((element: any) => this.formatNumber(element.y)),
-              name: "Pluto",
+              name: this.compareObj.secondVarSel + " ",
               type: 'line',
               stack: '',
               areaStyle: undefined,
