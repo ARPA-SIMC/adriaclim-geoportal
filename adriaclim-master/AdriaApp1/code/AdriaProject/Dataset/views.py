@@ -538,6 +538,8 @@ def compareDatasets(request):
         operation = "default"
         latitude = str(compare_obj.get('latlng')["lat"])
         longitude = str(compare_obj.get('latlng')["lng"])
+        print("Latitude: ",latitude)
+        print("Longitude: ",longitude)
         first_dataset = compare_obj.get('firstDataset')["name"]
         # print("First_dataset: ",first_dataset)
         first_dataset_id = first_dataset["id"]
@@ -546,10 +548,6 @@ def compareDatasets(request):
         first_dataset_layer_name = str(compare_obj.get('firstVarSel'))
         first_dataset_time_start = first_dataset["time_start"]
         first_dataset_time_end = first_dataset["time_end"]
-        # print()
-        # print("Latitude: ",latitude)
-        # print("Longitude: ",longitude)
-        # print()
         first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,0,0,"no","no","no","no",operation=operation,context=context)
         # print("FIRST_RESULT: ",first_result)
         second_dataset = compare_obj.get('secondDataset')["name"]

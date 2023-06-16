@@ -520,7 +520,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     // this.map.getContainer().style.cursor = "position";
     // this.map.getContainer().style.cursor = "url('src/assets/img/pointer-map-map-marker.cur')";
     // this.map.getContainer().style.cursor = "url('../assets/img/pointer-map-map-marker.cur')";
-    this.clickPointOnOff = !this.clickPointOnOff;
+    if(this.datasetCompare === null) {
+      this.clickPointOnOff = !this.clickPointOnOff;
+
+    }
+    else {
+      this.clickPointOnOff = true;
+    }
     this.clickPolygonOnOff = false;
     if (this.circleMarkerArray.length > 0) {
       this.circleMarkerArray.forEach((circle: any) => {
@@ -531,6 +537,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       if (this.clickPointOnOff === true) {
         this.map.off('click');
         this.map.on('click', this.onMapClick.bind(this));
+
 
       }
       else {
@@ -699,6 +706,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
 
+    if(this.datasetCompare != null) {
+      this.clickPointOnOff = false;
+      this.map.off('click');
+      this.map.getContainer().style.cursor = "default";
+    }
+
     this.coordOnClick = {
       lat: e.latlng.lat,
       lng: e.latlng.lng
@@ -752,6 +765,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       let lat_lng = this.markerPoint.getLatLng();
 
       const content = document.createElement('div');
+      // content.className = 'd-flex flex-row justify-content-center align-items-center';
       content.style.display = 'flex';
       content.style.flexDirection = 'column';
       content.style.alignItems = 'center';
@@ -761,7 +775,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       content.appendChild(button);
 
       // this.markerPoint.on('click', this.markerPointClick.bind(this));
-      this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
+      if(this.datasetCompare === null) {
+        this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
+
+      }
 
       this.markerPoint.bindPopup(content, {
         offset: [0, -25],
@@ -773,6 +790,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   markerPointClick() {
     // console.log("MARKER POINT CLICKED");
     this.openGraphDialog();
+
   }
 
   removeMarker() {
@@ -2187,6 +2205,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           openGraph: true,
         };
       }
+      console.log("DATASET COMPARE =", this.datasetCompare);
 
       if(this.datasetCompare != null && this.compare) {
         this.compareObj = {
@@ -2461,6 +2480,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
   compareDialogModal = () => {
+    this.clickPointOnOff = true;
     const dialogConfig = new MatDialogConfig();
 
     dialogConfig.disableClose = true;

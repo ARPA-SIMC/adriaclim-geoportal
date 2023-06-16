@@ -88,7 +88,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
       this.getGraphCompare();
 
     // console.log("ECHARTS =", echarts);
-    this.spinnerLoadingChild.emit(false);
 
 
   }
@@ -323,7 +322,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           color: this.colors,
           xAxis: [
             {
-              name: "firstAxisName",
+              // name: "firstAxisName",
               type: 'category',
               boundaryGap: false,
               axisLine:{
@@ -344,7 +343,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
               })
             },
             {
-              name: "secondAxisName",
+              // name: "secondAxisName",
               type: 'category',
               boundaryGap: false,
               axisLine:{
@@ -383,13 +382,13 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
             trigger: 'axis',
             // axis: 'x1',
             formatter: (paramsFormatter: any) => {
-              console.log("PARAMSFORMATTER", paramsFormatter);
+              // console.log("PARAMSFORMATTER", paramsFormatter);
               // let prova1 = paramsFormatter[0].dataIndex;
               // let prova2 = paramsFormatter[0].axisIndex;
               // let selectedxAxis = this.chartOption.xAxis[0].data.[prova1];
               // let count = 0;
               const tooltipHTML = paramsFormatter.map((param: any, index:number) => {
-                console.log("PARAM",param);
+                // console.log("PARAM",param);
                 let value: any = Number(param.value);
                 if (value > 10000 || value < 0.001 && value !== 0) {
                   value = value.toExponential().replace(/e\+?/, ' x 10^');

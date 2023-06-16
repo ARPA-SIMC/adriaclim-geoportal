@@ -9,8 +9,8 @@
 
       <ng-container *ngIf="compareObj; else notCompare">
 
-        <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{compareObj.firstDataset.name.title}}</span></h1>
-        <h1 mat-dialog-title><span class="info-title-dialog">Dataset's name: </span><span class="title-dialog-bold">{{compareObj.secondDataset.name.title}}</span></h1>
+        <h1 mat-dialog-title><span class="info-title-dialog">First dataset: </span><span class="title-dialog-bold">{{compareObj.firstDataset.name.title}}</span></h1>
+        <h1 mat-dialog-title><span class="info-title-dialog">Second dataset: </span><span class="title-dialog-bold">{{compareObj.secondDataset.name.title}}</span></h1>
       </ng-container>
 
       <ng-template #notCompare>
