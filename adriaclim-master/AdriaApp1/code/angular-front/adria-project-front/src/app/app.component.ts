@@ -2,7 +2,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { HttpService } from './services/http.service';
 
-const FUNCTION_CALLED_FLAG = 'function_called';
 
 @Component({
   selector: 'app-root',

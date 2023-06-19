@@ -6,7 +6,8 @@
     "start": "ng serve --host 0.0.0.0",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -38,6 +39,11 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.1.6",
+    "@angular-eslint/builder": "15.2.1",
+    "@angular-eslint/eslint-plugin": "15.2.1",
+    "@angular-eslint/eslint-plugin-template": "15.2.1",
+    "@angular-eslint/schematics": "15.2.1",
+    "@angular-eslint/template-parser": "15.2.1",
     "@angular/cli": "~15.1.6",
     "@angular/compiler-cli": "^15.1.0",
     "@types/echarts": "^4.9.16",
@@ -45,6 +51,9 @@
     "@types/jasmine": "~4.3.0",
     "@types/leaflet": "^1.9.1",
     "@types/lodash": "^4.14.191",
+    "@typescript-eslint/eslint-plugin": "5.48.2",
+    "@typescript-eslint/parser": "5.48.2",
+    "eslint": "^8.33.0",
     "file-saver": "^2.0.5",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
