@@ -39,6 +39,11 @@
       <div #metadataTable *ngIf="!openGraph; else graph">
         <!-- <mat-spinner *ngIf="spinnerLoading" fxLayoutAlign="center center"></mat-spinner> -->
         <mat-spinner *ngIf="spinnerLoading" class="col-12 d-flex flex-row justify-content-center align-items-center"></mat-spinner>
+        <!-- <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" *ngIf="spinnerLoading">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" [ngStyle]="{'width': progressWidth}">
+            {{progressWidth}}
+          </div>
+        </div> -->
         <table mat-table [dataSource]="dataSource">
 
           <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns; let i = index">
@@ -58,7 +63,12 @@
 
       <ng-template #graph>
         <div #graphDiv *ngIf="!description">
-          <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner>
+          <!-- <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner> -->
+          <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" *ngIf="spinnerLoading" style="height: 30px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary h-100" [ngStyle]="{'width': progressWidth}">
+              {{progressWidth}}
+            </div>
+          </div>
 
 
           <!-- <ng-container *ngIf="!spinnerLoading"> -->
@@ -104,17 +114,68 @@
 
                 </div>
                 <!-- <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;"> -->
-                <div class="col d-flex flex-row justify-content-between align-items-center" *ngIf="showStatistic">
-                  <span>Mean: <br> {{meanValue}}</span>
-                  <span>Median: <br> {{medianValue}}</span>
-                  <span>Stddev: <br> {{stdevValue}}</span>
-                  <span>Trend/Yr: <br> {{trendValue}}</span>
-                  <!-- <span>Mean: <br> {{this.form.get("meanValue")?.value}}</span>
-                  <span>Median: <br> {{this.form.get("medianValue")?.value}}</span>
-                  <span>Stddev: <br> {{this.form.get("stdevValue")?.value}}</span>
-                  <span>Trend/Yr: <br> {{this.form.get("trendValue")?.value}}</span> -->
-                  <button mat-raised-button color="primary" (click)="calcStatistics()">Calc</button>
-                </div>
+                <ng-container *ngIf="compareObj; else normalStat">
+                  <!-- <div class="dropdown" *ngIf="showStatistic">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Stats
+                    </button>
+                    <ul class="dropdown-menu"> -->
+                      <!-- <li class="col d-flex flex-row justify-content-between align-items-center">
+                        <span>Mean: <br> mean1</span>
+                        <span>Median: <br> median1</span>
+                        <span>Stddev: <br> stdev1</span>
+                        <span>Trend/Yr: <br> trend/yr1</span>
+                      </li>
+                      <li class="col d-flex flex-row justify-content-between align-items-center">
+                        <span>Mean: <br> mean2</span>
+                        <span>Median: <br> median2</span>
+                        <span>Stddev: <br> stdev2</span>
+                        <span>Trend/Yr: <br> trend/yr2</span>
+                      </li> -->
+                    <!-- </ul>
+                  </div> -->
+                  <!-- <div class="dropdown">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Dropdown link
+                    </a>
+
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">Action</a></li>
+                      <li><a class="dropdown-item" href="#">Another action</a></li>
+                      <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    </ul>
+                  </div> -->
+                  <div class="dropdown text-center">
+                    <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Apri dropdown
+                      <svg class="icon-expand icon icon-sm icon-primary"><use href="/bootstrap-italia/dist/svg/sprites.svg#it-expand"></use></svg>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <div class="link-list-wrapper">
+                        <ul class="link-list">
+                          <li><a class="dropdown-item list-item" href="#"><span>Azione 1</span></a></li>
+                          <li><a class="dropdown-item list-item" href="#"><span>Azione 2</span></a></li>
+                          <li><a class="dropdown-item list-item" href="#"><span>Azione 3</span></a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-template #normalStat>
+
+                  <div class="col d-flex flex-row justify-content-between align-items-center" *ngIf="showStatistic">
+                    <span>Mean: <br> {{meanValue}}</span>
+                    <span>Median: <br> {{medianValue}}</span>
+                    <span>Stddev: <br> {{stdevValue}}</span>
+                    <span>Trend/Yr: <br> {{trendValue}}</span>
+                    <!-- <span>Mean: <br> {{this.form.get("meanValue")?.value}}</span>
+                    <span>Median: <br> {{this.form.get("medianValue")?.value}}</span>
+                    <span>Stddev: <br> {{this.form.get("stdevValue")?.value}}</span>
+                    <span>Trend/Yr: <br> {{this.form.get("trendValue")?.value}}</span> -->
+                    <button mat-raised-button color="primary" (click)="calcStatistics()">Calc</button>
+                  </div>
+                </ng-template>
+
                 <!-- <div fxFlex fxLayout="row" fxLayoutAlign="end center"> -->
                 <div class="col-1 d-flex flex-row justify-content-end align-items-center" *ngIf="statistic !== 'boxPlot'">
                   <section class="example-section">

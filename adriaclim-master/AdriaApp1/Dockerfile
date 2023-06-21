@@ -1,4 +1,6 @@
 FROM python:3.9
+# FROM python:3.9-buster
+# FROM python:3.8
 
 # Add unstable repo to allow us to access latest GDAL builds
 # Existing binutils causes a dependency conflict, correct version will be installed when GDAL gets intalled
@@ -23,9 +25,27 @@ RUN apt-get install -y libgdal-dev g++ --no-install-recommends && \
     apt-get clean -y
 
 # Install PostGIS
-RUN apt-get update && \
-    apt-get install -y postgis postgresql-13-postgis-3-scripts && \
-    apt-get clean -y
+# RUN apt-get update && \
+#     apt-get install -y postgis postgresql-13-postgis-3-scripts && \
+#     apt-get clean -y
+# RUN apt-get update && \
+#     apt-get install -y postgis && \
+#     apt-get clean -y
+
+# Update package list
+RUN apt-get update
+
+# RUN apt-cache search postgis
+# RUN apt-cache search postgresql-13-postgis-3-scripts
+
+# Install postgis and postgresql-13-postgis-3-scripts
+# RUN apt-get install -y postgis postgresql-13-postgis-3-scripts
+RUN apt-get install -y postgis=3.3.*
+RUN apt-get install -y postgresql
+
+# Clean up after installation
+RUN apt-get clean -y
+
 
 # Update C env vars so compiler can find gdal
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal

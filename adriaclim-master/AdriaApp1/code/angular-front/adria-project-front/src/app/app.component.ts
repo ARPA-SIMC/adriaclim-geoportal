@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { HttpService } from './services/http.service';

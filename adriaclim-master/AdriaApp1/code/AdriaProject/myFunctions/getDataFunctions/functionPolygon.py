@@ -72,13 +72,15 @@ def getDataPolygonNew(
         dataframe_from_dict = dataframe_from_dict.dropna(how="any")
         dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
-
         # a seconda del valore di operation e di time_op viene fatta l'operazione7
         # df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
         pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
         # date_value_to_list = pol_from_cache_dataframe.copy()
         # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
         # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
+
+        print("POL FROM CACHE DATAFRAME", pol_from_cache_dataframe)
+        # si rompe alla riga sotto perché in pol_from_cache_dataframe non c'è la colonna y *********************************************************
         pol_from_cache_values = pol_from_cache_dataframe["y"].tolist()
         if len(pol_from_cache_values) == 1:
             # print("LEN 1 =", pol_from_cache_values)
@@ -91,7 +93,6 @@ def getDataPolygonNew(
             mean = pol_from_cache_dataframe["y"].mean()
             median = pol_from_cache_dataframe["y"].median()
             std_dev = pol_from_cache_dataframe["y"].std()
-        
         pol_from_cache["mean"] = mean
         pol_from_cache["median"] = median
         pol_from_cache["stdev"] = std_dev

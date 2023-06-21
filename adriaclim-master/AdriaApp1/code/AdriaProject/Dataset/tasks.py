@@ -23,6 +23,7 @@ def task_get_data_polygon(request_data):
         circle_coords = request_data['circleCoords']
         lat_lng_obj = request_data['latLngObj']
         is_indicator = request_data['isIndicator']
+        # si rompe alla riga sotto *********************************************
         dataVect = functionPolygon.getDataPolygonNew(dataset_id,adriaclim_timeperiod,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords)
         return dataVect
     except Exception as e:

@@ -108,6 +108,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   compareObj: any;
 
+  progress = 40
+  progressWidth = this.progress + "%"
+
   typeOfExport = [
     {
       type: ".csv",
