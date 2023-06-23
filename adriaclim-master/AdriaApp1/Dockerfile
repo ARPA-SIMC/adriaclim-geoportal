@@ -40,6 +40,7 @@ RUN apt-get update
 
 # Install postgis and postgresql-13-postgis-3-scripts
 # RUN apt-get install -y postgis postgresql-13-postgis-3-scripts
+# RUN apt-get install -y postgis
 RUN apt-get install -y postgis=3.3.*
 RUN apt-get install -y postgresql
 
