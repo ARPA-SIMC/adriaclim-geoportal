@@ -55,9 +55,8 @@ services:
   #   - memcached
   #   - -m 64
   db:
-    image: postgis/postgis:13-3.3
-    # image: postgis/postgis:12-3.1
     # image: postgis/postgis
+    image: postgis/postgis:13-3.3
     container_name: adriapp_postgres
     ports:
       - "5433:5433"

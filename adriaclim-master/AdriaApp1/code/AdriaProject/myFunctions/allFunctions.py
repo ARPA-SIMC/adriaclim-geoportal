@@ -590,7 +590,7 @@ def getAllDatasets():
     print("Started getAllDatasets()")
     url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
     # asyncio.run(cache.clear())
-    # cache.clear()
+    cache.clear()
     # node_list = []
     asyncio.run(delete_all("Node"))  # delete all existing nodes
     try:
@@ -646,6 +646,7 @@ def getAllDatasets():
         dimension_names = ""
         param_min = 0
         param_max = 0
+        param_step = 0
         node_id = row["DatasetID"]
         metadata_url = row["Info"]
         tabledap_url = row["tabledap"]
@@ -679,6 +680,7 @@ def getAllDatasets():
                     "time_end": time_end,
                     "param_min": param_min,
                     "param_max": param_max,
+                    "param_step": param_step,
                     "tabledap_url": tabledap_url,
                     "dimensions": dimensions,
                     "dimension_names": dimension_names,
@@ -741,6 +743,25 @@ def getAllDatasets():
                         param_agg = row1["Value"].split(",")
                         param_min = float(param_agg[0])
                         param_max = float(param_agg[1].replace(" ", ""))
+                    elif (
+                        row1["RowType"] == "dimension"
+                        and row1["VariableName"] != "time"
+                        and row1["VariableName"] != "Times"
+                        and row1["VariableName"] != "latitude"
+                        and row1["VariableName"] != "longitude"
+                    ):
+                        #parametro aggiuntivo lo step!
+                        try:
+                            spacing = row1["Value"]
+                            average_spacing_others = spacing.split(",")[2]
+                            # print("PARAMETRO AGGIUNTIVO STEP===",average_spacing_others)
+                            # print("PARAMETRO AGGIUNTIVO VALORE=======",average_spacing_others.split("=")[1])
+                            param_step = abs(float(average_spacing_others.split("=")[1]))
+                            # print("PARAM_STEP=====",param_step)
+                        except Exception as e:
+                            pass
+                    
+                        
 
                 # is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
                 is_indicator = re.search("indicator", row["Title"], re.IGNORECASE)
