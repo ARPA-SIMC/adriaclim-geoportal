@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+// import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
-import { EChartsOption, graphic } from 'echarts';
+import { EChartsOption } from 'echarts';
 import * as echarts from 'echarts';
 import { ElementRef } from '@angular/core';
 import { HttpService } from 'src/app/services/http.service';
@@ -127,9 +127,9 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
       return this.seasons[d.getMonth()];
     }
     else {
-      let month = d.getMonth() + 1
-      let day = d.getDate()
-      let year = d.getFullYear()
+      const month = d.getMonth() + 1
+      const day = d.getDate()
+      const year = d.getFullYear()
       return day + "/" + month + "/" + year;
     }
   }
@@ -140,7 +140,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
   getDataGraph() {
 
-    let data = {
+    const data = {
       idMeta: this.idMeta,
       variable: this.variable,
       range: this.range ? Math.abs(this.range) : null,
@@ -178,7 +178,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
         this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
 
-        let name = this.dataRes.allData.entries[0];
+        const name = this.dataRes.allData.entries[0];
         if(this.operation === "annualMonth"){
           this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
         }

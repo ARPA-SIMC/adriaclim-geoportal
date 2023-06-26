@@ -1,6 +1,5 @@
-/*eslint-disable*/
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { HttpService } from './services/http.service';
 
 
@@ -10,20 +9,15 @@ import { HttpService } from './services/http.service';
   styleUrls: ['./app.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
   title = 'adria-project-front';
 
   constructor(private httpClient: HttpClient, private httpService: HttpService) {
     // console.log('AppComponent constructor');
   }
 
-  ngAfterViewInit(): void {
-
-
-
-  }
   ngOnInit() {
-    // console.log('AppComponent ngOnInit');
+    console.log('Ready');
     // this.getAllData();
     // this.httpClient.post('http://localhost:8000/test/prova', {
 
