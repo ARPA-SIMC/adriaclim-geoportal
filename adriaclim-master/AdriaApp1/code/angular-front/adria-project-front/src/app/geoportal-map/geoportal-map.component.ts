@@ -1567,6 +1567,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     //let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
+    console.log(this.metadata);
 
     // d.setUTCSeconds
 

@@ -24,6 +24,12 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit, A
   secondDatasetVariables: any;
   compareObj: any;
 
+  options: Options = {
+    floor: 0,
+    ceil: 100,
+    step: 1,
+  };
+
   constructor(
     private changeDetector: ChangeDetectorRef,
     private httpService: HttpService,
@@ -84,6 +90,12 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit, A
 
 
     this.form.get("variableFirstData")?.setValue(this.firstDatasetVariables[this.firstDatasetVariables.length - 1]);
+
+    // this.options = {
+    //   floor: firstDataset.name.param_min,
+    //   ceil: firstDataset.name.param_max,
+    //   step: Number(this.extraParam.stepSize.toFixed(4)),
+    // };
 
 
   }
