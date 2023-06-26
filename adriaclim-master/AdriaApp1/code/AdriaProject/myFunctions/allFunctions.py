@@ -241,20 +241,23 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     else:
         for v in va:
-            # print("VARIABLE TABLEDAP:",v)
+            print("VARIABLE TABLEDAP:",v)
             print("URL + QUERY =", url + query)
             if query != "?":
                 query = query + "%2C"
             query = query + v
 
         for d in va:
-            if d != "Indicator":
+            if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
+            # if d != "Indicator":
                 if d in kwargs and not (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d]
                 elif (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d + "Min"]
                 else:
                     alias = getVariableAliases(d)
+                    print("alias",alias)
+                    print("kwargs====",kwargs)
                     for al in alias:
                         if al in kwargs:
                             query = query + "&" + d + "%3E=" + kwargs[al]
@@ -1408,6 +1411,7 @@ def getDataGraphicGeneric(
             url = download_with_cache_as_csv(url)
         if url == "fuoriWms":
             return url
+        print("ARRIVO QUO")
         try:
             df = pd.read_csv(url, dtype="unicode")
         except Exception as e:
@@ -1427,7 +1431,7 @@ def getDataGraphicGeneric(
         lats = []
         longs = []
         i = 0
-        print("ARRIVO QUO")
+        print("ARRIVO QUA")
         if n_values <= x:  # all the data
             for index, row in df.iterrows():
                 if onlyone == 1 and onlylat is None:
@@ -1465,7 +1469,6 @@ def getDataGraphicGeneric(
                     values.insert(i, float(row[layer_name]))
                     dates.insert(i, row["time"])
                     i += 1
-        print("ARRIVO QUA")
         allData = [values, dates, unit, layerName, lats, longs]
         if operation is None:
             return allData

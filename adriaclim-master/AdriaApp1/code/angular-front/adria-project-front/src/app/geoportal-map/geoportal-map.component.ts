@@ -1137,7 +1137,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       next: (res: any) => {
         this.metadata = res;
         console.log("METADATA =", this.metadata);
-
+        console.log("Id meta======",idMeta);
 
         if (controlDate === "ok") {
 
@@ -2178,6 +2178,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         if (lat) {
           this.coordOnClick = { "lat": lat, "lng": lng };
         }
+
         // console.log("POLYGON =", polygon);
 
         dialogConfig.data = {
@@ -2191,9 +2192,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           dateEnd: this.dateEnd,
           variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
           arrayVariable: this.variableArray,
-          range: this.value,
+          range: this.isExtraParam ? this.value : 0,
           openGraph: true,
-          extraParamExport: this.extraParamExport,
+          extraParamExport: this.isExtraParam ? this.extraParamExport : null,
           polyExport: polygon ? polygon[0].pol.getBounds() : null,
           polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
           polName: polygon ? polygon[0].polName : null,
@@ -2201,8 +2202,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           isIndicator: this.isIndicator ? "true" : "false",
         };
 
-        console.log("RANGE =", this.value);
-        console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
+        // console.log("RANGE =", this.value);
+        // console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
 
 
 
@@ -2496,6 +2497,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     //dobbiamo passargli la lista dei layers attivi!
+    console.log("this.activeLayersArray =", this.activeLayersArray);
+
     dialogConfig.data = {
       activeLayersArray: this.activeLayersArray,
     };
@@ -2508,7 +2511,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         this.datasetCompare = result;
         this.confronto = true;
         this.compare = true;
-        console.log("this.datasetCompare =", this.datasetCompare);
+        // console.log("this.datasetCompare =", this.datasetCompare);
         this.pointSelect();
 
       }

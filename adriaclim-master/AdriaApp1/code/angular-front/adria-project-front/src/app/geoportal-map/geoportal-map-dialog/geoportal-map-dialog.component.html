@@ -160,20 +160,21 @@
                       </div>
                     </div>
                   </div> -->
-                  <div class="btn-group col-5">
-                    <button type="button" class="btn btn-primary dropdown-toggle col-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <div class="btn-group col d-flex flex-row justify-content-start align-items-center">
+                    <button type="button" class="btn btn-primary dropdown-toggle d-flex flex-row justify-content-center align-items-center text-center" style="max-width: 110px; height: 60%;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Stats
-                      <svg class="icon-expand icon icon-sm icon-light"><use href="../../../../node_modules/bootstrap-italia/dist/svg/sprites.svg"></use></svg>
                     </button>
                     <div class="dropdown-menu w-100 p-3">
                       <div class="link-list-wrapper">
                         <ul class="link-list">
+                          <li class="col d-flex flex-row justify-content-center align-items-center p-2">Title first dataset</li>
                           <li class="col d-flex flex-row justify-content-between align-items-center p-2">
                             <span>Mean: <br> mean1</span>
                             <span>Median: <br> median1</span>
                             <span>Stddev: <br> stdev1</span>
                             <span>Trend/Yr: <br> trend/yr1</span>
                           </li>
+                          <li class="col d-flex flex-row justify-content-center align-items-center p-2">Title second dataset</li>
                           <li class="col d-flex flex-row justify-content-between align-items-center p-2">
                             <span>Mean: <br> mean2</span>
                             <span>Median: <br> median2</span>
@@ -201,11 +202,14 @@
                 </ng-template>
 
                 <!-- <div fxFlex fxLayout="row" fxLayoutAlign="end center"> -->
-                <div class="col-1 d-flex flex-row justify-content-end align-items-center" *ngIf="statistic !== 'boxPlot'">
-                  <section class="example-section">
-                    <mat-checkbox class="example-margin" formControlName="enableArea">Enable area</mat-checkbox>
-                  </section>
-                </div>
+                <ng-container *ngIf="!compareObj">
+                  <div class="col-1 d-flex flex-row justify-content-end align-items-center" *ngIf="statistic !== 'boxPlot'">
+                    <section class="example-section">
+                      <mat-checkbox class="example-margin" formControlName="enableArea">Enable area</mat-checkbox>
+                    </section>
+                  </div>
+                </ng-container>
+
               </div>
               <ng-container *ngIf="compareObj; else noConfronto">
                 <app-canvas-graph-compare [compareObj]="compareObj" (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"

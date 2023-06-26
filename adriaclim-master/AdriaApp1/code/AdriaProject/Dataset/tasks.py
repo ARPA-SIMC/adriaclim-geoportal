@@ -40,6 +40,7 @@ def task_get_data_polygon(self,request_data):
         # si rompe alla riga sotto *********************************************
         start_time = time.time()
         print("STARTED GETDATAPOLYGONNEW!")
+        print("Parametro aggiuntivo=======",parametro_agg)
         # print("ADRIACLIM_TIMEPERIOD======",adriaclim_timeperiod)
         vertices = []
         vertices_geos_poly = []
@@ -73,6 +74,10 @@ def task_get_data_polygon(self,request_data):
 
         #aggiungere controllo cache prima.....
         cache_result = cache.get(key=key_cached)
+        # print("cache_result",cache_result)
+        # if cache_result is not None:
+        #     cache.delete(key_cached)
+
         
         if cache_result is not None:
             print("CACHE HIT!")
@@ -83,6 +88,7 @@ def task_get_data_polygon(self,request_data):
             dataframe_from_dict = dataframe_from_dict.dropna(how="any")
             dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
             pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
+
             # a seconda del valore di operation e di time_op viene fatta l'operazione7
             # df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
             # pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
@@ -126,6 +132,7 @@ def task_get_data_polygon(self,request_data):
             print("Check if it is in db!")
             polygons = Polygon.objects.filter(
                 Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
+            # polygons.delete()
             if polygons.exists():
                 # print("DOPO FILTER")
                 
@@ -255,12 +262,14 @@ def task_get_data_polygon(self,request_data):
                 points_inside_polygon = []
                 try:
                     if len(circle_coords) > 0:
+                        #si tratta del caso senza wms!
                         for coord in circle_coords:
                             # print("Cooord",coord)
                             point = ShapelyPoint(coord["lat"], coord["lng"])
                             if point.within(shapely_polygon):
                                 points_inside_polygon.append((coord["lat"], coord["lng"]))
                     else:
+                        #caso con wms!
                         for x in range(int(xmin / step), int(xmax / step)):
                             for y in range(int(ymin / step), int(ymax / step)):
                                 point = ShapelyPoint(x * step, y * step)
@@ -349,29 +358,12 @@ def task_get_data_polygon(self,request_data):
                         current = 90
                         self.update_state(state='PROGRESS',
                                     meta={'current': current, 'total': total})    
-
-                    if is_indicator == "false":
-                        url = url_is_indicator(
-                            is_indicator,
-                            True,
-                            False,
-                            dataset_id=dataset_id,
-                            layer_name=layer_name,
-                            time_start=date_start,
-                            time_finish=date_end,
-                            latitude=str(point[0]),
-                            longitude=str(point[1]),
-                            num_parameters=num_param,
-                            range_value=range_value,
-                        )
-                        df = pd.read_csv(url, dtype="unicode")
-                    else:
-                        # print("Entro quiiiiiii!!!!")
-                        try:
+                    try:
+                        if is_indicator == "false":
                             url = url_is_indicator(
                                 is_indicator,
                                 True,
-                                True,
+                                False,
                                 dataset_id=dataset_id,
                                 layer_name=layer_name,
                                 time_start=date_start,
@@ -381,11 +373,28 @@ def task_get_data_polygon(self,request_data):
                                 num_parameters=num_param,
                                 range_value=range_value,
                             )
-                            #print("URL DATA VECTORIAL========", url)
                             df = pd.read_csv(url, dtype="unicode")
-                        except Exception as e:
-                            print("fdkjsjk", e)
-                            continue
+                        else:
+                            # print("Entro quiiiiiii!!!!")
+                                url = url_is_indicator(
+                                    is_indicator,
+                                    True,
+                                    True,
+                                    dataset_id=dataset_id,
+                                    layer_name=layer_name,
+                                    time_start=date_start,
+                                    time_finish=date_end,
+                                    latitude=str(point[0]),
+                                    longitude=str(point[1]),
+                                    num_parameters=num_param,
+                                    range_value=range_value,
+                                )
+                                #print("URL DATA VECTORIAL========", url)
+                                df = pd.read_csv(url, dtype="unicode")
+
+                    except Exception as e:
+                        print("POINT NOT OF THE DATASET==", e)
+                        continue
 
                     # print("LAYER NAME PRIMA DI TUTTO =", layer_name)
                     # DA SISTEMARE QUI!!!!!!!!!!!***********************************
@@ -429,25 +438,27 @@ def task_get_data_polygon(self,request_data):
                                         else "Value not defined"
                                     )
                                     dataTable.append(dat_tab)
-                                    df_polygon.loc[i] = [
-                                        row["time"],
-                                        "(" + row["latitude"] + "," + row["longitude"] + ")",
-                                        row[layer_name],
-                                    ]
-                                    defaults = {
-                                        "value_0": float(row[layer_name]),
-                                        "pol_vertices_str": pol_vertices_str,
-                                        "parametro_agg": row[parametro_agg],
-                                    }
-                                    if not is_database_almost_full():
-                                        Polygon.objects.update_or_create(
-                                                        dataset_id=Node.objects.get(id=dataset_id),
-                                                        date_value=convertToTime(row["time"]),
-                                                        latitude=float(row["latitude"]),
-                                                        longitude=float(row["longitude"]),
-                                                        coordinate = Point(float(row["longitude"]), float(row["latitude"])),
-                                                        defaults=defaults,
-                                                                        )
+                                    if not pd.isna(row[layer_name]):
+                                        #non è nan, lo inserisco
+                                        df_polygon.loc[i] = [
+                                            row["time"],
+                                            "(" + row["latitude"] + "," + row["longitude"] + ")",
+                                            row[layer_name],
+                                        ]
+                                        defaults = {
+                                            "value_0": float(row[layer_name]),
+                                            "pol_vertices_str": pol_vertices_str,
+                                            "parametro_agg": row[parametro_agg],
+                                        }
+                                        if not is_database_almost_full():
+                                            Polygon.objects.update_or_create(
+                                                            dataset_id=Node.objects.get(id=dataset_id),
+                                                            date_value=convertToTime(row["time"]),
+                                                            latitude=float(row["latitude"]),
+                                                            longitude=float(row["longitude"]),
+                                                            coordinate = Point(float(row["longitude"]), float(row["latitude"])),
+                                                            defaults=defaults,
+                                                                            )
                                     i += 1
                             else:
                                 if len(dataTable) == 0:
@@ -478,25 +489,26 @@ def task_get_data_polygon(self,request_data):
                                         else "Value not defined"
                                     )
                                     dataTable.append(dat_tab)
-                                    df_polygon.loc[i] = [
-                                        row["time"],
-                                        "(" + row["latitude"] + "," + row["longitude"] + ")",
-                                        row[layer_name],
-                                    ]
+                                    if not pd.isna(row[layer_name]):
+                                        df_polygon.loc[i] = [
+                                            row["time"],
+                                            "(" + row["latitude"] + "," + row["longitude"] + ")",
+                                            row[layer_name],
+                                        ]
 
-                                    defaults = {
-                                        "value_0": float(row[layer_name]),
-                                        "pol_vertices_str": pol_vertices_str,
-                                    }
-                                    if not is_database_almost_full():
-                                        Polygon.objects.update_or_create(
-                                                        dataset_id=Node.objects.get(id=dataset_id),
-                                                        date_value=convertToTime(row["time"]),
-                                                        latitude=float(row["latitude"]),
-                                                        longitude=float(row["longitude"]),
-                                                        coordinate = Point(float(row["longitude"]), float(row["latitude"])),
-                                                        defaults=defaults,
-                                                                        )
+                                        defaults = {
+                                            "value_0": float(row[layer_name]),
+                                            "pol_vertices_str": pol_vertices_str,
+                                        }
+                                        if not is_database_almost_full():
+                                            Polygon.objects.update_or_create(
+                                                            dataset_id=Node.objects.get(id=dataset_id),
+                                                            date_value=convertToTime(row["time"]),
+                                                            latitude=float(row["latitude"]),
+                                                            longitude=float(row["longitude"]),
+                                                            coordinate = Point(float(row["longitude"]), float(row["latitude"])),
+                                                            defaults=defaults,
+                                                                            )
                                     i += 1
                                     # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
                                     # TIME GETDATAPOLYGONNEW 1960.06 seconds Snowfall rate (projections, day)

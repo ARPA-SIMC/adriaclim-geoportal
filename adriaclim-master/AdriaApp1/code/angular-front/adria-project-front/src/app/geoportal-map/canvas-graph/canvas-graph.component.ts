@@ -617,6 +617,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             },
 
             error: (err: any) => {
+              clearInterval(checkTaskStatus);
               console.log("ERROR =", err);
             }
           });

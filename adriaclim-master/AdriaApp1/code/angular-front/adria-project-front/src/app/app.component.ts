@@ -81,6 +81,7 @@ export class AppComponent implements OnInit {
     this.httpService.post('myFunctions/getAllDatasets', {
   }).subscribe({
     next(position: any) {
+      console.log("ALL DATA OK");
 
     },
     error(msg: any) {

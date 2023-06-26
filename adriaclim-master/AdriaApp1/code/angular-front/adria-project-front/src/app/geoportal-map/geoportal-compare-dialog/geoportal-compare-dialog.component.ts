@@ -22,6 +22,7 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit, A
   isIndicator!: boolean;
   firstDatasetVariables: any;
   secondDatasetVariables: any;
+  compareObj: any;
 
   constructor(
     private changeDetector: ChangeDetectorRef,
@@ -32,6 +33,7 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit, A
     private dialogRef: MatDialogRef<GeoportalCompareDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: any){
       this.activeLayersArray = data.activeLayersArray;
+      this.compareObj = data.compareObj;
       this.form = this.fb.group({
         firstDataset: new FormControl(this.activeLayersArray[this.activeLayersArray.length - 1]),
         secondDataset: new FormControl(this.activeLayersArray[this.activeLayersArray.length - 2]),
@@ -42,6 +44,8 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit, A
   ngOnInit(): void {
     this.getSelectedVarFirstDataset();
     this.getSelectedVarSecondDataset();
+    console.log("FIRST DATASET", this.form.get('firstDataset')?.value);
+    console.log("SECOND DATASET", this.form.get('secondDataset')?.value);
   }
 
   close() {
