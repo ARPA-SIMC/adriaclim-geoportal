@@ -2201,8 +2201,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           isIndicator: this.isIndicator ? "true" : "false",
         };
 
-        // console.log("RANGE =", this.value);
-        // console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
+        console.log("RANGE =", this.value);
+        console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
 
 
 

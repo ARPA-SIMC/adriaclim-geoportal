@@ -9,6 +9,8 @@ from .tasks import task_get_data_polygon
 # import allFunctions
 from myFunctions import allFunctions
 from myFunctions.getDataFunctions import functionPoint, functionPolygon, functionTable
+from myFunctions import compareStatistics
+from operator import itemgetter
 
 from .forms import DatasetForm
 import requests
@@ -501,8 +503,18 @@ def check_task_status(request):
         task = AsyncResult(request.data.get('task_id'))
         response = {'status': task.status}
         print("Task status",task.status)
+        print("TASK======",task)
         if task.status == 'SUCCESS':
             response['result'] = task.result
+        if task.state == "PROGRESS":
+            response["progressBar"] = task.info.get('current')
+            # print("Siamo nello stato di progress")
+            # return JsonResponse({"dataVect": task.info.get("current")})
+            # 
+            
+
+        # if task.info is not None and 'progress' in task.info:
+        #     print("TASK INFO PERCENTAGE============",task.info['progress'])
             # print("response============",response)
         return JsonResponse({"dataVect":response})
     except Exception as e:
@@ -528,6 +540,14 @@ def updateStatistics(request):
     new_values_calculated = allFunctions.updateStatistics(new_dates,new_values,adriaclim_timeperiod,polygon)
     return JsonResponse({"newValues":new_values_calculated})
 
+def check_additional_param(dataset):
+    if dataset["griddap_url"] != "" and dataset["dimensions"] > 3:
+        #è griddap e ha un parametro aggiuntivo
+        #passi il valore del minimo del parametro aggiuntivo
+        return str(dataset["param_min"])
+    else:
+        return "0"
+    
 @api_view(['GET','POST'])
 def compareDatasets(request):
     try:
@@ -548,8 +568,10 @@ def compareDatasets(request):
         first_dataset_layer_name = str(compare_obj.get('firstVarSel'))
         first_dataset_time_start = first_dataset["time_start"]
         first_dataset_time_end = first_dataset["time_end"]
-        first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,0,0,"no","no","no","no",operation=operation,context=context)
-        # print("FIRST_RESULT: ",first_result)
+        first_dataset_param = check_additional_param(first_dataset)
+        first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
+        first_list = first_result[first_dataset_layer_name]
+        all_values_first =  list(map(itemgetter('y'), first_list)) #prendo tutti i valori del primo dataset
         second_dataset = compare_obj.get('secondDataset')["name"]
         # print("Second_dataset: ",second_dataset)
         second_dataset_id = second_dataset["id"]
@@ -557,12 +579,21 @@ def compareDatasets(request):
         second_dataset_layer_name = str(compare_obj.get('secondVarSel'))
         second_dataset_time_start = second_dataset["time_start"]
         second_dataset_time_end = second_dataset["time_end"]
-        second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,0,0,"no","no","no","no",operation=operation,context=context)
-        # print("SECOND_RESULT",second_result)
+        second_dataset_param = check_additional_param(second_dataset)
+        second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
+        second_list = second_result[second_dataset_layer_name]
+        all_values_second =  list(map(itemgetter('y'), second_list)) #prendo tutti i valori del secondo dataset
+        mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
+        mean_diff_avg_abs = compareStatistics.mean_difference_avg(all_values_first, all_values_second, True)
+        root_squared_diff = compareStatistics.root_mean_squared_difference(all_values_first, all_values_second)
         allData = {
             "firstResult": first_result,
             "secondResult": second_result,
+            "meanDiffAvg": mean_diff_avg,
+            "meanDiffAvgAbs": mean_diff_avg_abs,
+            "rootSquaredDiff": root_squared_diff,
         }
+        
         # allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
         # if allData == "fuoriWms":
         #     return JsonResponse({"compareResult":allData})

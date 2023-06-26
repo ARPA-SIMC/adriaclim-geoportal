@@ -41,6 +41,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() spinnerLoadingChild = new EventEmitter<any>();
   @Output() statisticCalc = new EventEmitter<any>();
   @Output() description = new EventEmitter<any>();
+  @Output() progressBar = new EventEmitter<any>();
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
   dateGraphZoom: any[] = [];
@@ -603,7 +604,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 clearInterval(checkTaskStatus);
                 let task_error = response.dataVect.error;
                 console.error('Task error:', task_error);
-
+              }
+              else if(task_status === "PROGRESS"){
+                // clearInterval(checkTaskStatus);
+                console.log("Test res",res);
+                // console.log("RESPONSE PROGRESS=",response);
+                let progressBarValue = res.dataVect.progressBar;
+                console.log("PROGRESS BAR VALUE=",progressBarValue);
+                this.progressBar.emit(progressBarValue);
+                // console.log("TASK_STATUS: " + task_status);
               }
             },
 

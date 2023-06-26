@@ -198,7 +198,7 @@
                <ng-template #noConfronto>
                 <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
                   (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
-                  (statisticCalc)="statisticCalc($event)"
+                  (statisticCalc)="statisticCalc($event)" (progressBar)="progressBar($event)"
                   class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                   [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
                   [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"
@@ -248,7 +248,7 @@
                 </div>
 
                 <!-- <div *ngIf="dataset.dimensions > 3" fxFlex fxLayout="row wrap" fxLayoutAlign="center center" style="width: 100%;"> -->
-                <div *ngIf="dataset.dimensions > 3" class="d-flex flex-row flex-wrap col-12 justify-content-center align-items-center">
+                <div *ngIf="dataset.dimensions > 3 && dataset.wms_url !== '' " class="d-flex flex-row flex-wrap col-12 justify-content-center align-items-center">
                   <!-- <span fxFlex="100" fxLayoutAlign="center center"><b>{{extraParamExport.name}}</b></span> -->
                   <span class="col-12 d-flex justify-content-center align-items-center"><b>{{extraParamExport.name}}</b></span>
                   <!-- <ngx-slider fxFlex="100" [(value)]="minRange" [(highValue)]="maxRange" [options]="optionsExtra"></ngx-slider> -->

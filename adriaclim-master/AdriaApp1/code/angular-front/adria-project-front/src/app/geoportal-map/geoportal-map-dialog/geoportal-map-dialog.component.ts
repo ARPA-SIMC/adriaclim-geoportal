@@ -108,7 +108,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   compareObj: any;
 
-  progress = 40
+  progress = 0
   progressWidth = this.progress + "%"
 
   typeOfExport = [
@@ -390,7 +390,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       // minSlider
     })
     if (this.dataset) {
-      if (this.dataset.dimensions > 3) {
+      if (this.dataset.dimensions > 3 && this.dataset.wms_url !== "") {
         this.minRange = this.extraParamExport.minValue.toFixed(4);
         this.maxRange = this.extraParamExport.maxValue.toFixed(4);
         this.optionsExtra = {
@@ -667,6 +667,11 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           else {
             //caso parametro aggiuntivo
             //va aggiunto controllo su poligono
+            if (this.minRange === undefined || this.maxRange === undefined) {
+              //aggiunto controllo nel caso in cui ci sia un parametro aggiuntivo ma siamo nel caso del griddap senza wms!
+                this.minRange = 0
+                this.maxRange = 0
+            }
             let rangeMin = this.minRange;
             let rangeMax = this.maxRange;
             if(this.polygon){
@@ -847,6 +852,12 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     // }
   }
 
+  progressBar(event: any){
+    console.log("PROGRESS BAR", event);
+    this.progress = event;
+    this.progressWidth = this.progress + "%"
+  }
+
   expoFormat(mean_median_stdev: any) {
 
     // Variable version
@@ -947,27 +958,27 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       dataset: this.dataset,
       polygon: this.polygon,
     }
-    // console.log("data", data);
+    
+    if (this.statCalc.values.length > 0) {
+      this.httpService.post('test/updateStatistics', data).subscribe({
+        next: (res: any) => {
+          // console.log("res", res);
+          // this.meanValue = res.newValues.mean.toFixed(3);
+          // this.medianValue = res.newValues.median.toFixed(3);
+          // this.stdevValue = res.newValues.stdev.toFixed(3);
+          // this.trendValue = res.newValues.trend.toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+          // if(this.trendValue.includes("x 10^0")) {
+          //   this.trendValue = this.trendValue.replace("x 10^0", "");
+          // }
+          let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
+          this.expoFormat(mean_median_stdev);
+        },
 
-    this.httpService.post('test/updateStatistics', data).subscribe({
-      next: (res: any) => {
-        // console.log("res", res);
-        // this.meanValue = res.newValues.mean.toFixed(3);
-        // this.medianValue = res.newValues.median.toFixed(3);
-        // this.stdevValue = res.newValues.stdev.toFixed(3);
-        // this.trendValue = res.newValues.trend.toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-        // if(this.trendValue.includes("x 10^0")) {
-        //   this.trendValue = this.trendValue.replace("x 10^0", "");
-        // }
-        let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
-        this.expoFormat(mean_median_stdev);
-      },
-
-      error: (err: any) => {
-        console.log(err);
-      }
-    });
-
+        error: (err: any) => {
+          console.log(err);
+        }
+      });
+    }
 
   }
 

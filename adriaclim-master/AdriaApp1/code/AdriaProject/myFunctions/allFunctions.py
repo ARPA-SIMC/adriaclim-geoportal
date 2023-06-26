@@ -174,6 +174,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
         url = url + "." + kwargs["format"]
 
     di = getIndicatorDimensions(ind)
+    # print("All dimensions=======",di)
 
     va = getIndicatorVariables(ind)
     # print("All VARIABLES=========",va)
@@ -213,7 +214,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                     query = query + kwargs[d + "Min"]
                 else:
                     alias = getVariableAliases(d)
-
+                    # print("Alias ========",alias)
+                    # print("kwargs=====",kwargs)
                     for al in alias:
                         if al in kwargs:
                             query = query + kwargs[al]
@@ -230,7 +232,7 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                     alias = getVariableAliases(d)
 
                     for al in alias:
-                        if al in kwargs:
+                        if al in kwargs:  
                             query = query + kwargs[al]
                         elif (al + "Max") in kwargs:
                             query = query + kwargs[al + "Max"]
@@ -271,9 +273,14 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                         elif (al + "Max") in kwargs:
                             query = query + "&" + d + "%3C=" + kwargs[al + "Max"]
 
-    print("URL + QUERY =", url + query)
+    result = url + query
+    # print("URL + QUERY =", url + query)
+    if result.find("None") != -1:
+        result = result.replace("None","0")
+    
+    print("final result =", result)
     # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/EOBS_a583_d8f2_21c0.json?very_wet_days_wrt_95th_percentile_of_reference_period%5B(2020-12-31T00:00:00Z):1:(2020-12-31T00:00:00Z)%5D%5B(46.94985982579791):1:(46.94985982579791)%5D%5B(21.94986030317809):1:(21.94986030317809)%5D
-    return url + query
+    return result
 
 
 def getIndicatorQueryUrlPoint(
@@ -1580,7 +1587,9 @@ def updateStatistics(new_dates,new_values,timeperiod,polygon):
             allData["trend"] = calculate_trend(new_dates,new_values,timeperiod=timeperiod)
         else:
             #is a polygon so we need to calculate mean, stdev, median and trend
+            # print("new_values:",new_values)
             df_stats = pd.DataFrame({"date":new_dates, "value":new_values})
+            # print("df_stats:",df_stats.head())
             allData["mean"] = mean(df_stats["value"].tolist())
             allData["stdev"] = stdev(df_stats["value"].tolist())
             allData["median"] = median(df_stats["value"].tolist())

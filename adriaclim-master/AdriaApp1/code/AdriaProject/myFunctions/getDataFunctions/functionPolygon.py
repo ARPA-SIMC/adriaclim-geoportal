@@ -1,6 +1,7 @@
 from django.db.models import Q
 from Dataset.models import Node, Polygon  # ,Cache
 import pandas as pd
+from celery import current_task
 from django.contrib.gis.geos import Point 
 from django.contrib.gis.geos import Polygon as GeosPolygon
 import time
