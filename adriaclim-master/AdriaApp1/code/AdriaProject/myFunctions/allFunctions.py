@@ -590,7 +590,7 @@ def getAllDatasets():
     print("Started getAllDatasets()")
     url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
     # asyncio.run(cache.clear())
-    cache.clear()
+    # cache.clear()
     # node_list = []
     asyncio.run(delete_all("Node"))  # delete all existing nodes
     try:

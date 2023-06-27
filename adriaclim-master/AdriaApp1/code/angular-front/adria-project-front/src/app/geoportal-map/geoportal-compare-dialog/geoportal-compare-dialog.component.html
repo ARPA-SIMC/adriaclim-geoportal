@@ -11,7 +11,7 @@
           <mat-form-field appearance="fill" class="col-12">
             <mat-label>Select first dataset</mat-label>
             <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
-            <mat-select formControlName="firstDataset" (selectionChange)="getSelectedVarFirstDataset()">
+            <mat-select formControlName="firstDataset" (selectionChange)="getSelectedVarFirstDataset(); checkDimensions()">
               <mat-option *ngFor="let a of activeLayersArray" [value]="a">
                 {{a.name.title}}
               </mat-option>
@@ -32,15 +32,25 @@
 
         </div>
 
-        <div class="row">
-          {{this.form.get('firstDataset')?.value | json}}
+        <!-- <div class="row justify-content-center align-items-center"  *ngIf="firstDataset.name.dimensions > 3">
+          <ngx-slider class="col-10" [(value)]="firstValue" [options]="firstOptions"></ngx-slider>
+        </div> -->
+
+        <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="firstDataset.name.dimensions > 3">
+          <form [formGroup]="sliderForm" class="col-12 d-flex flex-column justify-content-center align-items-center p-0">
+            <div class="example-label-container col-9 d-flex flex-row justify-content-center align-items-center">
+              <label id="example-name-label" class="example-name-label col-12 d-flex justify-content-center align-items-center">prova {{sliderForm.value | json}}</label>
+            </div>
+            <ngx-slider [(value)]="firstValue" [options]="firstOptions"></ngx-slider>
+
+          </form>
         </div>
 
         <div class="row">
           <mat-form-field appearance="fill" class="col-12">
             <mat-label>Select second dataset</mat-label>
             <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
-            <mat-select formControlName="secondDataset" (selectionChange)="getSelectedVarSecondDataset()">
+            <mat-select formControlName="secondDataset" (selectionChange)="getSelectedVarSecondDataset(); checkDimensions()">
               <mat-option *ngFor="let a of activeLayersArray" [value]="a">
                 {{a.name.title}}
               </mat-option>
@@ -61,8 +71,18 @@
 
         </div>
 
-        <div class="row">
-          {{this.form.get('secondDataset')?.value | json}}
+        <!-- <div class="row col-10" *ngIf="secondDataset.name.dimensions > 3">
+          <ngx-slider class="col-10" [(value)]="secondValue" [options]="secondOptions"></ngx-slider>
+        </div> -->
+
+        <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="secondDataset.name.dimensions > 3">
+          <form class="col-12 d-flex flex-column justify-content-center align-items-center p-0">
+            <div class="example-label-container col-9 d-flex flex-row justify-content-center align-items-center">
+              <label id="example-name-label" class="example-name-label col-12 d-flex justify-content-center align-items-center">prova</label>
+            </div>
+            <ngx-slider [(value)]="secondValue" [options]="secondOptions"></ngx-slider>
+
+          </form>
         </div>
 
       </div>
