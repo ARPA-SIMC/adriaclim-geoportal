@@ -142,37 +142,23 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
           nameExtraParam: name,
         };
 
-
-        // this.extraParamExport = {
-        //   name: "Depth",
-        //   minValue: min,
-        //   maxValue: max,
-        //   stepSize: step,
-        //   nameExtraParam: name,
-        // }
-
-        // this.firstOptions = {
-        //   floor: - this.firstDataset.name.param_max,
-        //   ceil: - this.firstDataset.name.param_min,
-        //   step: Number(this.firstDataset.name.param_step.toFixed(4)),
-        // };
-
       }
       else {
 
-        this.firstOptions = {
-          floor: this.firstDataset.name.param_min,
-          ceil: this.firstDataset.name.param_max,
-          step: Number(this.firstDataset.name.param_step.toFixed(4)),
+        this.extraParamFirst = {
+          name: 'Dim_' + name,
+          minValue: this.firstDataset.name.param_min,
+          maxValue: this.firstDataset.name.param_max,
+          stepSize: Number(this.firstDataset.name.param_step),
+          nameExtraParam: name,
         };
 
-        // this.extraParamExport = {
-        //   name: "Dim_" + name,
-        //   minValue: min,
-        //   maxValue: max,
-        //   stepSize: step,
-        //   nameExtraParam: name,
-        // }
+        // this.firstOptions = {
+        //   floor: this.firstDataset.name.param_min,
+        //   ceil: this.firstDataset.name.param_max,
+        //   step: Number(this.firstDataset.name.param_step.toFixed(4)),
+        // };
+
       }
 
 
@@ -187,9 +173,9 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
 
         this.extraParamSecond = {
           name: "Elevation",
-          minValue: - this.firstDataset.name.param_max,
-          maxValue: - this.firstDataset.name.param_min,
-          stepSize: Number(this.firstDataset.name.param_step),
+          minValue: - this.secondDataset.name.param_max,
+          maxValue: - this.secondDataset.name.param_min,
+          stepSize: Number(this.secondDataset.name.param_step),
           nameExtraParam: name,
         };
 
@@ -202,11 +188,19 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
       }
       else{
 
-        this.secondOptions = {
-          floor: - this.secondDataset.name.param_max,
-          ceil: - this.secondDataset.name.param_min,
-          step: Number(this.secondDataset.name.param_step.toFixed(4)),
+        this.extraParamSecond = {
+          name: 'Dim_' + name,
+          minValue: this.secondDataset.name.param_min,
+          maxValue: this.secondDataset.name.param_max,
+          stepSize: Number(this.secondDataset.name.param_step),
+          nameExtraParam: name,
         };
+
+        // this.secondOptions = {
+        //   floor: - this.secondDataset.name.param_max,
+        //   ceil: - this.secondDataset.name.param_min,
+        //   step: Number(this.secondDataset.name.param_step.toFixed(4)),
+        // };
       }
     }
     this.firstValue = this.firstDataset.name.param_max.toFixed(4);

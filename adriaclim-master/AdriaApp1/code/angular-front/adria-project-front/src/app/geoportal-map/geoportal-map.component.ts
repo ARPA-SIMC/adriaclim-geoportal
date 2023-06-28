@@ -18,6 +18,7 @@ import { HttpService } from '../services/http.service';
 import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
 import { GeoportalColorDialogComponent } from './geoportal-color-dialog/geoportal-color-dialog.component';
 import { GeoportalCompareDialogComponent } from './geoportal-compare-dialog/geoportal-compare-dialog.component';
+import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
 
 // import "leaflet/dist/leaflet.css";
 
@@ -249,6 +250,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   navigateDateRightSeason = true;
 
   datasetCompare: any = null;
+
+  selectCoords = false;
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService) {
     this.selData = new FormGroup({
@@ -514,7 +517,33 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   // addPolygons() {
 
-  pointSelect() {
+  // Apro la modale per inserire le coordinate
+  openModalSelectCoords() {
+    this.selectCoords = true;
+    const dialogConfig = new MatDialogConfig();
+
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    //dobbiamo passargli la lista dei layers attivi!
+    console.log("this.activeLayersArray =", this.activeLayersArray);
+
+    dialogConfig.data = {
+      selectCoords: this.selectCoords,
+    };
+
+    const dialogRef = this.dialog.open(SelectCoordsDialogComponent, dialogConfig);
+    //prendere i due layers selezionati!
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result != ""){
+        console.log("result =", result);
+        // console.log("this.datasetCompare =", this.datasetCompare);
+        this.pointSelect(result.lat, result.lng);
+
+      }
+    })
+  }
+
+  pointSelect(lat?: any, lng?: any) {
     // if(this.pointBoolean === false) {
     // this.pointBoolean = true;
     // }else{
@@ -544,16 +573,100 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       });
     }
     else {
-      if (this.clickPointOnOff === true) {
-        this.map.off('click');
-        this.map.on('click', this.onMapClick.bind(this));
+      if(this.selectCoords) {
 
+        this.map.getContainer().style.cursor = "default";
+
+        this.coordOnClick = {
+          lat: lat,
+          lng: lng
+        }
+        let latlng: L.LatLngExpression = [lat, lng];
+        this.openGraphDialog();
+        const marker = L.marker(latlng, {
+          icon: L.icon({
+            // iconSize: [25, 41],
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            // iconUrl: 'marker-icon.png',
+            iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
+          })
+        });
+        marker.on('click', this.onMarkerClick.bind(this));
+
+        // marker.addTo(this.map);
+        this.markers.push(marker);
+        if (this.selData.get("dataSetSel")?.value) {
+          if (this.markerPoint) {
+            this.map.removeLayer(this.markerPoint);
+          }
+          this.markerPoint = L.marker(latlng, {
+            icon: L.icon({
+              // iconSize: [25, 41],
+              iconSize: [32, 32],
+              iconAnchor: [16, 32],
+              // iconUrl: 'marker-icon.png',
+              iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
+            })
+          })
+            // .bindPopup("Info marker")
+            .addTo(this.map)
+
+
+          const button = document.createElement('button');
+          // button.classList.add('btn');
+          button.className = 'border btn btn-xs btn-icon px-0 col-3 d-flex flex-row justify-content-center align-items-center';
+          button.style.backgroundColor = '#F0F0F0';
+          button.innerHTML = "<span class='material-icons col-12' style='color: red; font-size: 20px'>delete</span>";
+          // button.innerHTML = "<span class='material-icons col-12' style='color: red;>delete</span>";
+          // <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
+          //         (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
+          //         <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
+          //         </button>
+          // <i class="material-icons" style="font-size:48px;color:red">delete</i>
+          button.addEventListener('click', () => {
+            this.map.removeLayer(this.markerPoint);
+          });
+
+          const lat_lng = this.markerPoint.getLatLng();
+
+          const content = document.createElement('div');
+          // content.className = 'd-flex flex-row justify-content-center align-items-center';
+          content.style.display = 'flex';
+          content.style.flexDirection = 'column';
+          content.style.alignItems = 'center';
+          content.style.justifyContent = 'center';
+          content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
+          // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
+          content.appendChild(button);
+
+          // this.markerPoint.on('click', this.markerPointClick.bind(this));
+          if(this.datasetCompare === null) {
+            this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
+
+          }
+
+          this.markerPoint.bindPopup(content, {
+            offset: [0, -25],
+          }).openPopup();
+
+        }
+
+        this.selectCoords = false;
 
       }
       else {
-        this.map.off('click');
-        this.map.getContainer().style.cursor = "default";
-        // this.map.on('click', this.onMapClick.bind(this));
+        if (this.clickPointOnOff === true) {
+          this.map.off('click');
+          this.map.on('click', this.onMapClick.bind(this));
+
+        }
+        else {
+          this.map.off('click');
+          this.map.getContainer().style.cursor = "default";
+          // this.map.on('click', this.onMapClick.bind(this));
+
+        }
 
       }
     }

@@ -200,7 +200,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       value: "median"
     },
     {
-      label: "Sum",
+      label: "Space sum",
       value: "sum"
     },
     {
@@ -958,7 +958,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       dataset: this.dataset,
       polygon: this.polygon,
     }
-    
+
     if (this.statCalc.values.length > 0) {
       this.httpService.post('test/updateStatistics', data).subscribe({
         next: (res: any) => {

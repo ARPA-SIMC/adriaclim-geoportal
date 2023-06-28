@@ -20,7 +20,8 @@
 
     </div>
     <ng-container *ngIf="!polName && openGraph">
-      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat.toFixed(5)}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng.toFixed(5)}}</span></h1>
+      <!-- <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat.toFixed(5)}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng.toFixed(5)}}</span></h1> -->
+      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng}}</span></h1>
 
     </ng-container>
 
@@ -64,7 +65,11 @@
       <ng-template #graph>
         <div #graphDiv *ngIf="!description">
           <!-- <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner> -->
-          <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" *ngIf="spinnerLoading" style="height: 30px;">
+          <div class="col-12 d-flex flex-row justify-content-center align-items-center mt-5" *ngIf="spinnerLoading">
+            <h3>Loading...</h3>
+
+          </div>
+          <div class="progress mt-2" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" *ngIf="spinnerLoading" style="height: 40px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary h-100" [ngStyle]="{'width': progressWidth}">
               {{progressWidth}}
             </div>
