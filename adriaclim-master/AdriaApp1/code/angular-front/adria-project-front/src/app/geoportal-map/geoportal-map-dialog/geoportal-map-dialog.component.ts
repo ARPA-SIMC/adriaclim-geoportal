@@ -529,19 +529,39 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   }
 
+  formatDateNew(date: any) {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+
+    const first_part = [year, month, day].join('-');
+    const second_part = "T00:00:00Z";
+    return first_part + second_part;
+  }
+
   getGraphTable() {
     if (this.dataset) {
       // this.spinnerLoading = true;
+      //converting date to UTC 
+
       let data = {
         idMeta: this.datasetId,
         dimensions: this.dataset.dimensions,
         lat: this.latlng.lat,
         lng: this.latlng.lng,
-        dateStart: this.dateStart,
-        dateEnd: this.dateEnd,
+        dateStart: this.formatDateNew(this.dateStart),
+        dateEnd: this.formatDateNew(this.dateEnd),
         variable: this.variable,
         range: this.range ? Math.abs(this.range) : null
       }
+
+      // console.log("Data===========",data);
       // console.log("RANGE IN DIALOG ======", this.range);
 
 
@@ -550,7 +570,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
       // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
       this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
-
+        // console.log("Response=======",response);
         if(response.data !== "fuoriWms") {
           // this.spinnerLoading = false;
           if (typeof response === 'string') {

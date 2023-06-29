@@ -23,6 +23,7 @@ from rest_framework.decorators import api_view
 from django.core import serializers
 from asgiref.sync import sync_to_async
 from celery.result import AsyncResult
+from datetime import datetime
 
 
 
@@ -453,31 +454,31 @@ def getDataVectorialNew(request):
         layer_name = request.data.get('selVar')
         num_param = dataset.get('variables')
         num_dimensions = dataset.get('dimensions')
-
+        print("SEL VAR ============",layer_name)
         lat_min = dataset.get('lat_min')
         lat_max = dataset.get('lat_max')
         lng_min = dataset.get('lng_min')
         lng_max = dataset.get('lng_max')
         is_indicator = request.data.get('isIndicator')
-        print("DATASET ID =", dataset_id)
-        print("SEL DATE =", sel_date)
-        print("LAYER NAME =", layer_name)
+        # print("DATASET ID =", dataset_id)
+        # print("SEL DATE =", sel_date)
+        # print("LAYER NAME =", layer_name)
         # print("NUM PARAM =", num_param)
         # print("NUM PARAM TYPE =", type(num_param))
         # print("NUM DIMENSIONS =", num_dimensions)
         # print("NUM DIMENSIONS TYPE =", type(num_dimensions))
-        print("LAT MIN =", lat_min)
-        print("LAT MAX =", lat_max)
-        print("LNG MIN =", lng_min)
-        print("LNG MAX =", lng_max)
-        print("IS INDICATOR =", is_indicator)
+        # print("LAT MIN =", lat_min)
+        # print("LAT MAX =", lat_max)
+        # print("LNG MIN =", lng_min)
+        # print("LNG MAX =", lng_max)
+        # print("IS INDICATOR =", is_indicator)
         if is_indicator == "false":
             num_param = int(num_dimensions)
         
-        print("NUM PARAM =", num_param)
-        print("NUM PARAM TYPE =", type(num_param))
-        print("NUM DIMENSIONS =", num_dimensions)
-        print("NUM DIMENSIONS TYPE =", type(num_dimensions))
+        # print("NUM PARAM =", num_param)
+        # print("NUM PARAM TYPE =", type(num_param))
+        # print("NUM DIMENSIONS =", num_dimensions)
+        # print("NUM DIMENSIONS TYPE =", type(num_dimensions))
         
         print("DATASET =", dataset)
         dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
@@ -561,7 +562,7 @@ def compareDatasets(request):
         print("Latitude: ",latitude)
         print("Longitude: ",longitude)
         first_dataset = compare_obj.get('firstDataset')["name"]
-        # print("First_dataset: ",first_dataset)
+        print("First_dataset: ",first_dataset)
         first_dataset_id = first_dataset["id"]
         # print("First_dataset_id: ",first_dataset_id)
         first_dataset_timeperiod = first_dataset["adriaclim_timeperiod"]
@@ -571,7 +572,8 @@ def compareDatasets(request):
         first_dataset_param = check_additional_param(first_dataset)
         first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         first_list = first_result[first_dataset_layer_name]
-        all_values_first =  list(map(itemgetter('y'), first_list)) #prendo tutti i valori del primo dataset
+        all_values_first =  list(map(float, map(itemgetter('y'), first_list))) #prendo tutti i valori del primo dataset
+        # print("all_values_first",all_values_first)
         second_dataset = compare_obj.get('secondDataset')["name"]
         # print("Second_dataset: ",second_dataset)
         second_dataset_id = second_dataset["id"]
@@ -582,7 +584,9 @@ def compareDatasets(request):
         second_dataset_param = check_additional_param(second_dataset)
         second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         second_list = second_result[second_dataset_layer_name]
-        all_values_second =  list(map(itemgetter('y'), second_list)) #prendo tutti i valori del secondo dataset
+        # print("second list===",second_list)
+        all_values_second =  list(map(float, map(itemgetter('y'), second_list))) #prendo tutti i valori del secondo dataset
+        # print("all_values_second===",all_values_second)
         mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
         mean_diff_avg_abs = compareStatistics.mean_difference_avg(all_values_first, all_values_second, True)
         root_squared_diff = compareStatistics.root_mean_squared_difference(all_values_first, all_values_second)

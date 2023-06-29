@@ -241,8 +241,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
 
     else:
         for v in va:
-            print("VARIABLE TABLEDAP:",v)
-            print("URL + QUERY =", url + query)
+            # print("VARIABLE TABLEDAP:",v)
+            # print("URL + QUERY =", url + query)
             if query != "?":
                 query = query + "%2C"
             query = query + v
@@ -250,14 +250,16 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
         for d in va:
             if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
             # if d != "Indicator":
+                # print("URL + QUERY BEFORE THIS D ",d,"=======",url + query)
+                # print("kwargs====",kwargs)
                 if d in kwargs and not (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d]
                 elif (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d + "Min"]
                 else:
                     alias = getVariableAliases(d)
-                    print("alias",alias)
-                    print("kwargs====",kwargs)
+                    # print("alias",alias)
+                    # print("kwargs====",kwargs)
                     for al in alias:
                         if al in kwargs:
                             query = query + "&" + d + "%3E=" + kwargs[al]
@@ -590,7 +592,7 @@ def getAllDatasets():
     print("Started getAllDatasets()")
     url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
     # asyncio.run(cache.clear())
-    # cache.clear()
+    cache.clear()
     # node_list = []
     asyncio.run(delete_all("Node"))  # delete all existing nodes
     try:
@@ -642,6 +644,7 @@ def getAllDatasets():
 
         variables = 0
         variable_names = ""
+        variable_types = ""
         dimensions = 0
         dimension_names = ""
         param_min = 0
@@ -686,6 +689,7 @@ def getAllDatasets():
                     "dimension_names": dimension_names,
                     "variables": variables,
                     "variable_names": variable_names,
+                    "variable_types": variable_types,
                     "griddap_url": griddap_url,
                     "wms_url": wms_url,
                 }
@@ -703,9 +707,12 @@ def getAllDatasets():
                 if row1["RowType"] == "variable":
                     if variables > 0:
                         variable_names = variable_names + " "
+                        variable_types = variable_types + " "
 
                     variables = variables + 1
                     variable_names = variable_names + row1["VariableName"]
+                    variable_types = variable_types + row1["DataType"]
+                    # print("variable_types=" + variable_types)
 
                 if row1["AttributeName"] == "adriaclim_dataset":
                     adriaclim_dataset = row1["Value"]
@@ -1426,13 +1433,13 @@ def getDataGraphicGeneric(
             timeMax=time_finish,
         )
 
-        print("ARRIVO QUI")
-        print("PRIMA URL=====")
+        # print("ARRIVO QUI")
+        # print("PRIMA URL=====")
         if cache == 1:
             url = download_with_cache_as_csv(url)
         if url == "fuoriWms":
             return url
-        print("ARRIVO QUO")
+        # print("ARRIVO QUO")
         try:
             df = pd.read_csv(url, dtype="unicode")
         except Exception as e:
@@ -1443,7 +1450,7 @@ def getDataGraphicGeneric(
             unit = layer_name
         unit = ""
         df = df.iloc[1:, :]
-        print("DF Test",df.head())
+        # print("DF Test",df.head())
         n_values = len(df)
         allData = []
         values = []
@@ -1452,7 +1459,7 @@ def getDataGraphicGeneric(
         lats = []
         longs = []
         i = 0
-        print("ARRIVO QUA")
+        # print("ARRIVO QUA")
         if n_values <= x:  # all the data
             for index, row in df.iterrows():
                 if onlyone == 1 and onlylat is None:
@@ -1494,16 +1501,20 @@ def getDataGraphicGeneric(
         if operation is None:
             return allData
         else:
-            output = None
-            if "output" in kwargs:
-                output = kwargs["output"]
+            try:
+                output = None
+                if "output" in kwargs:
+                    output = kwargs["output"]
 
-            return packageGraphData(
-                processOperation(operation, values, dates, unit, layerName, lats, longs),
-                output=output,
-                operation=operation,
-                adriaclim_timeperiod=adriaclim_timeperiod,
-            )
+                return packageGraphData(
+                    processOperation(operation, values, dates, unit, layerName, lats, longs),
+                    output=output,
+                    operation=operation,
+                    adriaclim_timeperiod=adriaclim_timeperiod,
+                )
+            except Exception as e:
+                print("Exception in packageGraphData or processOperation===" + e)
+                return str(e)
     except Exception as e:
         print("ECCEZIONE NO WMS ==", e)
         return str(e)
@@ -1635,73 +1646,79 @@ def updateStatistics(new_dates,new_values,timeperiod,polygon):
 
 
 def packageGraphData(allData, **kwargs):
-    values = allData[0]
-    dates = allData[1]
-    unit = allData[2]
-    layerName = allData[3]
-    lats = allData[4]
-    longs = allData[5]
-    data = {}
-    data["unit"] = unit
-    data["entries"] = []
+    try:
+        values = allData[0]
+        dates = allData[1]
+        unit = allData[2]
+        layerName = allData[3]
+        lats = allData[4]
+        longs = allData[5]
+        data = {}
+        data["unit"] = unit
+        data["entries"] = []
 
-    if "operation" in kwargs:
-        if kwargs["operation"] == "default":
-            try:
-                mean_result = mean(values)
-                median_result = median(values)
-                stdev_result = stdev(values)
-                # print("dates==========",dates)
-                # print("values===========",values)
-                # print("len values===========",len(values))
-                trend_result = calculate_trend(dates,values, timeperiod=kwargs["adriaclim_timeperiod"])
-                data["mean"] = mean_result
-                data["median"] = median_result
-                data["stdev"] = stdev_result
-                data["trend_yr"] = trend_result
-            except Exception as e:
-                if str(e) == "variance requires at least two data points":
-                    data["mean"] = values
-                    data["stdev"] = values
-                    data["median"] = values
-                    data["trend_yr"] = values
-                    # print("Errore in update",e)
+        if "operation" in kwargs:
+            if kwargs["operation"] == "default":
+                try:
+                    mean_result = mean(values)
+                    median_result = median(values)
+                    stdev_result = stdev(values)
+                    # print("dates==========",dates)
+                    # print("values===========",values)
+                    # print("len values===========",len(values))
+                    trend_result = calculate_trend(dates,values, timeperiod=kwargs["adriaclim_timeperiod"])
+                    data["mean"] = mean_result
+                    data["median"] = median_result
+                    data["stdev"] = stdev_result
+                    data["trend_yr"] = trend_result
+                except Exception as e:
+                    if str(e) == "variance requires at least two data points":
+                        data["mean"] = values
+                        data["stdev"] = values
+                        data["median"] = values
+                        data["trend_yr"] = values
+                        # print("Errore in update",e)
 
 
 
-    if "output" in kwargs:
-        if kwargs["output"] == "csv":
-            out = "Date,Dataset,Latitude,Longitude,Value\n"
-            for n in range(len(values)):
-                out = (
-                    out
-                    + dates[n]
-                    + ","
-                    + layerName[n]
-                    + ","
-                    + str(lats[n])
-                    + ","
-                    + str(longs[n])
-                    + ","
-                    + str(values[n])
-                    + "\n"
-                )
-            return out
+        if "output" in kwargs:
+            if kwargs["output"] == "csv":
+                out = "Date,Dataset,Latitude,Longitude,Value\n"
+                for n in range(len(values)):
+                    out = (
+                        out
+                        + dates[n]
+                        + ","
+                        + layerName[n]
+                        + ","
+                        + str(lats[n])
+                        + ","
+                        + str(longs[n])
+                        + ","
+                        + str(values[n])
+                        + "\n"
+                    )
+                return out
 
-    for n in range(len(values)):
-        dictKey = layerName[n]
-        dictValue = None
-        if dictKey in data:
-            dictValue = data[dictKey]
-        else:
-            dictValue = []
-            data[dictKey] = dictValue
-            data["entries"].append(dictKey)
-        entry = {}
-        entry["x"] = dates[n]
-        entry["y"] = values[n]
-        dictValue.append(entry)
-    return data
+        for n in range(len(values)):
+            dictKey = layerName[n]
+            dictValue = None
+            if dictKey in data:
+                dictValue = data[dictKey]
+            else:
+                dictValue = []
+                data[dictKey] = dictValue
+                data["entries"].append(dictKey)
+            entry = {}
+            entry["x"] = dates[n]
+            entry["y"] = values[n]
+            dictValue.append(entry)
+
+        # print("Data in packageGraphData======",data)
+        return data
+    except Exception as e:
+        print("Exception in packageGraphData: " + str(e))
+        return str(e)
 
 
 def processOperation(operation, values, dates, unit, layerName, lats, longs):
@@ -2391,28 +2408,45 @@ def getDataVectorial(
             num_param=num_param,
             range_value=range_value,
         )
-        print("QUI")
+        # print("QUI")
         print("URL =", url)
         start_time = time.time()
         df = pd.read_csv(url, dtype="unicode")
-        print("QUO")
+        # print("QUO")
         allData = []
         values = []
         lat_coordinates = []
         long_coordinates = []
         df = df.dropna(how="any", axis=0)
-        print("QUA")
+        # print("QUA")
         i = 0
         for index, row in df.iterrows():
             values.insert(i, row[layer_name])
             lat_coordinates.insert(i, row["latitude"])
             long_coordinates.insert(i, row["longitude"])
             i += 1
-        del values[0]
-        del lat_coordinates[0]
-        del long_coordinates[0]
 
-        [float(i) for i in values]
+        print("Values=========",values)
+        try:
+            values[0] = float(values[0])
+        except Exception as e:
+            #entro nell'exception sono una stringa
+            del values[0]
+            del lat_coordinates[0]
+            del long_coordinates[0]
+
+        # if isinstance(values[0], str):
+        #     del values[0]
+        #     del lat_coordinates[0]
+        #     del long_coordinates[0]
+        # del values[0]
+        # del lat_coordinates[0]
+        # del long_coordinates[0]
+
+        values = [float(i) for i in values]
+        # for i in values: 
+        #     if isinstance(i,str):
+        #         print("I'm a string:",i)
         value_min = min(values)
         value_max = max(values)
 

@@ -11,6 +11,9 @@ def getDataFunctionsTable(
     num_parameters,
     range_value,
 ):
+    # print("Time start: " + str(time_start))
+    # print("Time finish: " + str(time_finish))
+    
     try:
         
         url = getIndicatorQueryUrl(

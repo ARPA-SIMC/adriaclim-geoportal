@@ -29,6 +29,7 @@ class Node(models.Model):
     dimension_names = models.CharField(max_length=1500,default="",null=True)
     variables = models.IntegerField(default=0,null=True)
     variable_names = models.CharField(max_length=1500,default="",null=True)
+    variable_types = models.CharField(max_length=250, default="",null=True)
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
     
@@ -56,6 +57,7 @@ class Indicator(models.Model):
     dimension_names = models.CharField(max_length=1500,default="",null=True)
     variables = models.IntegerField(default=0,null=True)
     variable_names = models.CharField(max_length=1500,default="",null=True)
+    variable_types = models.CharField(max_length=250, default="",null=True)
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
 

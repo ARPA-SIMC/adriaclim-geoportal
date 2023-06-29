@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     console.log('Ready');
-    // this.getAllData();
+    this.getAllData();
     // this.httpClient.post('http://localhost:8000/test/prova', {
 
     // }).subscribe({

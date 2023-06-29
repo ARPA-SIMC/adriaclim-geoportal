@@ -62,8 +62,8 @@ def getDataGraphicGeneric(
             timeMax=time_finish,
         )
 
-        print("ARRIVO QUI")
-        print("PRIMA URL=====")
+        # print("ARRIVO QUI")
+        # print("PRIMA URL=====")
         if cache == 1:
             url = download_with_cache_as_csv(url)
         if url == "fuoriWms":
@@ -87,7 +87,7 @@ def getDataGraphicGeneric(
         lats = []
         longs = []
         i = 0
-        print("ARRIVO QUO")
+        # print("ARRIVO QUO")
         if n_values <= x:  # all the data
             for index, row in df.iterrows():
                 if onlyone == 1 and onlylat is None:
@@ -104,7 +104,10 @@ def getDataGraphicGeneric(
                     lats.insert(i, row["latitude"])
                     longs.insert(i, row["longitude"])
                     layerName.insert(i, layer_name)
-                    values.insert(i, float(row[layer_name]))
+                    if isinstance(row[layer_name],str):
+                        values.insert(i,row[layer_name])
+                    else:
+                        values.insert(i, float(row[layer_name]))
                     dates.insert(i, row["time"])
                     i += 1
         else:  # one every nvalues/x data
@@ -122,11 +125,17 @@ def getDataGraphicGeneric(
                     lats.insert(i, row["latitude"])
                     longs.insert(i, row["longitude"])
                     layerName.insert(i, layer_name)
-                    values.insert(i, float(row[layer_name]))
+                    if isinstance(row[layer_name],str):
+                        values.insert(i,row[layer_name])
+                    else:
+                        values.insert(i, float(row[layer_name]))
                     dates.insert(i, row["time"])
                     i += 1
-        print("ARRIVO QUA")
+        # print("ARRIVO QUA")
+        
         allData = [values, dates, unit, layerName, lats, longs]
+        # print("All data======",allData)
+        # print("OPERATION======",operation)
         if operation is None:
             return allData
         else:

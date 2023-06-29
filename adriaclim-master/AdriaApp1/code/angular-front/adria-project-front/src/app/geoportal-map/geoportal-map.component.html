@@ -166,8 +166,8 @@
                 <mat-label>Select variable</mat-label>
                 <mat-select formControlName="variableControl" class="no-border-focus"
                   (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">
-                  <mat-option *ngFor="let v of variableArray" [value]="v" class="prova-option">
-                    {{v}}
+                  <mat-option *ngFor="let v of variableArray" [value]="v.name" class="prova-option">
+                    {{v.name}}
                   </mat-option>
                 </mat-select>
               </mat-form-field>

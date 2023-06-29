@@ -198,7 +198,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   extraParam!: ExtraParams;
   extraParamExport!: ExtraParams;
   isExtraParam!: boolean;
-  variableArray: string[] = [];
+  // variableArray: string[] = [];
+  variableArray: any[] = [];
   activeLayersArray: any[] = [];
   legendNoWms: any;
   style: any;
@@ -1269,18 +1270,44 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   getSelectedNode(node: any) {
-
+    this.variableArray = [];
     if (node.name) {
-      this.variableArray = node.name.variable_names.split(" ");
+      let variableNames = node.name.variable_names.split(" ");
+      let variableTypes = node.name.variable_types.split(" ");
+      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
+      variableNames.forEach((variableName:any, index: number) =>{
+     // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
+      if (
+        variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+        (variableTypes[index] === "float" || variableTypes[index] === "double")
+      ) {
+        this.variableArray.push({ name: variableName, type: variableTypes[index] });
+      }
+      });
+      // console.log("Test===========",test);
+      // this.variableArray = node.name.variable_names.split(" ");
     }
     else if (node.variable_names) {
-      this.variableArray = node.variable_names.split(" ");
+      let variableNames = node.variable_names.split(" ");
+      let variableTypes = node.variable_types.split(" ")
+      variableNames.forEach((variableName:any, index: number) =>{
+        if (
+          variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+          (variableTypes[index] === "float" || variableTypes[index] === "double")
+        ) {
+          this.variableArray.push({ name: variableName, type: variableTypes[index] });
+        }
+      });
+      // console.log("Test===========",test);
+      // this.variableArray = node.variable_names.split(" ");
     }
-    this.isIndicator = node.name.griddap_url !== "" ? false : true;
-    if (this.isIndicator) {
-      this.variableArray = this.variableArray.slice(-1);
-    }
-    this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]);
+    // this.isIndicator = node.name.griddap_url !== "" ? false : true; //true se è tabledap, false se è griddap
+    // if (this.isIndicator) {
+
+    //   this.variableArray = this.variableArray.slice(-1);
+    // }
+    console.log("thisVariableArray: ", this.variableArray);
+    this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
 
   }
 
@@ -2124,6 +2151,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
 
+  getValuesByKey(arr:any[], key:string){
+    return arr
+    .filter((dict) => dict.hasOwnProperty(key))
+    .map((dict) => dict[key]);
+  }
+
   formatDate(date: any) {
     const d = new Date(date);
     let month = '' + (d.getMonth() + 1);
@@ -2304,8 +2337,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           latlng: this.coordOnClick,
           dateStart: this.dateStart,
           dateEnd: this.dateEnd,
-          variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-          arrayVariable: this.variableArray,
+          // variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+          variable: this.variableGroup.get("variableControl")?.value,
+          arrayVariable: this.getValuesByKey(this.variableArray,"name"),
           range: this.isExtraParam ? this.value : 0,
           openGraph: true,
           extraParamExport: this.isExtraParam ? this.extraParamExport : null,
@@ -2360,10 +2394,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     splittedVar = splittedVar[splittedVar.length - 1];
     //se isIndicator è true, allora si tratta di un tabledap, altrimenti è griddap
     this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
-
+    if (this.isIndicator){
+      //è un tabledap quindi niente extra param
+      this.isExtraParam = false;
+    }else{
+      //è un griddap
+       if (this.selData.get("dataSetSel")?.value.name.dimensions >= 3){
+        this.isExtraParam = true;
+       }else{
+        this.isExtraParam = false;
+       }
+    }
     this.httpService.post('test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
-      selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+      // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+      selVar: this.variableGroup.get("variableControl")?.value,
       isIndicator: this.isIndicator ? "true" : "false",
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
@@ -2390,14 +2435,29 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
         // this.markersLayer = L.layerGroup();
         // markersLayer: L.LayerGroup = L.layerGroup();
-        const center = Math.round(allLatCoordinates.length / 2);
-        // console.log("Center",center);
-        const centerLat = allLatCoordinates[center];
-        const centerLong = allLongCoordinates[center];
+        let centerLat;
+        let centerLong;
+        if (allLatCoordinates.length === 1){
+            centerLat = allLatCoordinates[0];
+            centerLong = allLongCoordinates[0];
+            
+        }else{
+          const center = Math.round(allLatCoordinates.length / 2);
+          // console.log("Center",center);
+          centerLat = allLatCoordinates[center];
+          centerLong = allLongCoordinates[center];
+        }
+
         // console.log("centerlat",centerLat);
         // console.log("centerlng",centerLong);
         const zoomTest = L.latLng(centerLat, centerLong);
-        this.map.setView(zoomTest,8);
+        if (allLatCoordinates.length === 1){
+          // zoom più elevato essendo un singolo punto!
+          this.map.setView(zoomTest,14);
+        }else{
+          this.map.setView(zoomTest,8);
+        }
+          
         for (let i = 0; i < allLatCoordinates.length; i++) {
           if (this.isIndicator) {
             this.circleCoords.push(
