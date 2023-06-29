@@ -260,24 +260,45 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
     // this.chargeAll();
     // setTimeout(() => {
     //   this.checkDimensions();
-    this.firstDataset = this.form.get('firstDataset')?.value;
 
     // }, 500);
     // let firstDataset = this.form.get('firstDataset')?.value;
 
     if (this.firstDataset.name) {
-      this.firstDatasetVariables = this.firstDataset.name.variable_names.split(" ");
+      let variableNames = this.firstDataset.name.variable_names.split(" ");
+      // let variableNames = first.name.variable_names.split(" ");
+      let variableTypes = this.firstDataset.name.variable_types.split(" ");
+      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
+      variableNames.forEach((variableName:any, index: number) =>{
+     // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
+      if (
+        variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+        (variableTypes[index] === "float" || variableTypes[index] === "double")
+      ) {
+        this.firstDatasetVariables.push({ name: variableName, type: variableTypes[index] });
+      }
+      });
     }
-    else if (this.firstDataset.name.variable_names) {
-      this.firstDatasetVariables = this.firstDataset.variable_names.split(" ");
-    }
-    this.isIndicator = this.firstDataset.name.griddap_url !== "" ? false : true;
-    if (this.isIndicator) {
-      this.firstDatasetVariables = this.firstDatasetVariables.slice(-1);
+    else if (this.firstDataset.variable_names) {
+      //sono tabledap
+      // this.firstDatasetVariables = this.firstDataset.variable_names.split(" ");
+      let variableNames = this.firstDataset.variable_names.split(" ");
+      // let variableNames = first.name.variable_names.split(" ");
+      let variableTypes = this.firstDataset.variable_types.split(" ");
+      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
+      variableNames.forEach((variableName:any, index: number) =>{
+     // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
+      if (
+        variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+        (variableTypes[index] === "float" || variableTypes[index] === "double")
+      ) {
+        this.firstDatasetVariables.push({ name: variableName, type: variableTypes[index] });
+      }
+      });
     }
 
 
-    this.form.get("variableFirstData")?.setValue(this.firstDatasetVariables[this.firstDatasetVariables.length - 1]);
+    this.form.get("variableFirstData")?.setValue(this.firstDatasetVariables[this.firstDatasetVariables.length - 1]["name"]);
 
     // this.options = {
     //   floor: firstDataset.name.param_min,
@@ -295,21 +316,56 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
 
     // }, 500);
     this.secondDataset = this.form.get('secondDataset')?.value;
+    if (this.secondDataset.name) {
+      let variableNames = this.secondDataset.name.variable_names.split(" ");
+      // let variableNames = first.name.variable_names.split(" ");
+      let variableTypes = this.secondDataset.name.variable_types.split(" ");
+      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
+      variableNames.forEach((variableName:any, index: number) =>{
+     // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
+      if (
+        variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+        (variableTypes[index] === "float" || variableTypes[index] === "double")
+      ) {
+        this.secondDatasetVariables.push({ name: variableName, type: variableTypes[index] });
+      }
+      });
+    }
+    else if (this.secondDataset.variable_names) {
+      //sono tabledap
+      // this.firstDatasetVariables = this.firstDataset.variable_names.split(" ");
+      let variableNames = this.secondDataset.variable_names.split(" ");
+      // let variableNames = first.name.variable_names.split(" ");
+      let variableTypes = this.secondDataset.variable_types.split(" ");
+      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
+      variableNames.forEach((variableName:any, index: number) =>{
+     // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
+      if (
+        variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+        (variableTypes[index] === "float" || variableTypes[index] === "double")
+      ) {
+        this.secondDatasetVariables.push({ name: variableName, type: variableTypes[index] });
+      }
+      });
+    }
+
+
+    this.form.get("variableSecondData")?.setValue(this.secondDatasetVariables[this.secondDatasetVariables.length - 1]["name"]);
 
     // let secondDataset = this.form.get('secondDataset')?.value;
 
-    if (this.secondDataset.name) {
-      this.secondDatasetVariables = this.secondDataset.name.variable_names.split(" ");
-    }
-    else if (this.secondDataset.name.variable_names) {
-      this.secondDatasetVariables = this.secondDataset.variable_names.split(" ");
-    }
-    this.isIndicator = this.secondDataset.name.griddap_url !== "" ? false : true;
-    if (this.isIndicator) {
-      this.secondDatasetVariables = this.secondDatasetVariables.slice(-1);
-    }
+    // if (this.secondDataset.name) {
+    //   this.secondDatasetVariables = this.secondDataset.name.variable_names.split(" ");
+    // }
+    // else if (this.secondDataset.variable_names) {
+    //   this.secondDatasetVariables = this.secondDataset.variable_names.split(" ");
+    // }
+    // this.isIndicator = this.secondDataset.name.griddap_url !== "" ? false : true;
+    // if (this.isIndicator) {
+    //   this.secondDatasetVariables = this.secondDatasetVariables.slice(-1);
+    // }
 
-    this.form.get("variableSecondData")?.setValue(this.secondDatasetVariables[this.secondDatasetVariables.length - 1]);
+    // this.form.get("variableSecondData")?.setValue(this.secondDatasetVariables[this.secondDatasetVariables.length - 1]);
 
   }
 

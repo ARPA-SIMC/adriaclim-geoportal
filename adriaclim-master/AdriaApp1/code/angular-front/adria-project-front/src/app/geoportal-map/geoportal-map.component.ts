@@ -520,6 +520,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   // Apro la modale per inserire le coordinate
   openModalSelectCoords() {
+    if (this.circleMarkerArray.length > 0) {
+      this.circleMarkerArray.forEach((circle: any) => {
+        circle.removeEventListener('click');
+      });
+    }
+
     this.selectCoords = true;
     const dialogConfig = new MatDialogConfig();
 
@@ -567,14 +573,23 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     else {
       this.clickPointOnOff = true;
     }
+    if (this.circleMarkerArray.length > 0 && !this.clickPointOnOff) {
+      this.circleMarkerArray.forEach((circle: any) => {
+        circle.removeEventListener('click');
+      });
+    }
     this.clickPolygonOnOff = false;
-    if (this.circleMarkerArray.length > 0) {
+    if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
       this.circleMarkerArray.forEach((circle: any) => {
         circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
       });
+      this.map.off("click");
+      // this.clickPointOnOff = false;
     }
     else {
+      console.log("ENTRO NELL'ELSE QUESTO è IL VALORE DI THIS.SELECTCOORDS",this.selectCoords);
       if(this.selectCoords) {
+        console.log("SONO DENTRO SELECTCOORDS");
 
         this.map.getContainer().style.cursor = "default";
 
@@ -659,6 +674,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       else {
         if (this.clickPointOnOff === true) {
           this.map.off('click');
+
           this.map.on('click', this.onMapClick.bind(this));
 
         }
@@ -683,6 +699,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   polygonSelect() {
+    if (this.circleMarkerArray.length > 0) {
+      this.circleMarkerArray.forEach((circle: any) => {
+        circle.removeEventListener('click');
+      });
+    }
 
     if (this.markerPoint) {
       this.map.removeLayer(this.markerPoint);
@@ -829,6 +850,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
+    console.log("SONO DENTRO ON MAP CLICK");
 
     if(this.datasetCompare != null) {
       this.clickPointOnOff = false;
@@ -1234,6 +1256,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       metaId = this.selData.get("dataSetSel")?.value.name.id;
     }
 
+    if (this.selData.get("dataSetSel")?.value.name.wms_url !== ""){
+      //se non è vettoriale abilito il click sulla mappa!
+      if (this.clickPointOnOff){
+        this.map.off('click');
+        this.map.on('click', this.onMapClick.bind(this));
+      }
+    }
+
     this.getSelectedNode(event.value);
     this.getMeta(metaId);
   }
@@ -1249,6 +1279,18 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       idMeta: idMeta
     }).subscribe({
       next: (res: any) => {
+        if (this.circleMarkerArray.length > 0) {
+          this.circleMarkerArray.forEach((circle: any) => {
+            circle.removeEventListener('click');
+          });
+        }else{
+          console.log("Non ci sono i cerchi! Dovremmo abilitare il click sulla mappa?")
+          if(this.clickPointOnOff) {
+            console.log("Abilito il click sulla mappa");
+            this.map.off('click');
+            this.map.on('click', this.onMapClick.bind(this));
+          }
+        }
         this.metadata = res;
         console.log("METADATA =", this.metadata);
         console.log("Id meta======",idMeta);
@@ -2084,6 +2126,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   deleteLayer(idMeta?: string) {
     let metaId: any;
     if (this.legendNoWms) {
+
       this.markersLayer.clearLayers();
       this.circleMarkerArray = [];
       this.circleCoords = [];
@@ -2140,6 +2183,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       }
       else if (this.selData.get("dataSetSel")?.value.name.id) {
         metaId = this.selData.get("dataSetSel")?.value.name.id;
+      }
+      if (this.selData.get("dataSetSel")?.value.name.wms_url !== ""){
+
+        if (this.clickPointOnOff){
+          this.map.off('click');
+          this.map.on("click", this.onMapClick.bind(this));
+        }
+
+
       }
       this.getSelectedNode(this.selData.get("dataSetSel")?.value);
       this.getMeta(metaId);
@@ -2252,16 +2304,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   openGraphDialog(lat?: any, lng?: any, polygon?: any) {
+    console.log("SONO DENTRO OPEN GRAPH DIALOG");
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
 
-    if (this.circleMarkerArray.length > 0) {
-      this.circleMarkerArray.forEach((circle: any) => {
-        circle.removeEventListener('click');
-      });
-    }
+    // if (this.circleMarkerArray.length > 0) {
+    //   this.circleMarkerArray.forEach((circle: any) => {
+    //     circle.removeEventListener('click');
+    //   });
+    // }
 
 
     // if(this.confronto) {
@@ -2440,7 +2493,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         if (allLatCoordinates.length === 1){
             centerLat = allLatCoordinates[0];
             centerLong = allLongCoordinates[0];
-            
+
         }else{
           const center = Math.round(allLatCoordinates.length / 2);
           // console.log("Center",center);
@@ -2457,7 +2510,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         }else{
           this.map.setView(zoomTest,8);
         }
-          
+
         for (let i = 0; i < allLatCoordinates.length; i++) {
           if (this.isIndicator) {
             this.circleCoords.push(
@@ -2480,7 +2533,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             this.circleMarkerArray.push(this.markerToAdd);
             this.markersLayer.addLayer(this.markerToAdd);
 
+
             this.map.addLayer(this.markersLayer);
+
+
           } else {
             //griddap case with rectangle, NON SERVONO I MARKER!
 
@@ -2505,6 +2561,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
           }
+        }
+        if(this.circleMarkerArray.length > 0 && this.clickPointOnOff){
+          this.circleMarkerArray.forEach((circle: any) => {
+              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+          });
+          this.map.off('click');
         }
 
       },
@@ -2745,6 +2807,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             this.markersLayer.addLayer(this.markerToAdd);
           }
 
+          if(this.circleMarkerArray.length > 0  && this.clickPointOnOff){
+            this.circleMarkerArray.forEach((circle: any) => {
+                circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+            });
+            this.map.off('click');
+          }
+
         } else {
           //rectangle da rimuovere
           this.rettangoliLayer.clearLayers();
@@ -2793,6 +2862,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
             this.circleMarkerArray.push(this.markerToAdd);
             this.markersLayer.addLayer(this.markerToAdd);
+          }
+          if(this.circleMarkerArray.length > 0  && this.clickPointOnOff){
+            this.circleMarkerArray.forEach((circle: any) => {
+                circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+            });
+            this.map.off('click');
           }
 
         } else {

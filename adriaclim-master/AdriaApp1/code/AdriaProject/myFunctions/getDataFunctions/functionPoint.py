@@ -104,10 +104,11 @@ def getDataGraphicGeneric(
                     lats.insert(i, row["latitude"])
                     longs.insert(i, row["longitude"])
                     layerName.insert(i, layer_name)
-                    if isinstance(row[layer_name],str):
+                    try:
+                        values.insert(i,float(row[layer_name]))
+                    except Exception as e:
                         values.insert(i,row[layer_name])
-                    else:
-                        values.insert(i, float(row[layer_name]))
+                
                     dates.insert(i, row["time"])
                     i += 1
         else:  # one every nvalues/x data
@@ -125,10 +126,10 @@ def getDataGraphicGeneric(
                     lats.insert(i, row["latitude"])
                     longs.insert(i, row["longitude"])
                     layerName.insert(i, layer_name)
-                    if isinstance(row[layer_name],str):
+                    try:
+                        values.insert(i,float(row[layer_name]))
+                    except Exception as e:
                         values.insert(i,row[layer_name])
-                    else:
-                        values.insert(i, float(row[layer_name]))
                     dates.insert(i, row["time"])
                     i += 1
         # print("ARRIVO QUA")

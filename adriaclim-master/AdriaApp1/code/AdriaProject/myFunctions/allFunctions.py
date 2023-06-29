@@ -592,7 +592,7 @@ def getAllDatasets():
     print("Started getAllDatasets()")
     url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
     # asyncio.run(cache.clear())
-    cache.clear()
+    # cache.clear()
     # node_list = []
     asyncio.run(delete_all("Node"))  # delete all existing nodes
     try:
@@ -1647,25 +1647,26 @@ def updateStatistics(new_dates,new_values,timeperiod,polygon):
 
 def packageGraphData(allData, **kwargs):
     try:
+        # print("PackageGraphData=======",allData)
         values = allData[0]
         dates = allData[1]
         unit = allData[2]
+        # print("dates==========",dates)
+        # print("values===========",values)
+        # print("len values===========",len(values))
         layerName = allData[3]
         lats = allData[4]
         longs = allData[5]
         data = {}
         data["unit"] = unit
         data["entries"] = []
-
+        # print("Kwargs:",kwargs)
         if "operation" in kwargs:
             if kwargs["operation"] == "default":
                 try:
                     mean_result = mean(values)
                     median_result = median(values)
                     stdev_result = stdev(values)
-                    # print("dates==========",dates)
-                    # print("values===========",values)
-                    # print("len values===========",len(values))
                     trend_result = calculate_trend(dates,values, timeperiod=kwargs["adriaclim_timeperiod"])
                     data["mean"] = mean_result
                     data["median"] = median_result
@@ -2426,7 +2427,7 @@ def getDataVectorial(
             long_coordinates.insert(i, row["longitude"])
             i += 1
 
-        print("Values=========",values)
+        # print("Values=========",values)
         try:
             values[0] = float(values[0])
         except Exception as e:

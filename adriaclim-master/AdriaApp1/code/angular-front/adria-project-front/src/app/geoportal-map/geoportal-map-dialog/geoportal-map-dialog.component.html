@@ -247,7 +247,7 @@
 
               <!-- </ng-template> -->
             </mat-tab>
-            <mat-tab label="Table">
+            <mat-tab label="Table" *ngIf="!compareObj">
 
               <table mat-table [dataSource]="dataSource">
 
@@ -267,7 +267,7 @@
 
             </mat-tab>
             <!-- <mat-tab label="Export" fxFlex fxLayout="row" fxLayoutAlign="center center" class="export-tab"> -->
-            <mat-tab label="Export" class="export-tab col-12 d-flex flex-row justify-content-center align-items-center">
+            <mat-tab label="Export" class="export-tab col-12 d-flex flex-row justify-content-center align-items-center" *ngIf="!compareObj">
               <!-- QUI CI VA IL CODICE PER EXPORT -->
               <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="max-height: 100% !important; overflow: hidden !important;"> -->
               <div class="col-12 d-flex flex-column justify-content-center align-items-center gap-2 mh-100" style="overflow: hidden !important;">
