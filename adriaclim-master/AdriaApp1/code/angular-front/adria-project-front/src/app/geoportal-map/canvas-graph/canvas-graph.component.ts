@@ -607,10 +607,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
               }
               else if(task_status === "PROGRESS"){
                 // clearInterval(checkTaskStatus);
-                console.log("Test res",res);
+                // console.log("Test res",res);
                 // console.log("RESPONSE PROGRESS=",response);
                 let progressBarValue = res.dataVect.progressBar;
-                console.log("PROGRESS BAR VALUE=",progressBarValue);
+                // console.log("PROGRESS BAR VALUE=",progressBarValue);
                 this.progressBar.emit(progressBarValue);
                 // console.log("TASK_STATUS: " + task_status);
               }

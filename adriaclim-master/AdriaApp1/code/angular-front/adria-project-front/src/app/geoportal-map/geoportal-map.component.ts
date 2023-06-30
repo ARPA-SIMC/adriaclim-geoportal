@@ -532,7 +532,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     //dobbiamo passargli la lista dei layers attivi!
-    console.log("this.activeLayersArray =", this.activeLayersArray);
+    // console.log("this.activeLayersArray =", this.activeLayersArray);
 
     dialogConfig.data = {
       selectCoords: this.selectCoords,
@@ -542,7 +542,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != ""){
-        console.log("result =", result);
+        // console.log("result =", result);
         // console.log("this.datasetCompare =", this.datasetCompare);
         this.pointSelect(result.lat, result.lng);
 
@@ -587,9 +587,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       // this.clickPointOnOff = false;
     }
     else {
-      console.log("ENTRO NELL'ELSE QUESTO è IL VALORE DI THIS.SELECTCOORDS",this.selectCoords);
+      // console.log("ENTRO NELL'ELSE QUESTO è IL VALORE DI THIS.SELECTCOORDS",this.selectCoords);
       if(this.selectCoords) {
-        console.log("SONO DENTRO SELECTCOORDS");
+        // console.log("SONO DENTRO SELECTCOORDS");
 
         this.map.getContainer().style.cursor = "default";
 
@@ -850,7 +850,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   // metodo richiamato al click sulla mappa
   onMapClick = (e: L.LeafletMouseEvent) => {
-    console.log("SONO DENTRO ON MAP CLICK");
+    // console.log("SONO DENTRO ON MAP CLICK");
 
     if(this.datasetCompare != null) {
       this.clickPointOnOff = false;
@@ -1284,9 +1284,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             circle.removeEventListener('click');
           });
         }else{
-          console.log("Non ci sono i cerchi! Dovremmo abilitare il click sulla mappa?")
           if(this.clickPointOnOff) {
-            console.log("Abilito il click sulla mappa");
             this.map.off('click');
             this.map.on('click', this.onMapClick.bind(this));
           }
@@ -1348,7 +1346,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     //   this.variableArray = this.variableArray.slice(-1);
     // }
-    console.log("thisVariableArray: ", this.variableArray);
+    // console.log("thisVariableArray: ", this.variableArray);
     this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
 
   }
@@ -1744,12 +1742,86 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   dateFilter = (date: Date | null): boolean => { return true; }
 
+
+  extraParamNoWms(metadata: any, controlExtra?: any){
+    const num_parameters = metadata[0][1].split(", ");
+    const min_max_value = metadata[0][0].split(",");
+    const name = num_parameters[1];
+    const min = Number(min_max_value[0]);
+    const max = Number(min_max_value[1]);
+    const step = Number(metadata[0][5].split("=")[1]);
+    // console.log("ENTRO NEL CASO DEL PARAMETRO AGGIUNTIVO!");
+    // console.log("NOME PARAMETRO AGGIUNTIVO======",name);
+    // console.log("VALORE MIN",min);
+    // console.log("VALORE MAX",max);
+    // console.log("STEP",step);
+
+    //se non c'è ci sono questi due if, se c'è hai sempre
+    if (name === "depth") {
+      // this.extraParam.name = "elevation";
+      this.extraParam = {
+        name: "Elevation",
+        minValue: - max,
+        maxValue: - min,
+        stepSize: step,
+        nameExtraParam: name,
+      };
+
+      this.extraParamExport = {
+        name: "Depth",
+        minValue: min,
+        maxValue: max,
+        stepSize: step,
+        nameExtraParam: name,
+      }
+
+    }
+    else {
+      this.extraParam = {
+        name: 'Dim_' + name,
+        minValue: min,
+        maxValue: max,
+        stepSize: step,
+        nameExtraParam: name,
+      };
+
+      this.extraParamExport = {
+        name: "Dim_" + name,
+        minValue: min,
+        maxValue: max,
+        stepSize: step,
+        nameExtraParam: name,
+      }
+    }
+    // if(this.value this.extraParam.maxValue){
+    // console.log("CONSTROL EXTRA: ", controlExtra);
+    this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
+
+    this.options = {
+      floor: this.extraParam.minValue,
+      ceil: this.extraParam.maxValue,
+      step: Number(this.extraParam.stepSize.toFixed(4)),
+    };
+    if (controlExtra) {
+      this.sliderGroup.get('sliderControl')?.setValue(controlExtra);
+    }
+    else {
+      if (name === "depth") {
+        this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.maxValue);
+      }
+      else {
+        this.sliderGroup.get('sliderControl')?.setValue(this.extraParam.minValue);
+      }
+    }
+
+  }
+
   getLayers(idMeta: any, controlDate?: any, controlExtra?: any) {
 
     //let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
-    console.log("Metadata=======",this.metadata);
+    // console.log("Metadata=======",this.metadata);
 
     // d.setUTCSeconds
 
@@ -1870,11 +1942,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
     if (this.selData.get("dataSetSel")?.value.name.wms_url === "") {
+
+
       //GESTIONE PARAMETRO AGGIUNTIVO PER I GRIDDAP SENZA WMS!!!!!
       this.getDataVectorialTabledap();
 
     }
     else {
+
+
       // this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
 
 
@@ -2035,6 +2111,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   sliderControl(event: any) {
     // console.log("EVENTO SLIDERRRRRRRRR =", event.value);
+
+
     this.valueCustom = event.value;
     let metaId: any;
     if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
@@ -2126,7 +2204,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   deleteLayer(idMeta?: string) {
     let metaId: any;
     if (this.legendNoWms) {
-
       this.markersLayer.clearLayers();
       this.circleMarkerArray = [];
       this.circleCoords = [];
@@ -2304,7 +2381,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   openGraphDialog(lat?: any, lng?: any, polygon?: any) {
-    console.log("SONO DENTRO OPEN GRAPH DIALOG");
+    // console.log("SONO DENTRO OPEN GRAPH DIALOG");
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -2417,14 +2494,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
           openGraph: true,
         };
       }
-      console.log("DATASET COMPARE =", this.datasetCompare);
+      // console.log("DATASET COMPARE =", this.datasetCompare);
 
       if(this.datasetCompare != null && this.compare) {
         this.compareObj = {
           firstDataset: this.datasetCompare.firstDataset,
           firstVarSel: this.datasetCompare.firstVarSel,
+          firstValue: + this.datasetCompare.firstValue,
           secondDataset: this.datasetCompare.secondDataset,
           secondVarSel: this.datasetCompare.secondVarSel,
+          secondValue: + this.datasetCompare.secondValue,
           latlng: this.coordOnClick,
           compare: this.compare,
         }
@@ -2432,7 +2511,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         this.compare = false;
         this.datasetCompare = null;
       }
-      console.log("DIALOG CONFIG DATA =", dialogConfig.data);
+      // console.log("DIALOG CONFIG DATA =", dialogConfig.data);
 
     // }
 
@@ -2453,7 +2532,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     }else{
       //è un griddap
        if (this.selData.get("dataSetSel")?.value.name.dimensions >= 3){
+
         this.isExtraParam = true;
+        this.extraParamNoWms(this.metadata, this.valueCustom);
        }else{
         this.isExtraParam = false;
        }
@@ -2554,6 +2635,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
             }
 
             const rectangle = L.rectangle(bounds, { fillOpacity: .8, opacity: .8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+
             this.rettangoliLayer.addLayer(rectangle);
             this.map.addLayer(this.rettangoliLayer);
 
@@ -2650,11 +2732,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
       value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
       value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
     }
-    console.log("VALUE MIN =", value_min);
-    console.log("VALUE MIN MID =", value_min_mid);
-    console.log("VALUE MID =", value_mid);
-    console.log("VALUE MID MAX =", value_mid_max);
-    console.log("VALUE MAX =", value_max);
+    // console.log("VALUE MIN =", value_min);
+    // console.log("VALUE MIN MID =", value_min_mid);
+    // console.log("VALUE MID =", value_mid);
+    // console.log("VALUE MID MAX =", value_mid_max);
+    // console.log("VALUE MAX =", value_max);
 
     value_min = this.formatNumber(value_min, 5);
     value_min_mid = this.formatNumber(value_min_mid, 5);
@@ -2715,7 +2797,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
         );
       }
       const button = L.DomUtil.create('button', 'color-number-legend');
-      button.innerHTML = "<span class='material-symbols-outlined'>settings</span>";
+      button.innerHTML = `<span class='material-symbols-outlined'>settings</span>`;
       button.addEventListener('click', (e) => this.changeLegendColors());
 
       div.innerHTML = labels.join('');
@@ -2733,7 +2815,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     //dobbiamo passargli la lista dei layers attivi!
-    console.log("this.activeLayersArray =", this.activeLayersArray);
+    // console.log("this.activeLayersArray =", this.activeLayersArray);
 
     dialogConfig.data = {
       activeLayersArray: this.activeLayersArray,
@@ -2900,8 +2982,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
    *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE
    */
   applyFilter(filterValue: string): any[] {
+    if(filterValue) {
 
-    filterValue = filterValue.trim().toLowerCase();
+      filterValue = filterValue.trim().toLowerCase();
+    }
     let treeFiltrato: any[] = [];
     this.dataAllNodesTree.data = TREE_DATA;
 
@@ -3053,42 +3137,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   // }
-
-
-
-  provaEgg() {
-    console.log('FUNZIONA?');
-    this.isMouseIdle = true;
-    this.resetTimer();
-  }
-
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove() {
-    if (this.isMouseIdle) {
-      clearTimeout(this.timer);
-      this.isMouseIdle = false;
-    }
-  }
-
-  resetTimer() {
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
-      if (this.isMouseIdle) {
-        // Logica da eseguire dopo 10 secondi di inattività del mouse
-        console.log('Il mouse è rimasto fermo per 10 secondi dopo provaEgg().');
-        this.display = "block";
-        // this.mod = true;
-        // this.modProva.open();
-      }
-    }, 10000); // Tempo in millisecondi (10 secondi)
-  }
-
-  onCloseHandled(){
-    this.display='none';
- }
-
-
-
 
 }
 

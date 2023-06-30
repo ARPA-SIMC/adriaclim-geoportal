@@ -21,7 +21,7 @@
     </div>
     <ng-container *ngIf="!polName && openGraph">
       <!-- <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat.toFixed(5)}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng.toFixed(5)}}</span></h1> -->
-      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{latlng.lat}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{latlng.lng}}</span></h1>
+      <h1 mat-dialog-title><span class="info-title-dialog">Lat: </span><span class="title-dialog-bold">{{parseInFloatLat()}}</span>, <span class="info-title-dialog">Lng: </span><span class="title-dialog-bold">{{parseInFloatLng()}}</span></h1>
 
     </ng-container>
 
@@ -120,52 +120,8 @@
                 </div>
                 <!-- <div fxFlex="60" fxLayout="row" fxLayoutAlign="space-between center" style="margin-left: 10px;"> -->
                 <ng-container *ngIf="compareObj; else normalStat">
-                  <!-- <div class="dropdown" *ngIf="showStatistic">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Stats
-                    </button>
-                    <ul class="dropdown-menu"> -->
-                      <!-- <li class="col d-flex flex-row justify-content-between align-items-center">
-                        <span>Mean: <br> mean1</span>
-                        <span>Median: <br> median1</span>
-                        <span>Stddev: <br> stdev1</span>
-                        <span>Trend/Yr: <br> trend/yr1</span>
-                      </li>
-                      <li class="col d-flex flex-row justify-content-between align-items-center">
-                        <span>Mean: <br> mean2</span>
-                        <span>Median: <br> median2</span>
-                        <span>Stddev: <br> stdev2</span>
-                        <span>Trend/Yr: <br> trend/yr2</span>
-                      </li> -->
-                    <!-- </ul>
-                  </div> -->
-                  <!-- <div class="dropdown">
-                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Dropdown link
-                    </a>
-
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">Action</a></li>
-                      <li><a class="dropdown-item" href="#">Another action</a></li>
-                      <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    </ul>
-                  </div> -->
-                  <!-- <div class="dropdown text-center">
-                    <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Apri dropdown
-                      <svg class="icon-expand icon icon-sm icon-primary"><use href="/bootstrap-italia/dist/svg/sprites.svg#it-expand"></use></svg>
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <div class="link-list-wrapper">
-                        <ul class="link-list">
-                          <li><a class="dropdown-item list-item" href="#"><span>Azione 1</span></a></li>
-                          <li><a class="dropdown-item list-item" href="#"><span>Azione 2</span></a></li>
-                          <li><a class="dropdown-item list-item" href="#"><span>Azione 3</span></a></li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div> -->
-                  <div class="btn-group col d-flex flex-row justify-content-start align-items-center">
+                  <!-- DROPDOWN -->
+                  <!-- <div class="btn-group col d-flex flex-row justify-content-start align-items-center">
                     <button type="button" class="btn btn-primary dropdown-toggle d-flex flex-row justify-content-center align-items-center text-center" style="max-width: 110px; height: 60%;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Stats
                     </button>
@@ -189,7 +145,17 @@
                         </ul>
                       </div>
                     </div>
+                  </div> -->
+                  <div class="col d-flex flex-row justify-content-between align-items-center" *ngIf="showStatistic">
+                      <span matTooltip="Mean difference average between the second and the first dataset">Mean diff. avg D2 - D1: <br> {{stats.meanDiffAvg}}</span>
+                      <span matTooltip="Mean absolute difference average">Mean abs. diff. avg: <br> {{stats.meanDiffAvgAbs}}</span>
+                      <span matTooltip="Root mean square difference square root">RMS diff.: <br> {{stats.rootSquaredDiff}}</span>
+                    <!-- <span>Mean: <br> {{this.form.get("meanValue")?.value}}</span>
+                    <span>Median: <br> {{this.form.get("medianValue")?.value}}</span>
+                    <span>Stddev: <br> {{this.form.get("stdevValue")?.value}}</span>
+                    <span>Trend/Yr: <br> {{this.form.get("trendValue")?.value}}</span> -->
                   </div>
+
                 </ng-container>
                 <ng-template #normalStat>
 
@@ -217,9 +183,9 @@
 
               </div>
               <ng-container *ngIf="compareObj; else noConfronto">
-                <app-canvas-graph-compare [compareObj]="compareObj" (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
+                <app-canvas-graph-compare [compareObj]="compareObj" (dataTimeExport)="addDataTimeExport($event)"  (compareStats)="compareStats($event)"
                   (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
-                  (statisticCalc)="statisticCalc($event)"
+                  (statisticCalc)="statisticCalc($event)" (description)="descriptionError($event)"
                   class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                   [range]="range" [isIndicator]="isIndicator" [polygon]="polygon"
                   [operation]="polygon ? operation : this.form.get('operationSel')?.value" [statistic]="statistic"

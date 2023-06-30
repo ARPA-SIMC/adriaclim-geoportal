@@ -454,7 +454,7 @@ def getDataVectorialNew(request):
         layer_name = request.data.get('selVar')
         num_param = dataset.get('variables')
         num_dimensions = dataset.get('dimensions')
-        print("SEL VAR ============",layer_name)
+        # print("SEL VAR ============",layer_name)
         lat_min = dataset.get('lat_min')
         lat_max = dataset.get('lat_max')
         lng_min = dataset.get('lng_min')
@@ -480,7 +480,7 @@ def getDataVectorialNew(request):
         # print("NUM DIMENSIONS =", num_dimensions)
         # print("NUM DIMENSIONS TYPE =", type(num_dimensions))
         
-        print("DATASET =", dataset)
+        # print("DATASET =", dataset)
         dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
         return JsonResponse({'dataVect': dataVect})
     except Exception as e:
@@ -503,8 +503,8 @@ def check_task_status(request):
     try:
         task = AsyncResult(request.data.get('task_id'))
         response = {'status': task.status}
-        print("Task status",task.status)
-        print("TASK======",task)
+        # print("Task status",task.status)
+        # print("TASK======",task)
         if task.status == 'SUCCESS':
             response['result'] = task.result
         if task.state == "PROGRESS":
@@ -541,35 +541,35 @@ def updateStatistics(request):
     new_values_calculated = allFunctions.updateStatistics(new_dates,new_values,adriaclim_timeperiod,polygon)
     return JsonResponse({"newValues":new_values_calculated})
 
-def check_additional_param(dataset):
-    if dataset["griddap_url"] != "" and dataset["dimensions"] > 3:
-        #è griddap e ha un parametro aggiuntivo
-        #passi il valore del minimo del parametro aggiuntivo
-        return str(dataset["param_min"])
-    else:
-        return "0"
+# def check_additional_param(dataset):
+#     if dataset["griddap_url"] != "" and dataset["dimensions"] > 3:
+#         #è griddap e ha un parametro aggiuntivo
+#         #passi il valore del minimo del parametro aggiuntivo
+#         return str(dataset["param_min"])
+#     else:
+#         return "0"
     
 @api_view(['GET','POST'])
 def compareDatasets(request):
     try:
         # print("Request",request)
         compare_obj = request.data
-        # print("compare_obj",compare_obj)
+        # print("COMPARE_OBJ===============",compare_obj)
         context = "one"
         operation = "default"
         latitude = str(compare_obj.get('latlng')["lat"])
         longitude = str(compare_obj.get('latlng')["lng"])
-        print("Latitude: ",latitude)
-        print("Longitude: ",longitude)
+        # print("Latitude: ",latitude)
+        # print("Longitude: ",longitude)
         first_dataset = compare_obj.get('firstDataset')["name"]
-        print("First_dataset: ",first_dataset)
+        # print("First_dataset: ",first_dataset)
         first_dataset_id = first_dataset["id"]
         # print("First_dataset_id: ",first_dataset_id)
         first_dataset_timeperiod = first_dataset["adriaclim_timeperiod"]
         first_dataset_layer_name = str(compare_obj.get('firstVarSel'))
         first_dataset_time_start = first_dataset["time_start"]
         first_dataset_time_end = first_dataset["time_end"]
-        first_dataset_param = check_additional_param(first_dataset)
+        first_dataset_param = str(compare_obj.get('firstValue'))
         first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         first_list = first_result[first_dataset_layer_name]
         all_values_first =  list(map(float, map(itemgetter('y'), first_list))) #prendo tutti i valori del primo dataset
@@ -581,7 +581,7 @@ def compareDatasets(request):
         second_dataset_layer_name = str(compare_obj.get('secondVarSel'))
         second_dataset_time_start = second_dataset["time_start"]
         second_dataset_time_end = second_dataset["time_end"]
-        second_dataset_param = check_additional_param(second_dataset)
+        second_dataset_param = str(compare_obj.get('secondValue'))
         second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         second_list = second_result[second_dataset_layer_name]
         # print("second list===",second_list)
@@ -603,7 +603,8 @@ def compareDatasets(request):
         #     return JsonResponse({"compareResult":allData})
         # else:
         #     return JsonResponse({'compareResult':allData})
+
         return JsonResponse({"compareResult": allData})
     except Exception as e:
         print("Eccezione",e)
-        return str(e)
+        return HttpResponse("Errore",status=400)

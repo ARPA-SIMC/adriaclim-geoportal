@@ -1594,7 +1594,7 @@ def subtract_mean_trend(dates,values,timeperiod):
 def calculate_trend(dates, values, **kwargs):
     try:
         y = np.array(values)
-        print("CALCULATE TREND===========",y)
+        # print("CALCULATE TREND===========",y)
         if "timeperiod" in kwargs and kwargs["timeperiod"] != "yearly":
             y = subtract_mean_trend(dates,y,kwargs["timeperiod"])
 

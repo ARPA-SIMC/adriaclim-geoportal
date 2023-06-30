@@ -24,8 +24,8 @@
             <mat-label>Select variable</mat-label>
             <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
             <mat-select formControlName="variableFirstData">
-              <mat-option *ngFor="let a of firstDatasetVariables" [value]="a">
-                {{a}}
+              <mat-option *ngFor="let a of firstDatasetVariables" [value]="a.name">
+                {{a.name}}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -36,12 +36,12 @@
           <ngx-slider class="col-10" [(value)]="firstValue" [options]="firstOptions"></ngx-slider>
         </div> -->
 
-        <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="firstDataset.name.dimensions > 3">
+        <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="this.form.get('firstDataset')?.value.name.dimensions > 3">
           <form [formGroup]="sliderForm" class="col-12 d-flex flex-column justify-content-center align-items-center p-0">
             <div class="example-label-container col-9 d-flex flex-row justify-content-center align-items-center">
               <label id="example-name-label" class="example-name-label col-12 d-flex justify-content-center align-items-center">{{extraParamFirst.name}}</label>
             </div>
-            <ngx-slider [(value)]="firstValue" [options]="firstOptions"></ngx-slider>
+            <ngx-slider [(value)]="firstValue" [options]="firstOptions" (userChangeEnd)="changeValueSliderOne($event)"></ngx-slider>
 
           </form>
         </div>
@@ -63,8 +63,8 @@
             <mat-label>Select variable</mat-label>
             <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
             <mat-select formControlName="variableSecondData">
-              <mat-option *ngFor="let a of secondDatasetVariables" [value]="a">
-                {{a}}
+              <mat-option *ngFor="let a of secondDatasetVariables" [value]="a.name">
+                {{a.name}}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -75,12 +75,12 @@
           <ngx-slider class="col-10" [(value)]="secondValue" [options]="secondOptions"></ngx-slider>
         </div> -->
 
-        <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="secondDataset.name.dimensions > 3">
+        <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="this.form.get('secondDataset')?.value.name.dimensions > 3">
           <form class="col-12 d-flex flex-column justify-content-center align-items-center p-0">
             <div class="example-label-container col-9 d-flex flex-row justify-content-center align-items-center">
               <label id="example-name-label" class="example-name-label col-12 d-flex justify-content-center align-items-center">{{extraParamSecond.name}}</label>
             </div>
-            <ngx-slider [(value)]="secondValue" [options]="secondOptions"></ngx-slider>
+            <ngx-slider [(value)]="secondValue" [options]="secondOptions" (userChangeEnd)="changeValueSliderSecond($event)"></ngx-slider>
 
           </form>
         </div>

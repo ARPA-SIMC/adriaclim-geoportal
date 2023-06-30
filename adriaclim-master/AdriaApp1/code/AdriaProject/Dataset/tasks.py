@@ -40,7 +40,7 @@ def task_get_data_polygon(self,request_data):
         # si rompe alla riga sotto *********************************************
         start_time = time.time()
         print("STARTED GETDATAPOLYGONNEW!")
-        print("Parametro aggiuntivo=======",parametro_agg)
+        # print("Parametro aggiuntivo=======",parametro_agg)
         # print("ADRIACLIM_TIMEPERIOD======",adriaclim_timeperiod)
         vertices = []
         vertices_geos_poly = []

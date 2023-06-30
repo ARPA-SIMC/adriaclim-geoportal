@@ -59,10 +59,10 @@ export class AppComponent implements OnInit {
       inputEsterno: idInput
     }).subscribe({
       next(position: any) {
-        console.log('PIPPO: ', position);
+        // console.log('PIPPO: ', position);
       },
       error(msg: any) {
-        console.log('PIPPO ERROR: ', msg);
+        // console.log('PIPPO ERROR: ', msg);
       }
   });
     // this.httpClient.post('http://localhost:8000/test/pippo', {

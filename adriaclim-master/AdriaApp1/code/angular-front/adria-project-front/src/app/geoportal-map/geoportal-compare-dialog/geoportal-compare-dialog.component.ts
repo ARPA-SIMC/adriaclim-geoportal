@@ -28,8 +28,8 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
   activeLayersArray: any;
   form!: FormGroup;
   isIndicator!: boolean;
-  firstDatasetVariables: any;
-  secondDatasetVariables: any;
+  firstDatasetVariables: any[] = [];
+  secondDatasetVariables: any[] = [];
   compareObj: any;
 
   firstOptions: Options = {
@@ -65,6 +65,9 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
   firstDataset: any;
   secondDataset: any;
   sliderForm!: FormGroup;
+
+  valueOne: any = null;
+  valueTwo: any = null;
 
   constructor(
     private changeDetector: ChangeDetectorRef,
@@ -104,8 +107,8 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
     try {
       this.getSelectedVarFirstDataset();
       this.getSelectedVarSecondDataset();
-      console.log("FIRST DATASET", this.form.get('firstDataset')?.value);
-      console.log("SECOND DATASET", this.form.get('secondDataset')?.value);
+      // console.log("FIRST DATASET", this.form.get('firstDataset')?.value);
+      // console.log("SECOND DATASET", this.form.get('secondDataset')?.value);
       // resolve({
       //   firstDataset: this.firstDataset,
       //   secondDataset: this.secondDataset
@@ -126,12 +129,12 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
 
   checkDimensions() {
     if(this.firstDataset.name.dimensions > 3) {
-      console.log("PARAM MAX TYPEOF", typeof this.firstDataset.name.param_max);
+      // console.log("PARAM MAX TYPEOF", typeof this.firstDataset.name.param_max);
 
-      console.log("TYPE OF FIRST VALUE", typeof this.firstValue);
+      // console.log("TYPE OF FIRST VALUE", typeof this.firstValue);
 
       let name = this.firstDataset.name.dimension_names.split(" ")[1];
-      console.log("NAME PARAM AGGIUNTIVO FIRST DATASET======",name);
+      // console.log("NAME PARAM AGGIUNTIVO FIRST DATASET======",name);
       if (name === "depth") {
         // this.extraParam.name = "elevation";
         this.extraParamFirst = {
@@ -166,7 +169,7 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
 
     if(this.secondDataset.name.dimensions > 3) {
       let name = this.secondDataset.name.dimension_names.split(" ")[1];
-      console.log("NAME PARAM AGGIUNTIVO SECOND DATASET======",name);
+      // console.log("NAME PARAM AGGIUNTIVO SECOND DATASET======",name);
 
       if (name === "depth") {
 
@@ -239,11 +242,25 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
       this.dialogRef.close("");
   }
 
+  changeValueSliderOne(event: any) {
+    this.valueOne = event.value;
+    // console.log("VALUE ONE", this.valueOne);
+
+  }
+
+  changeValueSliderSecond(event: any) {
+    this.valueTwo = event.value;
+    // console.log("VALUE SECOND", this.valueTwo);
+
+  }
+
   compareDatasets(){
     let data = {
       firstDataset: this.form.get('firstDataset')?.value,
       secondDataset: this.form.get('secondDataset')?.value,
+      firstValue: this.checkForDepth1(),
       firstVarSel: this.form.get('variableFirstData')?.value,
+      secondValue: this.checkForDepth2(),
       secondVarSel: this.form.get('variableSecondData')?.value,
     }
     this.dialogRef.close(data);
@@ -255,27 +272,65 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
 
   }
 
+  checkForDepth1() {
+    if(!this.valueOne) {
+      // se non è stato selezionato un valore prendi quello impostato di default
+      return this.firstValue;
+    }
+    else{
+      //dobbiamo controllare se è Elevation
+      if(this.extraParamFirst.name === "Elevation"){
+        return -this.valueOne;
+      }
+      else {
+        return this.valueOne;
+      }
+    }
+
+  }
+
+  checkForDepth2() {
+    if(!this.valueTwo) {
+      // se non è stato selezionato un valore prendi quello impostato di default
+      return this.secondValue;
+    }
+    else{
+      //dobbiamo controllare se è Elevation
+      if(this.extraParamSecond.name === "Elevation"){
+        return -this.valueTwo;
+      }
+      else {
+        return this.valueTwo;
+      }
+    }
+
+  }
+
   async getSelectedVarFirstDataset(){
-    // this.firstDataset = this.form.get('firstDataset')?.value;
     // this.chargeAll();
     // setTimeout(() => {
-    //   this.checkDimensions();
+      //   this.checkDimensions();
 
-    // }, 500);
-    // let firstDataset = this.form.get('firstDataset')?.value;
+      // }, 500);
+      // let firstDataset = this.form.get('firstDataset')?.value;
+
+    this.firstDataset = this.form.get('firstDataset')?.value;
+    // console.log("SELECTED VAR DATASET: ", this.firstDataset);
 
     if (this.firstDataset.name) {
       let variableNames = this.firstDataset.name.variable_names.split(" ");
       // let variableNames = first.name.variable_names.split(" ");
       let variableTypes = this.firstDataset.name.variable_types.split(" ");
       // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
-      variableNames.forEach((variableName:any, index: number) =>{
+      variableNames.forEach((vName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (
-        variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
+        vName !== "time" && vName !== "latitude" && vName !== "longitude" &&
         (variableTypes[index] === "float" || variableTypes[index] === "double")
       ) {
-        this.firstDatasetVariables.push({ name: variableName, type: variableTypes[index] });
+        // console.log("VNAME===========", vName, "variable types==========", variableTypes[index]);
+
+        this.firstDatasetVariables.push({ name: vName, type: variableTypes[index] });
       }
       });
     }
@@ -310,12 +365,14 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
   }
 
   async getSelectedVarSecondDataset(){
+
     // await this.chargeAll();
     // setTimeout(() => {
     //   this.checkDimensions();
 
     // }, 500);
     this.secondDataset = this.form.get('secondDataset')?.value;
+
     if (this.secondDataset.name) {
       let variableNames = this.secondDataset.name.variable_names.split(" ");
       // let variableNames = first.name.variable_names.split(" ");

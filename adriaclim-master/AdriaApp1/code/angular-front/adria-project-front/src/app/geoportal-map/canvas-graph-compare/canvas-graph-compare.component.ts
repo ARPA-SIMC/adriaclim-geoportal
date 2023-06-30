@@ -27,7 +27,9 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @Input() extraParam: any;
   @Input() enableArea: any;
   @Input() circleCoords: any;
-  @Output() meanMedianStdev = new EventEmitter<any>();
+  // @Output() meanMedianStdev = new EventEmitter<any>();
+
+  @Output() compareStats = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
   @Output() spinnerLoadingChild = new EventEmitter<any>();
@@ -176,7 +178,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
         this.dataRes = response;
 
-        this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
+        // this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
 
         const name = this.dataRes.allData.entries[0];
         if(this.operation === "annualMonth"){
@@ -300,21 +302,29 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
 
   getGraphCompare() {
-    console.log('COMPARE OBJ: ', this.compareObj);
+    // console.log('COMPARE OBJ: ', this.compareObj);
     // this.compareObj["operation"] = this.operation;
     let data = this.compareObj;
     this.httpService.post('test/compareDatasets', data).subscribe({
       next: (res: any) => {
-        console.log('COMPARE RES: ', res);
+        // console.log('COMPARE RES: ', res);
         let firstDataset = res.compareResult.firstResult;
         let secondDataset = res.compareResult.secondResult;
         let firstKey = this.compareObj.firstVarSel;
         let secondKey = this.compareObj.secondVarSel;
 
-        console.log('FIRST DATASET: ', firstDataset);
-        console.log('SECOND DATASET: ', secondDataset);
-        console.log('FIRST KEY: ', firstKey);
-        console.log('SECOND KEY: ', secondKey);
+        let stats = {
+          meanDiffAvg: res.compareResult.meanDiffAvg,
+          meanDiffAvgAbs: res.compareResult.meanDiffAvgAbs,
+          rootSquaredDiff: res.compareResult.rootSquaredDiff
+        }
+        // this.compareStats.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
+        this.compareStats.emit(stats);
+
+        // console.log('FIRST DATASET: ', firstDataset);
+        // console.log('SECOND DATASET: ', secondDataset);
+        // console.log('FIRST KEY: ', firstKey);
+        // console.log('SECOND KEY: ', secondKey);
 
         let namesArray = [firstKey, secondKey];
 
@@ -396,10 +406,22 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
                 let date;
                 if (param.seriesIndex === 1) {
                   // First x-axis data
-                  date = this.formatDate(firstDataset[firstKey][param.dataIndex].x);
+                  // console.log("First dataset del compare============",firstDataset);
+                  // console.log("First Key==================",firstKey);
+                  // console.log("First Dataset[firstkey]==================",firstDataset[firstKey])
+                  if(firstDataset[firstKey][param.dataIndex]) {
+                    date = this.formatDate(firstDataset[firstKey][param.dataIndex].x);
+
+                  }
                 } else if (param.seriesIndex === 0) {
                   // Second x-axis data
-                  date = this.formatDate(secondDataset[secondKey][param.dataIndex].x);
+                  // console.log("Second dataset del compare============",secondDataset);
+                  // console.log("Second Key==================",secondKey);
+                  // console.log("Second Dataset[secondkey]==================",secondDataset[secondKey]);
+                  if(secondDataset[secondKey][param.dataIndex]) {
+
+                    date = this.formatDate(secondDataset[secondKey][param.dataIndex].x);
+                  }
                 }
                 return `<span style="color:${this.colors[index]}">${date}</span><br>${param.marker} ${param.seriesName}: ${value}`;
               }).join('<br>');
@@ -463,6 +485,10 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
       },
       error: (msg: any) => {
         console.log('COMPARE ERROR: ', msg);
+        if(msg.error === "Errore") {
+          this.description.emit("The selected point is outside of the available area for one of dataset");
+
+        }
       }
 
     });

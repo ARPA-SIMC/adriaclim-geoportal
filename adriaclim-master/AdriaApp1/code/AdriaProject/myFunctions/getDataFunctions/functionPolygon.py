@@ -80,7 +80,7 @@ def getDataPolygonNew(
         # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
         # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
 
-        print("POL FROM CACHE DATAFRAME", pol_from_cache_dataframe)
+        # print("POL FROM CACHE DATAFRAME", pol_from_cache_dataframe)
         # si rompe alla riga sotto perché in pol_from_cache_dataframe non c'è la colonna y *********************************************************
         pol_from_cache_values = pol_from_cache_dataframe["y"].tolist()
         if len(pol_from_cache_values) == 1:

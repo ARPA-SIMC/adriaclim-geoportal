@@ -13,6 +13,7 @@ import { HttpService } from 'src/app/services/http.service';
 import { MatSliderChange } from '@angular/material/slider';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import { last } from 'lodash';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-geoportal-map-dialog',
@@ -27,7 +28,7 @@ import { last } from 'lodash';
 })
 export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentChecked {
 
-
+  stats: any = {};
 
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
@@ -548,7 +549,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   getGraphTable() {
     if (this.dataset) {
       // this.spinnerLoading = true;
-      //converting date to UTC 
+      //converting date to UTC
 
       let data = {
         idMeta: this.datasetId,
@@ -840,6 +841,21 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     this.spinnerLoading = event;
   }
 
+  compareStats(event: any) {
+    this.stats = {
+      meanDiffAvg: parseFloat(event.meanDiffAvg).toFixed(5),
+      meanDiffAvgAbs: parseFloat(event.meanDiffAvgAbs).toFixed(5),
+      rootSquaredDiff: parseFloat(event.rootSquaredDiff).toFixed(5),
+    };
+    // console.log("STATS = ", this.stats);
+
+  }
+
+  descriptionError(event: any) {
+    this.description = event;
+    // console.log("DESCRIPTION ERROR = ", this.description);
+  }
+
   meanMedianStdev(event: any){
     let mean_median_stdev = event.split("_");
     // console.log("SONO DENTRO MEAN MEDIAN STDEV EVENT");
@@ -873,7 +889,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   progressBar(event: any){
-    console.log("PROGRESS BAR", event);
+    // console.log("PROGRESS BAR", event);
     this.progress = event;
     this.progressWidth = this.progress + "%"
   }
@@ -1000,6 +1016,20 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       });
     }
 
+  }
+
+  parseInFloatLat() {
+    let floatLat = _.cloneDeep(this.latlng.lat);
+
+    floatLat = parseFloat(floatLat);
+    return floatLat.toFixed(5);
+  }
+
+  parseInFloatLng() {
+
+    let floatLng = _.cloneDeep(this.latlng.lng);
+    floatLng = parseFloat(floatLng);
+    return floatLng.toFixed(5);
   }
 
 
