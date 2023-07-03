@@ -56,6 +56,7 @@ import { InfoPageComponent } from './info-page/info-page.component';
 import { CanvasGraphCompareComponent } from './geoportal-map/canvas-graph-compare/canvas-graph-compare.component';
 import { GeoportalCompareDialogComponent } from './geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from './select-coords-dialog/select-coords-dialog.component';
+import { WelcomePageGeoportalComponent } from './welcome-page-geoportal/welcome-page-geoportal.component';
 registerLocaleData(localeFr);
 registerLocaleData(localeIt);
 
@@ -66,7 +67,13 @@ registerLocaleData(localeIt);
     GeoportalMapDialogComponent,
     FilterPipe, //added pipe filter
     HighlightDirective, //added directive highlight
-    CanvasGraphComponent, GeoportalColorDialogComponent, InfoPageComponent, CanvasGraphCompareComponent, GeoportalCompareDialogComponent, SelectCoordsDialogComponent
+    CanvasGraphComponent,
+    GeoportalColorDialogComponent,
+    InfoPageComponent,
+    CanvasGraphCompareComponent,
+    GeoportalCompareDialogComponent,
+    SelectCoordsDialogComponent,
+    WelcomePageGeoportalComponent
   ],
   imports: [
     BrowserModule,
