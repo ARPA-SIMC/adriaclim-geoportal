@@ -52,8 +52,6 @@ export class AppComponent implements OnInit {
 
   }
 
-
-
   getPippo(idInput: string) {
     this.httpService.post('test/pippo', {
       inputEsterno: idInput
@@ -64,47 +62,34 @@ export class AppComponent implements OnInit {
       error(msg: any) {
         // console.log('PIPPO ERROR: ', msg);
       }
-  });
-    // this.httpClient.post('http://localhost:8000/test/pippo', {
-    //   inputEsterno: idInput
-    // }).subscribe({
-    //   next(position) {
-    //     console.log('PIPPO: ', position);
-    //   },
-    //   error(msg) {
-    //     console.log('PIPPO ERROR: ', msg);
-    //   }
-    // });
+    });
   }
 
-  getAllData(){
+  getAllData() {
     this.httpService.post('myFunctions/getAllDatasets', {
-  }).subscribe({
-    next(position: any) {
-      console.log("ALL DATA OK");
+    }).subscribe({
+      next(position: any) {
+        console.log("ALL DATA OK");
 
-    },
-    error(msg: any) {
-      // console.log('Error ALL DATA: ', msg);
-    }
-  })
+      },
+      error(msg: any) {
+        // console.log('Error ALL DATA: ', msg);
+      }
+    })
   }
 
-  getMBIndicator(timeperiod: string){
+  getMBIndicator(timeperiod: string) {
     this.httpService.post('test/discover_mb', {
       timeperiod: timeperiod
-  }).subscribe({
-    next(position: any) {
-        console.log("MB_SIZE=======",position)
-    },
-    error(msg: any) {
-      // console.log('Error ALL DATA: ', msg);
-    }
-  })
+    }).subscribe({
+      next(position: any) {
+        console.log("MB_SIZE=======", position)
+      },
+      error(msg: any) {
+        // console.log('Error ALL DATA: ', msg);
+      }
+    })
   }
-
-
-
 
 }
 

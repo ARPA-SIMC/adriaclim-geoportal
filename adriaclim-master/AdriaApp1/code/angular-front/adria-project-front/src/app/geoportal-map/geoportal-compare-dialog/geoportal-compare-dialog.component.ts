@@ -3,13 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Observable, async } from 'rxjs';
-// import * as saveAs from 'file-saver';
-import { saveAs } from 'file-saver';
 import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
-import { MAT_SELECT_CONFIG } from '@angular/material/select';
-import { last } from 'lodash';
 
 
 interface ExtraParams {
@@ -88,17 +83,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
       this.sliderForm = this.fb.group({
         firstSlider: new FormControl(this.firstValue),
       });
-      // this.firstOptions = {
-      //   floor: this.form.get('firstDataset')?.value.name.param_min,
-      //   ceil: this.form.get('firstDataset')?.value.name.param_max,
-      //   step: Number(this.form.get('firstDataset')?.value.name.param_step.toFixed(4)),
-      // };
-
-      // this.secondOptions = {
-      //   floor: this.form.get('secondDataset')?.value.name.param_min,
-      //   ceil: this.form.get('secondDataset')?.value.name.param_max,
-      //   step: Number(this.form.get('secondDataset')?.value.name.param_step.toFixed(4)),
-      // };
 
     }
 
@@ -156,12 +140,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
           nameExtraParam: name,
         };
 
-        // this.firstOptions = {
-        //   floor: this.firstDataset.name.param_min,
-        //   ceil: this.firstDataset.name.param_max,
-        //   step: Number(this.firstDataset.name.param_step.toFixed(4)),
-        // };
-
       }
 
 
@@ -182,12 +160,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
           nameExtraParam: name,
         };
 
-        // this.secondOptions = {
-        //   floor: this.secondDataset.name.param_min,
-        //   ceil: this.secondDataset.name.param_max,
-        //   step: Number(this.secondDataset.name.param_step.toFixed(4)),
-        // };
-
       }
       else{
 
@@ -199,11 +171,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
           nameExtraParam: name,
         };
 
-        // this.secondOptions = {
-        //   floor: - this.secondDataset.name.param_max,
-        //   ceil: - this.secondDataset.name.param_min,
-        //   step: Number(this.secondDataset.name.param_step.toFixed(4)),
-        // };
       }
     }
     this.firstValue = this.firstDataset.name.param_max.toFixed(4);
@@ -264,11 +231,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
       secondVarSel: this.form.get('variableSecondData')?.value,
     }
     this.dialogRef.close(data);
-
-    // console.log("FIRST DATASET: ", this.form.get('firstDataset')?.value);
-    // console.log("SECOND DATASET: ", this.form.get('secondDataset')?.value);
-    // console.log("FIRST VAR: ", this.form.get('variableFirstData')?.value);
-    // console.log("SECOND VAR: ", this.form.get('variableSecondData')?.value);
 
   }
 

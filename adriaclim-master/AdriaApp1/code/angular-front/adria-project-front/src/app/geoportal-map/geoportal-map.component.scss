@@ -3,45 +3,28 @@
   max-width: 420px;
   position: absolute;
   top: 80px;
-  // top: 17%;
-  // left: 0;
   right: 40px;
-  // right: 2%;
   bottom: 0;
-  // width: 100%;
-  // height: 100%;
   z-index: 500;
 }
 
 .overlay-tools {
-  // max-height: fit-content;
   max-height: 48px;
   max-width: 65px;
   position: absolute;
   top: 150px;
-  // top: 17%;
   left: 20px;
-  // right: 40px;
-  // right: 2%;
   bottom: 0;
-  // width: 100%;
-  // height: 100%;
   z-index: 500;
 }
 
 .overlay-polygon {
-  // max-height: fit-content;
   max-height: 48px;
   max-width: 65px;
   position: absolute;
   top: 200px;
-  // top: 17%;
   left: 20px;
-  // right: 40px;
-  // right: 2%;
   bottom: 0;
-  // width: 100%;
-  // height: 100%;
   z-index: 500;
 }
 
@@ -56,27 +39,20 @@
 }
 
 .dataset-panel {
-  // height: 10vh;
   height: fit-content;
-  // height: 480px;
   width: 420px;
   font-size: 16px;
 }
 
 .overlay-image {
   position: absolute;
-  // top: 80vh;
   left: 20px;
   bottom: 35px;
-  // bottom: 150px;
-  // width: 100%;
-  // height: 100%;
   z-index: 500;
 }
 
 .panel-image {
   height: 20vh;
-  // height: 480px;
   width: 320px;
 }
 
@@ -84,7 +60,6 @@
   font-size: 1.0em;
   font-weight: bold;
   color: #fff;
-  // text-shadow: 1px 1px 1px #000;
 }
 
 .list-indicators {
@@ -102,13 +77,10 @@
 .map-container {
   position: absolute;
   top: 64px;
-  // bottom: 0;
   left: 0;
   right: 0;
   margin: 0px 10px 10px 10px;
-  // width: 100%;
   height: 90%;
-  // z-index: -1;
 }
 .map-frame {
   border: 2px solid black;
@@ -141,7 +113,6 @@
 * REMOVE ICONS FROM LIST
 */
 ::ng-deep .mdc-list-item.mdc-list-item--with-one-line .mdc-list-item__end {
-  // display: none !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
@@ -189,11 +160,6 @@
   border-bottom-left-radius: 4px !important;
 }
 
-// ::ng-deep .menu-var {
-//   width: fit-content !important;
-//   max-width: none !important;
-// }
-
 ::ng-deep .select-overlay-pane {
   width: fit-content !important;
   max-width: 300px !important;
@@ -203,7 +169,6 @@
 ::ng-deep .toolbar-buttons .mat-mdc-raised-button {
   height: 100% !important;
   font-size: medium !important;
-  // font-size: 16px !important;
 }
 
 .font-weight-bold {
@@ -211,9 +176,7 @@
 }
 
 .font-bad-script {
-  // font-family: 'Bad Script', cursive;
   font-size: medium;
-  // font-weight: bold;
 }
 
 .material-symbols-outlined {
@@ -259,6 +222,6 @@
   top: 28px;
 }
 
-::ng-deep .no-border-button-icon {
-  // border-radius: revert !important;
-}
+// ::ng-deep .no-border-button-icon {
+//   // border-radius: revert !important;
+// }

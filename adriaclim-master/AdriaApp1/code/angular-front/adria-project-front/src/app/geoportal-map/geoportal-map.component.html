@@ -10,23 +10,22 @@
 
 
 
-      <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 85%;" -->
-      <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons h-75">
+      <!-- <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons h-75"> -->
+      <div class="row justify-content-center align-items-center col-12 toolbar-buttons h-75">
 
-        <button class="col-1" mat-raised-button routerLink="/"
+        <button class="col-1 col-md-2 col-lg-1" mat-raised-button routerLink="/"
           style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
           <mat-icon>arrow_back</mat-icon> <span class="text-menu"> Welcome </span>
         </button>
-        <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
-        <div class="d-flex justify-content-center align-items-center gap-5 col toolbar-buttons h-100">
+        <div class="d-flex justify-content-center align-items-center gap-5 col col-md toolbar-buttons h-100">
 
-          <button class="col-2" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+          <button class="col-2 col-md-3 col-lg-2" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
             #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span
               class="text-menu"> Full list </span>
           </button>
 
           <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
-          <button class="col-2" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+          <button class="col-2 col-md-3 col-lg-2" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
             #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span
               class="text-menu"> Dataset </span>
           </button>

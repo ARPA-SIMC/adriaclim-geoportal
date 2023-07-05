@@ -305,8 +305,14 @@ def getIndicatorQueryUrlPoint(
 def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
     # true, true, false
     try:
+        # print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
+        # print("IS INDICATOR=====", is_indicator)
+        # print("IS GRAPH=====", is_graph)
+        # print("IS ANNUAL=====", is_annual)
+        # print("kwargs=====", kwargs)
         if is_indicator == "true" and is_graph == False:
             #print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
+            # print("DENTRO IND TRUE IS GRAPH FALSE")
             url = (
                 ERDDAP_URL
                 + "/tabledap/"
@@ -321,6 +327,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
             )
 
         elif is_indicator == "true" and is_graph and is_annual:
+            # print("DENTRO IND TRUE IS GRAPH TRUE IS ANNUAL TRUE")
             try:
                 #print("Entro qui parte 2!!!!!!")
                 url = (
@@ -347,6 +354,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 print("Eccezione 2", e1)
                 return str(e1)
         elif is_indicator == "true" and is_graph and not is_annual:
+            # print("DENTRO IND TRUE IS GRAPH TRUE IS ANNUAL FALSE")
             #  url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
             #                     longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
             # https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
@@ -373,8 +381,8 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
             )
 
         elif is_indicator == "false" and is_graph == False and is_annual == False:
+            # print("DENTRO IND FALSE IS GRAPH FALSE IS ANNUAL FALSE")
             if kwargs["num_param"] > 3:
-                # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_9e77_be3a_4ac6.htmlTable?txx%5B(2036-07-01T09:00:00Z):1:(2036-07-01T09:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
                 url = (
                     ERDDAP_URL
                     + "/griddap/"
@@ -422,6 +430,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
 
         elif is_indicator == "false" and is_graph and is_annual == False:
+            # print("DENTRO IND FALSE IS GRAPH TRUE IS ANNUAL FALSE")
             if kwargs["num_parameters"] > 3:
                 url = (
                     ERDDAP_URL
@@ -470,6 +479,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
 
         elif is_indicator == "false" and is_graph and is_annual:
+            # print("DENTRO IND FALSE IS GRAPH TRUE IS ANNUAL TRUE")
             if kwargs["num_parameters"] > 3:
                 url = (
                     ERDDAP_URL
@@ -519,6 +529,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
 
         elif is_indicator == "false" and is_graph == False and is_annual:
+            # print("DENTRO IND FALSE IS GRAPH FALSE IS ANNUAL TRUE")
             if kwargs["num_param"] > 3:
                 url = (
                     ERDDAP_URL
@@ -2395,6 +2406,17 @@ def getDataVectorial(
     is_indicator,
 ):
     try:
+        # print("DATASET ID =", dataset_id)
+        # print("LAYER NAME =", layer_name)
+        # print("DATE START =", date_start)
+        # print("LATITUDE START =", latitude_start)
+        # print("LATITUDE END =", latitude_end)
+        # print("LONGITUDE START =", longitude_start)
+        # print("LONGITUDE END =", longitude_end)
+        # print("NUM PARAM =", num_param)
+        # print("RANGE VALUE =", range_value)
+        # print("IS INDICATOR =", is_indicator)
+        # https://erddap.cmcc-opa.eu/erddap/tabledap/ARPAE_f903_2ae5_11cb.htmlTable?time%2Clatitude%2Clongitude%2Ca_95_BO_9_m&time%3E=2022-11-24&time%3C=2022-12-01&latitude%3E=44.214583&latitude%3C=44.214583&longitude%3E=12.47585&longitude%3C=12.47585
         url = url_is_indicator(
             is_indicator,
             False,
@@ -2409,17 +2431,14 @@ def getDataVectorial(
             num_param=num_param,
             range_value=range_value,
         )
-        # print("QUI")
         print("URL =", url)
         start_time = time.time()
         df = pd.read_csv(url, dtype="unicode")
-        # print("QUO")
         allData = []
         values = []
         lat_coordinates = []
         long_coordinates = []
         df = df.dropna(how="any", axis=0)
-        # print("QUA")
         i = 0
         for index, row in df.iterrows():
             values.insert(i, row[layer_name])

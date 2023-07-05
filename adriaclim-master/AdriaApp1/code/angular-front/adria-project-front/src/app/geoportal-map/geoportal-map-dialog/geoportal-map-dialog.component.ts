@@ -1,19 +1,24 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable } from 'rxjs';
-// import * as saveAs from 'file-saver';
-import { saveAs } from 'file-saver';
 import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
-import { MatSliderChange } from '@angular/material/slider';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
-import { last } from 'lodash';
 import * as _ from 'lodash';
+
+interface TypeOfExport {
+  type: string;
+  label: string;
+}
+
+interface OptionsValue {
+  label: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-geoportal-map-dialog',
@@ -26,7 +31,7 @@ import * as _ from 'lodash';
     }
   ]
 })
-export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentChecked {
+export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   stats: any = {};
 
@@ -42,10 +47,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   form!: FormGroup;
   description: string;
-  // create: boolean;
   success: boolean;
-  // content = {};
-  // element: any;
   datasetId: string;
   datasetName: string;
   openGraph: any;
@@ -112,7 +114,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   progress = 0
   progressWidth = this.progress + "%"
 
-  typeOfExport = [
+  typeOfExport: TypeOfExport[] = [
     {
       type: ".csv",
       label: ".csv - Download a ISO-8859-1 comma-separated text table (line 1: names; line 2: units; ISO 8601 times).",
@@ -155,7 +157,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     },
   ]
 
-  optionTimeScale = [
+  optionTimeScale: OptionsValue[] = [
     {
       label: "Default Graph",
       value: "default"
@@ -175,7 +177,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   ]
 
-  optionStatistics = [
+  optionStatistics: OptionsValue[] = [
     {
       label: "Maximum Value (Moment By Moment)",
       value: "max"
@@ -441,9 +443,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   }
 
-  ngAfterViewInit(): void {
-  }
-
   ngOnInit() {
 
     if (!this.openGraph) {
@@ -521,12 +520,10 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           // bypass ngIf for paginator
           this.setDataSourceAttributes();
 
-
         }
       // this.myDiv.nativeElement.innerHTML = response;
       this.spinnerLoading = false;
     });
-
 
   }
 
@@ -562,13 +559,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
         range: this.range ? Math.abs(this.range) : null
       }
 
-      // console.log("Data===========",data);
-      // console.log("RANGE IN DIALOG ======", this.range);
-
-
-      // console.log("RANGE IN GETGRAPHTABLE======",this.range);
-      //console.log("DATA IN GETGRAPHTABLE======", data);
-
       // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
       this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
         // console.log("Response=======",response);
@@ -579,8 +569,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
           }
           this.dataTable = response;
           // console.log("datatable graph =======", this.dataTable);
-
-
 
           this.displayedColumns = this.dataTable.data.table.columnNames;
           let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
@@ -609,7 +597,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
             // bypass ngIf for paginator
             this.setDataSourceAttributes();
-
 
           }
 
@@ -668,7 +655,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
             variable =  "," + el;
 
           }
-
 
           //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
 
@@ -737,7 +723,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       link.click();
       link.remove();
 
-
   }
 
   addDataTimeExport(graph: any) {
@@ -773,13 +758,9 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       translate: (value: number, label: LabelType): string => {
         return new Date(value).toLocaleDateString('it-IT');
       },
-      // combineLabels: (minValue: number, maxValue: number): string => {
-
-      // }
     };
 
   }
-
 
   dataTablePolygon(event: any) {
     //console.log("EVENT", event);
@@ -836,7 +817,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   spinnerLoadingChild(event: any) {
-    // console.log("EVENT =", event);
 
     this.spinnerLoading = event;
   }
@@ -858,34 +838,7 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
 
   meanMedianStdev(event: any){
     let mean_median_stdev = event.split("_");
-    // console.log("SONO DENTRO MEAN MEDIAN STDEV EVENT");
-    // console.log("mean_median_stdev = ", mean_median_stdev);
-
-    //console.log("mean_median_stdev = ", mean_median_stdev)
-    // this.meanValue = parseFloat(mean_median_stdev[0]).toFixed(3);
-    // this.medianValue = parseFloat(mean_median_stdev[1]).toFixed(3);
-    // this.stdevValue = parseFloat(mean_median_stdev[2]).toFixed(3);
     this.expoFormat(mean_median_stdev);
-    // this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');;
-    // this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');;
-    // this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');;
-
-    // this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    // if(this.meanValue.includes("x 10^0")) {
-    //   this.meanValue = this.meanValue.replace("x 10^0", "");
-
-    // }
-    // if(this.medianValue.includes("x 10^0")) {
-    //   this.medianValue = this.medianValue.replace("x 10^0", "");
-
-    // }
-    // if(this.stdevValue.includes("x 10^0")){
-    //   this.stdevValue = this.stdevValue.replace("x 10^0", "");
-
-    // }
-    // if(this.trendValue.includes("x 10^0")) {
-    //   this.trendValue = this.trendValue.replace("x 10^0", "");
-    // }
   }
 
   progressBar(event: any){
@@ -895,9 +848,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
   }
 
   expoFormat(mean_median_stdev: any) {
-
-    // Variable version
-    // console.log("expoFormat mean_median_stdev = ", mean_median_stdev);
 
     this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
     this.medianValue = Number(mean_median_stdev[1]).toFixed(3);
@@ -936,41 +886,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
       this.trendValue = this.trendValue.replace("x 10^0", "");
     }
 
-    // Form control version
-    // this.form.get("meanValue")?.setValue(Number(mean_median_stdev[0]).toFixed(3));
-    // this.form.get("medianValue")?.setValue(Number(mean_median_stdev[1]).toFixed(3));
-    // this.form.get("stdevValue")?.setValue(Number(mean_median_stdev[2]).toFixed(3));
-    // this.form.get("trendValue")?.setValue(Number(mean_median_stdev[3]).toFixed(3));
-    // if (this.form.get("meanValue")?.value > 10000 || this.form.get("meanValue")?.value < 0.001 && this.form.get("meanValue")?.value != 0){
-    //   this.form.get("meanValue")?.setValue(parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'));
-    // }
-    // if (this.form.get("medianValue")?.value > 10000 || this.form.get("medianValue")?.value < 0.001 && this.form.get("medianValue")?.value != 0){
-    //   this.form.get("medianValue")?.setValue(parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'));
-    // }
-    // if (this.form.get("stdevValue")?.value > 10000 || this.form.get("stdevValue")?.value < 0.001 && this.form.get("stdevValue")?.value != 0){
-    //   this.form.get("stdevValue")?.setValue(parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'))
-    // }
-    // if (this.form.get("stdevValue")?.value > 10000 || this.form.get("stdevValue")?.value < 0.001 && this.form.get("stdevValue")?.value != 0){
-    //   this.form.get("stdevValue")?.setValue(parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1'))
-    // }
-
-    // if(this.form.get("meanValue")?.value.includes("x 10^0")) {
-    //   this.form.get("meanValue")?.setValue(this.form.get("meanValue")?.value.replace("x 10^0", ""));
-
-    // }
-    // if(this.form.get("medianValue")?.value.includes("x 10^0")) {
-    //   // this.medianValue = this.medianValue.replace("x 10^0", "");
-    //   this.medianValue = this.medianValue.replace("x 10^0", "");
-    //   this.form.get("medianValue")?.setValue(this.form.get("medianValue")?.value.replace("x 10^0", ""));
-    // }
-    // if(this.form.get("stdevValue")?.value.includes("x 10^0")){
-    //   this.stdevValue = this.stdevValue.replace("x 10^0", "");
-    //   this.form.get("stdevValue")?.setValue(this.form.get("stdevValue")?.value.replace("x 10^0", ""));
-    // }
-    // if(this.form.get("trendValue")?.value.includes("x 10^0")) {
-    //   this.trendValue = this.trendValue.replace("x 10^0", "");
-    //   this.form.get("trendValue")?.setValue(this.form.get("trendValue")?.value.replace("x 10^0", ""));
-    // }
   }
 
   sendSelGraphPoly() {
@@ -998,14 +913,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     if (this.statCalc.values.length > 0) {
       this.httpService.post('test/updateStatistics', data).subscribe({
         next: (res: any) => {
-          // console.log("res", res);
-          // this.meanValue = res.newValues.mean.toFixed(3);
-          // this.medianValue = res.newValues.median.toFixed(3);
-          // this.stdevValue = res.newValues.stdev.toFixed(3);
-          // this.trendValue = res.newValues.trend.toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-          // if(this.trendValue.includes("x 10^0")) {
-          //   this.trendValue = this.trendValue.replace("x 10^0", "");
-          // }
           let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
           this.expoFormat(mean_median_stdev);
         },
@@ -1031,10 +938,6 @@ export class GeoportalMapDialogComponent implements AfterViewInit, AfterContentC
     floatLng = parseFloat(floatLng);
     return floatLng.toFixed(5);
   }
-
-
-
-
 
 }
 
