@@ -105,6 +105,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
     this.dialogRef.close(this.form.value);
   }
 
+  // FUNZIONE CHE RITORNA IL COLORE INTERMEDIO PASSANDOGLI DUE COLORI
   mixColors(color1: string, color2: string): string {
     // Convert hexadecimal color strings to RGB values
     const rgb1 = this.hexToRgb(color1);

@@ -16,17 +16,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() idMeta: any;
   @Input() dataset: any;
   @Input() latlng: any;
-  // @Input() lat: any;
-  // @Input() lng: any;
-  // @Input() dateStart: any;
-  // @Input() dateEnd: any;
   @Input() variable: any;
-  // @Input() dimensions: any;
   @Input() range: any;
-  // @Input() latMin: any;
-  // @Input() latMax: any;
-  // @Input() lngMin: any;
-  // @Input() lngMax: any;
   @Input() polygon: any;
   @Input() isIndicator: any;
   @Input() operation: any;
@@ -73,174 +64,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   dataRes: any;
   startZoom: any;
   endZoom: any;
-  // data1 = [
-  //   // [850, 740, 900, 1200, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
-  //   // [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
-  //   // [880, 880, 880, 860, 720, 720, 620, 860, 970, 950, 880, 910, 850, 870, 840, 840, 850, 840, 840, 840],
-  //   // [890, 810, 810, 820, 800, 770, 760, 740, 750, 760, 910, 920, 890, 860, 880, 720, 840, 850, 850, 780],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   // [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870],
-  //   [10, 11, 15, 13, 16],
-  //   [3, 5, 8, 6, 20]
-  // ]
   data1: any[] = [];
   quantityBoxPlot = new Set();
 
-
-  /**********************TEST BOX PLOT */
-  //   var data1 = [
-  //     [850, 740, 900, 1070, 930, 850, 950, 980, 980, 880, 1000, 980, 930, 650, 760, 810, 1000, 1000, 960, 960],
-  //     [960, 940, 960, 940, 880, 800, 850, 880, 900, 840, 830, 790, 810, 880, 880, 830, 800, 790, 760, 800],
-  //     [880, 880, 880, 860, 720, 720, 620, 860, 970, 950, 880, 910, 850, 870, 840, 840, 850, 840, 840, 840],
-  //     [890, 810, 810, 820, 800, 770, 760, 740, 750, 760, 910, 920, 890, 860, 880, 720, 840, 850, 850, 780],
-  //     [890, 840, 780, 810, 760, 810, 790, 810, 820, 850, 870, 870, 810, 740, 810, 940, 950, 800, 810, 870]
-  // ]
-
-  // let p;
-  // function prova() {
-  // let p = data1.map((item, index) => {
-  // return [index, item];
-  // })
-  // return p;
-  // }
-  // option = {
-  // // tooltip: {
-  // //   trigger: 'axis',
-  // //   axisPointer: {
-  // //     type: 'cross'
-  // //   }
-  // // },
-  // title: [
-  // {
-  // text: 'Michelson-Morley Experiment',
-  // left: 'center'
-  // },
-  // {
-  // text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
-  // borderColor: '#999',
-  // borderWidth: 1,
-  // textStyle: {
-  // fontWeight: 'normal',
-  // fontSize: 14,
-  // lineHeight: 20
-  // },
-  // left: '10%',
-  // top: '90%'
-  // }
-  // ],
-
-  // dataset: [
-  // {
-  // // prettier-ignore dataset index 0
-  // source: data1
-  // },
-  // {
-  // //datasetIndex 1
-  // transform: {
-  // type: 'boxplot',
-  // config: { itemNameFormatter: 'expr {value}' },
-  // }
-  // },
-  // //datasetindex 2
-  // {
-  // fromDatasetIndex: 1,
-  // fromTransformResult: 1
-  // },
-
-  // {
-  // source:  data1.map((item, index) => {
-  // const average = item.reduce((prev, curr) => prev + curr) / item.length;
-  // return [index, average];
-
-  // }
-  // )
-  // }
-
-
-
-  // ],
-  // tooltip: {
-  // trigger: 'item',
-  // axisPointer: {
-  // type: 'shadow'
-  // }
-  // },
-  // grid: {
-  // left: '10%',
-  // right: '10%',
-  // bottom: '15%'
-  // },
-  // xAxis: {
-  // type: 'category',
-  // data: ["expr 0","expr 1","expr 2","expr 3","expr 4"]
-  // },
-  // yAxis: {
-  // type: 'value',
-  // name: 'km/s minus 299,000',
-  // },
-  // series: [
-  // {
-  // name: 'Box plot',
-  // type: 'boxplot',
-  // datasetIndex: 1,
-
-  // tooltip: {
-  //     formatter: function(param) {
-  //         return [
-  //             "Experiment " + param.name + ": ",
-  //             "upper: " + param.data[5],
-  //             "Q3: " + param.data[4],
-  //             "median: " + param.data[3],
-  //             "Q1: " + param.data[2],
-  //             "lower: " + param.data[1]
-  //         ].join("<br/>");
-  //     }
-  // },
-
-  // },
-  // {
-  // name: 'Outlier',
-  // type: 'scatter',
-  // datasetIndex: 2,
-  // },
-  // {
-  // name: 'Mean',
-  // type: 'scatter',
-  // datasetIndex: 3,
-  // symbolSize: 10,
-  // symbol: 'path://M51.911,16.242C51.152,7.888,45.239,1.827,37.839,1.827c-4.93,0-9.444,2.653-11.984,6.905 c-2.517-4.307-6.846-6.906-11.697-6.906c-7.399,0-13.313,6.061-14.071,14.415c-0.06,0.369-0.306,2.311,0.442,5.478 c1.078,4.568,3.568,8.723,7.199,12.013l18.115,16.439l18.426-16.438c3.631-3.291,6.121-7.445,7.199-12.014 C52.216,18.553,51.97,16.611,51.911,16.242z',
-  // itemStyle: {
-  // color: 'red',
-  // },
-
-  // tooltip: {
-  //     formatter: function(param) {
-  //         return [
-  //             "Mean " + ": ",
-  //             param.data[1]
-  //         ].join("<br/>");
-  //     }
-  // },
-
-  // }
-
-  // ]
-  // };
-
-
   optionBoxPlot: any = {
-    // tooltip: {
-    //   trigger: 'axis',
-    //   axisPointer: {
-    //     type: 'cross'
-    //   }
-    // },
     title: [
       {
         text: 'Michelson-Morley Experiment',
@@ -287,8 +114,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         )
       }
 
-
-
     ],
     tooltip: {
       trigger: 'item',
@@ -303,12 +128,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     },
     xAxis: {
       type: 'category',
-      // data: ["Expr 0","Expr 1","Expr 2","Expr 3","Expr 4", "Expr 5", "Expr 6", "Expr 7", "Expr 8", "Expr 9", "Expr 10", "Expr 11"]
       data: []
     },
     yAxis: {
       type: 'value',
-      // name: 'km/s minus 299,000',
       name: 'Values',
     },
     series: [
@@ -347,16 +170,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           color: 'red',
         },
         z: 10,
-
-        // tooltip: {
-        //     formatter: function(param) {
-        //         return [
-        //             param.marker + "Mean:",
-        //             + param.data[1]
-        //         ].join("<br/>");
-        //     }
-        // },
-
 
       }
 
@@ -681,30 +494,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
 
               this.optionBoxPlot = {
-                // tooltip: {
-                //   trigger: 'axis',
-                //   axisPointer: {
-                //     type: 'cross'
-                //   }
-                // },
                 title: [
                   {
                     text: 'Min, 10th Percentile, Median, 90th Percentile, Max',
                     left: 'center',
                     top: '20px'
                   },
-                  // {
-                  // text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
-                  // borderColor: '#999',
-                  // borderWidth: 1,
-                  // textStyle: {
-                  // fontWeight: 'normal',
-                  // fontSize: 14,
-                  // lineHeight: 20
-                  // },
-                  // left: '10%',
-                  // top: '90%'
-                  // }
                 ],
 
                 dataset: [
@@ -731,17 +526,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     fromTransformResult: 1
                   },
 
-                  // {
-                  // source:  this.data1.map((item, index) => {
-                  // const average = item.reduce((prev: any, curr: any) => prev + curr) / item.length;
-                  // return [index, average];
-
-                  // }
-                  // )
-                  // }
-
-
-
                 ],
                 tooltip: {
                   trigger: 'item',
@@ -756,12 +540,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 },
                 xAxis: {
                   type: 'category',
-                  // data: ["Expr 0","Expr 1","Expr 2","Expr 3","Expr 4", "Expr 5", "Expr 6", "Expr 7", "Expr 8", "Expr 9", "Expr 10", "Expr 11"]
                   data: [...this.quantityBoxPlot]
                 },
                 yAxis: {
                   type: 'value',
-                  // name: 'km/s minus 299,000',
                   name: 'Values',
                 },
                 series: [
@@ -775,11 +557,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                         const param_smaller = "<span style='display:inline-block;margin-bottom:3px; margin-left:18px; border-radius:5px;width:5px;height:5px;background-color:#c23531;'></span>"
                         return [
                           param.marker + " " + param.name.charAt(0).toUpperCase() + param.name.slice(1) + ": ",
-                          // param_smaller  + " " + "Upper: " + param.data[5],
-                          // param_smaller  + " " +  "Q3: " + param.data[4],
-                          // param_smaller  + " " + "Median: " + param.data[3],
-                          // param_smaller  + " " + "Q1: " + param.data[2],
-                          // param_smaller  + " " + "Lower: " + param.data[1]
                           param_smaller + " " + "Max: " + param.data[5],
                           param_smaller + " " + "90th Percentile: " + param.data[4],
                           param_smaller + " " + "Median: " + param.data[3],
@@ -796,27 +573,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     datasetIndex: 2,
 
                   },
-                  // {
-                  // name: 'Mean',
-                  // type: 'scatter',
-                  // datasetIndex: 3,
-                  // symbolSize: 10,
-                  // itemStyle: {
-                  // color: 'red',
-                  // },
-                  // z:10,
-
-                  // // tooltip: {
-                  // //     formatter: function(param) {
-                  // //         return [
-                  // //             param.marker + "Mean:",
-                  // //             + param.data[1]
-                  // //         ].join("<br/>");
-                  // //     }
-                  // // },
-
-
-                  // }
 
                 ]
               };
@@ -1116,8 +872,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
             const tooltipHTML = paramsFormatter.map((param: any) => {
               let value: any = Number(param.value);
-              // console.log("VALUE =", value);
-              // console.log("VALUE TYPE =", typeof value);
 
               if (value > 10000 || value < 0.001 && value !== 0) {
                 value = value.toExponential().replace(/e\+?/, ' x 10^');
@@ -1174,15 +928,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         ]
       }
     }
-    // console.log("ALL DATA POLY MEAN =", allDataPolygon.mean);
-    // console.log("ALL DATA POLY MEDIAN =", allDataPolygon.median);
-    // console.log("ALL DATA POLY STDEV =", allDataPolygon.stdev);
-    // console.log("ALL DATA POLY TREND =", allDataPolygon.trend_yr);
-
-    // console.log("ARRAY DATA DATE =", arrayDataDate);
-    // console.log("ARRAY DATA VALUE =", arrayDataValue);
-
-
 
     this.dataTimeExport.emit(allDataPolygon.dataPol);
     this.spinnerLoadingChild.emit(false);
@@ -1227,11 +972,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       lng_min: "no",
       lng_max: "no"
     }
-    // console.log("RANGE: ", this.range);
-
-    /**
-     *  DA SPOSTARE SPINNER PER IL GRAFICO E NON PER LA TABLE
-     */
 
     // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
@@ -1240,7 +980,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         if (typeof response == 'string') {
           response = JSON.parse(response);
         }
-        // console.log("RES FOR GRAPH: ", response);
         this.dataRes = response;
 
         this.meanMedianStdev.emit(this.dataRes.allData.mean + "_" + this.dataRes.allData.median + "_" + this.dataRes.allData.stdev + "_" + this.dataRes.allData.trend_yr);
@@ -1290,8 +1029,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           min: Math.min(...value).toFixed(0),
           max: Math.max(...value).toFixed(0),
         }
-        // console.log("DATA RES", this.dataRes);
-        // console.log("MINIMUM VALUE", minMaxValue);
         this.chartOption = {
 
           xAxis: {
@@ -1299,8 +1036,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             boundaryGap: false,
             // data: this.dataRes.allData[name].map((element: any) => element.x)
             data: this.dataRes.allData[name].map((element: any) => {
-              // console.log("element.x", element.x);
-              // console.log("ELEMENT SINGOLO PUNTO", element);
 
               let elDate = new Date(element.x).toLocaleDateString();
               // console.log("elDate", elDate);
@@ -1308,7 +1043,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 return elDate;
               }
               else {
-                // console.log("element.x", element.x);
 
                 return element.x;
               }
@@ -1336,8 +1070,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
               const tooltipHTML = paramsFormatter.map((param: any) => {
                 let value: any = Number(param.value);
                 if (value > 10000 || value < 0.001 && value !== 0) {
-                  // console.log("VALUE = ", value);
-                  // console.log("VALUE = ", typeof value);
 
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
                 }

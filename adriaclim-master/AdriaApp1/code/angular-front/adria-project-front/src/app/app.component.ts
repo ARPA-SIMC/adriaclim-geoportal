@@ -12,12 +12,11 @@ import { HttpService } from './services/http.service';
 export class AppComponent implements OnInit {
   title = 'adria-project-front';
 
-  constructor(private httpClient: HttpClient, private httpService: HttpService) {
-    // console.log('AppComponent constructor');
-  }
+  constructor(private httpClient: HttpClient, private httpService: HttpService) { }
 
   ngOnInit() {
-    console.log('Ready');
+    // console.log('Ready');
+    console.debug('Ready');
     // this.getAllData();
     // this.httpClient.post('http://localhost:8000/test/prova', {
 
@@ -50,19 +49,6 @@ export class AppComponent implements OnInit {
     //   }, tempoRimanente);
     // }
 
-  }
-
-  getPippo(idInput: string) {
-    this.httpService.post('test/pippo', {
-      inputEsterno: idInput
-    }).subscribe({
-      next(position: any) {
-        // console.log('PIPPO: ', position);
-      },
-      error(msg: any) {
-        // console.log('PIPPO ERROR: ', msg);
-      }
-    });
   }
 
   getAllData() {

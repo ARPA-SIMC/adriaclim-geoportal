@@ -20,7 +20,6 @@ export class SelectCoordsDialogComponent {
     @Inject(MAT_DIALOG_DATA) data: any) {
     this.selectCoords = data.selectCoords;
     this.coordsForm = this.fb.group({
-      // lat: new FormControl(null, [Validators.required, Validators.pattern("^[0-9]*$"), Validators.min(-90), Validators.max(90)]),
       lat: new FormControl(null, [Validators.required, Validators.pattern("^[0-9]+(\.[0-9]+)?$"), Validators.min(-90), Validators.max(90)]),
       lng: new FormControl(null, [Validators.required, Validators.pattern("^[0-9]+(\.[0-9]+)?$"), Validators.min(-180), Validators.max(180)]),
     });

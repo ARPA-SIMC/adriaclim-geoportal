@@ -115,6 +115,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
     return number.toString();
   }
 
+  // FUNZIONE CHE CAMBIA IL FORMATO DELLA DATA PASSATA
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
       d = new Date(d);
@@ -321,11 +322,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
         // this.compareStats.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
         this.compareStats.emit(stats);
 
-        // console.log('FIRST DATASET: ', firstDataset);
-        // console.log('SECOND DATASET: ', secondDataset);
-        // console.log('FIRST KEY: ', firstKey);
-        // console.log('SECOND KEY: ', secondKey);
-
         let namesArray = [firstKey, secondKey];
 
         this.chartOption = {
@@ -405,19 +401,11 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
                 }
                 let date;
                 if (param.seriesIndex === 1) {
-                  // First x-axis data
-                  // console.log("First dataset del compare============",firstDataset);
-                  // console.log("First Key==================",firstKey);
-                  // console.log("First Dataset[firstkey]==================",firstDataset[firstKey])
                   if(firstDataset[firstKey][param.dataIndex]) {
                     date = this.formatDate(firstDataset[firstKey][param.dataIndex].x);
 
                   }
                 } else if (param.seriesIndex === 0) {
-                  // Second x-axis data
-                  // console.log("Second dataset del compare============",secondDataset);
-                  // console.log("Second Key==================",secondKey);
-                  // console.log("Second Dataset[secondkey]==================",secondDataset[secondKey]);
                   if(secondDataset[secondKey][param.dataIndex]) {
 
                     date = this.formatDate(secondDataset[secondKey][param.dataIndex].x);

@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Options, LabelType } from '@angular-slider/ngx-slider';
@@ -19,7 +19,7 @@ interface ExtraParams {
   templateUrl: './geoportal-compare-dialog.component.html',
   styleUrls: ['./geoportal-compare-dialog.component.scss']
 })
-export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
+export class GeoportalCompareDialogComponent implements OnInit {
   activeLayersArray: any;
   form!: FormGroup;
   isIndicator!: boolean;
@@ -87,18 +87,9 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
     }
 
   async chargeAll() {
-    // return new Promise<any>((resolve, reject) => {
     try {
       this.getSelectedVarFirstDataset();
       this.getSelectedVarSecondDataset();
-      // console.log("FIRST DATASET", this.form.get('firstDataset')?.value);
-      // console.log("SECOND DATASET", this.form.get('secondDataset')?.value);
-      // resolve({
-      //   firstDataset: this.firstDataset,
-      //   secondDataset: this.secondDataset
-      // }
-
-      // );
 
     }
     catch (error) {
@@ -106,9 +97,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
       console.log("ERROR CHARGE ALL", error);
 
     }
-    // this.changeDetector.detectChanges();
-
-    // });
   }
 
   checkDimensions() {
@@ -269,12 +257,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
   }
 
   async getSelectedVarFirstDataset(){
-    // this.chargeAll();
-    // setTimeout(() => {
-      //   this.checkDimensions();
-
-      // }, 500);
-      // let firstDataset = this.form.get('firstDataset')?.value;
 
     this.firstDataset = this.form.get('firstDataset')?.value;
     // console.log("SELECTED VAR DATASET: ", this.firstDataset);
@@ -394,10 +376,6 @@ export class GeoportalCompareDialogComponent implements OnInit, AfterViewInit {
   //     this.changeDetector.detectChanges();
   //   }
 
-  ngAfterViewInit(): void {
-
-
-  }
 
   // sliderControl(event: any) {
   //   // console.log("EVENTO SLIDERRRRRRRRR =", event.value);

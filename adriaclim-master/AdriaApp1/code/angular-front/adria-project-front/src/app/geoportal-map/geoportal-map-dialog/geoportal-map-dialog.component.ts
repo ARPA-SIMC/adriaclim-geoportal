@@ -220,8 +220,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   ];
 
+  // FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE SOPRA IL GRAFICO
   showStat() {
-    if(this.operation === "default") {
+    if (this.operation === "default") {
 
       this.showStatistic = true;
     }
@@ -231,9 +232,10 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
+  // FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE SOPRA IL GRAFICO
   showStatPointSelected(checkPoly: any) {
-    if(!checkPoly) {
-      if(this.form.get('operationSel')?.value === "default") {
+    if (!checkPoly) {
+      if (this.form.get('operationSel')?.value === "default") {
 
         this.showStatistic = true;
       }
@@ -245,24 +247,25 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
+  // FUNZIONE CHE MOSTRA O NASCONDE IL MENU A TENDINA RIGUARDANTE IL TIME SCALE
   removeAnnualCycle(o: any): boolean {
 
-    if(this.dataset.adriaclim_timeperiod === "yearly") {
-      if(o.value === "annualMonth") {
+    if (this.dataset.adriaclim_timeperiod === "yearly") {
+      if (o.value === "annualMonth") {
         return true;
       }
-      else if(o.value === "annualDay") {
+      else if (o.value === "annualDay") {
         return true;
       }
-      else if(o.value === "annualSeason"){
+      else if (o.value === "annualSeason") {
         return true;
       }
       else {
         return false;
       }
     }
-    else if(this.dataset.adriaclim_timeperiod === "monthly" || this.dataset.adriaclim_timeperiod === "seasonal") {
-      if(o.value === "annualDay") {
+    else if (this.dataset.adriaclim_timeperiod === "monthly" || this.dataset.adriaclim_timeperiod === "seasonal") {
+      if (o.value === "annualDay") {
         return true;
       }
       else {
@@ -275,9 +278,10 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
+  // FUNZIONE CHE ABILITA O DISABILITA LE STATISTICHE ALL'INTERNO DEL MENU A TENDINA STATISTICS
   disableStatistics(s: any): boolean {
     // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
-    if(s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
+    if (s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
       return true;
     }
     else {
@@ -337,9 +341,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     this.description = data.description;
     this.success = data.success;
-    // this.create = data.create;
-    // this.content = data.content;
-    // this.element = data.element;
     this.datasetId = data.datasetId;
     this.datasetName = data.datasetName;
     this.openGraph = data.openGraph;
@@ -405,7 +406,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
           translate: (value: number, label: LabelType): string => {
             if (value > 10000 || value < 0.001 && value !== 0) {
               return value.toExponential().replace(/e\+?/, ' x 10^');
-            }else{
+            } else {
               return value.toString();
             }
           },
@@ -416,12 +417,13 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
+  // FUNZIONE CHE CAMBIA IL CONTENUTO DELLA MODALE DEL GRAFICO MOSTRANDO UNA PARTE DEDICATA ALLE INFORMAZIONI INERENTI AL GRAFICO
   showInfo() {
     // this.info = !this.info;
     let noInfo = document.getElementById("noInfo");
     let yesInfo = document.getElementById("yesInfo");
-    if(noInfo && yesInfo) {
-      if(noInfo.style.display == "none") {
+    if (noInfo && yesInfo) {
+      if (noInfo.style.display == "none") {
         noInfo.style.display = "block";
         yesInfo.style.display = "none";
       }
@@ -453,7 +455,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     else {
       // console.log("POLYGON", this.polygon);
       // this.spinnerLoading = false;
-      if(!this.polygon) {
+      if (!this.polygon) {
         this.getGraphTable();
 
       }
@@ -477,50 +479,49 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.dialogRef.close("");
   }
 
+  // FUNZIONE CHE PERMETTE DI OTTENERE I METADATI PER POPOLARE LA TABELLA
   getMetadataTable() {
 
     let data = {
       idMeta: this.datasetId
     }
-    //console.log("idMeta:",data);
-    // this.httpService.post('test/metadataTable', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/metadataTable', data).subscribe((response: any) => {
-        if (typeof response === 'string') {
-          response = JSON.parse(response);
-        }
-        this.dataTable = response;
-        // console.log("datatable metadata=======",this.dataTable);
+      if (typeof response === 'string') {
+        response = JSON.parse(response);
+      }
+      this.dataTable = response;
+      // console.log("datatable metadata=======",this.dataTable);
 
-        this.displayedColumns = this.dataTable.metadata.table.columnNames;
-        let dim_unit: any;
+      this.displayedColumns = this.dataTable.metadata.table.columnNames;
+      let dim_unit: any;
 
-        if (this.dataTable.metadata.table.columnUnits) {
-          dim_unit = this.dataTable.metadata.table.columnUnits[this.dataTable.metadata.table.columnUnits.length - 1];
-          this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-        }
-        // this.dataTable.data.table.forEach((el: any) => {
-        let objArr: any = {};
-        let arr1: any = [];
-        // console.log("K = ", k);
+      if (this.dataTable.metadata.table.columnUnits) {
+        dim_unit = this.dataTable.metadata.table.columnUnits[this.dataTable.metadata.table.columnUnits.length - 1];
+        this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
+      }
+      // this.dataTable.data.table.forEach((el: any) => {
+      let objArr: any = {};
+      let arr1: any = [];
+      // console.log("K = ", k);
 
-        this.dataTable.metadata.table.rows.forEach((arr: any) => {
-          objArr = {};
+      this.dataTable.metadata.table.rows.forEach((arr: any) => {
+        objArr = {};
 
-          this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
-            objArr[key] = arr[i];
+        this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
+          objArr[key] = arr[i];
 
-          })
-          arr1.push(objArr);
+        })
+        arr1.push(objArr);
 
-        });
-        this.dataTable.metadata.table.rows = [...arr1];
+      });
+      this.dataTable.metadata.table.rows = [...arr1];
 
-        if (this.dataTable.metadata.table.rows.length > 0) {
-          this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
-          // bypass ngIf for paginator
-          this.setDataSourceAttributes();
+      if (this.dataTable.metadata.table.rows.length > 0) {
+        this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
+        // bypass ngIf for paginator
+        this.setDataSourceAttributes();
 
-        }
+      }
       // this.myDiv.nativeElement.innerHTML = response;
       this.spinnerLoading = false;
     });
@@ -543,6 +544,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     return first_part + second_part;
   }
 
+  // FUNZIONE CHE PERMETTE DI POPOLARE LA TABELLA CON I METADATI
   getGraphTable() {
     if (this.dataset) {
       // this.spinnerLoading = true;
@@ -560,9 +562,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       }
 
       // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
-      this.httpService.post('test/dataGraphTable', data).subscribe((response:any) => {
+      this.httpService.post('test/dataGraphTable', data).subscribe((response: any) => {
         // console.log("Response=======",response);
-        if(response.data !== "fuoriWms") {
+        if (response.data !== "fuoriWms") {
           // this.spinnerLoading = false;
           if (typeof response === 'string') {
             response = JSON.parse(response);
@@ -619,6 +621,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
+  // FUNZIONE CHE PERMETTE DI SCARICARE UN FILE DIRETTAMENTE DALLA PIATTAFORMA ERDDAP TRAMITE L'URL GENERATO CON TUTTE LE INFORMAZIONI NECESSARIE
   exportData(typeSel: any) {
     //siamo nel caso del punto
 
@@ -628,7 +631,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     let latMax: any;
     let lngMax: any;
     let lngMin: any;
-    if(this.polygon){
+    if (this.polygon) {
       const corner1 = this.polyExport.getSouthWest();
       const corner2 = this.polyExport.getNorthEast();
 
@@ -638,74 +641,74 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       latMax = corner2.lat;
       lngMax = corner2.lng;
     }
-    if(this.dataset.griddap_url !== ""){
-         erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
-        //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
+    if (this.dataset.griddap_url !== "") {
+      erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
+      //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
 
-        //consecutive_dry_days_index_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D,number_of_cdd_periods_with_more_than_5days_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
+      //consecutive_dry_days_index_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D,number_of_cdd_periods_with_more_than_5days_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
 
-        let variable: any;
-        this.form.get("varSelected")?.value.map((el: any, index: number) => {
+      let variable: any;
+      this.form.get("varSelected")?.value.map((el: any, index: number) => {
 
-          if(index === this.form.get("varSelected")?.value.length || index === 0) {
-            variable = el;
+        if (index === this.form.get("varSelected")?.value.length || index === 0) {
+          variable = el;
+        }
+        else {
+
+          variable = "," + el;
+
+        }
+
+        //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
+
+        if (this.dataset.dimensions === 3) {
+          //siamo nel caso di latitude e long
+          //va aggiunto controllo su poligono
+          //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
+          if (this.polygon) {
+
+            erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
+
           }
           else {
-
-            variable =  "," + el;
-
+            erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
           }
-
-          //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
-
-          if (this.dataset.dimensions === 3) {
-            //siamo nel caso di latitude e long
-            //va aggiunto controllo su poligono
-            //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-            if(this.polygon) {
-
-              erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
-
-            }
-            else{
-              erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-            }
+        }
+        else {
+          //caso parametro aggiuntivo
+          //va aggiunto controllo su poligono
+          if (this.minRange === undefined || this.maxRange === undefined) {
+            //aggiunto controllo nel caso in cui ci sia un parametro aggiuntivo ma siamo nel caso del griddap senza wms!
+            this.minRange = 0
+            this.maxRange = 0
           }
-          else {
-            //caso parametro aggiuntivo
-            //va aggiunto controllo su poligono
-            if (this.minRange === undefined || this.maxRange === undefined) {
-              //aggiunto controllo nel caso in cui ci sia un parametro aggiuntivo ma siamo nel caso del griddap senza wms!
-                this.minRange = 0
-                this.maxRange = 0
-            }
-            let rangeMin = this.minRange;
-            let rangeMax = this.maxRange;
-            if(this.polygon){
+          let rangeMin = this.minRange;
+          let rangeMax = this.maxRange;
+          if (this.polygon) {
             //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
-              erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
-            }
-            else{
-              erddapUrl +=  variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
-
-            }
+            erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
           }
+          else {
+            erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + this.latlng.lat + "):1:(" + this.latlng.lat + ")%5D%5B(" + this.latlng.lng + "):1:(" + this.latlng.lng + ")%5D"
 
-        });
-    }else{
+          }
+        }
+
+      });
+    } else {
       //caso tabledap, dobbiamo costruire il suo url!
       //https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2022-11-09&time%3C=2022-11-16&latitude%3E=45.605&latitude%3C=45.605&longitude%3E=12.65&longitude%3C=12.65
       erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/" + this.datasetId + typeSel + "?";
       let variable_names = this.dataset.variable_names.split(" ");
 
-      variable_names.forEach((variable:any,index:any)=>{
-        if(index === variable_names.length-1){
+      variable_names.forEach((variable: any, index: any) => {
+        if (index === variable_names.length - 1) {
           erddapUrl += variable;
-        }else{
+        } else {
           erddapUrl += variable + "%2C";
         }
       });
-      if(this.polygon){
+      if (this.polygon) {
         erddapUrl += "&time%3E=" + this.formatDateExport(this.minValue) + "&time%3C=" + this.formatDateExport(this.maxValue) + "&latitude%3E=" + latMin + "&latitude%3C=" + latMax + "&longitude%3E=" + lngMin + "&longitude%3C=" + lngMax;
       }
       else {
@@ -715,23 +718,23 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     }
 
-      const link = document.createElement('a');
-      link.setAttribute('target', '_self');
-      link.setAttribute('href', erddapUrl);
-      link.setAttribute('download', `${this.datasetId}${typeSel}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+    const link = document.createElement('a');
+    link.setAttribute('target', '_self');
+    link.setAttribute('href', erddapUrl);
+    link.setAttribute('download', `${this.datasetId}${typeSel}`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
   }
 
   addDataTimeExport(graph: any) {
     // Array di timestamp a partire dalle date presenti in 'graph'
     const timestampArray = graph.map((element: any) => {
-      if(element.x.indexOf("T") > -1){
-          //siamo nel caso del poligono, formattare la data in maniera corretta
+      if (element.x.indexOf("T") > -1) {
+        //siamo nel caso del poligono, formattare la data in maniera corretta
 
-          element.x = this.formatDate(new Date(element.x));
+        element.x = this.formatDate(new Date(element.x));
       }
       const dateParts = element.x.split('/');
 
@@ -773,12 +776,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     // console.log("lastCol", lastCol);
     let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
     // console.log("dim_unit", dim_unit);
-    if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string" ) {
+    if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
     }
-
-
-
 
     // this.dataTable.data.table.forEach((el: any) => {
     let objArr: any = {};
@@ -786,20 +786,20 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     // console.log("K = ", k);
 
-    this.dataTable.forEach((arr: any,index: number) => {
-      if (index !== 0){
+    this.dataTable.forEach((arr: any, index: number) => {
+      if (index !== 0) {
         objArr = {};
 
         this.displayedColumns.forEach((key: any, i: number) => {
           if (i === this.displayedColumns.length - 1) {
             //ultima chiave da non cambiare
             objArr[key] = arr[lastCol];
-          }else{
+          } else {
             objArr[key] = arr[key];
           }
         })
         arr1.push(objArr);
-    }
+      }
 
     });
     this.dataTable = [...arr1];
@@ -816,11 +816,13 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
+  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLA VARIABILE SPINNELOADING
   spinnerLoadingChild(event: any) {
 
     this.spinnerLoading = event;
   }
 
+  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLE STATISTICHE PER IL COMPARE DI DUE DATASET PER POI POPOLARE UN OGGETTO
   compareStats(event: any) {
     this.stats = {
       meanDiffAvg: parseFloat(event.meanDiffAvg).toFixed(5),
@@ -831,58 +833,62 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
+  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO L'ERRORE RICEVUTO ASSEGNANDOLO ALLA DESCRIZIONE PER MOSTRARLA SULLA MODALE
   descriptionError(event: any) {
     this.description = event;
     // console.log("DESCRIPTION ERROR = ", this.description);
   }
 
-  meanMedianStdev(event: any){
+  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI DELLE STATISTICHE CALCOLATE PER IL DATASET MOSTRATO SUL GRAFICO
+  meanMedianStdev(event: any) {
     let mean_median_stdev = event.split("_");
     this.expoFormat(mean_median_stdev);
   }
 
-  progressBar(event: any){
+  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI CHE CONTROLLANO LA PROGRESSIONE DELLA PROGRESS BAR DI CARICAMENTO
+  progressBar(event: any) {
     // console.log("PROGRESS BAR", event);
     this.progress = event;
     this.progressWidth = this.progress + "%"
   }
 
+  // FUNZIONE CHE PRENDENDO IN INPUT I VALORI DELLE STATISTICHE PERMETTE DI FORMATTARE I VALORI CON x10^ QUANDO I NUMERI SONO TROPPO GRANDI O TROPPO PICCOLI
   expoFormat(mean_median_stdev: any) {
 
     this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
     this.medianValue = Number(mean_median_stdev[1]).toFixed(3);
     this.stdevValue = Number(mean_median_stdev[2]).toFixed(3);
     this.trendValue = Number(mean_median_stdev[3]).toFixed(3);
-    if (this.meanValue > 10000 || this.meanValue < 0.001 && this.meanValue != 0){
-        this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-      }
-    if (this.medianValue > 10000 || this.medianValue < 0.001 && this.medianValue != 0){
-      this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    if (this.meanValue > 10000 || this.meanValue < 0.001 && this.meanValue != 0) {
+      this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
     }
-    if (this.stdevValue > 10000 || this.stdevValue < 0.001 && this.stdevValue != 0){
-        this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    if (this.medianValue > 10000 || this.medianValue < 0.001 && this.medianValue != 0) {
+      this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
     }
-    if (this.trendValue > 10000 || this.trendValue < 0.001 && this.trendValue != 0){
-      this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    if (this.stdevValue > 10000 || this.stdevValue < 0.001 && this.stdevValue != 0) {
+      this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
     }
-    this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
+    if (this.trendValue > 10000 || this.trendValue < 0.001 && this.trendValue != 0) {
+      this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
+    }
+    this.meanValue = parseFloat(mean_median_stdev[0]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
+    this.medianValue = parseFloat(mean_median_stdev[1]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
+    this.stdevValue = parseFloat(mean_median_stdev[2]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
 
-    this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/,'$1');
-    if(this.meanValue.includes("x 10^0")) {
+    this.trendValue = parseFloat(mean_median_stdev[3]).toExponential().replace(/e\+?/, ' x 10^').replace(/(\d+\.\d{3})\d*/, '$1');
+    if (this.meanValue.includes("x 10^0")) {
       this.meanValue = this.meanValue.replace("x 10^0", "");
 
     }
-    if(this.medianValue.includes("x 10^0")) {
+    if (this.medianValue.includes("x 10^0")) {
       this.medianValue = this.medianValue.replace("x 10^0", "");
 
     }
-    if(this.stdevValue.includes("x 10^0")){
-        this.stdevValue = this.stdevValue.replace("x 10^0", "");
+    if (this.stdevValue.includes("x 10^0")) {
+      this.stdevValue = this.stdevValue.replace("x 10^0", "");
 
     }
-    if(this.trendValue.includes("x 10^0")) {
+    if (this.trendValue.includes("x 10^0")) {
       this.trendValue = this.trendValue.replace("x 10^0", "");
     }
 
@@ -902,9 +908,10 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     // this.calcStatistics();
   }
 
+  // FUNZIONE CHE PERMETTE DI AGGIORNARE LE STATISTICHE DEL DATASET MOSTRATO SUL GRAFICO
   calcStatistics() {
     let data = {
-      dates : this.statCalc.dates,
+      dates: this.statCalc.dates,
       values: this.statCalc.values,
       dataset: this.dataset,
       polygon: this.polygon,

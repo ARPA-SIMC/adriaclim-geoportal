@@ -140,7 +140,7 @@ interface ExampleFlatNode {
     }
   ]
 })
-export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
+export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   mod = false;
   isMouseIdle = false;
@@ -196,7 +196,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
   extraParam!: ExtraParams;
   extraParamExport!: ExtraParams;
   isExtraParam!: boolean;
-  // variableArray: string[] = [];
   variableArray: any[] = [];
   activeLayersArray: any[] = [];
   legendNoWms: any;
@@ -293,11 +292,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     // }
 
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    throw new Error('Method not implemented.');
-  }
   // ngOnChanges(changes: SimpleChanges): void {
-  //   // console.log("changes", changes);
+  //   throw new Error('Method not implemented.');
   // }
 
   async ngAfterViewInit(): Promise<void> {
@@ -308,7 +304,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
     let polyg: any = [];
-    // console.log("this.polygon", this.polygon);
 
     this.polygon.features.forEach(f => {
 
@@ -491,8 +486,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
-        // console.log("result =", result);
-        // console.log("this.datasetCompare =", this.datasetCompare);
         this.pointSelect(result.lat, result.lng);
 
       }
@@ -511,10 +504,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.map.off('click');
     this.map.getContainer().style.cursor = "url('../../assets/img/pointer-map-marker-removebg.png') 16 31, auto";
-    // this.map.getContainer().style.cursor = "url('../../assets/img/plane.png'), auto";
-    // this.map.getContainer().style.cursor = "position";
-    // this.map.getContainer().style.cursor = "url('src/assets/img/pointer-map-map-marker.cur')";
-    // this.map.getContainer().style.cursor = "url('../assets/img/pointer-map-map-marker.cur')";
     if (this.datasetCompare === null) {
       this.clickPointOnOff = !this.clickPointOnOff;
 

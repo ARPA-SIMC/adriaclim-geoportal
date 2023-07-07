@@ -194,34 +194,7 @@
 /**
 * DISPLAY FLEX + CUSTOM
 */
-// .main-content {
-//   height: 100%;
-//   display: block !important;
-//   background-color: magenta !important;
-// }
-// .main-content {
-//   width: 100%;
-// }
-// :focus:not(.focus--mouse) {
-//   outline: none !important;
-// }
-// .no-border-focus:focus(.focus--mouse) {
-//   border: none !important;
-// }
-// .no-border-focus:focus {
-//   outline: none !important;
-// }
-
-// :focus:not(.focus--mouse), .form-check [type=checkbox]:focus+label, .form-check [type=radio]:focus+label, .toggles label input[type=checkbox]:focus+.lever {
-//   border: #995c00 !important;
-//   box-shadow: 0 0 0 0px #995c00 !important;
-//   outline: none !important;
-// }
 
 ::ng-deep .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
   top: 28px;
 }
-
-// ::ng-deep .no-border-button-icon {
-//   // border-radius: revert !important;
-// }
