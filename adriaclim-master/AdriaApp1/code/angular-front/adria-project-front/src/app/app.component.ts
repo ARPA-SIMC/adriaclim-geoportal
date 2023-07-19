@@ -18,18 +18,6 @@ export class AppComponent implements OnInit {
     // console.log('Ready');
     console.debug('Ready');
     // this.getAllData();
-    // this.httpClient.post('http://localhost:8000/test/prova', {
-
-    // }).subscribe({
-    //   next(position) {
-    //     // console.log('Current Position: ', position);
-    //   },
-    //   error(msg) {
-    //     console.log('Error Getting Location: ', msg);
-    //   }
-    // });
-
-    // this.getPippo("ciao");
     //this.getMBIndicator("monthly"); //2138.8134632110596 MB per yearly, 8442.947506904602  MB seasonal, 25252.07095527649  MB monthly
 
     /**

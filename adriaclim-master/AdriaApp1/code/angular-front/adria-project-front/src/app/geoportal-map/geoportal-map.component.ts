@@ -439,9 +439,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     await this.initMap();
-    // console.log("LEGEND NO WMS =", this.legendNoWms)
-
-    // await this.initMap();
 
   }
 

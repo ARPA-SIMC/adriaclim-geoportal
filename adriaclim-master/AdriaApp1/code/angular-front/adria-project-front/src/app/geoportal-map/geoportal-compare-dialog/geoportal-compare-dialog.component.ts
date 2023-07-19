@@ -103,8 +103,6 @@ export class GeoportalCompareDialogComponent implements OnInit {
     if(this.firstDataset.name.dimensions > 3) {
       // console.log("PARAM MAX TYPEOF", typeof this.firstDataset.name.param_max);
 
-      // console.log("TYPE OF FIRST VALUE", typeof this.firstValue);
-
       let name = this.firstDataset.name.dimension_names.split(" ")[1];
       // console.log("NAME PARAM AGGIUNTIVO FIRST DATASET======",name);
       if (name === "depth") {
@@ -138,7 +136,6 @@ export class GeoportalCompareDialogComponent implements OnInit {
       // console.log("NAME PARAM AGGIUNTIVO SECOND DATASET======",name);
 
       if (name === "depth") {
-
 
         this.extraParamSecond = {
           name: "Elevation",
@@ -186,10 +183,6 @@ export class GeoportalCompareDialogComponent implements OnInit {
     this.checkDimensions();
 
     }, 500);
-    // setTimeout(() => {
-
-    // }, 500);
-
 
   }
 
@@ -296,15 +289,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
       });
     }
 
-
     this.form.get("variableFirstData")?.setValue(this.firstDatasetVariables[this.firstDatasetVariables.length - 1]["name"]);
-
-    // this.options = {
-    //   floor: firstDataset.name.param_min,
-    //   ceil: firstDataset.name.param_max,
-    //   step: Number(this.extraParam.stepSize.toFixed(4)),
-    // };
-
 
   }
 
@@ -350,46 +335,8 @@ export class GeoportalCompareDialogComponent implements OnInit {
       });
     }
 
-
     this.form.get("variableSecondData")?.setValue(this.secondDatasetVariables[this.secondDatasetVariables.length - 1]["name"]);
 
-    // let secondDataset = this.form.get('secondDataset')?.value;
-
-    // if (this.secondDataset.name) {
-    //   this.secondDatasetVariables = this.secondDataset.name.variable_names.split(" ");
-    // }
-    // else if (this.secondDataset.variable_names) {
-    //   this.secondDatasetVariables = this.secondDataset.variable_names.split(" ");
-    // }
-    // this.isIndicator = this.secondDataset.name.griddap_url !== "" ? false : true;
-    // if (this.isIndicator) {
-    //   this.secondDatasetVariables = this.secondDatasetVariables.slice(-1);
-    // }
-
-    // this.form.get("variableSecondData")?.setValue(this.secondDatasetVariables[this.secondDatasetVariables.length - 1]);
-
   }
-
-
-
-  // ngAfterContentChecked(): void {
-  //     this.changeDetector.detectChanges();
-  //   }
-
-
-  // sliderControl(event: any) {
-  //   // console.log("EVENTO SLIDERRRRRRRRR =", event.value);
-  //   this.valueCustom = event.value;
-  //   let metaId: any;
-  //   if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
-  //     metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
-  //   }
-  //   else if (this.selData.get("dataSetSel")?.value.name.id) {
-  //     metaId = this.selData.get("dataSetSel")?.value.name.id;
-  //   }
-  //   this.getMeta(metaId, "ok", this.valueCustom);
-  // }
-
-
 
 }

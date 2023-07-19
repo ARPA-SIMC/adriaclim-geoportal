@@ -76,21 +76,9 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   constructor(private httpService: HttpService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // this.spinnerLoading.emit(true);
 
-    // if (this.polygon) {
-    //   //se c'è il poligono chiamare altra funzione
-    //     this.spinnerLoadingChild.emit(true);
-
-    //     this.getDataGraphPolygonInterval();
-
-    // } else {
-      //se non c'è il poligono chiama this.getDataGraph() classica
       this.spinnerLoadingChild.emit(true);
       this.getGraphCompare();
-
-    // console.log("ECHARTS =", echarts);
-
 
   }
 
@@ -468,7 +456,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
         // this.dataTimeExport.emit(this.dataRes.allData[name]);
         this.spinnerLoadingChild.emit(false);
-
 
       },
       error: (msg: any) => {

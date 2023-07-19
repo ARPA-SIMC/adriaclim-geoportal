@@ -224,12 +224,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   yMax = 500;
   dataShadow = [];
 
-  //   chart: any;
-
-
-
-
-
   constructor(private httpClient: HttpClient, private httpService: HttpService) {
 
 
@@ -266,7 +260,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     // this.getDataGraph();
     // this.getDataGraphPolygon();
 
-    for (var i = 0, sum = 0; i < this.dataBoxPlot.length; ++i) {
+    for (let i = 0, sum = 0; i < this.dataBoxPlot.length; ++i) {
       if (this.dataBoxPlot[i] >= 0) {
         this.positive.push(this.dataBoxPlot[i]);
         this.negative.push('-');
@@ -275,16 +269,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         this.negative.push(-this.dataBoxPlot[i]);
       }
 
-      // if (i === 0) {
-      //   this.help.push(0);
-      // } else {
-      //   sum += this.dataBoxPlot[i - 1];
-      //   if (this.dataBoxPlot[i] < 0) {
-      //     this.help.push(sum + this.dataBoxPlot[i]);
-      //   } else {
-      //     this.help.push(sum);
-      //   }
-      // }
     }
   }
 
@@ -296,23 +280,21 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
 
-  zoomGraphOn(startValue: any, endValue: any) {
+  // zoomGraphOn(startValue: any, endValue: any) {
     //change the value of the graph
     // console.log("zoom start =", startValue);
     // console.log("zoom end =", endValue);
 
-  }
+  // }
 
-
-
-  zoomGraph(startValue: any, endValue: any) {
+  // zoomGraph(startValue: any, endValue: any) {
     //change the value of the graph
     // setTimeout(() => {
     // console.log("zoom start =", startValue);
     // console.log("zoom end =", endValue);
 
     // }, 1000);
-  }
+  // }
 
   formatNumber(number: any) {
     const decimalCount = (number.toString().split('.')[1] || '').length;
@@ -323,8 +305,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     return number.toString();
   }
-
-
 
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
@@ -408,7 +388,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 };
                 // console.log('Task result:', task_result);
                 this.getDataGraphPolygon(task_result);
-
 
                 //execute the function to create the graph
 

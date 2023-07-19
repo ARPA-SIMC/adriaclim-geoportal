@@ -76,7 +76,6 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
 
   updateColors(){
 
-
     this.valueMinColor =  this.form.get('minColor')?.value;
     this.valueMaxColor = this.form.get('maxColor')?.value;
     this.valueMidColor = this.form.get('midColor')?.value;
@@ -149,9 +148,6 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
 
     return { r: mixedR, g: mixedG, b: mixedB };
   }
-
-
-
 
   ngAfterContentChecked(): void {
       this.changeDetector.detectChanges();

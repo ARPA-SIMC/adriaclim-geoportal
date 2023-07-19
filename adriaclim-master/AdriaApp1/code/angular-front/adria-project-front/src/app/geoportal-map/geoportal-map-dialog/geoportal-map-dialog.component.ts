@@ -616,8 +616,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.form.get("varSelected")?.value.map((el: any) => {
       prova = el;
     })
-    // console.log("PROVA = ", prova);
-    // console.log("PROVA FORM = ", this.form.get("varSelected")?.value);
 
   }
 
@@ -626,7 +624,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     //siamo nel caso del punto
 
     let erddapUrl: any;
-    //COSI FUNZIONA ORA PERò BOH.......
     let latMin: any;
     let latMax: any;
     let lngMax: any;
