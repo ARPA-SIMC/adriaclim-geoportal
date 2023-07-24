@@ -612,17 +612,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     })
 
-    // versione vecchia
-    // let valuesFiltered = dataBeforeOp.map((element:any, index:any) => {
-    //   if (element.date_value && allDates.includes(element.date_value) && element.value_0 !== undefined){
-    //     return element.value_0;
-    //   }
-    //   else {
-    //     return undefined;
-    //   }
-    // })
-
-
     // console.log("valuesFilter before filter:",valuesFiltered);
     valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
     // console.log("valuesFiltered after filer zoom:",valuesFiltered);

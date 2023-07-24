@@ -56,7 +56,8 @@ import { InfoPageComponent } from './info-page/info-page.component';
 import { CanvasGraphCompareComponent } from './geoportal-map/canvas-graph-compare/canvas-graph-compare.component';
 import { GeoportalCompareDialogComponent } from './geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from './select-coords-dialog/select-coords-dialog.component';
-import { WelcomePageGeoportalComponent } from './welcome-page-geoportal/welcome-page-geoportal.component';
+import { AngularMatModule } from './modules/services/angular-mat/angular-mat.module';
+import { PagesModule } from './modules/pages/pages.module';
 registerLocaleData(localeFr);
 registerLocaleData(localeIt);
 
@@ -72,54 +73,29 @@ registerLocaleData(localeIt);
     InfoPageComponent,
     CanvasGraphCompareComponent,
     GeoportalCompareDialogComponent,
-    SelectCoordsDialogComponent,
-    WelcomePageGeoportalComponent
+    SelectCoordsDialogComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    MatButtonModule,
     FlexLayoutModule,
-    MatCardModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatExpansionModule,
-    MatMenuModule,
     OverlayModule,
-    MatFormFieldModule,
-    MatSelectModule,
     ReactiveFormsModule,
-    MatListModule,
-    MatTreeModule,
-    MatRadioModule,
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
     }),
     LeafletModule,
-
-    MatNativeDateModule,
     CdkListboxModule,
     PortalModule,
     ScrollingModule,
     CdkTreeModule,
     CdkMenuModule,
-    MatBottomSheetModule,
-    MatButtonToggleModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatTooltipModule,
-    MatDatepickerModule,
-    MatInputModule,
-    MatSliderModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatTabsModule,
-    NgxSliderModule
+    NgxSliderModule,
 
+    PagesModule,
+    AngularMatModule
   ],
   providers: [
     MatMenuTrigger,

@@ -376,11 +376,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
             trigger: 'axis',
             // axis: 'x1',
             formatter: (paramsFormatter: any) => {
-              // console.log("PARAMSFORMATTER", paramsFormatter);
-              // let prova1 = paramsFormatter[0].dataIndex;
-              // let prova2 = paramsFormatter[0].axisIndex;
-              // let selectedxAxis = this.chartOption.xAxis[0].data.[prova1];
-              // let count = 0;
               const tooltipHTML = paramsFormatter.map((param: any, index:number) => {
                 // console.log("PARAM",param);
                 let value: any = Number(param.value);

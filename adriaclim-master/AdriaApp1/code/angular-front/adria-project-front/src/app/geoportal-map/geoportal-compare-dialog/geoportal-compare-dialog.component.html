@@ -1,10 +1,6 @@
 <form [formGroup]="form" style="width: 500px;">
 
     <h1 mat-dialog-title><span class="info-title-dialog">Compare Two Datasets</span></h1>
-    <!-- <h1 *ngIf="!description && openGraph" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1> -->
-    <!-- <div *ngIf="success; else ok"> -->
-    <!-- <div> -->
-      <!-- <div mat-dialog-content class="choose-color-flex col-12"> -->
       <div mat-dialog-content class="col-12">
 
         <div class="row">
@@ -31,10 +27,6 @@
           </mat-form-field>
 
         </div>
-
-        <!-- <div class="row justify-content-center align-items-center"  *ngIf="firstDataset.name.dimensions > 3">
-          <ngx-slider class="col-10" [(value)]="firstValue" [options]="firstOptions"></ngx-slider>
-        </div> -->
 
         <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="this.form.get('firstDataset')?.value.name.dimensions > 3">
           <form [formGroup]="sliderForm" class="col-12 d-flex flex-column justify-content-center align-items-center p-0">
@@ -70,10 +62,6 @@
           </mat-form-field>
 
         </div>
-
-        <!-- <div class="row col-10" *ngIf="secondDataset.name.dimensions > 3">
-          <ngx-slider class="col-10" [(value)]="secondValue" [options]="secondOptions"></ngx-slider>
-        </div> -->
 
         <div class="row justify-content-center align-items-center" style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="this.form.get('secondDataset')?.value.name.dimensions > 3">
           <form class="col-12 d-flex flex-column justify-content-center align-items-center p-0">
