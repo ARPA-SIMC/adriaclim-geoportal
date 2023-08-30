@@ -176,7 +176,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     ]
   };
 
-
   dataAxis: any = [
     'A',
     'B',
@@ -226,7 +225,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   constructor(private httpClient: HttpClient, private httpService: HttpService) {
 
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -235,7 +233,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.polygon) {
       //se c'è il poligono chiamare altra funzione
       this.spinnerLoadingChild.emit(true);
-      // console.log("SONO NEL CHANGES CON POLYGON");
 
       this.getDataGraphPolygonInterval();
 
@@ -246,12 +243,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.getDataGraph();
     }
 
-    // console.log("ECHARTS =", echarts);
-
-
-
   }
-
 
   ngOnInit() {
     this.isLoading = true;
@@ -276,8 +268,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     // this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
     this.myChart = echarts.init(this.parentRef.nativeElement);
 
-
-
   }
 
   // zoomGraphOn(startValue: any, endValue: any) {
@@ -296,6 +286,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     // }, 1000);
   // }
 
+  /**
+   * FUNZIONE CHE PERMETTE DI FORMATTARE I NUMERI VISUALIZZABILI CON UN MASSIMO DI 2 CIFRE DECIMALI
+   */
   formatNumber(number: any) {
     const decimalCount = (number.toString().split('.')[1] || '').length;
 
@@ -306,6 +299,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     return number.toString();
   }
 
+  /**
+   * FUNZIONE CHE PERMETTE DI FORMATTARE LA DATA DA VISUALIZZARE SULLA BASE DELL'OPERAZIONE SELEZIONATA
+   */
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
       //console.log("d",d);
@@ -365,46 +361,30 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
-          // console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
-          // console.log("PRIMA DEL CHECK");
-
-          // this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
           this.httpService.post('test/check_task_status', data).subscribe({
             next: (res: any) => {
 
-              // console.log("SECONDA RESPONSE", res);
-
-              // console.log("SONO DENTRO IL CHECK");
-
               let task_status = res.dataVect.status;
-              // console.log("task_status =", task_status);
 
-              // console.log("task_status =", task_status);
               if (task_status === 'SUCCESS') {
                 clearInterval(checkTaskStatus);
                 // task completed successfully, extract and display result
                 let task_result = {
                   dataVect: res.dataVect.result,
                 };
-                // console.log('Task result:', task_result);
                 this.getDataGraphPolygon(task_result);
 
                 //execute the function to create the graph
-
-              } else if (task_status === 'FAILURE') {
+              }
+              else if (task_status === 'FAILURE') {
                 // task failed, display error message
                 clearInterval(checkTaskStatus);
                 let task_error = response.dataVect.error;
                 console.error('Task error:', task_error);
               }
               else if(task_status === "PROGRESS"){
-                // clearInterval(checkTaskStatus);
-                // console.log("Test res",res);
-                // console.log("RESPONSE PROGRESS=",response);
                 let progressBarValue = res.dataVect.progressBar;
-                // console.log("PROGRESS BAR VALUE=",progressBarValue);
                 this.progressBar.emit(progressBarValue);
-                // console.log("TASK_STATUS: " + task_status);
               }
             },
 
@@ -422,24 +402,16 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
       this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
-        // console.log("PRIMA RESPONSE", response);
 
         // extract task ID from response
         let data = {
           task_id: response.task_id,
         }
-        // console.log("task_id =", data)
 
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
-          // console.log("checkTaskStatus sono dentro e ora chiamo passando questo id:",data.task_id);
-          // console.log("PRIMA DEL CHECK");
-
-          // this.httpService.post('test/check_task_status',data).subscribe((response: any) => {
           this.httpService.post('test/check_task_status', data).subscribe({
             next: (res: any) => {
-
-              // console.log("RES BOXPLOT =", res);
 
               this.data1 = res.dataVect.result.dataPol.map((el: any) => {
                 return [
@@ -457,8 +429,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                   el['x']
                 ]
               });
-              // console.log("DATA1 =", this.data1);
-              // console.log("showName =", showName);
 
               let i = 0;
               this.quantityBoxPlot = new Set();
@@ -469,8 +439,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 i++;
 
               });
-              // console.log("QUANTITY BOXPLOT =", this.quantityBoxPlot);
-
 
               this.optionBoxPlot = {
                 title: [
@@ -492,7 +460,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                       type: 'boxplot',
                       config: {
                         itemNameFormatter: function (params: any) {
-                          // console.log("PARAMS =", params);
 
                           return params.value;
                         }
@@ -558,26 +525,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
               this.spinnerLoadingChild.emit(false);
 
-
-              // console.log("prova =", prova);
-
-              // console.log("SONO DENTRO IL CHECK");
-
               let task_status = res.dataVect.status;
-              // console.log("task_status =", task_status);
 
-              // console.log("task_status =", task_status);
               if (task_status === 'SUCCESS') {
-                clearInterval(checkTaskStatus);
                 // task completed successfully, extract and display result
-                // let task_result = {
-                //   dataVect: res.dataVect.result,
-                // };
-                // console.log('Task result:', task_result);
-                // this.getDataGraphPolygon(task_result);
-
-
-                //execute the function to create the graph
+                clearInterval(checkTaskStatus);
 
               } else if (task_status === 'FAILURE') {
                 // task failed, display error message
@@ -599,7 +551,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-
   zoomFunctionGraph(allDates: any, dataInGraph: any) {
 
     // versione nuova
@@ -612,10 +563,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     })
 
-    // console.log("valuesFilter before filter:",valuesFiltered);
     valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
-    // console.log("valuesFiltered after filer zoom:",valuesFiltered);
-    // console.log("valuesFiltered after filer zoom:",valuesFiltered);
 
     this.statisticCalc.emit({
       dates: allDates,
@@ -624,12 +572,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
 
+  /**
+   * FUNZIONE CHE PERMETTE DI MOSTRARE IL GRAFICO DEL POLIGONO
+   */
   getDataGraphPolygon(response: any) {
 
     if (typeof response == 'string') {
       response = JSON.parse(response);
     }
-    // console.log("RES DOPO IL PARSE =", response);
 
     let allDataPolygon = response['dataVect'];
     // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
@@ -637,7 +587,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     // console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
     // let dataPolygonDeep = _.cloneDeep([...allDataPolygon["dataPol"]]);
     let dataInGraph = _.cloneDeep([...allDataPolygon["dataPol"]]);
-    // console.log("dataInGraph", dataInGraph);
     let allDates = _.cloneDeep([...dataInGraph]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
 
     allDates = dataInGraph.map((el: any) => {
@@ -701,8 +650,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
       });
       let prova = allDataPolygon.dataPol.map((element: any) => element.x);
-
-      // console.log("prova", new Date(prova[0]));
 
       // let statsName = this.statistic.split("_");
       this.chartOption = {
@@ -793,7 +740,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           }
         })
       }
-
 
     }
     else {
@@ -906,17 +852,19 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
 
+  /**
+   * FUNZIONE CHE PERMETTE DI FILTRARE I DATI DA MOSTRARE SUL GRAFICO IN BASE ALLO ZOOM EFFETTUATO
+   */
   filterElement(min: any, max: any) {
     return function (a: any) {
-      // console.log("A =", a);
       let p = a >= min && a <= max;
-      // console.log("P =", p);
-
-      // return a >= min && a <= max;
       return p;
     };
   }
 
+  /**
+   * FUNZIONE CHE GESTISCE I DATI RICEVUTI PER MOSTRARE IL GRAFICO CORRISPONDENTE
+   */
   getDataGraph() {
 
     let data = {
@@ -968,7 +916,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
         let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
         let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
-
 
         this.myChart.on('dataZoom', () => {
           let option = this.myChart.getOption();
@@ -1088,9 +1035,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         this.spinnerLoadingChild.emit(false);
       }
 
-
     });
   }
-
 
 }

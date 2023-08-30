@@ -12,7 +12,8 @@ RUN mkdir /code
 
 WORKDIR /code
 
-RUN echo deb http://deb.debian.org/debian testing main contrib non-free >> /etc/apt/sources.list && \
+# Linux
+RUN echo deb http://deb.debian.org/debian trixie main contrib non-free >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get remove -y binutils && \
     apt-get autoremove -y

@@ -70,10 +70,16 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       this.dialogRef.close("");
   }
 
+  /**
+   * FUNZIONE CHE RIPRISTINA I COLORI DI DEFAULT DELLA LEGENDA
+   */
   restoreDefault(){
     this.dialogRef.close("restoreDefault");
   }
 
+  /**
+   * FUNZIONE CHE AGGIORNA I COLORI DELLA LEGENDA SULLA BASE DELLA SELEZIONE DELL'UTENTE
+   */
   updateColors(){
 
     this.valueMinColor =  this.form.get('minColor')?.value;
@@ -104,7 +110,9 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
     this.dialogRef.close(this.form.value);
   }
 
-  // FUNZIONE CHE RITORNA IL COLORE INTERMEDIO PASSANDOGLI DUE COLORI
+  /**
+   * FUNZIONE CHE RITORNA IL COLORE INTERMEDIO PASSANDOGLI DUE COLORI
+   */
   mixColors(color1: string, color2: string): string {
     // Convert hexadecimal color strings to RGB values
     const rgb1 = this.hexToRgb(color1);

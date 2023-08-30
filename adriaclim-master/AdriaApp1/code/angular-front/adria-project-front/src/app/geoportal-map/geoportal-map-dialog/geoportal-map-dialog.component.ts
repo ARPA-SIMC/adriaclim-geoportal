@@ -220,7 +220,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   ];
 
-  // FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE SOPRA IL GRAFICO
+  /**
+   * FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE SOPRA IL GRAFICO DELLA MODALE
+   */
   showStat() {
     if (this.operation === "default") {
 
@@ -232,7 +234,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
-  // FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE SOPRA IL GRAFICO
+  /**
+   * FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE ATTRAVERSO L'OPERAZIONE SELEZIONATA SOPRA IL GRAFICO DELLA MODALE
+   */
   showStatPointSelected(checkPoly: any) {
     if (!checkPoly) {
       if (this.form.get('operationSel')?.value === "default") {
@@ -247,7 +251,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
-  // FUNZIONE CHE MOSTRA O NASCONDE IL MENU A TENDINA RIGUARDANTE IL TIME SCALE
+  /**
+   * FUNZIONE CHE MOSTRA O NASCONDE IL MENU A TENDINA RIGUARDANTE IL TIME SCALE
+   */
   removeAnnualCycle(o: any): boolean {
 
     if (this.dataset.adriaclim_timeperiod === "yearly") {
@@ -278,7 +284,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
-  // FUNZIONE CHE ABILITA O DISABILITA LE STATISTICHE ALL'INTERNO DEL MENU A TENDINA STATISTICS
+  /**
+   * FUNZIONE CHE ABILITA O DISABILITA LE STATISTICHE ALL'INTERNO DEL MENU A TENDINA STATISTICS
+   */
   disableStatistics(s: any): boolean {
     // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
     if (s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
@@ -315,7 +323,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   // bypass ngIf for paginator
   @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
-    // console.log("paginator", mp);
 
     this.paginator = mp;
     this.setDataSourceAttributes();
@@ -373,7 +380,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       this.stepDate = this.dataset.adriaclim_timeperiod;
     }
 
-    //console.log("DATASET", this.dataset);
     this.form = this.fb.group({
       // cod: new FormControl(this.element.cod_algo_type),
       cod: new FormControl(null),
@@ -417,7 +423,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   }
 
-  // FUNZIONE CHE CAMBIA IL CONTENUTO DELLA MODALE DEL GRAFICO MOSTRANDO UNA PARTE DEDICATA ALLE INFORMAZIONI INERENTI AL GRAFICO
+  /**
+   * FUNZIONE CHE CAMBIA IL CONTENUTO DELLA MODALE DEL GRAFICO MOSTRANDO UNA PARTE DEDICATA ALLE INFORMAZIONI INERENTI AL GRAFICO
+   */
   showInfo() {
     // this.info = !this.info;
     let noInfo = document.getElementById("noInfo");
@@ -453,7 +461,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     }
     else {
-      // console.log("POLYGON", this.polygon);
       // this.spinnerLoading = false;
       if (!this.polygon) {
         this.getGraphTable();
@@ -479,7 +486,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.dialogRef.close("");
   }
 
-  // FUNZIONE CHE PERMETTE DI OTTENERE I METADATI PER POPOLARE LA TABELLA
+  /**
+   * FUNZIONE CHE PERMETTE DI OTTENERE I METADATI PER POPOLARE LA TABELLA
+   */
   getMetadataTable() {
 
     let data = {
@@ -490,7 +499,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
         response = JSON.parse(response);
       }
       this.dataTable = response;
-      // console.log("datatable metadata=======",this.dataTable);
 
       this.displayedColumns = this.dataTable.metadata.table.columnNames;
       let dim_unit: any;
@@ -502,7 +510,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       // this.dataTable.data.table.forEach((el: any) => {
       let objArr: any = {};
       let arr1: any = [];
-      // console.log("K = ", k);
 
       this.dataTable.metadata.table.rows.forEach((arr: any) => {
         objArr = {};
@@ -544,7 +551,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     return first_part + second_part;
   }
 
-  // FUNZIONE CHE PERMETTE DI POPOLARE LA TABELLA CON I METADATI
+  /**
+   * FUNZIONE CHE PERMETTE DI POPOLARE LA TABELLA CON I METADATI
+   */
   getGraphTable() {
     if (this.dataset) {
       // this.spinnerLoading = true;
@@ -563,7 +572,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
       // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
       this.httpService.post('test/dataGraphTable', data).subscribe((response: any) => {
-        // console.log("Response=======",response);
         if (response.data !== "fuoriWms") {
           // this.spinnerLoading = false;
           if (typeof response === 'string') {
@@ -619,7 +627,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
-  // FUNZIONE CHE PERMETTE DI SCARICARE UN FILE DIRETTAMENTE DALLA PIATTAFORMA ERDDAP TRAMITE L'URL GENERATO CON TUTTE LE INFORMAZIONI NECESSARIE
+  /**
+   * FUNZIONE CHE PERMETTE DI SCARICARE UN FILE DIRETTAMENTE DALLA PIATTAFORMA ERDDAP TRAMITE L'URL GENERATO CON TUTTE LE INFORMAZIONI NECESSARIE
+   */
   exportData(typeSel: any) {
     //siamo nel caso del punto
 
@@ -763,10 +773,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   dataTablePolygon(event: any) {
-    //console.log("EVENT", event);
     // this.spinnerLoading = false;
     this.dataTable = event;
-    // console.log("datatable graph=======", this.dataTable);
 
     this.displayedColumns = Object.keys(this.dataTable[0]);
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
@@ -780,8 +788,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     // this.dataTable.data.table.forEach((el: any) => {
     let objArr: any = {};
     let arr1: any = [];
-
-    // console.log("K = ", k);
 
     this.dataTable.forEach((arr: any, index: number) => {
       if (index !== 0) {
@@ -806,20 +812,23 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     if (this.dataTable.length > 0) {
       this.dataSource = new MatTableDataSource(this.dataTable);
-      //console.log(this.dataSource);
       // bypass ngIf for paginator
       this.setDataSourceAttributes();
 
     }
   }
 
-  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLA VARIABILE SPINNELOADING
+  /**
+   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLA VARIABILE SPINNERLOADING
+   */
   spinnerLoadingChild(event: any) {
 
     this.spinnerLoading = event;
   }
 
-  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLE STATISTICHE PER IL COMPARE DI DUE DATASET PER POI POPOLARE UN OGGETTO
+  /**
+   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLE STATISTICHE PER IL COMPARE DI DUE DATASET PER POI POPOLARE UN OGGETTO
+   */
   compareStats(event: any) {
     this.stats = {
       meanDiffAvg: parseFloat(event.meanDiffAvg).toFixed(5),
@@ -830,26 +839,32 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
-  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO L'ERRORE RICEVUTO ASSEGNANDOLO ALLA DESCRIZIONE PER MOSTRARLA SULLA MODALE
+  /**
+   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO L'ERRORE RICEVUTO ASSEGNANDOLO ALLA DESCRIZIONE PER MOSTRARLA SULLA MODALE
+   */
   descriptionError(event: any) {
     this.description = event;
-    // console.log("DESCRIPTION ERROR = ", this.description);
   }
 
-  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI DELLE STATISTICHE CALCOLATE PER IL DATASET MOSTRATO SUL GRAFICO
+  /**
+   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI DELLE STATISTICHE CALCOLATE PER IL DATASET MOSTRATO SUL GRAFICO
+   */
   meanMedianStdev(event: any) {
     let mean_median_stdev = event.split("_");
     this.expoFormat(mean_median_stdev);
   }
 
-  // FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI CHE CONTROLLANO LA PROGRESSIONE DELLA PROGRESS BAR DI CARICAMENTO
+  /**
+   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI CHE CONTROLLANO LA PROGRESSIONE DELLA PROGRESS BAR DI CARICAMENTO
+   */
   progressBar(event: any) {
-    // console.log("PROGRESS BAR", event);
     this.progress = event;
     this.progressWidth = this.progress + "%"
   }
 
-  // FUNZIONE CHE PRENDENDO IN INPUT I VALORI DELLE STATISTICHE PERMETTE DI FORMATTARE I VALORI CON x10^ QUANDO I NUMERI SONO TROPPO GRANDI O TROPPO PICCOLI
+  /**
+   * FUNZIONE CHE PRENDE IN INPUT I VALORI DELLE STATISTICHE PERMETTE DI FORMATTARE I VALORI CON x10^ QUANDO I NUMERI SONO TROPPO GRANDI O TROPPO PICCOLI
+   */
   expoFormat(mean_median_stdev: any) {
 
     this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
@@ -891,21 +906,24 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   }
 
+  /**
+   * FUNZIONE CHE ASSEGNA L'OPERAZIONE E LA STATISTICA SELEZIONATA DALL'UTENTE
+   */
   sendSelGraphPoly() {
     this.operation = this.form.get('operationSel')?.value;
     this.statistic = this.form.get('statisticSel')?.value;
   }
 
   statisticCalc(event: any) {
-    // console.log("before event:",this.statCalc);
     this.statCalc = event;
     // this.calcStatistics();
-    // console.log("STAT CALC =", this.statCalc);
 
     // this.calcStatistics();
   }
 
-  // FUNZIONE CHE PERMETTE DI AGGIORNARE LE STATISTICHE DEL DATASET MOSTRATO SUL GRAFICO
+  /**
+   * FUNZIONE CHE PERMETTE DI AGGIORNARE LE STATISTICHE DEL DATASET MOSTRATO SUL GRAFICO
+   */
   calcStatistics() {
     let data = {
       dates: this.statCalc.dates,

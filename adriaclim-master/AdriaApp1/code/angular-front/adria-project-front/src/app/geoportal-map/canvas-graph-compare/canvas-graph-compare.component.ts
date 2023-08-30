@@ -72,7 +72,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
   colors = ['#5470C6', '#EE6666'];
 
-
   constructor(private httpService: HttpService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -86,7 +85,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
     this.isLoading = true;
 
   }
-
 
   ngAfterViewInit() {
     // this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
@@ -204,8 +202,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
         });
 
-
-
         this.chartOption = {
 
           xAxis: {
@@ -232,8 +228,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
               const tooltipHTML = paramsFormatter.map((param: any) => {
                 let value: any = Number(param.value);
                 if (value > 10000 || value < 0.001 && value !== 0) {
-                  // console.log("VALUE = ", value);
-                  // console.log("VALUE = ", typeof value);
 
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
                 }
@@ -284,19 +278,14 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
         this.spinnerLoadingChild.emit(false);
       }
 
-
     });
   }
 
-
-
   getGraphCompare() {
-    // console.log('COMPARE OBJ: ', this.compareObj);
     // this.compareObj["operation"] = this.operation;
     let data = this.compareObj;
     this.httpService.post('test/compareDatasets', data).subscribe({
       next: (res: any) => {
-        // console.log('COMPARE RES: ', res);
         let firstDataset = res.compareResult.firstResult;
         let secondDataset = res.compareResult.secondResult;
         let firstKey = this.compareObj.firstVarSel;

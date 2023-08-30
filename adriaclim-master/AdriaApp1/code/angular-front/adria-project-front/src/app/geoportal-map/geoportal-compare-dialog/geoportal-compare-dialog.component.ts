@@ -6,7 +6,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
 
-
 interface ExtraParams {
   name: string;
   nameExtraParam: string;
@@ -99,12 +98,13 @@ export class GeoportalCompareDialogComponent implements OnInit {
     }
   }
 
+  /**
+   * FUNZIONE CHE CONTROLLA SE IL NOME DEL METADATO DIMENSIONS E' UGUALE A UN DETERMINATO NOME E RITORNA IL NOME CORRETTO DA VISUALIZZARE
+   */
   checkDimensions() {
     if(this.firstDataset.name.dimensions > 3) {
-      // console.log("PARAM MAX TYPEOF", typeof this.firstDataset.name.param_max);
 
       let name = this.firstDataset.name.dimension_names.split(" ")[1];
-      // console.log("NAME PARAM AGGIUNTIVO FIRST DATASET======",name);
       if (name === "depth") {
         // this.extraParam.name = "elevation";
         this.extraParamFirst = {
@@ -128,12 +128,10 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
       }
 
-
     }
 
     if(this.secondDataset.name.dimensions > 3) {
       let name = this.secondDataset.name.dimension_names.split(" ")[1];
-      // console.log("NAME PARAM AGGIUNTIVO SECOND DATASET======",name);
 
       if (name === "depth") {
 
@@ -192,13 +190,11 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
   changeValueSliderOne(event: any) {
     this.valueOne = event.value;
-    // console.log("VALUE ONE", this.valueOne);
 
   }
 
   changeValueSliderSecond(event: any) {
     this.valueTwo = event.value;
-    // console.log("VALUE SECOND", this.valueTwo);
 
   }
 
@@ -249,6 +245,9 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
   }
 
+  /**
+   * FUNZIONE CHE OTTIENE LE VARIABILI DEL PRIMO DATASET SELEZIONATO
+   */
   async getSelectedVarFirstDataset(){
 
     this.firstDataset = this.form.get('firstDataset')?.value;
@@ -293,6 +292,9 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
   }
 
+  /**
+   * FUNZIONE CHE OTTIENE LE VARIABILI DEL SECONDO DATASET SELEZIONATO
+   */
   async getSelectedVarSecondDataset(){
 
     // await this.chargeAll();
