@@ -904,135 +904,143 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         if (this.operation === "annualMonth") {
           this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
         }
-        this.dataRes.allData[name].forEach((element: any) => {
-          element.date = element.x;
-          if (this.formatDate(element.x) === undefined) {
-            element.x = element.x;
-          } else {
-            element.x = this.formatDate(element.x);
-          }
-          element.y = Number(element.y);
-        });
-        let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
-        let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
-        let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
-
-        this.myChart.on('dataZoom', () => {
-          let option = this.myChart.getOption();
-          this.startZoom = option.dataZoom[0].startValue;
-          this.endZoom = option.dataZoom[0].endValue;
-
-          let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
-
-          let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
-            if (element.date && arrayDate.includes(element.date)) {
-              return element.y;
+        if(this.dataRes.allData[name]) {
+          this.dataRes.allData[name].forEach((element: any) => {
+            element.date = element.x;
+            if (this.formatDate(element.x) === undefined) {
+              element.x = element.x;
+            } else {
+              element.x = this.formatDate(element.x);
             }
-          })
-          arrayValueTest = arrayValueTest.filter((element: any) => element !== undefined);
-          // let arrayValue = arrayAllValue.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["y"], this.dataRes.allData[name][this.endZoom]["y"]));
+            element.y = Number(element.y);
+          });
+          let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
+          let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
+          let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
 
-          this.statisticCalc.emit({
-            dates: arrayDate,
-            values: arrayValueTest
-          })
+          this.myChart.on('dataZoom', () => {
+            let option = this.myChart.getOption();
+            this.startZoom = option.dataZoom[0].startValue;
+            this.endZoom = option.dataZoom[0].endValue;
 
-        });
+            let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
 
-        let value = this.dataRes.allData[name].map((element: any) => element.y);
-        let minMaxValue = {
-          min: Math.min(...value).toFixed(0),
-          max: Math.max(...value).toFixed(0),
-        }
-        this.chartOption = {
-
-          xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            // data: this.dataRes.allData[name].map((element: any) => element.x)
-            data: this.dataRes.allData[name].map((element: any) => {
-
-              let elDate = new Date(element.x).toLocaleDateString();
-              // console.log("elDate", elDate);
-              if (elDate !== "Invalid Date") {
-                return elDate;
+            let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
+              if (element.date && arrayDate.includes(element.date)) {
+                return element.y;
               }
-              else {
-
-                return element.x;
-              }
-
             })
-          },
-          yAxis: {
-            type: 'value',
-            // min: minMaxValue.min,
-            // max: minMaxValue.max,
-          },
-          toolbox: {
-            feature: {
-              dataZoom: {
-                yAxisIndex: 'none'
-              },
-              restore: {},
-              saveAsImage: {}
-            }
-          },
-          tooltip: {
-            trigger: 'axis',
-            formatter: (paramsFormatter: any) => {
+            arrayValueTest = arrayValueTest.filter((element: any) => element !== undefined);
+            // let arrayValue = arrayAllValue.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["y"], this.dataRes.allData[name][this.endZoom]["y"]));
 
-              const tooltipHTML = paramsFormatter.map((param: any) => {
-                let value: any = Number(param.value);
-                if (value > 10000 || value < 0.001 && value !== 0) {
+            this.statisticCalc.emit({
+              dates: arrayDate,
+              values: arrayValueTest
+            })
 
-                  value = value.toExponential().replace(/e\+?/, ' x 10^');
+          });
+
+          let value = this.dataRes.allData[name].map((element: any) => element.y);
+          let minMaxValue = {
+            min: Math.min(...value).toFixed(0),
+            max: Math.max(...value).toFixed(0),
+          }
+          this.chartOption = {
+
+            xAxis: {
+              type: 'category',
+              boundaryGap: false,
+              // data: this.dataRes.allData[name].map((element: any) => element.x)
+              data: this.dataRes.allData[name].map((element: any) => {
+
+                let elDate = new Date(element.x).toLocaleDateString();
+                // console.log("elDate", elDate);
+                if (elDate !== "Invalid Date") {
+                  return elDate;
                 }
-                return `${param.marker} ${param.seriesName}: ${value}`;
-              }).join('<br>');
+                else {
 
-              return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+                  return element.x;
+                }
 
+              })
             },
-            transitionDuration: 0.2,
-            axisPointer: {
-              type: 'cross',
-              label: {
-                backgroundColor: '#6a7985'
+            yAxis: {
+              type: 'value',
+              // min: minMaxValue.min,
+              // max: minMaxValue.max,
+            },
+            toolbox: {
+              feature: {
+                dataZoom: {
+                  yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
               }
-            }
-          },
-          legend: {
-            data: [name]
-          },
-          grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-          },
+            },
+            tooltip: {
+              trigger: 'axis',
+              formatter: (paramsFormatter: any) => {
 
-          dataZoom: [
-            {
-              show: true,
-              realtime: true,
-              type: 'inside',
+                const tooltipHTML = paramsFormatter.map((param: any) => {
+                  let value: any = Number(param.value);
+                  if (value > 10000 || value < 0.001 && value !== 0) {
+
+                    value = value.toExponential().replace(/e\+?/, ' x 10^');
+                  }
+                  return `${param.marker} ${param.seriesName}: ${value}`;
+                }).join('<br>');
+
+                return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+
+              },
+              transitionDuration: 0.2,
+              axisPointer: {
+                type: 'cross',
+                label: {
+                  backgroundColor: '#6a7985'
+                }
+              }
+            },
+            legend: {
+              data: [name]
+            },
+            grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '3%',
+              containLabel: true
             },
 
-          ],
-          series: [{
-            data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
-            name: name,
-            type: 'line',
-            stack: 'counts',
-            areaStyle: this.enableArea ? {} : undefined,
-            smooth: false
-          },
-          ]
-        }
+            dataZoom: [
+              {
+                show: true,
+                realtime: true,
+                type: 'inside',
+              },
 
-        this.dataTimeExport.emit(this.dataRes.allData[name]);
-        this.spinnerLoadingChild.emit(false);
+            ],
+            series: [{
+              data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
+              name: name,
+              type: 'line',
+              stack: 'counts',
+              areaStyle: this.enableArea ? {} : undefined,
+              smooth: false
+            },
+            ]
+          }
+
+          this.dataTimeExport.emit(this.dataRes.allData[name]);
+          this.spinnerLoadingChild.emit(false);
+
+        }
+        else {
+          this.spinnerLoadingChild.emit(false);
+          this.description.emit("Please select point inside the layer");
+
+        }
       }
 
     });

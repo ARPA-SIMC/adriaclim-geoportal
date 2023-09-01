@@ -187,7 +187,7 @@
                 </app-canvas-graph-compare>
               </ng-container>
                <ng-template #noConfronto>
-                <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)"
+                <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"  (meanMedianStdev)="meanMedianStdev($event)" (description)="descriptionError($event)"
                   (dataTablePolygon)="dataTablePolygon($event)" (spinnerLoadingChild)="spinnerLoadingChild($event)"
                   (statisticCalc)="statisticCalc($event)" (progressBar)="progressBar($event)"
                   class="canvas-graph" [dataset]="dataset" [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"

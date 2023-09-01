@@ -33,6 +33,8 @@ interface OptionsValue {
 })
 export class GeoportalMapDialogComponent implements AfterContentChecked {
 
+  dimUnit: any;
+
   stats: any = {};
 
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
@@ -555,6 +557,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * FUNZIONE CHE PERMETTE DI POPOLARE LA TABELLA CON I METADATI
    */
   getGraphTable() {
+    this.dimUnit = null;
     if (this.dataset) {
       // this.spinnerLoading = true;
       //converting date to UTC
@@ -581,10 +584,11 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
           // console.log("datatable graph =======", this.dataTable);
 
           this.displayedColumns = this.dataTable.data.table.columnNames;
-          let dim_unit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+          this.dimUnit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+          console.log("dim_unit point select = ", this.dimUnit);
 
-          if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
-            this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
+          if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
+            this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
           }
           // this.dataTable.data.table.forEach((el: any) => {
           let objArr: any = {};
@@ -780,6 +784,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
     // console.log("lastCol", lastCol);
     let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
+    console.log("dim_unit polygon", dim_unit);
+
     // console.log("dim_unit", dim_unit);
     if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";

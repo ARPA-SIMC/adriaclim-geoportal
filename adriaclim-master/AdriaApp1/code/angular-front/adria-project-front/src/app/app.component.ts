@@ -39,6 +39,9 @@ export class AppComponent implements OnInit {
 
   }
 
+  /**
+   * FUNZIONE DA RICHIAMARE NELL'NGONINIT SOLO PER AGGIORNARE I DATI LATO SVILUPPO QUANDO SERVE POI COMMENTARE
+   */
   getAllData() {
     this.httpService.post('myFunctions/getAllDatasets', {
     }).subscribe({

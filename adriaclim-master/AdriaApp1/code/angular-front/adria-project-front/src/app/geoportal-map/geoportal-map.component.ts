@@ -200,6 +200,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   style: any;
   markerToAdd: any;
   circleMarkerArray: any[] = [];
+  rectangleArray: any[] = [];
   circleCoords: circleCoords[] = [];
 
   valueMinColor: any = "#f44336";
@@ -249,6 +250,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   selectCoords = false;
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService) {
+
     this.selData = new FormGroup({
       dataSetSel: new FormControl(),
       searchText: new FormControl(),
@@ -394,7 +396,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * METODO CHE MOSTRA I DATI DEL POLIGONO CARICATO E SELEZIONATO!
    */
   uploadGeo(): Promise<File> {
-    //come funziona
+
     return new Promise((resolve, reject) => {
       const input = document.createElement('input');
       input.type = 'file';
@@ -442,6 +444,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
+
     await this.initMap();
 
   }
@@ -496,6 +499,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   pointSelect(lat?: any, lng?: any) {
+
     // if(this.pointBoolean === false) {
     // this.pointBoolean = true;
     // }else{
@@ -761,7 +765,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * METODO RICHIAMATO AL CLICK SULLA MAPPA
    */
   onMapClick = (e: L.LeafletMouseEvent) => {
-    // console.log("SONO DENTRO ON MAP CLICK");
 
     if (this.datasetCompare != null) {
       this.clickPointOnOff = false;
@@ -1231,16 +1234,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    */
   getSelectedNode(node: any) {
     this.variableArray = [];
+
     if (node.name) {
       let variableNames = node.name.variable_names.split(" ");
       let variableTypes = node.name.variable_types.split(" ");
-      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
+      // console.log("VariableName===========", variableNames, "variable types==========", variableTypes);
       variableNames.forEach((variableName: any, index: number) => {
         // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
+
         if (
           variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
-          (variableTypes[index] === "float" || variableTypes[index] === "double")
+          (variableTypes[index] !== "float" || variableTypes[index] !== "double")
         ) {
+
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
         }
       });
@@ -1250,10 +1256,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     else if (node.variable_names) {
       let variableNames = node.variable_names.split(" ");
       let variableTypes = node.variable_types.split(" ")
+
       variableNames.forEach((variableName: any, index: number) => {
         if (
           variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
-          (variableTypes[index] === "float" || variableTypes[index] === "double")
+          (variableTypes[index] !== "float" || variableTypes[index] !== "double")
         ) {
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
         }
@@ -1267,7 +1274,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //   this.variableArray = this.variableArray.slice(-1);
     // }
     // console.log("thisVariableArray: ", this.variableArray);
-    this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
+
+    if(this.variableArray.length > 0) {
+      this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
+
+    }
 
   }
 
@@ -1678,6 +1689,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     const min = Number(min_max_value[0]);
     const max = Number(min_max_value[1]);
     const step = Number(metadata[0][5].split("=")[1]);
+
     // console.log("ENTRO NEL CASO DEL PARAMETRO AGGIUNTIVO!");
     // console.log("NOME PARAMETRO AGGIUNTIVO======",name);
     // console.log("VALORE MIN",min);
@@ -1772,14 +1784,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.dateFilter = (date: Date | null): boolean => {
       if (date) {
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
-          //FUNZIONA PERO BOH.........
           return date.getMonth() === this.dateEnd.getMonth() &&
             date.getDate() === this.dateEnd.getDate() &&
             date.getFullYear() >= this.dateStart.getFullYear() &&
             date.getFullYear() <= this.dateEnd.getFullYear()
         }
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
-          //FUNZIONA PERO BOH.........
           //GESTIRE ULTIMO GIORNO DEL MESE!
           const d1 = _.cloneDeep(this.dateEnd);
           if (this.isLastDayOfMonth(d1)) {
@@ -1949,7 +1959,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         // if(this.value this.extraParam.maxValue){
         // console.log("CONSTROL EXTRA: ", controlExtra);
         this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
-
         this.options = {
           floor: this.extraParam.minValue,
           ceil: this.extraParam.maxValue,
@@ -2343,6 +2352,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     // }
     // else {
+
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
 
@@ -2437,7 +2447,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.isExtraParam = false;
     } else {
       //è un griddap
-      if (this.selData.get("dataSetSel")?.value.name.dimensions >= 3) {
+      if (this.selData.get("dataSetSel")?.value.name.dimensions > 3) {
 
         this.isExtraParam = true;
         this.extraParamNoWms(this.metadata, this.valueCustom);
@@ -2527,10 +2537,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             //griddap case with rectangle, NON SERVONO I MARKER!
 
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+            let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
             let varColor: any;
             if (colorStorage) {
-              const colorStorageJson = JSON.parse(colorStorage);
+              let colorStorageJson = JSON.parse(colorStorage);
               varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
 
             }
@@ -2539,9 +2549,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
             }
 
-            const rectangle = L.rectangle(bounds, { fillOpacity: .8, opacity: .8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-
+            // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+            let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
             this.rettangoliLayer.addLayer(rectangle);
+
             this.map.addLayer(this.rettangoliLayer);
 
           }
@@ -2877,7 +2888,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
             const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
 
-            const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+            // const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i])
+            const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+              // .bindTooltip(allValues[i]);
             this.rettangoliLayer.addLayer(rectangle);
             this.map.addLayer(this.rettangoliLayer);
           }
