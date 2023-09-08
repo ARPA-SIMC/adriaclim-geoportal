@@ -26,6 +26,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() extraParam: any;
   @Input() enableArea: any;
   @Input() circleCoords: any;
+  @Input() dimUnit: string = "";
   @Output() meanMedianStdev = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
@@ -580,6 +581,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (typeof response == 'string') {
       response = JSON.parse(response);
     }
+    if(this.dimUnit === "No") {
+      this.dimUnit = "";
+    }
 
     let allDataPolygon = response['dataVect'];
     // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
@@ -673,6 +677,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         },
         yAxis: {
           type: 'value',
+          axisLabel: {
+            formatter: `{value} ${this.dimUnit}`
+
+          }
           // min: minMaxValue.min,
           // max: minMaxValue.max,
         },
@@ -776,6 +784,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         },
         yAxis: {
           type: 'value',
+          axisLabel: {
+            formatter: `{value} ${this.dimUnit}`
+
+          }
           // min: minMaxValue.min,
           // max: minMaxValue.max,
         },
@@ -866,6 +878,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
    * FUNZIONE CHE GESTISCE I DATI RICEVUTI PER MOSTRARE IL GRAFICO CORRISPONDENTE
    */
   getDataGraph() {
+    console.log("DIM UNIT =", this.dimUnit);
+    // Controllo che imposta a stringa vuota se l'unità di misura è "No", questo si presenta sopratutto per gli indicatori
+    // che prendono in considerazione il contatore dei giorni
+    if(this.dimUnit === "No") {
+      this.dimUnit = "";
+    }
 
     let data = {
       dataset: this.dataset,
@@ -967,8 +985,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             },
             yAxis: {
               type: 'value',
-              // min: minMaxValue.min,
-              // max: minMaxValue.max,
+              axisLabel: {
+                formatter: `{value} ${this.dimUnit}`
+
+              },
+              boundaryGap: [0, '100%'],
+              min: 'dataMin',
+              max: 'dataMax'
             },
             toolbox: {
               feature: {
@@ -1022,6 +1045,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
             ],
             series: [{
+              // data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
               data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
               name: name,
               type: 'line',

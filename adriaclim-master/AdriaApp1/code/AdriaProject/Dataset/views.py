@@ -482,6 +482,9 @@ def getDataVectorialNew(request):
         
         # print("DATASET =", dataset)
         dataVect=allFunctions.getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
+        print("*************************************")
+        print("DATA VECT =============",dataVect)
+        print("*************************************")
         return JsonResponse({'dataVect': dataVect})
     except Exception as e:
         print("ERRORE GET VECTORIAL FINALE =", e)

@@ -315,7 +315,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           // poligon = L.polygon(c);
         });
 
-        const pol = L.polygon(polyg[0]).addTo(this.map);
+        let pol = L.polygon(polyg[0]).addTo(this.map);
+
         this.allPolygons.push({
           "pol": pol,
           "polName": f.properties.popupContent
@@ -498,6 +499,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     })
   }
 
+  /**
+   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CON IL GRAFICO CORRISPONDENTE AL PUNTO CLICCATO ALL'INTERNO DEL DATASET SULLA MAPPA
+   */
   pointSelect(lat?: any, lng?: any) {
 
     // if(this.pointBoolean === false) {
@@ -641,6 +645,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // this.initMap();
   }
 
+  /**
+   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CON IL GRAFICO CORRISPONDENTE AL POLIGONO CLICCATO ALL'INTERNO DEL DATASET SULLA MAPPA
+   */
   polygonSelect() {
     if (this.circleMarkerArray.length > 0) {
       this.circleMarkerArray.forEach((circle: any) => {
@@ -2463,13 +2470,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        // console.log("RES =", res);
+        console.log("RES =", res);
         this.allDataVectorial = res['dataVect'];
-        const allLatCoordinates = this.allDataVectorial[1];
-        const allLongCoordinates = this.allDataVectorial[2];
-        const allValues = this.allDataVectorial[0];
-        const value_min = this.allDataVectorial[3];
-        const value_max = this.allDataVectorial[4];
+        let allLatCoordinates = this.allDataVectorial[1];
+        let allLongCoordinates = this.allDataVectorial[2];
+        let allValues = this.allDataVectorial[0];
+        let value_min = this.allDataVectorial[3];
+        let value_max = this.allDataVectorial[4];
         let bounds: any;
         let rectangle: any;
         let value_mid: any;

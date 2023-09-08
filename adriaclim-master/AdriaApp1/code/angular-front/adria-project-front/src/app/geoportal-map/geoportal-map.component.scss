@@ -198,3 +198,11 @@
 ::ng-deep .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
   top: 28px;
 }
+
+
+/**
+* CURSOR FOR MAP
+*/
+.no-pointer-cursor {
+  cursor: default !important;
+}

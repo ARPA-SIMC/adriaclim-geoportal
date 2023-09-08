@@ -585,7 +585,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
           this.displayedColumns = this.dataTable.data.table.columnNames;
           this.dimUnit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
-          console.log("dim_unit point select = ", this.dimUnit);
 
           if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
             this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
@@ -783,12 +782,10 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.displayedColumns = Object.keys(this.dataTable[0]);
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
     // console.log("lastCol", lastCol);
-    let dim_unit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
-    console.log("dim_unit polygon", dim_unit);
+    this.dimUnit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
 
-    // console.log("dim_unit", dim_unit);
-    if (dim_unit && dim_unit !== "No" && dim_unit !== "Value not defined" && typeof dim_unit === "string") {
-      this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + dim_unit + "]";
+    if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
+      this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
     }
 
     // this.dataTable.data.table.forEach((el: any) => {
