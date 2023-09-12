@@ -191,6 +191,12 @@
   max-width: 100% !important;
 }
 
+::ng-deep .mdc-snackbar {
+  margin-top: 75px !important;
+}
+
+// mdc-snackbar mat-mdc-snack-bar-container mdc-snackbar--open
+
 /**
 * DISPLAY FLEX + CUSTOM
 */

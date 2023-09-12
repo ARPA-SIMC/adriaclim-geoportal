@@ -25,7 +25,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
-
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -59,6 +59,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatTableModule,
     MatPaginatorModule,
     MatTabsModule,
+    MatSnackBarModule,
+
   ]
 })
 export class AngularMatModule { }

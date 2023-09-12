@@ -198,6 +198,12 @@
     </mat-toolbar>
   </div>
 
+  <!-- Alert tramite bootstrap con valore booleano controllato nel typescript -->
+  <div *ngIf="showAlert" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert" style="z-index: 1500;">
+    {{compliantErrorErddap}}
+    <button type="button" class="btn-close" (click)="showAlert = false" aria-label="Close"></button>
+  </div>
+
   <!-- MAT MENU PER TOOLS -->
   <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools"> -->
   <div class="overlay-tools">

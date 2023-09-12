@@ -19,6 +19,8 @@ import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/
 import { GeoportalColorDialogComponent } from './geoportal-color-dialog/geoportal-color-dialog.component';
 import { GeoportalCompareDialogComponent } from './geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
+import * as bootstrap from 'bootstrap';
+import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
 
 /**
  * Food data with nested structure.
@@ -161,6 +163,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   apiUrl = environmentDev;
 
+  compliantErrorErddap = "";
+  showAlert = false;
+
   markers: L.Marker[] = [];
 
   polygon = poly;
@@ -249,7 +254,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   selectCoords = false;
 
-  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService) {
+  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService, private _snackBar: MatSnackBar) {
 
     this.selData = new FormGroup({
       dataSetSel: new FormControl(),
@@ -2440,6 +2445,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
+  openSnackBar(message: string, action: string, horizontal: MatSnackBarHorizontalPosition, vertical: MatSnackBarVerticalPosition) {
+    this._snackBar.open(message, action, {
+      horizontalPosition: horizontal,
+      verticalPosition: vertical,
+    });
+  }
+
   /**
    * PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
    */
@@ -2470,105 +2482,119 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        console.log("RES =", res);
-        this.allDataVectorial = res['dataVect'];
-        let allLatCoordinates = this.allDataVectorial[1];
-        let allLongCoordinates = this.allDataVectorial[2];
-        let allValues = this.allDataVectorial[0];
-        let value_min = this.allDataVectorial[3];
-        let value_max = this.allDataVectorial[4];
-        let bounds: any;
-        let rectangle: any;
-        let value_mid: any;
-        if (parseFloat(value_min) < 0) {
-          value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-        } else {
-          value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+        // console.log("RES =", res);
+        if(res.dataVect.includes("HTTP Error 404")) {
+          this.compliantErrorErddap = "The data is not compliant"
+          // console.log("ERR =", this.compliantErrorErddap);
+
+          // Alert tramite bootstrap con html
+          this.showAlert = true;
+
+          // Alert tramite snackBar angular material
+          // this.openSnackBar("The data is not compliant", "Close", "center", "top");
+
         }
-        this.valueMin = parseFloat(value_min);
-        this.valueMax = parseFloat(value_max);
-        this.valueMid = value_mid;
+        else {
 
-        this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-        // this.markersLayer = L.layerGroup();
-        // markersLayer: L.LayerGroup = L.layerGroup();
-        let centerLat;
-        let centerLong;
-        if (allLatCoordinates.length === 1) {
-          centerLat = allLatCoordinates[0];
-          centerLong = allLongCoordinates[0];
+          this.allDataVectorial = res['dataVect'];
+          let allLatCoordinates = this.allDataVectorial[1];
+          let allLongCoordinates = this.allDataVectorial[2];
+          let allValues = this.allDataVectorial[0];
+          let value_min = this.allDataVectorial[3];
+          let value_max = this.allDataVectorial[4];
+          let bounds: any;
+          let rectangle: any;
+          let value_mid: any;
+          if (parseFloat(value_min) < 0) {
+            value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+          } else {
+            value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+          }
+          this.valueMin = parseFloat(value_min);
+          this.valueMax = parseFloat(value_max);
+          this.valueMid = value_mid;
 
-        } else {
-          const center = Math.round(allLatCoordinates.length / 2);
-          // console.log("Center",center);
-          centerLat = allLatCoordinates[center];
-          centerLong = allLongCoordinates[center];
-        }
-
-        // console.log("centerlat",centerLat);
-        // console.log("centerlng",centerLong);
-        const zoomTest = L.latLng(centerLat, centerLong);
-        if (allLatCoordinates.length === 1) {
-          // zoom più elevato essendo un singolo punto!
-          this.map.setView(zoomTest, 14);
-        } else {
-          this.map.setView(zoomTest, 8);
-        }
-
-        for (let i = 0; i < allLatCoordinates.length; i++) {
-          if (this.isIndicator) {
-            this.circleCoords.push(
-              {
-                lat: allLatCoordinates[i],
-                lng: allLongCoordinates[i],
-              }
-            )
-            // console.log("this.circleCoords.push",this.circleCoords);
-            //tabledap case, with circle
-            const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-            let varColor: any;
-            if (colorStorage) {
-              const colorStorageJson = JSON.parse(colorStorage);
-              varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
-            } else {
-              varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
-            }
-            this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
-            this.circleMarkerArray.push(this.markerToAdd);
-            this.markersLayer.addLayer(this.markerToAdd);
-
-
-            this.map.addLayer(this.markersLayer);
+          this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
+          // this.markersLayer = L.layerGroup();
+          // markersLayer: L.LayerGroup = L.layerGroup();
+          let centerLat;
+          let centerLong;
+          if (allLatCoordinates.length === 1) {
+            centerLat = allLatCoordinates[0];
+            centerLong = allLongCoordinates[0];
 
           } else {
-            //griddap case with rectangle, NON SERVONO I MARKER!
-
-            bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-            let varColor: any;
-            if (colorStorage) {
-              let colorStorageJson = JSON.parse(colorStorage);
-              varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
-
-            }
-            else {
-              varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
-
-            }
-
-            // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-            let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-            this.rettangoliLayer.addLayer(rectangle);
-
-            this.map.addLayer(this.rettangoliLayer);
-
+            const center = Math.round(allLatCoordinates.length / 2);
+            // console.log("Center",center);
+            centerLat = allLatCoordinates[center];
+            centerLong = allLongCoordinates[center];
           }
-        }
-        if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-          this.circleMarkerArray.forEach((circle: any) => {
-            circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
-          });
-          this.map.off('click');
+
+          // console.log("centerlat",centerLat);
+          // console.log("centerlng",centerLong);
+          const zoomTest = L.latLng(centerLat, centerLong);
+          if (allLatCoordinates.length === 1) {
+            // zoom più elevato essendo un singolo punto!
+            this.map.setView(zoomTest, 14);
+          } else {
+            this.map.setView(zoomTest, 8);
+          }
+
+          for (let i = 0; i < allLatCoordinates.length; i++) {
+            if (this.isIndicator) {
+              this.circleCoords.push(
+                {
+                  lat: allLatCoordinates[i],
+                  lng: allLongCoordinates[i],
+                }
+              )
+              // console.log("this.circleCoords.push",this.circleCoords);
+              //tabledap case, with circle
+              const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+              let varColor: any;
+              if (colorStorage) {
+                const colorStorageJson = JSON.parse(colorStorage);
+                varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
+              } else {
+                varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
+              }
+              this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
+              this.circleMarkerArray.push(this.markerToAdd);
+              this.markersLayer.addLayer(this.markerToAdd);
+
+
+              this.map.addLayer(this.markersLayer);
+
+            } else {
+              //griddap case with rectangle, NON SERVONO I MARKER!
+
+              bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
+              let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+              let varColor: any;
+              if (colorStorage) {
+                let colorStorageJson = JSON.parse(colorStorage);
+                varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
+
+              }
+              else {
+                varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
+
+              }
+
+              // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+              let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+              this.rettangoliLayer.addLayer(rectangle);
+
+              this.map.addLayer(this.rettangoliLayer);
+
+            }
+          }
+          if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+            this.circleMarkerArray.forEach((circle: any) => {
+              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+            });
+            this.map.off('click');
+          }
         }
 
       },
