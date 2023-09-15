@@ -1,19 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import * as welcomeJson from '../../../../assets/configuration/welcomePage.json'
+
+interface WelcomeJson {
+  title: string;
+  text: string;
+  webProject: string;
+  toolkit: string;
+}
 
 @Component({
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss']
 })
-export class WelcomeComponent {
+export class WelcomeComponent implements OnInit {
 
   // title = welcomeJson["title"];
   // textContent = welcomeJson["text"];
-  welJson = welcomeJson;
+  welJson: WelcomeJson = welcomeJson;
   constructor(private router: Router) {
 
+  }
+  ngOnInit(): void {
+    console.log("WELCOME JSON = ", welcomeJson);
+
+    this.welJson = welcomeJson;
   }
 
   /**

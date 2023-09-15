@@ -26,34 +26,6 @@ import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition
  * Food data with nested structure.
  * Each node has a name and an optional list of children.
  */
-interface FoodNode {
-  name: string;
-  value?: string;
-  childVisible?: boolean;
-  children?: FoodNode[];
-}
-interface ExtendedWMSOptions extends L.TileLayerOptions {
-  bgcolor?: string;
-  time?: string;
-}
-
-interface LatLng {
-  lat: number;
-  lng: number;
-}
-
-interface ExtraParams {
-  name: string;
-  nameExtraParam: string;
-  minValue: number;
-  maxValue: number;
-  stepSize: number;
-}
-
-interface circleCoords {
-  lat: any;
-  lng: any;
-}
 
 // const TREE_DATA: FoodNode[] = [
 //   {
@@ -121,13 +93,6 @@ const TREE_DATA: FoodNode[] = [
     children: [],
   },
 ];
-
-/** Flat node with expandable and level information */
-interface ExampleFlatNode {
-  expandable: boolean;
-  name: string;
-  level: number;
-}
 
 @Component({
   selector: 'app-geoportal-map',
@@ -1167,7 +1132,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     if (!this.isIndicator) {
       this.legendNoWms = undefined;
     }
-    // }
   }
 
   /**

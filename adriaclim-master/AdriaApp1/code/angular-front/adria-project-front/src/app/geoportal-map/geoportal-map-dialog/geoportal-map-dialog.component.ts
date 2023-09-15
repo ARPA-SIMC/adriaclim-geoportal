@@ -474,16 +474,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     // this.getAlgoType();
   }
 
-  save() {
-    // if(this.element) {
-    //   // this.updateAlgoConfig();
-    // }
-    // else {
-    //   // this.createAlgoConfig();
-    // }
-    // this.dialogRef.close("ok");
-  }
-
   close() {
     this.dialogRef.close("");
   }
@@ -918,10 +908,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   statisticCalc(event: any) {
-    this.statCalc = event;
-    // this.calcStatistics();
-
-    // this.calcStatistics();
+    this.statCalc = event;;
   }
 
   /**

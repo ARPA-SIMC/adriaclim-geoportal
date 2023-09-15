@@ -753,9 +753,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     else {
 
       allDataPolygon.dataPol.forEach((element: any) => {
-        /**
-         *  Da rivedere qui!!!!!!
-         */
         // element.x = this.formatDate(element.x);
         element.y = Number(element.y);
       });

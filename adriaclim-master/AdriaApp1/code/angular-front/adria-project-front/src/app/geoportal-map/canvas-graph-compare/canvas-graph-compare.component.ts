@@ -151,10 +151,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
     }
     // console.log("RANGE: ", this.range);
 
-    /**
-     *  DA SPOSTARE SPINNER PER IL GRAFICO E NON PER LA TABLE
-     */
-
     // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
 
