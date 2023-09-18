@@ -21,6 +21,7 @@ import { GeoportalCompareDialogComponent } from './geoportal-compare-dialog/geop
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
 import * as bootstrap from 'bootstrap';
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
+import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, circleCoords } from '../interfaces/geoportal-map-int';
 
 /**
  * Food data with nested structure.
