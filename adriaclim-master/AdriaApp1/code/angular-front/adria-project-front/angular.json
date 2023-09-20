@@ -35,7 +35,6 @@
               "./node_modules/bootstrap-italia/dist/css/bootstrap-italia.min.css"
             ],
             "scripts": [
-              "./node_modules/popper.js/dist/umd/popper.min.js",
               "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
               "./node_modules/bootstrap/dist/js/bootstrap.min.js",
               "./node_modules/bootstrap-italia/dist/js/bootstrap-italia.bundle.min.js",

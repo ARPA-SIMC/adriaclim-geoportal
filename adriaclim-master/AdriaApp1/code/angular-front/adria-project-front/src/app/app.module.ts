@@ -58,6 +58,7 @@ import { GeoportalCompareDialogComponent } from './geoportal-map/geoportal-compa
 import { SelectCoordsDialogComponent } from './select-coords-dialog/select-coords-dialog.component';
 import { AngularMatModule } from './modules/services/angular-mat/angular-mat.module';
 import { PagesModule } from './modules/pages/pages.module';
+import { GeoportalMapNewComponent } from './geoportal-map-new/geoportal-map-new.component';
 registerLocaleData(localeFr);
 registerLocaleData(localeIt);
 
@@ -73,7 +74,8 @@ registerLocaleData(localeIt);
     InfoPageComponent,
     CanvasGraphCompareComponent,
     GeoportalCompareDialogComponent,
-    SelectCoordsDialogComponent
+    SelectCoordsDialogComponent,
+    GeoportalMapNewComponent
   ],
   imports: [
     BrowserModule,

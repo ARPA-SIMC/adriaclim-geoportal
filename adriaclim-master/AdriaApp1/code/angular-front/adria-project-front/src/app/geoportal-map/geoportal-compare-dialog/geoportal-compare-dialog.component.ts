@@ -5,14 +5,8 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
+import { ExtraParams } from 'src/app/interfaces/geoportal-compare-dialog-int';
 
-interface ExtraParams {
-  name: string;
-  nameExtraParam: string;
-  minValue: number;
-  maxValue: number;
-  stepSize: number;
-}
 @Component({
   selector: 'app-geoportal-compare-dialog',
   templateUrl: './geoportal-compare-dialog.component.html',

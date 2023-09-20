@@ -9,16 +9,7 @@ import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import * as _ from 'lodash';
-
-interface TypeOfExport {
-  type: string;
-  label: string;
-}
-
-interface OptionsValue {
-  label: string;
-  value: string;
-}
+import { OptionsValue, TypeOfExport } from 'src/app/interfaces/geoportal-map-dialog-int';
 
 @Component({
   selector: 'app-geoportal-map-dialog',

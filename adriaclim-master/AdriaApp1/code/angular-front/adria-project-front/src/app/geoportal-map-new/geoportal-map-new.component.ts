@@ -3,7 +3,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, HostListener, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
@@ -13,11 +13,11 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import * as poly from '../../assets/geojson/geojson.json';
-import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
+import { GeoportalMapDialogComponent } from '../geoportal-map/geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
 import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
-import { GeoportalColorDialogComponent } from './geoportal-color-dialog/geoportal-color-dialog.component';
-import { GeoportalCompareDialogComponent } from './geoportal-compare-dialog/geoportal-compare-dialog.component';
+import { GeoportalColorDialogComponent } from '../geoportal-map/geoportal-color-dialog/geoportal-color-dialog.component';
+import { GeoportalCompareDialogComponent } from '../geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
 import * as bootstrap from 'bootstrap';
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
@@ -27,27 +27,6 @@ import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, circleCoord
  * Food data with nested structure.
  * Each node has a name and an optional list of children.
  */
-
-// const TREE_DATA: FoodNode[] = [
-//   {
-//     name: 'Fruit',
-//     children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}],
-//   },
-//   {
-//     name: 'Vegetables',
-//     children: [
-//       {
-//         name: 'Green',
-//         children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
-//       },
-//       {
-//         name: 'Orange',
-//         children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
-//       },
-//     ],
-//   },
-// ];
-
 const TREE_DATA: FoodNode[] = [
   //i children di tutti sono riempiti in maniera dinamica con il metodo getAllNodes
   {
@@ -96,9 +75,9 @@ const TREE_DATA: FoodNode[] = [
 ];
 
 @Component({
-  selector: 'app-geoportal-map',
-  templateUrl: './geoportal-map.component.html',
-  styleUrls: ['./geoportal-map.component.scss'],
+  selector: 'app-geoportal-map-new',
+  templateUrl: './geoportal-map-new.component.html',
+  styleUrls: ['./geoportal-map-new.component.scss'],
   providers: [
     {
       provide: MAT_SELECT_CONFIG,
@@ -106,7 +85,11 @@ const TREE_DATA: FoodNode[] = [
     }
   ]
 })
-export class GeoportalMapComponent implements OnInit, AfterViewInit {
+export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
+
+  firstList: any[] = ["NameOne", "NameTwo", "NameThree"];
+  secondList: any[] = ["NameOne", "NameTwo", "NameThree"];
+  thirdList: any[] = ["NameOne", "NameTwo", "NameThree"];
 
   mod = false;
   isMouseIdle = false;
@@ -220,7 +203,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   selectCoords = false;
 
-  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService, private _snackBar: MatSnackBar) {
+  formProva: FormGroup;
+
+  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService, private _snackBar: MatSnackBar, private fb: FormBuilder) {
 
     this.selData = new FormGroup({
       dataSetSel: new FormControl(),
@@ -242,6 +227,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       sliderControl: new FormControl(null)
     });
 
+    this.formProva = this.fb.group({
+      orders: [''],
+      options: ['']
+    });
     // this.getInd();
 
     this.getAllNodes();
@@ -261,6 +250,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     // }
 
+  }
+
+  get Options() {
+    return this.formProva.get('options')?.value;
   }
   // ngOnChanges(changes: SimpleChanges): void {
   //   throw new Error('Method not implemented.');
@@ -3057,5 +3050,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   // }
+
 
 }
