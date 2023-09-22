@@ -36,36 +36,46 @@
             <svg class="icon-expand icon icon-sm icon-light"><use href="/bootstrap-italia/dist/svg/sprites.svg#it-expand"></use></svg> -->
           </button>
           <div class="dropdown-menu col-12 dark m-auto" style="z-index: 2000;">
-            <div class="link-list-wrapper col-12 d-flex flex-row justify-content-center align-items-center">
+            <div class="link-list-wrapper col-12 d-flex flex-row justify-content-start align-items-start">
 
-              <form [formGroup]="formProva">
+              <form [formGroup]="formMenuDatasets">
 
-                <div class="row">
-                  <div class="col">
-                    <label *ngFor="let f of firstList" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                <div class="col-12 d-flex flex-row justify-content-center align-items-start">
+                  <div class="col-auto">
+                    <label *ngFor="let c of categoryDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="f" formControlName="orders" class="edit-radio-button-circle">
-                        <span style="color: white;">{{f}}</span>
+                        <input type="radio" [value]="c" formControlName="category" class="edit-radio-button-circle">
+                        <span style="color: white;">{{c}}</span>
                       </div>
                     </label>
 
                   </div>
 
-                  <div class="col">
-                    <label *ngFor="let s of secondList" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                  <div class="col-auto">
+                    <label *ngFor="let s of scaleDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="s" name="options" formControlName="options" class="edit-radio-button-circle">
+                        <input type="radio" [value]="s" name="scale" formControlName="scale" class="edit-radio-button-circle">
                         <span style="color: white">{{s}}</span>
                       </div>
                     </label>
 
                   </div>
 
-                  <div class="col">
-                    <label *ngFor="let t of thirdList" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                  <div class="col-auto">
+                    <label *ngFor="let t of timeperiodDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="t" class="edit-radio-button-circle">
+                        <input type="radio" [value]="t" name="timeperiod" formControlName="timeperiod" class="edit-radio-button-circle">
                         <span style="color: white;">{{t}}</span>
+                      </div>
+                    </label>
+
+                  </div>
+
+                  <div style="max-width: 500px; word-break: break-all;">
+                    <label *ngFor="let d of menuDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item" style="width: fit-content; max-width: 500px;">
+                      <div class="col-12 d-flex justify-content-center align-items-center flex-row gap-1">
+                        <input type="radio" [value]="d" name="dataset" formControlName="dataset" class="col-1 edit-radio-button-circle">
+                        <span class="col" style="color: white; max-width: 500px !important; word-break: break-all !important; white-space: normal;">{{d.title}}</span>
                       </div>
                     </label>
 
@@ -499,5 +509,4 @@
   <!-- END MAP -->
 </div>
 
-<p>Selection: {{formProva.value | json}}</p>
-<p>{{Options}}</p>
+<p>Selection: {{formMenuDatasets.value | json}}</p>

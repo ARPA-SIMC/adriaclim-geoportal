@@ -22,6 +22,7 @@ import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coor
 import * as bootstrap from 'bootstrap';
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
 import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, circleCoords } from '../interfaces/geoportal-map-int';
+import { titleCaseWord } from '../common-functions/functions';
 
 /**
  * Food data with nested structure.
@@ -86,6 +87,16 @@ const TREE_DATA: FoodNode[] = [
   ]
 })
 export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
+
+  categoryDatasets: any[] = [];
+  scaleDatasets: any[] = [];
+  timeperiodDatasets: any[] = [];
+  menuDatasets: any[] = [];
+
+  indicators: any[] = [];
+  models: any[] = [];
+  observations: any[] = [];
+  reanallysis: any[] = [];
 
   firstList: any[] = ["NameOne", "NameTwo", "NameThree"];
   secondList: any[] = ["NameOne", "NameTwo", "NameThree"];
@@ -203,7 +214,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
 
   selectCoords = false;
 
-  formProva: FormGroup;
+  formMenuDatasets: FormGroup;
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService, private _snackBar: MatSnackBar, private fb: FormBuilder) {
 
@@ -227,9 +238,11 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
       sliderControl: new FormControl(null)
     });
 
-    this.formProva = this.fb.group({
-      orders: [''],
-      options: ['']
+    this.formMenuDatasets = this.fb.group({
+      category: null,
+      scale: null,
+      timeperiod: null,
+      dataset: null
     });
     // this.getInd();
 
@@ -252,9 +265,6 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
 
   }
 
-  get Options() {
-    return this.formProva.get('options')?.value;
-  }
   // ngOnChanges(changes: SimpleChanges): void {
   //   throw new Error('Method not implemented.');
   // }
@@ -863,197 +873,244 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
    * FUNZIONE CHE RICHIAMA TUTTI I NUOVI DATASET DI ERDDAP ATTRAVERSO I SERVIZI API COLLEGATI AI NODI DEL DATABASE
    */
   getAllNodes() {
+    this.categoryDatasets = [];
+    this.indicators = [];
+    this.models = [];
+    this.observations = [];
+    this.reanallysis = [];
+
+    let tmpCategoryDatasets: any[] = [];
+    let tmpScale: any[] = [];
+    let tmpTimeperiods: any[] = [];
 
     this.httpService.post('test/allNodes', {
     }).subscribe({
       next: (res: any) => {
         // console.log("SUB NEXT");
+        console.log("RES NODES =", res.nodes);
 
-        res.nodes.forEach((node: any) => {
-
-          //riempiamo tree con tutti i nodi
-          if (node.adriaclim_dataset === "indicator") {
-            const indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0];
-            //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-            const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-            if (indicatori?.children?.findIndex(scaleIndicator => scaleIndicator.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-              indicatori?.children?.push({
-                name: scaleUpperCase,
-                children: []
-              });
-            }
-
-            // ordina in senso alfabetico la parte relativa agli scale del modello
-            indicatori?.children?.sort((o1: any, o2: any) => {
-              if (o1.name > o2.name) {
-                return 1;
-              }
-              if (o1.name < o2.name) {
-                return -1;
-              }
-              return 0;
-            })
-
-            const scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-            const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-            if (scale?.children?.findIndex(timeInd => timeInd.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-              scale?.children?.push({
-                name: timeUpperCase,
-                children: []
-              });
-            }
-
-            //ordina in senso alfabetico la parte relativa ai timeperiod del modello
-            scale?.children?.sort((o1: any, o2: any) => {
-              if (o1.name > o2.name) {
-                return 1;
-              }
-              if (o1.name < o2.name) {
-                return -1;
-              }
-              return 0;
-            })
-
-            const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-            if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-              time?.children?.push({
-                name: node
-              });
-              indicatori?.children?.sort((o1: any, o2: any) => {
-                if (o1.name.title > o2.name.title) {
-                  return 1;
-                }
-                if (o1.name.title < o2.name.title) {
-                  return -1;
-                }
-                return 0;
-              })
-            }
+        res.nodes.forEach((element: any) => {
+          if(element.adriaclim_dataset !== "no" && element.adriaclim_dataset !== "No" && element.adriaclim_dataset !== "Indicator") {
+            tmpCategoryDatasets.push(element.adriaclim_dataset);
           }
-          else if (node.adriaclim_dataset === "model") {
-            const modelli = TREE_DATA.filter((models: any) => models.name === "Numerical models")[0]
-            //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-            const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-            if (modelli?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-              modelli?.children?.push({
-                name: scaleUpperCase,
-                children: []
-              });
-            }
-
-            //ordina in senso alfabetico la parte relativa agli scale del modello
-            modelli?.children?.sort((o1: any, o2: any) => {
-              if (o1.name > o2.name) {
-                return 1;
-              }
-              if (o1.name < o2.name) {
-                return -1;
-              }
-              return 0;
-            })
-
-            const scale = modelli.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-            const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-            if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-              scale?.children?.push({
-                name: timeUpperCase,
-                children: []
-              });
-            }
-
-            //ordina in senso alfabetico la parte relativa ai timeperiod del modello
-            scale?.children?.sort((o1: any, o2: any) => {
-              if (o1.name > o2.name) {
-                return 1;
-              }
-              if (o1.name < o2.name) {
-                return -1;
-              }
-              return 0;
-            })
-
-            const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-            if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-              time?.children?.push({
-                name: node
-              });
-              modelli?.children?.sort((o1: any, o2: any) => {
-                if (o1.name.title > o2.name.title) {
-                  return 1;
-                }
-                if (o1.name.title < o2.name.title) {
-                  return -1;
-                }
-                return 0;
-              })
-            }
-          }
-          else if (node.adriaclim_dataset === "observation") {
-            const observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
-            //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-            const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-            if (observation?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-              observation?.children?.push({
-                name: scaleUpperCase,
-                children: []
-              });
-            }
-
-            //ordina in senso alfabetico la parte relativa agli scale di observations
-            observation?.children?.sort((o1: any, o2: any) => {
-              if (o1.name > o2.name) {
-                return 1;
-              }
-              if (o1.name < o2.name) {
-                return -1;
-              }
-              return 0;
-            })
-
-            const scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-            const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-            if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-              scale?.children?.push({
-                name: timeUpperCase,
-                children: []
-              });
-            }
-
-            //ordina in senso alfabetico la parte relativa ai timeperiod di observations
-            scale?.children?.sort((o1: any, o2: any) => {
-              if (o1.name > o2.name) {
-                return 1;
-              }
-              if (o1.name < o2.name) {
-                return -1;
-              }
-              return 0;
-            })
-
-            const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-            if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-              time?.children?.push({
-                name: node
-              });
-
-              observation?.children?.sort((o1: any, o2: any) => {
-                if (o1.name.title > o2.name.title) {
-                  return 1;
-                }
-                if (o1.name.title < o2.name.title) {
-                  return -1;
-                }
-                return 0;
-              })
-
-            }
-
-          }
-          this.dataAllNodes.push(
-            { name: node }
-          );
-
         });
+        this.categoryDatasets = [...new Set(tmpCategoryDatasets)];
+        this.formMenuDatasets.get("category")?.setValue(this.categoryDatasets[0]);
+
+        res.nodes.forEach((el: any) => {
+          if(el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value) {
+            tmpScale.push(el.adriaclim_scale);
+          }
+        });
+        this.scaleDatasets = [...new Set(tmpScale)];
+        this.formMenuDatasets.get("scale")?.setValue(this.scaleDatasets[0]);
+
+        res.nodes.forEach((el: any) => {
+          if (el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value) {
+            tmpTimeperiods.push(el.adriaclim_timeperiod);
+          }
+        });
+        this.timeperiodDatasets = [...new Set(tmpTimeperiods)];
+        this.formMenuDatasets.get("timeperiod")?.setValue(this.timeperiodDatasets[0]);
+
+        this.menuDatasets = res.nodes.filter((el: any) => el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value && el.adriaclim_timeperiod === this.formMenuDatasets.get("timeperiod")?.value);
+
+        console.log("CATEGORY DATASETS =", this.categoryDatasets);
+        console.log("SCALE DATASETS =", this.scaleDatasets);
+        console.log("TIMEPERIOD DATASETS =", this.timeperiodDatasets);
+        console.log("MENU DATASETS =", this.menuDatasets);
+
+        // console.log("PRIMO ELEMENTO DI CATEGORY DATASETS =", this.categoryDatasets[0]);
+        // console.log("indicators =", this.indicators);
+        // console.log("models =", this.models);
+        // console.log("observations =", this.observations);
+        // console.log("reanallysis =", this.reanallysis);
+
+        // res.nodes.forEach((node: any) => {
+
+        //   //riempiamo tree con tutti i nodi
+        //   if (node.adriaclim_dataset === "indicator") {
+        //     const indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0];
+        //     //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+        //     const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+        //     if (indicatori?.children?.findIndex(scaleIndicator => scaleIndicator.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
+        //       indicatori?.children?.push({
+        //         name: scaleUpperCase,
+        //         children: []
+        //       });
+        //     }
+
+        //     // ordina in senso alfabetico la parte relativa agli scale del modello
+        //     indicatori?.children?.sort((o1: any, o2: any) => {
+        //       if (o1.name > o2.name) {
+        //         return 1;
+        //       }
+        //       if (o1.name < o2.name) {
+        //         return -1;
+        //       }
+        //       return 0;
+        //     })
+
+        //     const scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+        //     const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+        //     if (scale?.children?.findIndex(timeInd => timeInd.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+        //       scale?.children?.push({
+        //         name: timeUpperCase,
+        //         children: []
+        //       });
+        //     }
+
+        //     //ordina in senso alfabetico la parte relativa ai timeperiod del modello
+        //     scale?.children?.sort((o1: any, o2: any) => {
+        //       if (o1.name > o2.name) {
+        //         return 1;
+        //       }
+        //       if (o1.name < o2.name) {
+        //         return -1;
+        //       }
+        //       return 0;
+        //     })
+
+        //     const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+        //     if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+        //       time?.children?.push({
+        //         name: node
+        //       });
+        //       indicatori?.children?.sort((o1: any, o2: any) => {
+        //         if (o1.name.title > o2.name.title) {
+        //           return 1;
+        //         }
+        //         if (o1.name.title < o2.name.title) {
+        //           return -1;
+        //         }
+        //         return 0;
+        //       })
+        //     }
+        //   }
+        //   else if (node.adriaclim_dataset === "model") {
+        //     const modelli = TREE_DATA.filter((models: any) => models.name === "Numerical models")[0]
+        //     //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+        //     const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+        //     if (modelli?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
+        //       modelli?.children?.push({
+        //         name: scaleUpperCase,
+        //         children: []
+        //       });
+        //     }
+
+        //     //ordina in senso alfabetico la parte relativa agli scale del modello
+        //     modelli?.children?.sort((o1: any, o2: any) => {
+        //       if (o1.name > o2.name) {
+        //         return 1;
+        //       }
+        //       if (o1.name < o2.name) {
+        //         return -1;
+        //       }
+        //       return 0;
+        //     })
+
+        //     const scale = modelli.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+        //     const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+        //     if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+        //       scale?.children?.push({
+        //         name: timeUpperCase,
+        //         children: []
+        //       });
+        //     }
+
+        //     //ordina in senso alfabetico la parte relativa ai timeperiod del modello
+        //     scale?.children?.sort((o1: any, o2: any) => {
+        //       if (o1.name > o2.name) {
+        //         return 1;
+        //       }
+        //       if (o1.name < o2.name) {
+        //         return -1;
+        //       }
+        //       return 0;
+        //     })
+
+        //     const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+        //     if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+        //       time?.children?.push({
+        //         name: node
+        //       });
+        //       modelli?.children?.sort((o1: any, o2: any) => {
+        //         if (o1.name.title > o2.name.title) {
+        //           return 1;
+        //         }
+        //         if (o1.name.title < o2.name.title) {
+        //           return -1;
+        //         }
+        //         return 0;
+        //       })
+        //     }
+        //   }
+        //   else if (node.adriaclim_dataset === "observation") {
+        //     const observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
+        //     //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
+        //     const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
+        //     if (observation?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
+        //       observation?.children?.push({
+        //         name: scaleUpperCase,
+        //         children: []
+        //       });
+        //     }
+
+        //     //ordina in senso alfabetico la parte relativa agli scale di observations
+        //     observation?.children?.sort((o1: any, o2: any) => {
+        //       if (o1.name > o2.name) {
+        //         return 1;
+        //       }
+        //       if (o1.name < o2.name) {
+        //         return -1;
+        //       }
+        //       return 0;
+        //     })
+
+        //     const scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
+        //     const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
+        //     if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
+        //       scale?.children?.push({
+        //         name: timeUpperCase,
+        //         children: []
+        //       });
+        //     }
+
+        //     //ordina in senso alfabetico la parte relativa ai timeperiod di observations
+        //     scale?.children?.sort((o1: any, o2: any) => {
+        //       if (o1.name > o2.name) {
+        //         return 1;
+        //       }
+        //       if (o1.name < o2.name) {
+        //         return -1;
+        //       }
+        //       return 0;
+        //     })
+
+        //     const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
+        //     if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
+        //       time?.children?.push({
+        //         name: node
+        //       });
+
+        //       observation?.children?.sort((o1: any, o2: any) => {
+        //         if (o1.name.title > o2.name.title) {
+        //           return 1;
+        //         }
+        //         if (o1.name.title < o2.name.title) {
+        //           return -1;
+        //         }
+        //         return 0;
+        //       })
+
+        //     }
+
+        //   }
+        //   this.dataAllNodes.push(
+        //     { name: node }
+        //   );
+
+        // });
 
         this.dataAllNodesTree.data = TREE_DATA;
 
@@ -1066,6 +1123,10 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           }
           return 0;
         })
+
+        // console.log("DATA ALL NODES =", this.dataAllNodes);
+        // console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
+
 
       },
       error: (msg: any) => {
