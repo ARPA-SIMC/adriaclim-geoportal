@@ -108,6 +108,10 @@ const TREE_DATA: FoodNode[] = [
 })
 export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
+  allLegendsNoWms: any[] = [];
+  allRectangles: any[] = [];
+  sameColor = false;
+
   mod = false;
   isMouseIdle = false;
   timer: any = 10;
@@ -127,10 +131,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentProd;
+  apiUrl = environmentDev;
 
   compliantErrorErddap = "";
-  showAlert = false;
+  showAlertGenericError = false;
+  errorMsgUploadGeojson = "";
+  showAlertUploadGeojson = false;
+  highlightedPolygon: any;
+
 
   markers: L.Marker[] = [];
 
@@ -288,6 +296,22 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
         let pol = L.polygon(polyg[0]).addTo(this.map);
 
+        // Aggiungo un evento per il mouseover al poligono per cambiare il colore del bordo
+        pol.on('mouseover', () => {
+          pol.setStyle({ color: 'red' }); // Ripristino il colore del bordo
+          this.highlightedPolygon = {
+            "pol": pol,
+            "polName": f.properties.popupContent
+          };
+
+        });
+
+        // Aggiungo un evento per il mouseout al poligono per ripristinare il colore del bordo iniziale
+        pol.on('mouseout', () => {
+          pol.setStyle({ color: 'rgb(51, 136, 255)' }); // Cambio il colore del bordo al passaggio del mouse
+          this.highlightedPolygon = null;
+        });
+
         this.allPolygons.push({
           "pol": pol,
           "polName": f.properties.popupContent
@@ -372,42 +396,69 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     return new Promise((resolve, reject) => {
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = '.geojson';
+      input.accept = ['.geojson', '.json'].join(',');
       input.addEventListener('change', () => {
         const file = input.files?.[0];
         if (file) {
-          resolve(file);
-          //now we have the file and we read it!
-          const reader = new FileReader();
+          console.log("FILE =", file);
 
-          reader.onload = (e: any) => {
-            const content = e.target.result;
-            const geojson = JSON.parse(content);
-            let polyg: any = [];
-            this.removeAllPolygons(); //first we remove all polygons
-            geojson.features.forEach((f: any) => {
+          if (file.type !== 'application/json' && !file.name.includes('.geojson')) {
+            this.errorMsgUploadGeojson = "Invalid file type";
+            this.showAlertUploadGeojson = true;
+            reject(new Error('Invalid file type'));
+          }
+          else {
+            resolve(file);
+            //now we have the file and we read it!
+            const reader = new FileReader();
 
-              f.geometry.coordinates.forEach((c: any) => {
-                c.forEach((coord: any) => {
-                  coord.reverse();
+            reader.onload = (e: any) => {
+              const content = e.target.result;
+              const geojson = JSON.parse(content);
+              let polyg: any = [];
+              this.removeAllPolygons(); //first we remove all polygons
+              geojson.features.forEach((f: any) => {
+
+                f.geometry.coordinates.forEach((c: any) => {
+                  c.forEach((coord: any) => {
+                    coord.reverse();
+                  });
+
+                  polyg.push(c);
+                  // poligon = L.polygon(c);
                 });
 
-                polyg.push(c);
-                // poligon = L.polygon(c);
-              });
+                let pol = L.polygon(polyg[0]).addTo(this.map);
+                // Aggiungo un evento per il mouseover al poligono per cambiare il colore del bordo
+                pol.on('mouseover', () => {
+                  pol.setStyle({ color: 'red' }); // Ripristino il colore del bordo
+                  this.highlightedPolygon = {
+                    "pol": pol,
+                    "polName": f.properties.popupContent
+                  };
+                });
 
-              const pol = L.polygon(polyg[0]).addTo(this.map);
-              this.allPolygons.push({
-                "pol": pol,
-                "polName": f.properties.popupContent
+                // Aggiungo un evento per il mouseout al poligono per ripristinare il colore del bordo iniziale
+                pol.on('mouseout', () => {
+                  pol.setStyle({ color: 'rgb(51, 136, 255)' }); // Cambio il colore del bordo al passaggio del mouse
+                  this.highlightedPolygon = null;
+                });
+
+                this.allPolygons.push({
+                  "pol": pol,
+                  "polName": f.properties.popupContent
+                });
+                polyg = [];
               });
-              polyg = [];
-            });
+            }
+
+            reader.readAsText(file);
+
           }
 
-          reader.readAsText(file);
-
         } else {
+          this.errorMsgUploadGeojson = "No file chosen";
+          this.showAlertUploadGeojson = true;
           reject(new Error('No file chosen'));
         }
       });
@@ -678,64 +729,36 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       //chiamare il backend prendendo tutti i punti e poi filtrare quelli che sono dentro il poligono
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
-      const polygonsContainingPoint = this.allPolygons.filter((polygon: any) => {
-        const copiaPoly = _.cloneDeep(polygon);
-        // console.log("Polygon copy: ", copiaPoly);
-        if (this.isPointInsidePolygon(e.latlng, polygon.pol)) {
-          return polygon;
+      if(this.highlightedPolygon) {
+        if(this.highlightedPolygon.pol.getBounds().contains(e.latlng)) {
+          console.log("POLYGON HIGHLIGHTED =", this.highlightedPolygon);
+          this.openGraphDialog(null, null, this.highlightedPolygon)
         }
-        // if (polygon.pol.getBounds().contains(e.latlng)) {
-        //   return polygon;
-        // }
-
-        // return polygon.pol.getBounds().contains(e.latlng);
-      }); //poligono che contiene il punto in cui l'utente ha cliccato
-      // let latLngObj: any[] = [];
-      // const bounds = L.latLngBounds(polygonsContainingPoint[0].getLatLngs());
-      // // console.log("BOUNDS SOUTH =", bounds.getSouth());
-      // // console.log("BOUNDS NORTH =", bounds.getNorth());
-      // // console.log("BOUNDS WEST =", bounds.getWest());
-      // // console.log("BOUNDS EAST =", bounds.getEast());
-      // // console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint);
-
-      // let latlngs: any[] = [];
-      if (polygonsContainingPoint.length > 0) {
-        //  console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
-        this.openGraphDialog(null, null, polygonsContainingPoint)
-        //   let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
-        //   splittedVar = splittedVar[splittedVar.length - 1];
-        //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
-        //   dataset: this.selData.get("dataSetSel")?.value.name,
-        //   selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-        //   isIndicator: this.isIndicator ? "true" : "false",
-        //   selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
-        //   range: this.value ? Math.abs(this.value) : 0,
-        //   latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
-        // }).subscribe({
-        //   next: (res: any) => {
-        //     console.log("RES =", res);
-        //     let allDataPolygon = res['dataVect'];
-        //     let valuesPol = allDataPolygon[0]; //media dei valori
-        //     let datesPol = allDataPolygon[1]; //tutte le date!
-
-
-        //   },
-        //   error: (msg: any) => {
-        //     console.log('METADATA ERROR: ', msg);
-        //   }
-
-        // });
-
       }
+
+      // const polygonsContainingPoint = this.allPolygons.filter((polygon: any) => {
+      //   const copiaPoly = _.cloneDeep(polygon);
+      //   // console.log("Polygon copy: ", copiaPoly);
+      //   if (this.isPointInsidePolygon(e.latlng, polygon.pol)) {
+      //     console.log("POLYGON =", polygon);
+
+      //     return polygon;
+      //   }
+      //   // if (polygon.pol.getBounds().contains(e.latlng)) {
+      //   //   return polygon;
+      //   // }
+
+      //   // return polygon.pol.getBounds().contains(e.latlng);
+      // }); //poligono che contiene il punto in cui l'utente ha cliccato
+
+      // if (polygonsContainingPoint.length > 0) {
+
+      //   this.openGraphDialog(null, null, polygonsContainingPoint)
+
+      // }
       else {
         alert("Select a polygon");
       }
-      // this.allPolygons.forEach((pol: any) => {
-      //   if (pol.getBounds().contains(e.latlng)) {
-      //     console.log("The polygon is rullo di tamburi", pol);
-      //   }
-      // });
-      // alert("You must select a polygon!"); nel caso in cui non viene selezionato un poligono
     }
   }
 
@@ -1304,6 +1327,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   isAString(val: any): boolean { return typeof val === 'string'; }
 
+  removeAllLegends() {
+    this.allLegendsNoWms.forEach((legend: any) => {
+      this.map.removeControl(legend);
+    });
+    this.allLegendsNoWms = [];
+  }
+
+  removeAllRectangles() {
+    this.allRectangles.forEach((rectangle: any) => {
+      this.map.removeLayer(rectangle);
+    });
+    this.allRectangles = [];
+  }
+
   /**
    * FUNZIONE CHE PERMETTE DI GESTIRE OGNI CASISTICA LEGATA AI BOTTONI PER IL CAMBIO DATA
    */
@@ -1354,6 +1391,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         if ((selD.getFullYear() - 1) === this.dateStart.getFullYear()) {
           //it is the first year visible so after setting the new value we disable the left button
           selD.setFullYear(selD.getFullYear() - 1);
+          selD.setMonth(this.dateStart.getMonth());
+          selD.setDate(this.dateStart.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = true;
           this.navigateDateRightYear = false;
@@ -1362,6 +1401,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.getMeta(metaId, "ok", this.valueCustom);
         } else {
           selD.setFullYear(selD.getFullYear() - 1);
+          selD.setMonth(this.dateEnd.getMonth());
+          selD.setDate(this.dateEnd.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = false;
           this.navigateDateRightYear = false;
@@ -1374,12 +1415,16 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         const selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         if ((selD.getFullYear() + 1) === this.dateEnd.getFullYear()) {
           selD.setFullYear(selD.getFullYear() + 1);
+          selD.setMonth(this.dateEnd.getMonth());
+          selD.setDate(this.dateEnd.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = true;
           this.navigateDateLeftYear = false;
           this.getMeta(metaId, "ok", this.valueCustom);
         } else {
           selD.setFullYear(selD.getFullYear() + 1);
+          selD.setMonth(this.dateEnd.getMonth());
+          selD.setDate(this.dateEnd.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = false;
           this.navigateDateLeftYear = false;
@@ -1581,7 +1626,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       else if (arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
-        // if(selD.getMonth() === 9) { NON VA FATTO QUESTO CHECK!
 
         // selD.setMonth(0);
         // selD.setFullYear(selD.getFullYear() + 1);
@@ -2366,9 +2410,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         range: this.isExtraParam ? this.value : 0,
         openGraph: true,
         extraParamExport: this.isExtraParam ? this.extraParamExport : null,
-        polyExport: polygon ? polygon[0].pol.getBounds() : null,
-        polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-        polName: polygon ? polygon[0].polName : null,
+        // polyExport: polygon ? polygon[0].pol.getBounds() : null,
+        // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
+        // polName: polygon ? polygon[0].polName : null,
+        polyExport: polygon ? polygon.pol.getBounds() : null,
+        polygon: polygon ? polygon.pol.getLatLngs()[0] : null,
+        polName: polygon ? polygon.polName : null,
         circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };
@@ -2447,13 +2494,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        // console.log("RES =", res);
+        // console.log("RES VECTORIAL =", res);
         if(res.dataVect.includes("HTTP Error 404")) {
           this.compliantErrorErddap = "The data is not compliant"
           // console.log("ERR =", this.compliantErrorErddap);
 
           // Alert tramite bootstrap con html
-          this.showAlert = true;
+          this.showAlertGenericError = true;
 
           // Alert tramite snackBar angular material
           // this.openSnackBar("The data is not compliant", "Close", "center", "top");
@@ -2470,16 +2517,25 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           let bounds: any;
           let rectangle: any;
           let value_mid: any;
-          if (parseFloat(value_min) < 0) {
-            value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-          } else {
-            value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+          if(parseFloat(value_min) !== parseFloat(value_max)) {
+            if (parseFloat(value_min) < 0) {
+              value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+            } else {
+              value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+            }
+          }
+          else {
+            value_mid = parseFloat(value_min);
           }
           this.valueMin = parseFloat(value_min);
           this.valueMax = parseFloat(value_max);
           this.valueMid = value_mid;
 
           this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
+          if(this.allRectangles.length > 0) {
+            this.removeAllRectangles();
+
+          }
           // this.markersLayer = L.layerGroup();
           // markersLayer: L.LayerGroup = L.layerGroup();
           let centerLat;
@@ -2507,6 +2563,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           for (let i = 0; i < allLatCoordinates.length; i++) {
             if (this.isIndicator) {
+
               this.circleCoords.push(
                 {
                   lat: allLatCoordinates[i],
@@ -2516,13 +2573,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               // console.log("this.circleCoords.push",this.circleCoords);
               //tabledap case, with circle
               const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+
               let varColor: any;
               if (colorStorage) {
+
                 const colorStorageJson = JSON.parse(colorStorage);
                 varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
               } else {
+
                 varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
               }
+
+              this.map.removeLayer(this.rettangoliLayer);
+
               this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
               this.circleMarkerArray.push(this.markerToAdd);
               this.markersLayer.addLayer(this.markerToAdd);
@@ -2531,6 +2594,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               this.map.addLayer(this.markersLayer);
 
             } else {
+
               //griddap case with rectangle, NON SERVONO I MARKER!
 
               bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
@@ -2546,8 +2610,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
               }
 
+              // this.map.removeLayer(this.rettangoliLayer);
+              // if(rectangle) {
+              //   this.map.removeLayer(rectangle);
+              // }
               // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-              let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+              rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+              this.allRectangles.push(rectangle);
+              // console.log("this.allRectangle", this.allRectangles);
+
               this.rettangoliLayer.addLayer(rectangle);
 
               this.map.addLayer(this.rettangoliLayer);
@@ -2592,10 +2663,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   getColor(v: any, min: any, max: any, colorMin: any, colorMid: any, colorMax: any) {
 
     function getC(f: any, l: any, r: any) {
+
+      let rValue = Math.floor((1 - f) * l.r + f * r.r);
+      let gValue = Math.floor((1 - f) * l.g + f * r.g);
+      let bValue = Math.floor((1 - f) * l.b + f * r.b);
+
       return {
-        r: Math.floor((1 - f) * l.r + f * r.r),
-        g: Math.floor((1 - f) * l.g + f * r.g),
-        b: Math.floor((1 - f) * l.b + f * r.b),
+        r: rValue,
+        g: gValue,
+        b: bValue,
       };
     }
     let left: any,
@@ -2604,15 +2680,25 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       mid: any;
     if (colorMin === "") {
       left = { r: 0, g: 0, b: 255 },
-        middle = { r: 255, g: 255, b: 0 },
-        right = { r: 255, g: 0, b: 0 },
-        mid = (max - min) / 2;
-    } else {
-      left = { r: this.hexToRgb(colorMin)?.r, g: this.hexToRgb(colorMin)?.g, b: this.hexToRgb(colorMin)?.b },
-        middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
-        right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
-        mid = (max - min) / 2;
+      middle = { r: 255, g: 255, b: 0 },
+      right = { r: 255, g: 0, b: 0 },
+      mid = (max - min) / 2;
     }
+    else {
+      left = { r: this.hexToRgb(colorMin)?.r, g: this.hexToRgb(colorMin)?.g, b: this.hexToRgb(colorMin)?.b },
+      middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
+      right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
+      mid = (max - min) / 2;
+
+    }
+    if(min === max) {
+      mid = min;
+      this.sameColor = true;
+    }
+    else {
+      this.sameColor = false;
+    }
+
     return v < min + mid ?
       getC((v - min) / mid, left, middle) :
       getC((v - min - mid) / mid, middle, right);
@@ -2630,25 +2716,31 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   }
 
-  // CREIAMO LA LEGENDA PER I NO WMS
+  /**
+   * FUNZIONE CHE PERMETTE DI CREARE LA LEGENDA PER I DATI SENZA WMS
+   */
   createLegend(value_min: any, value_max: any, value_mid: any) {
+    this.removeAllLegends();
+
     let value_min_mid: any;
     let value_mid_max: any;
     this.legendNoWms = new L.Control({ position: "bottomleft" });
-    if (parseFloat(value_min) < 0) {
+    if(parseFloat(value_min) !== parseFloat(value_max)) {
+      if (parseFloat(value_min) < 0) {
 
-      value_min_mid = Math.ceil((parseFloat(value_mid) - parseFloat(value_min)) / 2);
-      value_mid_max = Math.ceil((parseFloat(value_max) - parseFloat(value_mid)) / 2);
+        value_min_mid = Math.ceil((parseFloat(value_mid) - parseFloat(value_min)) / 2);
+        value_mid_max = Math.ceil((parseFloat(value_max) - parseFloat(value_mid)) / 2);
+      }
+      else {
+        value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
+        value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
+      }
+
     }
     else {
-      value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
-      value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
+      value_min_mid = parseFloat(value_min);
+      value_mid_max = parseFloat(value_max);
     }
-    // console.log("VALUE MIN =", value_min);
-    // console.log("VALUE MIN MID =", value_min_mid);
-    // console.log("VALUE MID =", value_mid);
-    // console.log("VALUE MID MAX =", value_mid_max);
-    // console.log("VALUE MAX =", value_max);
 
     value_min = this.formatNumber(value_min, 5);
     value_min_mid = this.formatNumber(value_min_mid, 5);
@@ -2660,7 +2752,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
       let colorStorageObj: any;
       if (colorStorage) {
-        // console.log("Entro nell'if del localstorage COLOR,this is ", colorStorage);
         colorStorageObj = JSON.parse(colorStorage);
         return v === value_min
           ? colorStorageObj?.minColor
@@ -2676,7 +2767,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
       }
       else {
-        // console.log("Entro nell'else del localstorage COLOR,this is valueMinColor ",this.valueMinColor);
         this.restoreDefaultColors();
         return v === value_min
           ? this.valueMinColor
@@ -2703,11 +2793,21 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         from = grades[i];
         to = grades[i + 1];
 
+        if(from !== to) {
+          labels.push(
+            "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
+            "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
+          );
+        }
+      }
+
+      if(from === to) {
         labels.push(
           "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
-          "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
+          "<span>" + from + "</span>" + "</div>"
         );
       }
+
       const button = L.DomUtil.create('button', 'color-number-legend');
       button.innerHTML = `<span class='material-symbols-outlined'>settings</span>`;
       button.addEventListener('click', (e) => this.changeLegendColors());
@@ -2716,8 +2816,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       div.appendChild(button);
       return div;
     };
-
+    // ********** LEGENDA NO WMS **********
     this.legendNoWms.addTo(this.map);
+
+    this.allLegendsNoWms.push(this.legendNoWms);
 
   }
 
@@ -2741,6 +2843,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
+        // this.allPolygons.forEach(element => {
+        //   element.pol.off("mouseover");
+        // });
         // console.log("result =", result);
         this.datasetCompare = result;
         this.confronto = true;
@@ -2772,6 +2877,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       valueMidColor: this.valueMidColor,
       valueMaxColor: this.valueMaxColor,
       datasetName: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.title : title,
+      sameColor: this.sameColor,
     };
 
 
@@ -3057,5 +3163,14 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
 
   // }
+
+  provaFunzione() {
+    return [1, 2, 3, 4, 5];
+  }
+
+  provaFunzioneClick(el: any) {
+    console.log("EL =", el);
+
+  }
 
 }

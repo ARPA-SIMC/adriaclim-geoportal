@@ -11,7 +11,7 @@ services:
       - ./code:/code
       - /static:/static
     command: >
-      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate Dataset && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
+      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -30,16 +30,16 @@ services:
       # - "80:80"
     depends_on:
       - django
-      - angular
-  angular:
-    build: code/angular-front/adria-project-front
-    container_name: adriapp_angular
-    ports:
-      - "4200:4200"
-    depends_on:
-      - django
-    environment:
-      - WDS_SOCKET_PORT=0
+  #     - angular
+  # angular:
+  #   build: code/angular-front/adria-project-front
+  #   container_name: adriapp_angular
+  #   ports:
+  #     - "4200:4200"
+  #   depends_on:
+  #     - django
+  #   environment:
+  #     - WDS_SOCKET_PORT=0
 
   redis:
    image: redis:alpine

@@ -4,14 +4,24 @@
     <!-- <h1 *ngIf="!description && openGraph" mat-dialog-title class="title-dialog-bold">{{datasetName}}</h1> -->
     <!-- <div *ngIf="success; else ok"> -->
     <div *ngIf="success">
-      <div mat-dialog-content class="choose-color-flex">
-        <h5>Choose colors:</h5>
-        <h6 class="color-value"><span class="width-choose">Color min:</span><input class="width-color" type="color" formControlName="minColor" [value]="valueMinColor"> </h6>
-        <!-- <h4><span>Choose a color min_mid (test):</span><input type="color" value="{{valueMinMidColor}}"> </h4><br> -->
-        <h6 class="color-value"><span class="width-choose">Color mid:</span> <input class="width-color" type="color" formControlName="midColor" [value]="valueMidColor"></h6>
-        <!-- <h4><span>Choose a color mid_max (test):</span> <input type="color" value="{{valueMaxMidColor}}"></h4><br> -->
-        <h6 class="color-value"><span class="width-choose">Color max:</span> <input class="width-color" type="color" formControlName="maxColor" [value]="valueMaxColor"></h6>
-      </div>
+      <ng-container *ngIf="!sameColor; else sameC">
+        <div mat-dialog-content class="choose-color-flex">
+          <h5>Choose colors:</h5>
+          <h6 class="color-value"><span class="width-choose">Color min:</span><input class="width-color" type="color" formControlName="minColor" [value]="valueMinColor"> </h6>
+          <!-- <h4><span>Choose a color min_mid (test):</span><input type="color" value="{{valueMinMidColor}}"> </h4><br> -->
+          <h6 class="color-value"><span class="width-choose">Color mid:</span> <input class="width-color" type="color" formControlName="midColor" [value]="valueMidColor"></h6>
+          <!-- <h4><span>Choose a color mid_max (test):</span> <input type="color" value="{{valueMaxMidColor}}"></h4><br> -->
+          <h6 class="color-value"><span class="width-choose">Color max:</span> <input class="width-color" type="color" formControlName="maxColor" [value]="valueMaxColor"></h6>
+        </div>
+
+      </ng-container>
+      <ng-template #sameC>
+        <div mat-dialog-content class="choose-color-flex">
+          <h5>Choose color:</h5>
+          <h6 class="color-value"><span class="width-choose">Color:</span> <input class="width-color" type="color" formControlName="minColor" [value]="valueMinColor"></h6>
+        </div>
+      </ng-template>
+
 
       <!-- <mat-dialog-actions fxLayoutAlign="center center"> -->
       <mat-dialog-actions class="d-flex col-12 flex-row justify-content-center align-items-center">

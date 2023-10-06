@@ -538,7 +538,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * FUNZIONE CHE PERMETTE DI POPOLARE LA TABELLA CON I METADATI
    */
   getGraphTable() {
-    this.dimUnit = null;
+    this.dimUnit = "";
     if (this.dataset) {
       // this.spinnerLoading = true;
       //converting date to UTC
@@ -569,6 +569,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
           if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
             this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
+          }
+          else {
+            this.dimUnit = "";
           }
           // this.dataTable.data.table.forEach((el: any) => {
           let objArr: any = {};

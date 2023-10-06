@@ -27,6 +27,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
   valueMidMaxColor: any;
   valueMidColor: any;
   valueMaxColor: any;
+  sameColor: any;
   // valueMidColor: any = "#9c27b0";
   // valueMaxColor: any = "#3f51b5";
   form!: FormGroup;
@@ -48,6 +49,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       this.valueMidColor = data.valueMidColor;
       this.valueMinMidColor = data.valueMinMidColor;
       this.valueMidMaxColor = data.valueMidMaxColor;
+      this.sameColor = data.sameColor;
       this.form = this.fb.group({
         minColor: new FormControl(this.valueMinColor),
         midColor: new FormControl(this.valueMidColor),
@@ -162,5 +164,6 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
     }
 
   ngAfterViewInit(): void {
+
   }
 }
