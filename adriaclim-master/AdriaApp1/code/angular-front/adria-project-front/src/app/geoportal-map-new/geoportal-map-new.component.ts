@@ -88,6 +88,11 @@ const TREE_DATA: FoodNode[] = [
 })
 export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
 
+  isExpandedFirst = false;
+  isExpandedSecond = false;
+  isExpandedThird = false;
+  isExpandedFourth = false;
+
   categoryDatasets: any[] = [];
   scaleDatasets: any[] = [];
   timeperiodDatasets: any[] = [];
@@ -3111,6 +3116,43 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
 
 
   // }
+  checkExpand(collapse: string) {
+    if (collapse === "first") {
+      this.isExpandedFirst = !this.isExpandedFirst;
+      if(this.isExpandedFirst) {
+        this.isExpandedSecond = false;
+        this.isExpandedThird = false;
+        this.isExpandedFourth = false;
+      }
+    }
+    else if(collapse === "second") {
+      this.isExpandedSecond = !this.isExpandedSecond;
+      if(this.isExpandedSecond) {
+        this.isExpandedFirst = false;
+        this.isExpandedThird = false;
+        this.isExpandedFourth = false;
+      }
+    }
+    else if(collapse === "third") {
+      this.isExpandedThird = !this.isExpandedThird;
+      if(this.isExpandedThird) {
+        this.isExpandedFirst = false;
+        this.isExpandedSecond = false;
+        this.isExpandedFourth = false;
+      }
+    }
+    else if(collapse === "fourth") {
+      this.isExpandedFourth = !this.isExpandedFourth;
+      if(this.isExpandedFourth) {
+        this.isExpandedFirst = false;
+        this.isExpandedSecond = false;
+        this.isExpandedThird = false;
+      }
+    }
+  }
 
+  provaFunzione(sel: any) {
+    console.log("PROVA FUNZIONE SEL =", sel);
+  }
 
 }

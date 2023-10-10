@@ -2494,7 +2494,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        // console.log("RES VECTORIAL =", res);
+        console.log("RES VECTORIAL =", res);
         if(res.dataVect.includes("HTTP Error 404")) {
           this.compliantErrorErddap = "The data is not compliant"
           // console.log("ERR =", this.compliantErrorErddap);
@@ -2540,6 +2540,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           // markersLayer: L.LayerGroup = L.layerGroup();
           let centerLat;
           let centerLong;
+          console.log("allLatCoordinates", allLatCoordinates);
+
           if (allLatCoordinates.length === 1) {
             centerLat = allLatCoordinates[0];
             centerLong = allLongCoordinates[0];
@@ -2551,14 +2553,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             centerLong = allLongCoordinates[center];
           }
 
-          // console.log("centerlat",centerLat);
-          // console.log("centerlng",centerLong);
+          console.log("centerlat =", centerLat);
+          console.log("centerlng =", centerLong);
           const zoomTest = L.latLng(centerLat, centerLong);
-          if (allLatCoordinates.length === 1) {
-            // zoom più elevato essendo un singolo punto!
-            this.map.setView(zoomTest, 14);
-          } else {
-            this.map.setView(zoomTest, 8);
+          if(zoomTest) {
+            if (allLatCoordinates.length === 1) {
+              // zoom più elevato essendo un singolo punto!
+              this.map.setView(zoomTest, 14);
+            } else {
+              this.map.setView(zoomTest, 8);
+            }
+
           }
 
           for (let i = 0; i < allLatCoordinates.length; i++) {

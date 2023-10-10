@@ -12,13 +12,20 @@
       <div class="row justify-content-center align-items-center col-12 toolbar-buttons h-75">
 
         <button class="col-1 col-md-2 col-lg-1" mat-raised-button routerLink="/"
-          style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
+          style="color: #fff; background-color: #0ba7d7;">
           <mat-icon>arrow_back</mat-icon> <span class="text-menu"> Welcome </span>
         </button>
         <div class="d-flex justify-content-center align-items-center gap-5 col col-md toolbar-buttons h-100">
 
-          <button class="col-2 col-md-3 col-lg-2" mat-raised-button
+          <!-- BOTTONE CON VECCHIO COLORE -->
+          <!-- <button class="col-2 col-md-3 col-lg-2" mat-raised-button
             style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" #menuTrigger="matMenuTrigger"
+            [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span class="text-menu"> Full list </span>
+          </button> -->
+
+          <!-- BOTTONE CON NUOVO COLORE -->
+          <button class="col-2 col-md-3 col-lg-2" mat-raised-button
+            style="color: #fff; background-color: #0ba7d7;" #menuTrigger="matMenuTrigger"
             [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span class="text-menu"> Full list </span>
           </button>
 
@@ -29,22 +36,85 @@
             style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" #menuTrigger="matMenuTrigger"
             [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
           </button> -->
-          <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+
+          <!-- BOTTONE CON VECCHIO COLORE -->
+          <!-- <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
             mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
             <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
-            <!-- Apri dropdown
-            <svg class="icon-expand icon icon-sm icon-light"><use href="/bootstrap-italia/dist/svg/sprites.svg#it-expand"></use></svg> -->
+          </button> -->
+
+          <!-- BOTTONE CON NUOVO COLORE -->
+          <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+            mat-raised-button style="color: #fff; background-color: #0ba7d7;">
+            <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
           </button>
-          <div class="dropdown-menu col-12 dark m-auto" style="z-index: 2000;">
-            <div class="link-list-wrapper col-12 d-flex flex-row justify-content-start align-items-start">
 
-              <form [formGroup]="formMenuDatasets">
+          <div class="dropdown-menu col-12 dark m-auto" style="z-index: 2000;" (click)="$event.stopPropagation()">
+            <form [formGroup]="formMenuDatasets">
+              <div class="link-list-wrapper col-12 d-flex flex-row justify-content-center align-items-start px-2">
 
-                <div class="col-12 d-flex flex-row justify-content-center align-items-start">
+                  <div class="col d-flex flex-column justify-content-center align-items-center">
+                    <button class="btn btn-primary" type="button" (click)="checkExpand('first')">
+                      Type
+                    </button>
+                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedFirst, 'collapse': !isExpandedFirst}">
+                        <label *ngFor="let c of categoryDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                          <div class="d-flex justify-content-center align-items-center flex-row gap-1">
+                            <input type="radio" [value]="c" name="category" formControlName="category" (change)="provaFunzione(c)" class="edit-radio-button-circle">
+                            <span>{{c}}</span>
+                          </div>
+                        </label>
+                    </div>
+                  </div>
+
+                  <div class="col d-flex flex-column justify-content-center align-items-center">
+                    <button class="btn btn-primary" type="button" (click)="checkExpand('second')">
+                      Scale
+                    </button>
+                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedSecond, 'collapse': !isExpandedSecond}">
+                      <label *ngFor="let s of scaleDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                        <div class="d-flex justify-content-center align-items-center flex-row gap-1">
+                          <input type="radio" [value]="s" name="scale" formControlName="scale" (change)="provaFunzione(s)" class="edit-radio-button-circle">
+                          <span>{{s}}</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col d-flex flex-column justify-content-center align-items-center">
+                    <button class="btn btn-primary" type="button" (click)="checkExpand('third')">
+                      Time period
+                    </button>
+                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedThird, 'collapse': !isExpandedThird}">
+                      <label *ngFor="let t of timeperiodDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                        <div class="d-flex justify-content-center align-items-center flex-row gap-1">
+                          <input type="radio" [value]="t" name="timeperiod" formControlName="timeperiod" (change)="provaFunzione(t)" class="edit-radio-button-circle">
+                          <span>{{t}}</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col d-flex flex-column justify-content-center align-items-center">
+                    <button class="btn btn-primary" type="button" (click)="checkExpand('fourth')">
+                      Quarta scelta
+                    </button>
+                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedFourth, 'collapse': !isExpandedFourth}">
+                      <label *ngFor="let d of menuDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item" style="width: fit-content; max-width: 500px;">
+                        <div class="col-12 d-flex justify-content-center align-items-center flex-row gap-1">
+                          <input type="radio" [value]="d" name="dataset" formControlName="dataset" class="col-1 edit-radio-button-circle">
+                          <span class="col" style="max-width: 400px !important; word-break: break-all !important; white-space: normal;">{{d.title}}</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+
+                <!-- <div class="col-12 d-flex flex-row justify-content-center align-items-start">
                   <div class="col-auto">
                     <label *ngFor="let c of categoryDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="c" formControlName="category" class="edit-radio-button-circle">
+                        <input type="radio" [value]="c" name="category" formControlName="category" class="edit-radio-button-circle">
                         <span style="color: white;">{{c}}</span>
                       </div>
                     </label>
@@ -81,25 +151,25 @@
 
                   </div>
 
+                </div> -->
+
+
+
+                <!-- <div class="form-check form-check-group">
+                  <input name="gruppo4" type="radio" id="radio10" checked>
+                  <label for="radio10">Opzione 1</label>
                 </div>
+                <div class="form-check form-check-group">
+                  <input name="gruppo4" type="radio" id="radio11">
+                  <label for="radio11">Opzione 2</label>
+                </div>
+                <div class="form-check form-check-group">
+                  <input name="gruppo4" type="radio" id="radio12" disabled>
+                  <label for="radio12" class="disabled">Opzione 3</label>
+                </div> -->
 
-
-              </form>
-
-              <!-- <div class="form-check form-check-group">
-                <input name="gruppo4" type="radio" id="radio10" checked>
-                <label for="radio10">Opzione 1</label>
               </div>
-              <div class="form-check form-check-group">
-                <input name="gruppo4" type="radio" id="radio11">
-                <label for="radio11">Opzione 2</label>
-              </div>
-              <div class="form-check form-check-group">
-                <input name="gruppo4" type="radio" id="radio12" disabled>
-                <label for="radio12" class="disabled">Opzione 3</label>
-              </div> -->
-
-            </div>
+            </form>
           </div>
 
           <form [formGroup]="selData">

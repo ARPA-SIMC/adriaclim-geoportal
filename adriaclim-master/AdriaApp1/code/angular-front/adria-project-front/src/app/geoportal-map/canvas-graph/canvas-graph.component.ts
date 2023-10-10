@@ -680,9 +680,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           axisLabel: {
             formatter: `{value} ${this.dimUnit}`
 
-          }
-          // min: minMaxValue.min,
-          // max: minMaxValue.max,
+          },
+          boundaryGap: [0, '100%'],
+          // min: 'dataMin',
+          // max: 'dataMax'
+          min: this.checkMinValue(),
+          max: "dataMax"
         },
 
         tooltip: {
@@ -784,9 +787,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           axisLabel: {
             formatter: `{value} ${this.dimUnit}`
 
-          }
-          // min: minMaxValue.min,
-          // max: minMaxValue.max,
+          },
+          boundaryGap: [0, '100%'],
+          // min: 'dataMin',
+          // max: 'dataMax'
+          min: this.checkMinValue(),
+          max: "dataMax"
         },
         tooltip: {
           trigger: 'axis',
@@ -987,8 +993,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
               },
               boundaryGap: [0, '100%'],
-              min: 'dataMin',
-              max: 'dataMax'
+              // min: 'dataMin',
+              // max: 'dataMax'
+              min: this.checkMinValue(),
+              max: "dataMax"
             },
             toolbox: {
               feature: {
@@ -1065,6 +1073,24 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
 
     });
+  }
+
+  checkMinValue() {
+
+    let arrayOfValue = this.dataRes.allData[this.variable].map((element: any) => element.y);
+
+    let min = Math.min(...arrayOfValue);
+
+    if(min > 50) {
+      return "dataMin";
+    }
+    else if(min < -50) {
+      return "dataMin";
+    }
+    else {
+      return undefined;
+    }
+
   }
 
 }
