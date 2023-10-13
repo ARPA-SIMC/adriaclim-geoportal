@@ -2405,6 +2405,7 @@ def getDataVectorial(
     range_value,
     is_indicator,
 ):
+    
     try:
         # print("DATASET ID =", dataset_id)
         # print("LAYER NAME =", layer_name)
@@ -2431,45 +2432,45 @@ def getDataVectorial(
             num_param=num_param,
             range_value=range_value,
         )
+        print("LAYER NAME =", layer_name)
         print("URL =", url)
         start_time = time.time()
         df = pd.read_csv(url, dtype="unicode")
+        print("DATAFRAME =", df)
         allData = []
         values = []
         lat_coordinates = []
         long_coordinates = []
-        df = df.dropna(how="any", axis=0)
+        df = df.dropna(how="any", axis=0) # per la seconda prova la riga è da scommentare
+        # df = df.dropna(subset=[layer_name])
         i = 0
         for index, row in df.iterrows():
-            values.insert(i, row[layer_name])
+
+            try:
+                value = float(row[layer_name])
+            except ValueError:
+                value = 0.0
+
+            values.insert(i, value)
+
+            # values.insert(i, row[layer_name])
             lat_coordinates.insert(i, row["latitude"])
             long_coordinates.insert(i, row["longitude"])
             i += 1
+        
+        if values:
+            value_min = min(values)
+            value_max = max(values)
+        else:
+            value_min = 0.0 # valore predefinito se non ci sono valori validi
+            value_max = 0.0 # valore predefinito se non ci sono valori validi
 
-        # print("Values=========",values)
-        try:
-            values[0] = float(values[0])
-        except Exception as e:
-            #entro nell'exception sono una stringa
-            del values[0]
-            del lat_coordinates[0]
-            del long_coordinates[0]
-
-        # if isinstance(values[0], str):
-        #     del values[0]
-        #     del lat_coordinates[0]
-        #     del long_coordinates[0]
-        # del values[0]
-        # del lat_coordinates[0]
-        # del long_coordinates[0]
-
-        values = [float(i) for i in values]
-        # for i in values: 
-        #     if isinstance(i,str):
-        #         print("I'm a string:",i)
-        value_min = min(values)
-        value_max = max(values)
-
+        # per la seconda prova questi if sono da commentare
+        # if 'degrees_north' in lat_coordinates:
+        #     lat_coordinates.remove('degrees_north')
+        # if 'degrees_east' in long_coordinates:
+        #     long_coordinates.remove('degrees_east')
+            
         allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
 
         return allData

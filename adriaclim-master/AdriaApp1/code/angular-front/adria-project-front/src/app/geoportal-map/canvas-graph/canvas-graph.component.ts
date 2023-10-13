@@ -68,6 +68,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   data1: any[] = [];
   quantityBoxPlot = new Set();
 
+  allDataPolygon: any;
+
   optionBoxPlot: any = {
     title: [
       {
@@ -347,12 +349,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       circleCoords: this.circleCoords,
 
     }
+
+    console.log("DATA IF POLYGON =", data);
+
     // console.log("data =", data);
 
     // send HTTP POST request to Django view function
     if (this.statistic !== "boxPlot") {
       this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
-        // console.log("PRIMA RESPONSE", response);
+        console.log("PRIMA RESPONSE", response);
 
         // extract task ID from response
         let data = {
@@ -364,6 +369,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         let checkTaskStatus = setInterval(() => {
           this.httpService.post('test/check_task_status', data).subscribe({
             next: (res: any) => {
+              console.log("SECONDA RESPONSE", res);
 
               let task_status = res.dataVect.status;
 
@@ -578,6 +584,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
    */
   getDataGraphPolygon(response: any) {
 
+    console.log("VERA RES PER POLIGONO", response);
+
+
     if (typeof response == 'string') {
       response = JSON.parse(response);
     }
@@ -585,12 +594,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.dimUnit = "";
     }
 
-    let allDataPolygon = response['dataVect'];
+    this.allDataPolygon = response['dataVect'];
     // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
     // let dataBeforeOp = _.cloneDeep([...allDataPolygon["dataBeforeOp"]]) //abbiamo tutte le date e i valori
     // console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
     // let dataPolygonDeep = _.cloneDeep([...allDataPolygon["dataPol"]]);
-    let dataInGraph = _.cloneDeep([...allDataPolygon["dataPol"]]);
+    let dataInGraph = _.cloneDeep([...this.allDataPolygon["dataPol"]]);
     let allDates = _.cloneDeep([...dataInGraph]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
 
     allDates = dataInGraph.map((el: any) => {
@@ -620,11 +629,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     // console.log("allDataPolygon", allDataPolygon);
 
     // this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
-    let arrayDataDate = allDataPolygon.dataPol.map((el: any) => {
+    let arrayDataDate = this.allDataPolygon.dataPol.map((el: any) => {
       return el["x"]
     });
     // arrayDataDate = [...new Set(arrayDataDate)];
-    let arrayDataValue = allDataPolygon.dataPol.map((el: any) => {
+    let arrayDataValue = this.allDataPolygon.dataPol.map((el: any) => {
       return el["y"]
     });
     // arrayDataValue = [...new Set(arrayDataValue)];
@@ -632,10 +641,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       dates: arrayDataDate,
       values: arrayDataValue
     });
-    this.meanMedianStdev.emit(allDataPolygon.mean + "_" + allDataPolygon.median + "_" + allDataPolygon.stdev + "_" + allDataPolygon.trend_yr);
-    this.dataTablePolygon.emit(allDataPolygon.dataTable);
+    this.meanMedianStdev.emit(this.allDataPolygon.mean + "_" + this.allDataPolygon.median + "_" + this.allDataPolygon.stdev + "_" + this.allDataPolygon.trend_yr);
+    this.dataTablePolygon.emit(this.allDataPolygon.dataTable);
 
-    let value = allDataPolygon.dataPol.map((element: any) => element.y);
+    let value = this.allDataPolygon.dataPol.map((element: any) => element.y);
     let minMaxValue = {
       min: Math.min(...value).toFixed(0),
       max: Math.max(...value).toFixed(0)
@@ -643,17 +652,17 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.statistic === "min_mean_max" || this.statistic === "min_10thPerc_median_90thPerc_max") {
       //caso di min_mean_max o min_10thPerc..., una linea per ogni statistica
 
-      let allStats = Object.keys(allDataPolygon.dataPol[0]);
+      let allStats = Object.keys(this.allDataPolygon.dataPol[0]);
       allStats = allStats.filter((stat: any) => stat !== "x");
 
-      allDataPolygon.dataPol.forEach((element: any) => {
+      this.allDataPolygon.dataPol.forEach((element: any) => {
 
         allStats.forEach((stat: any) => {
           element[stat] = Number(element[stat]);
         });
 
       });
-      let prova = allDataPolygon.dataPol.map((element: any) => element.x);
+      let prova = this.allDataPolygon.dataPol.map((element: any) => element.x);
 
       // let statsName = this.statistic.split("_");
       this.chartOption = {
@@ -661,7 +670,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: allDataPolygon.dataPol.map((element: any) => {
+          data: this.allDataPolygon.dataPol.map((element: any) => {
             let elDate = new Date(element.x).toLocaleDateString();
             // console.log("element.x", element.x);
 
@@ -741,7 +750,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         ],
         series: allStats.map((stat: any) => {
           return {
-            data: allDataPolygon.dataPol.map((element: any) => this.formatNumber(element[stat])),
+            data: this.allDataPolygon.dataPol.map((element: any) => this.formatNumber(element[stat])),
             name: stat,
             type: 'line',
             stack: this.enableArea ? "counts" : "",
@@ -755,7 +764,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
     else {
 
-      allDataPolygon.dataPol.forEach((element: any) => {
+      this.allDataPolygon.dataPol.forEach((element: any) => {
         // element.x = this.formatDate(element.x);
         element.y = Number(element.y);
       });
@@ -766,7 +775,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: allDataPolygon.dataPol.map((element: any) => {
+          data: this.allDataPolygon.dataPol.map((element: any) => {
 
             // console.log("element.x", element.x);
 
@@ -847,7 +856,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         ],
         series: [{
-          data: allDataPolygon.dataPol.map((element: any) => this.formatNumber(element.y)),
+          data: this.allDataPolygon.dataPol.map((element: any) => this.formatNumber(element.y)),
           name: name,
           type: 'line',
           stack: 'counts',
@@ -858,7 +867,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     }
 
-    this.dataTimeExport.emit(allDataPolygon.dataPol);
+    this.dataTimeExport.emit(this.allDataPolygon.dataPol);
     this.spinnerLoadingChild.emit(false);
 
   }
@@ -909,6 +918,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       lng_min: "no",
       lng_max: "no"
     }
+
+    console.log("DATA SINGLE POINT =", data);
+
 
     // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
@@ -1076,10 +1088,22 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   checkMinValue() {
+    console.log("DATA RES = ", this.dataRes);
+    console.log("ALL DATA POLYGON = ", this.allDataPolygon);
 
-    let arrayOfValue = this.dataRes.allData[this.variable].map((element: any) => element.y);
+    let arrayOfValue: any;
+    let min: any;
 
-    let min = Math.min(...arrayOfValue);
+    if(this.dataRes) {
+      arrayOfValue = this.dataRes.allData[this.variable].map((element: any) => element.y);
+
+      min = Math.min(...arrayOfValue);
+    }
+    else {
+      arrayOfValue = this.allDataPolygon.dataPol.map((element: any) => element.y);
+
+      min = Math.min(...arrayOfValue);
+    }
 
     if(min > 50) {
       return "dataMin";

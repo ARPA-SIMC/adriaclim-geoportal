@@ -6,7 +6,7 @@
 <div class="main-content col-12">
 
   <div class="col-12">
-    <mat-toolbar color="primary">
+    <mat-toolbar color="primary" class="col-12">
 
       <!-- <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons h-75"> -->
       <div class="row justify-content-center align-items-center col-12 toolbar-buttons h-75">
@@ -24,14 +24,14 @@
           </button> -->
 
           <!-- BOTTONE CON NUOVO COLORE -->
-          <button class="col-2 col-md-3 col-lg-2" mat-raised-button
-            style="color: #fff; background-color: #0ba7d7;" #menuTrigger="matMenuTrigger"
-            [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span class="text-menu"> Full list </span>
+          <button class="col-2 col-md-3 col-lg-2" mat-raised-button style="color: #fff; background-color: #0ba7d7;"
+            #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span
+              class="text-menu"> Full list </span>
           </button>
 
           <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
 
-            <!-- *************************** LAVORIAMO QUI *************************** -->
+          <!-- *************************** LAVORIAMO QUI *************************** -->
           <!-- <button class="col-2 col-md-3 col-lg-2" mat-raised-button
             style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" #menuTrigger="matMenuTrigger"
             [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
@@ -44,129 +44,103 @@
           </button> -->
 
           <!-- BOTTONE CON NUOVO COLORE -->
-          <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
-            mat-raised-button style="color: #fff; background-color: #0ba7d7;">
+          <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="true" mat-raised-button style="color: #fff; background-color: #0ba7d7;">
             <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
           </button>
 
-          <div class="dropdown-menu col-12 dark m-auto" style="z-index: 2000;" (click)="$event.stopPropagation()">
-            <form [formGroup]="formMenuDatasets">
-              <div class="link-list-wrapper col-12 d-flex flex-row justify-content-center align-items-start px-2">
+          <div class="dropdown-menu col-12 dark mt-auto" style="z-index: 2000; max-height: 600px;" (click)="$event.stopPropagation()">
+            <form [formGroup]="formMenuDatasets" class="col-12" style="max-height: 600px;">
+              <div class="link-list-wrapper col d-flex flex-row justify-content-center align-items-start ps-1 pe-3" style="max-height: 600px;">
 
-                  <div class="col d-flex flex-column justify-content-center align-items-center">
-                    <button class="btn btn-primary" type="button" (click)="checkExpand('first')">
-                      Type
-                    </button>
-                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedFirst, 'collapse': !isExpandedFirst}">
-                        <label *ngFor="let c of categoryDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
-                          <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                            <input type="radio" [value]="c" name="category" formControlName="category" (change)="provaFunzione(c)" class="edit-radio-button-circle">
-                            <span>{{c}}</span>
-                          </div>
-                        </label>
-                    </div>
-                  </div>
-
-                  <div class="col d-flex flex-column justify-content-center align-items-center">
-                    <button class="btn btn-primary" type="button" (click)="checkExpand('second')">
-                      Scale
-                    </button>
-                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedSecond, 'collapse': !isExpandedSecond}">
-                      <label *ngFor="let s of scaleDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
-                        <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                          <input type="radio" [value]="s" name="scale" formControlName="scale" (change)="provaFunzione(s)" class="edit-radio-button-circle">
-                          <span>{{s}}</span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div class="col d-flex flex-column justify-content-center align-items-center">
-                    <button class="btn btn-primary" type="button" (click)="checkExpand('third')">
-                      Time period
-                    </button>
-                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedThird, 'collapse': !isExpandedThird}">
-                      <label *ngFor="let t of timeperiodDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
-                        <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                          <input type="radio" [value]="t" name="timeperiod" formControlName="timeperiod" (change)="provaFunzione(t)" class="edit-radio-button-circle">
-                          <span>{{t}}</span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div class="col d-flex flex-column justify-content-center align-items-center">
-                    <button class="btn btn-primary" type="button" (click)="checkExpand('fourth')">
-                      Quarta scelta
-                    </button>
-                    <div class="card card-body col-12" [ngClass]="{'show': isExpandedFourth, 'collapse': !isExpandedFourth}">
-                      <label *ngFor="let d of menuDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item" style="width: fit-content; max-width: 500px;">
-                        <div class="col-12 d-flex justify-content-center align-items-center flex-row gap-1">
-                          <input type="radio" [value]="d" name="dataset" formControlName="dataset" class="col-1 edit-radio-button-circle">
-                          <span class="col" style="max-width: 400px !important; word-break: break-all !important; white-space: normal;">{{d.title}}</span>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-
-                <!-- <div class="col-12 d-flex flex-row justify-content-center align-items-start">
-                  <div class="col-auto">
-                    <label *ngFor="let c of categoryDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                <div class="col d-flex flex-column justify-content-center align-items-center">
+                  <button class="btn btn-primary" type="button" (click)="checkExpand('first')">
+                    Type
+                  </button>
+                  <div class="card card-body col-12"
+                    [ngClass]="{'show': isExpandedFirst, 'collapse': !isExpandedFirst}">
+                    <label *ngFor="let c of categoryDatasets"
+                      class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="c" name="category" formControlName="category" class="edit-radio-button-circle">
-                        <span style="color: white;">{{c}}</span>
+                        <input type="radio" [value]="c" name="category" formControlName="category"
+                          (change)="changeSel(c, 'c')" class="edit-radio-button-circle">
+                        <span>{{c}}</span>
                       </div>
                     </label>
-
                   </div>
+                </div>
 
-                  <div class="col-auto">
-                    <label *ngFor="let s of scaleDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                <div class="col d-flex flex-column justify-content-center align-items-center">
+                  <button class="btn btn-primary" type="button" (click)="checkExpand('second')">
+                    Scale
+                  </button>
+                  <div class="card card-body col-12"
+                    [ngClass]="{'show': isExpandedSecond, 'collapse': !isExpandedSecond}">
+                    <label *ngFor="let s of scaleDatasets"
+                      class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="s" name="scale" formControlName="scale" class="edit-radio-button-circle">
-                        <span style="color: white">{{s}}</span>
+                        <input type="radio" [value]="s" name="scale" formControlName="scale"
+                          (change)="changeSel(s, 's')" class="edit-radio-button-circle">
+                        <span>{{s}}</span>
                       </div>
                     </label>
-
                   </div>
+                </div>
 
-                  <div class="col-auto">
-                    <label *ngFor="let t of timeperiodDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
+                <div class="col d-flex flex-column justify-content-center align-items-center">
+                  <button class="btn btn-primary" type="button" (click)="checkExpand('third')">
+                    Time period
+                  </button>
+                  <div class="card card-body col-12"
+                    [ngClass]="{'show': isExpandedThird, 'collapse': !isExpandedThird}">
+                    <label *ngFor="let t of timeperiodDatasets"
+                      class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item">
                       <div class="d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="t" name="timeperiod" formControlName="timeperiod" class="edit-radio-button-circle">
-                        <span style="color: white;">{{t}}</span>
+                        <input type="radio" [value]="t" name="timeperiod" formControlName="timeperiod"
+                          (change)="changeSel(t, 't')" class="edit-radio-button-circle">
+                        <span>{{t}}</span>
                       </div>
                     </label>
-
                   </div>
+                </div>
 
-                  <div style="max-width: 500px; word-break: break-all;">
-                    <label *ngFor="let d of menuDatasets" class="col-12 d-flex justify-content-center align-items-start flex-column dropdown-item list-item" style="width: fit-content; max-width: 500px;">
+                <div class="col d-flex flex-column justify-content-center align-items-center"
+                  style="max-width: 400px !important; max-height: 600px;">
+                  <button class="btn btn-primary" type="button" (click)="checkExpand('fourth')">
+                    Datasets
+                  </button>
+                  <div class="card card-body col-10"
+                    [ngClass]="{'show': isExpandedFourth, 'collapse': !isExpandedFourth}" style="max-height: 500px; overflow: auto;">
+                    <label *ngFor="let d of menuDatasets"
+                      class="col-10 d-flex justify-content-center align-items-start flex-column dropdown-item list-item"
+                      style="width: fit-content; max-width: 400px;">
                       <div class="col-12 d-flex justify-content-center align-items-center flex-row gap-1">
-                        <input type="radio" [value]="d" name="dataset" formControlName="dataset" class="col-1 edit-radio-button-circle">
-                        <span class="col" style="color: white; max-width: 500px !important; word-break: break-all !important; white-space: normal;">{{d.title}}</span>
+                        <input type="radio" [value]="d" name="dataset" formControlName="dataset"
+                          class="col-1 edit-radio-button-circle" (change)="selDatasetProva(d)">
+                        <span class="col"
+                          style="max-width: 400px !important; word-break: break-all !important; white-space: normal;">{{d.title}}</span>
                       </div>
                     </label>
-
                   </div>
+                </div>
 
+
+
+                <!-- <div class="form-check" *ngFor="let c of categoryDatasets">
+                  <input id="checkbox1" type="checkbox" formControlName="">
+                  <label for="checkbox1">Checkbox di esempio</label>
                 </div> -->
 
+                <!-- <label for="check" formArrayName="orders" *ngFor="let order of ordersFormArray.controls; let i = index">
+
+                  <input id="check" type="checkbox" [formControlName]="i">
+
+                  {{webData[i].name}}
+
+                </label> -->
 
 
-                <!-- <div class="form-check form-check-group">
-                  <input name="gruppo4" type="radio" id="radio10" checked>
-                  <label for="radio10">Opzione 1</label>
-                </div>
-                <div class="form-check form-check-group">
-                  <input name="gruppo4" type="radio" id="radio11">
-                  <label for="radio11">Opzione 2</label>
-                </div>
-                <div class="form-check form-check-group">
-                  <input name="gruppo4" type="radio" id="radio12" disabled>
-                  <label for="radio12" class="disabled">Opzione 3</label>
-                </div> -->
+
 
               </div>
             </form>
@@ -343,7 +317,8 @@
   </div>
 
   <!-- Alert tramite bootstrap con valore booleano controllato nel typescript -->
-  <div *ngIf="showAlert" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert" style="z-index: 1500;">
+  <div *ngIf="showAlert" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert"
+    style="z-index: 1500;">
     {{compliantErrorErddap}}
     <button type="button" class="btn-close" (click)="showAlert = false" aria-label="Close"></button>
   </div>
@@ -571,12 +546,12 @@
   </div>
 
   <!-- START MAP -->
-  <!-- <div class="map-container">
+  <div class="map-container">
     <div class="map-frame">
       <div id="map"></div>
     </div>
-  </div> -->
+  </div>
   <!-- END MAP -->
 </div>
 
-<p>Selection: {{formMenuDatasets.value | json}}</p>
+<!-- <p>Selection: {{formMenuDatasets.value | json}}</p> -->

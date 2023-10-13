@@ -1147,6 +1147,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * FUNZIONE CHE POPOLA LA LISTA DEI LAYER ATTIVI NEL PANNELLO ACTIVE LAYERS
    */
   addToActiveLayers(node: any) {
+    console.log("NODE PER ACTIVE LAYER DA PROVARE =", node);
+
     if (this.activeLayersArray.indexOf(node) === -1) {
       this.activeLayersArray.push(node);
     }
