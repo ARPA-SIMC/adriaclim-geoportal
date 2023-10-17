@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { HttpService } from './services/http.service';
+import { SpinnerLoaderService } from './services/spinner-loader.service';
 
 
 @Component({
@@ -11,12 +12,16 @@ import { HttpService } from './services/http.service';
 })
 export class AppComponent implements OnInit {
   title = 'adria-project-front';
+  // spinnerShow = this.spinnerService.getSpinnerShow();
 
-  constructor(private httpClient: HttpClient, private httpService: HttpService) { }
+  constructor(private httpClient: HttpClient, private httpService: HttpService, public spinnerService: SpinnerLoaderService) { }
 
   ngOnInit() {
     // console.log('Ready');
     console.debug('Ready');
+
+    // console.log("SPINNER SHOW APP COMPONENT ====== ", this.spinnerShow);
+
     // this.getAllData();
     //this.getMBIndicator("monthly"); //2138.8134632110596 MB per yearly, 8442.947506904602  MB seasonal, 25252.07095527649  MB monthly
 
