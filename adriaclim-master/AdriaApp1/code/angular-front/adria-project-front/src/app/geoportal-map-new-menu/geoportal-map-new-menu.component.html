@@ -31,25 +31,31 @@
 
           <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
 
+            <!-- <button class="col-2 col-md-3 col-lg-2" mat-raised-button
+              style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" #menuTrigger="matMenuTrigger"
+              [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
+            </button> -->
+
+            <!-- BOTTONE CON VECCHIO COLORE -->
+            <!-- <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+              mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
+              <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
+            </button> -->
+
+            <!-- BOTTONE CON NUOVO COLORE -->
+            <!-- <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="true" mat-raised-button style="color: #fff; background-color: #0ba7d7;">
+              <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
+            </button> -->
+
           <!-- *************************** LAVORIAMO QUI *************************** -->
-          <!-- <button class="col-2 col-md-3 col-lg-2" mat-raised-button
-            style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" #menuTrigger="matMenuTrigger"
-            [matMenuTriggerFor]="myMenu1"> <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
-          </button> -->
-
-          <!-- BOTTONE CON VECCHIO COLORE -->
-          <!-- <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
-            mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
-            <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
-          </button> -->
-
-          <!-- BOTTONE CON NUOVO COLORE -->
-          <button type="button" class="dropdown-toggle col-2 col-md-3 col-lg-2" data-bs-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="true" mat-raised-button style="color: #fff; background-color: #0ba7d7;">
+          <!-- BOTTONE MODALE -->
+          <button type="button" class="col-2 col-md-3 col-lg-2" mat-raised-button style="color: #fff; background-color: #0ba7d7;" (click)="openDatasetMenu()">
             <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
           </button>
 
-          <div class="dropdown-menu col-12 dark mt-auto" style="z-index: 2000; max-height: 600px;" (click)="$event.stopPropagation()">
+          <!-- INIZIO CORPO DROPDOWN -->
+          <!-- <div class="dropdown-menu col-12 dark mt-auto" style="z-index: 2000; max-height: 600px;" (click)="$event.stopPropagation()">
             <form [formGroup]="formMenuDatasets" class="col-12" style="max-height: 600px;">
               <div class="link-list-wrapper col d-flex flex-row justify-content-center align-items-start ps-1 pe-3" style="max-height: 600px;">
 
@@ -126,25 +132,13 @@
 
 
 
-                <!-- <div class="form-check" *ngFor="let c of categoryDatasets">
-                  <input id="checkbox1" type="checkbox" formControlName="">
-                  <label for="checkbox1">Checkbox di esempio</label>
-                </div> -->
-
-                <!-- <label for="check" formArrayName="orders" *ngFor="let order of ordersFormArray.controls; let i = index">
-
-                  <input id="check" type="checkbox" [formControlName]="i">
-
-                  {{webData[i].name}}
-
-                </label> -->
-
-
 
 
               </div>
             </form>
-          </div>
+          </div> -->
+          <!-- FINE CORPO DROPDOWN -->
+
 
           <form [formGroup]="selData">
             <mat-radio-group formControlName="dataSetSel">

@@ -1,0 +1,66 @@
+<form [formGroup]="form" style="width: 500px;">
+
+  <h1 mat-dialog-title><span class="info-title-dialog">Compare Two Datasets</span></h1>
+    <div mat-dialog-content class="col-12">
+
+      <div class="row">
+        <mat-form-field appearance="fill" class="col-12">
+          <mat-label>Type</mat-label>
+          <!-- <mat-select formControlName="firstDataset" (selectionChange)="getSelectedVarFirstDataset(); checkDimensions()"> -->
+          <mat-select formControlName="category" (selectionChange)="changeSel('c')">
+            <mat-option *ngFor="let c of categoryDatasets" [value]="c">
+              {{c}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+      <div class="row">
+        <mat-form-field appearance="fill" class="col-12">
+          <mat-label>Scale</mat-label>
+          <!-- <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)"> -->
+          <mat-select formControlName="scale" (selectionChange)="changeSel('s')">
+            <mat-option *ngFor="let s of scaleDatasets" [value]="s">
+              {{s}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+
+      <div class="row">
+        <mat-form-field appearance="fill" class="col-12">
+          <mat-label>Time period</mat-label>
+          <mat-select formControlName="timeperiod" (selectionChange)="changeSel('t')">
+            <mat-option *ngFor="let t of timeperiodDatasets" [value]="t">
+              {{t}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+      <div class="row">
+        <mat-form-field appearance="fill" class="col-12">
+          <mat-label>Dataset</mat-label>
+          <mat-select formControlName="menu">
+            <input (keyup)="onKey($event)">
+            <mat-option *ngFor="let m of searchFilter" [value]="m">
+              {{m.title}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+
+
+    </div>
+
+    <mat-dialog-actions class="row justify-content-center">
+
+      <button mat-raised-button color="primary" class="col-3" (click)="ok()">Ok</button>
+      <button mat-raised-button color="accent" class="col-3" (click)="close()">Cancel</button>
+
+    </mat-dialog-actions>
+
+
+</form>

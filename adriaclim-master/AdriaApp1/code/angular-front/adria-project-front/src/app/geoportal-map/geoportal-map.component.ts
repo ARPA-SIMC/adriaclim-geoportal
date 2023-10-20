@@ -1150,7 +1150,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * FUNZIONE CHE POPOLA LA LISTA DEI LAYER ATTIVI NEL PANNELLO ACTIVE LAYERS
    */
   addToActiveLayers(node: any) {
-    console.log("NODE PER ACTIVE LAYER DA PROVARE =", node);
 
     if (this.activeLayersArray.indexOf(node) === -1) {
       this.activeLayersArray.push(node);
@@ -2583,11 +2582,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
             // console.log("IS INDICATOR =", this.isIndicator);
 
-
             if (this.isIndicator) {
 
               if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
-
 
                 this.circleCoords.push(
                   {
@@ -2615,7 +2612,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                 this.circleMarkerArray.push(this.markerToAdd);
                 this.markersLayer.addLayer(this.markerToAdd);
 
-
                 this.map.addLayer(this.markersLayer);
               }
 
@@ -2624,14 +2620,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               // this.rettangoliLayer.clearLayers();
               //griddap case with rectangle, NON SERVONO I MARKER!
 
-
               if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
-                console.log("ALL LAT COORDINATES =", allLatCoordinates[i]);
-                console.log("COSA SEI");
-
 
                 bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-
 
                 let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
                 let varColor: any;
@@ -2644,25 +2635,20 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                   varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
 
                 }
-                console.log("QUI");
-
 
                 // this.map.removeLayer(this.rettangoliLayer);
                 // if(rectangle) {
                   //   this.map.removeLayer(rectangle);
                   // }
                   // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-                console.log("BOUNDS =", bounds);
 
                 rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-                console.log("QUO");
                 this.allRectangles.push(rectangle);
                 // console.log("this.allRectangle", this.allRectangles);
 
                 this.rettangoliLayer.addLayer(rectangle);
 
                 this.map.addLayer(this.rettangoliLayer);
-                console.log("QUA");
 
               }
 
