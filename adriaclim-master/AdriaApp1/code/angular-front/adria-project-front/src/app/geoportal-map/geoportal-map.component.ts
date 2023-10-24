@@ -554,8 +554,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }
     this.clickPolygonOnOff = false;
     if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+      console.log("SONO DENTRO CIRCLEMARKER POINT CLICK");
+      console.log("CIRCLE MARKER ARRAY =", this.circleMarkerArray);
+
       this.circleMarkerArray.forEach((circle: any) => {
-        circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+        console.log("CIRCLE DENTRO FOREACH =", circle);
+        console.log("CIRCLE DENTRO FOREACH LAT =", circle.getLatLng().lat);
+        console.log("CIRCLE DENTRO FOREACH LNG =", circle.getLatLng().lng);
+        circle.addEventListener('click', (e: any) => {
+
+          this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
+        });
       });
       this.map.off("click");
       // this.clickPointOnOff = false;
@@ -2378,6 +2387,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
 
+      console.log("DATASET SELEZIONATO =", this.selData.get("dataSetSel")?.value);
+
       // CASO DATASET SELEZIONATO
       const title = this.selData.get("dataSetSel")?.value.name.title;
 
@@ -2394,6 +2405,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       if (lat) {
         this.coordOnClick = { "lat": lat, "lng": lng };
       }
+
+      console.log("DATA ID =", dataId);
+      console.log("TITLE =", title);
+      console.log("SPLITTED VAR =", splittedVar);
+      console.log("COORD ON CLICK =", this.coordOnClick);
 
       // console.log("POLYGON =", polygon);
       dialogConfig.data = {
@@ -2420,6 +2436,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };
+
+      console.log("CIRCLE COORDS COSA C'E' DENTRO =", this.circleCoords);
 
       // console.log("RANGE =", this.value);
       // console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
@@ -2519,6 +2537,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
         }
         else {
+
+          console.log("QUI????");
+
 
           this.allDataVectorial = res['dataVect'];
           let allLatCoordinates = this.allDataVectorial[1];
@@ -2661,7 +2682,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.map.off('click');
           }
         }
-        this.spinnerLoader.spinnerShow = false;
+        console.log("PERCHE' NON DISABILITI LO SPINNER?");
+        setTimeout(() => {
+          this.spinnerLoader.spinnerShow = false;
+
+        }, 500);
 
       },
       error: (msg: any) => {

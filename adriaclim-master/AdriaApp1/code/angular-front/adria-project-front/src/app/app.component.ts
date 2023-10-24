@@ -22,7 +22,9 @@ export class AppComponent implements OnInit {
 
     // console.log("SPINNER SHOW APP COMPONENT ====== ", this.spinnerShow);
 
+    // console.log("PRIMA ALL DATA");
     // this.getAllData();
+
     //this.getMBIndicator("monthly"); //2138.8134632110596 MB per yearly, 8442.947506904602  MB seasonal, 25252.07095527649  MB monthly
 
     /**

@@ -897,6 +897,17 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.dimUnit = "";
     }
 
+    console.log("DATASET PER TIME =", this.dataset);
+
+    if(this.dataset.time_start.includes("T")) {
+      const dateStart = new Date(this.dataset.time_start);
+      this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}-${dateStart.getDate().toString().padStart(2, '0')}`;
+    }
+    if(this.dataset.time_end.includes("T")) {
+      const dateEnd = new Date(this.dataset.time_end);
+      this.dataset.time_end = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}-${dateEnd.getDate().toString().padStart(2, '0')}`;
+    }
+
     let data = {
       dataset: this.dataset,
       idMeta: this.idMeta,
@@ -930,14 +941,19 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           response = JSON.parse(response);
         }
         this.dataRes = response;
+        console.log("DATA RES =", this.dataRes);
 
         this.meanMedianStdev.emit(this.dataRes.allData.mean + "_" + this.dataRes.allData.median + "_" + this.dataRes.allData.stdev + "_" + this.dataRes.allData.trend_yr);
 
         let name = this.dataRes.allData.entries[0];
+        console.log("NAME???? =", name);
+
         if (this.operation === "annualMonth") {
           this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
         }
         if(this.dataRes.allData[name]) {
+          console.log("ENTRO QUI O NO?????????????????????????");
+
           this.dataRes.allData[name].forEach((element: any) => {
             element.date = element.x;
             if (this.formatDate(element.x) === undefined) {

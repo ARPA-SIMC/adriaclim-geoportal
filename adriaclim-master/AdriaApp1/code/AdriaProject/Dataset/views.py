@@ -419,6 +419,11 @@ def getDataTableNew(request):
 @api_view(['GET','POST'])
 def getDataGraphicNewCanvas(request):
     try:
+        print()
+        print()
+        print("Siamo in getDataGraphicNewCanvas")
+        print()
+        print()
         dataset_id = request.data.get("idMeta")
         dataset = request.data.get('dataset')
         adriaclim_timeperiod = dataset.get('adriaclim_timeperiod')
@@ -436,6 +441,7 @@ def getDataGraphicNewCanvas(request):
         operation = request.data.get("operation") #default or type of operation
         context = request.data.get("context") #one or poylgon
         allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+        print("ALL DATA =============",allData)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:

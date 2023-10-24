@@ -250,8 +250,8 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
         for d in va:
             if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
             # if d != "Indicator":
-                # print("URL + QUERY BEFORE THIS D ",d,"=======",url + query)
-                # print("kwargs====",kwargs)
+                print("URL + QUERY BEFORE THIS D ",d,"=======",url + query)
+                print("kwargs====",kwargs)
                 if d in kwargs and not (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d]
                 elif (d + "Min") in kwargs:

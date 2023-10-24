@@ -23,6 +23,29 @@ def getDataGraphicGeneric(
 ):
     
     try:
+
+        print("DATASET ID", dataset_id)
+        print("ADRIACLIM TIMEPERIOD", adriaclim_timeperiod)
+        print("LAYER NAME", layer_name)
+        print("TIME START", time_start)
+        print("TIME FINISH", time_finish)
+        print("LATITUDE", latitude)
+        print("LONGITUDE", longitude)
+        # print("NUM PARAMETERS", num_parameters)
+        print("RANGE VALUE", range_value)
+        # print("IS INDICATOR", is_indicator)
+        print("LAT START", lat_start)
+        print("LONG START", long_start)
+        print("LAT END", lat_end)
+        print("LONG END", long_end)
+        print("KWARGS", kwargs)
+
+        print()
+        print()
+        print()
+        print()
+
+
         onlyone = 0
         cache = 0
         if "context" in kwargs and kwargs["context"] == "one":
@@ -62,6 +85,7 @@ def getDataGraphicGeneric(
             timeMax=time_finish,
         )
 
+        # url = "https://erddap.cmcc-opa.eu/erddap/tabledap/RMN_c122_036f_888c.csv?time%2Clatitude%2Clongitude%2Cwd%2Cwv&time%3E=2022-06-14&time%3C=2022-06-14&latitude%3E=41.1402056&latitude%3C=41.1402056&longitude%3E=16.864644444444444&longitude%3C=16.864644444444444"
         # print("ARRIVO QUI")
         # print("PRIMA URL=====")
         if cache == 1:
@@ -70,6 +94,8 @@ def getDataGraphicGeneric(
             return url
         try:
             df = pd.read_csv(url, dtype="unicode")
+            print("URL READ CSV =", url)
+            print("DF READ CSV =", df)
         except Exception as e:
             return "fuoriWms"
         if df[layer_name] is not None:
@@ -134,6 +160,13 @@ def getDataGraphicGeneric(
                     i += 1
         # print("ARRIVO QUA")
         
+        print("VALUES =", values)
+        print("DATES =", dates)
+        print("UNIT =", unit)
+        print("LAYER NAME =", layerName)
+        print("LATS =", lats)
+        print("LONGS =", longs)
+
         allData = [values, dates, unit, layerName, lats, longs]
         # print("All data======",allData)
         # print("OPERATION======",operation)
