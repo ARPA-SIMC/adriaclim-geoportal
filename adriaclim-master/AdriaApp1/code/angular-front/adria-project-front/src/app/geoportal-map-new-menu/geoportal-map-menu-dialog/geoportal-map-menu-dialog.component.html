@@ -42,8 +42,17 @@
       <div class="row">
         <mat-form-field appearance="fill" class="col-12">
           <mat-label>Dataset</mat-label>
-          <mat-select formControlName="menu">
-            <input (keyup)="onKey($event)">
+          <mat-select formControlName="menu" class="d-flex">
+            <div class="col-12 d-flex flex-row justify-content-center align-items-center">
+              <mat-form-field class="example-full-width" color="primary" appearance="outline">
+                <mat-label>Filter</mat-label>
+                <input type="text" matInput (keyup)="onKey($event)">
+                <button matSuffix mat-icon-button aria-label="Clear">
+                  <mat-icon>search</mat-icon>
+                </button>
+              </mat-form-field>
+
+            </div>
             <mat-option *ngFor="let m of searchFilter" [value]="m">
               {{m.title}}
             </mat-option>

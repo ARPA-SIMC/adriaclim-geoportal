@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core';
 import { EChartsOption, graphic } from 'echarts';
 import * as echarts from 'echarts';
 import { ElementRef } from '@angular/core';
 import { HttpService } from 'src/app/services/http.service';
 import * as _ from 'lodash';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'app-canvas-graph',
@@ -67,6 +68,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   endZoom: any;
   data1: any[] = [];
   quantityBoxPlot = new Set();
+
+  timeoutProgressBar: any;
 
   allDataPolygon: any;
 
@@ -887,17 +890,31 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
+   * Funzione che lancia un timout per progress bar di caricamento per chiamata backend
+   */
+  timeforProgressBar() {
+    let addTime: number = 0;
+    const intervalValue = 5000; // Intervallo di 5 secondi
+
+    this.timeoutProgressBar = interval(intervalValue).subscribe(() => {
+      addTime += 5; // Aggiungi 5 a addTime
+      this.progressBar.emit(addTime);
+
+      if (addTime >= 95) {
+        this.timeoutProgressBar.unsubscribe(); // Ferma l'intervallo quando addTime raggiunge o supera 95
+      }
+    });
+  }
+
+  /**
    * FUNZIONE CHE GESTISCE I DATI RICEVUTI PER MOSTRARE IL GRAFICO CORRISPONDENTE
    */
   getDataGraph() {
-    console.log("DIM UNIT =", this.dimUnit);
     // Controllo che imposta a stringa vuota se l'unità di misura è "No", questo si presenta sopratutto per gli indicatori
     // che prendono in considerazione il contatore dei giorni
     if(this.dimUnit === "No") {
       this.dimUnit = "";
     }
-
-    console.log("DATASET PER TIME =", this.dataset);
 
     if(this.dataset.time_start.includes("T")) {
       const dateStart = new Date(this.dataset.time_start);
@@ -930,29 +947,39 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       lng_max: "no"
     }
 
-    console.log("DATA SINGLE POINT =", data);
-
-
+    this.timeforProgressBar();
     // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
-    this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
+      this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
+    // {
+    //   reportProgress: true,
+    //   observe: 'events'
+    // }
+      // console.log("RESPONSE CON PROGRESS??? =", response);
 
+      // if (response.type === HttpEventType.UploadProgress) {
+      //   let progress = Math.round(100 * (response.loaded / response.total));
+      //   console.log("PROGRESS BAR =", progress);
+
+      // } else if (response instanceof HttpResponse) {
+      //   // La richiesta è stata completata
+      //   console.log('Caricamento completato', response.body);
+
+      // }
       if (response.allData !== "fuoriWms") {
         if (typeof response == 'string') {
           response = JSON.parse(response);
         }
         this.dataRes = response;
-        console.log("DATA RES =", this.dataRes);
+        // console.log("DATA RES =", this.dataRes);
 
         this.meanMedianStdev.emit(this.dataRes.allData.mean + "_" + this.dataRes.allData.median + "_" + this.dataRes.allData.stdev + "_" + this.dataRes.allData.trend_yr);
 
         let name = this.dataRes.allData.entries[0];
-        console.log("NAME???? =", name);
 
         if (this.operation === "annualMonth") {
           this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
         }
         if(this.dataRes.allData[name]) {
-          console.log("ENTRO QUI O NO?????????????????????????");
 
           this.dataRes.allData[name].forEach((element: any) => {
             element.date = element.x;
@@ -963,6 +990,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             }
             element.y = Number(element.y);
           });
+
           let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
           let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
           let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
@@ -990,27 +1018,27 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           });
 
           let value = this.dataRes.allData[name].map((element: any) => element.y);
-          let minMaxValue = {
-            min: Math.min(...value).toFixed(0),
-            max: Math.max(...value).toFixed(0),
-          }
-          this.chartOption = {
+          // let minMaxValue = {
+            //   min: Math.min(...value).toFixed(0),
+            //   max: Math.max(...value).toFixed(0),
+            // }
+            this.chartOption = {
 
-            xAxis: {
-              type: 'category',
-              boundaryGap: false,
-              // data: this.dataRes.allData[name].map((element: any) => element.x)
-              data: this.dataRes.allData[name].map((element: any) => {
+              xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                // data: this.dataRes.allData[name].map((element: any) => element.x)
+                data: this.dataRes.allData[name].map((element: any) => {
 
-                let elDate = new Date(element.x).toLocaleDateString();
-                // console.log("elDate", elDate);
-                if (elDate !== "Invalid Date") {
-                  return elDate;
-                }
-                else {
+                  let elDate = new Date(element.x).toLocaleDateString();
+                  // console.log("elDate", elDate);
+                  if (elDate !== "Invalid Date") {
+                    return elDate;
+                  }
+                  else {
 
-                  return element.x;
-                }
+                    return element.x;
+                  }
 
               })
             },
@@ -1024,6 +1052,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
               // min: 'dataMin',
               // max: 'dataMax'
               min: this.checkMinValue(),
+              // min: "dataMin",
               max: "dataMax"
             },
             toolbox: {
@@ -1091,21 +1120,21 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
           this.dataTimeExport.emit(this.dataRes.allData[name]);
           this.spinnerLoadingChild.emit(false);
+          this.timeoutProgressBar.unsubscribe();
 
         }
         else {
           this.spinnerLoadingChild.emit(false);
           this.description.emit("Please select point inside the layer");
+          this.timeoutProgressBar.unsubscribe();
 
         }
       }
-
     });
   }
 
   checkMinValue() {
-    console.log("DATA RES = ", this.dataRes);
-    console.log("ALL DATA POLYGON = ", this.allDataPolygon);
+    // console.log("DATA RES = ", this.dataRes);
 
     let arrayOfValue: any;
     let min: any;

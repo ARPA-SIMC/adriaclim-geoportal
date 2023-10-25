@@ -270,7 +270,6 @@ def getDataPolygonNew(
                     )
                     df = pd.read_csv(url, dtype="unicode")
                 else:
-                    # print("Entro quiiiiiii!!!!")
                     try:
                         url = url_is_indicator(
                             is_indicator,

@@ -17,7 +17,7 @@ export class HttpService {
 
   constructor(private httpClient: HttpClient) { }
 
-  post(endPoint: string, body: any): any {
+  post(endPoint: string, body: any, progress?: any): any {
     // return this.httpClient.post(this.apiUrl + endPoint, body, {headers: this.headers});
     return this.httpClient.post(this.apiUrl + endPoint, body);
   }

@@ -3,9 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
-import { ExtraParams } from 'src/app/interfaces/geoportal-compare-dialog-int';
 
 @Component({
   selector: 'app-geoportal-map-menu-dialog',
@@ -101,7 +99,7 @@ export class GeoportalMapMenuDialogComponent {
     }).subscribe({
       next: (res: any) => {
         // console.log("SUB NEXT");
-        console.log("RES NODES =", res.nodes);
+        // console.log("RES NODES =", res.nodes);
 
         this.resAllNodes = res.nodes;
 
@@ -131,13 +129,10 @@ export class GeoportalMapMenuDialogComponent {
 
         this.menuDatasets = this.resAllNodes.filter((el: any) => el.adriaclim_dataset === this.form.get("category")?.value && el.adriaclim_scale === this.form.get("scale")?.value && el.adriaclim_timeperiod === this.form.get("timeperiod")?.value);
 
-        console.log("CATEGORY DATASETS =", this.categoryDatasets);
-        console.log("SCALE DATASETS =", this.scaleDatasets);
-        console.log("TIMEPERIOD DATASETS =", this.timeperiodDatasets);
-        console.log("MENU DATASETS =", this.menuDatasets);
-        console.log("FORM MENU DATASETS =", this.form.value);
-
         this.searchFilter = this.menuDatasets;
+
+        console.log("SEARCH FILTER =", this.searchFilter);
+
 
       },
       error: (msg: any) => {
@@ -197,17 +192,30 @@ export class GeoportalMapMenuDialogComponent {
     this.searchFilter = this.menuDatasets;
   }
 
+  /**
+   * Funzione chiamata al key up che va a chiamare la funzione search
+   */
   onKey(event: any) {
-    console.log("EVENT =", event.target.value);
 
     this.searchFilter = this.search(event.target.value);
+
     }
 
+  /**
+   * Funzone che permette di effettuare una ricerca tra i vari dataset
+   */
   search(value: string) {
     if(value) {
-      let filter = value.toLowerCase();
+      let filters = value.toLowerCase().split(" ");
 
-      let menuFiltered = this.menuDatasets.filter((option: any) => option.title.toLowerCase().includes(filter));
+      let menuFiltered = this.menuDatasets.filter((option: any) => {
+        let optionTitle = option.title.toLowerCase();
+        let optionInstitution = option.institution.toLowerCase();
+        return filters.every((filter: any) => {
+          optionTitle.includes(filter) || optionInstitution.includes(filter);
+
+        });
+      });
 
       return menuFiltered;
 

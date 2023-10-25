@@ -1260,8 +1260,8 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           }
         }
         this.metadata = res;
-        console.log("METADATA =", this.metadata);
-        console.log("Id meta======", idMeta);
+        // console.log("METADATA =", this.metadata);
+        // console.log("Id meta======", idMeta);
 
         if (controlDate === "ok") {
 

@@ -1064,8 +1064,8 @@ export class GeoportalMapNewMenuComponent {
           }
         }
         this.metadata = res;
-        console.log("METADATA =", this.metadata);
-        console.log("Id meta======", idMeta);
+        // console.log("METADATA =", this.metadata);
+        // console.log("Id meta======", idMeta);
 
         if (controlDate === "ok") {
 

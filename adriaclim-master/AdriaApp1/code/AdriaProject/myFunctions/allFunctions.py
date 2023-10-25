@@ -215,7 +215,6 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                 else:
                     alias = getVariableAliases(d)
                     # print("Alias ========",alias)
-                    # print("kwargs=====",kwargs)
                     for al in alias:
                         if al in kwargs:
                             query = query + kwargs[al]
@@ -250,8 +249,6 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
         for d in va:
             if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
             # if d != "Indicator":
-                print("URL + QUERY BEFORE THIS D ",d,"=======",url + query)
-                print("kwargs====",kwargs)
                 if d in kwargs and not (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d]
                 elif (d + "Min") in kwargs:
@@ -259,7 +256,6 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                 else:
                     alias = getVariableAliases(d)
                     # print("alias",alias)
-                    # print("kwargs====",kwargs)
                     for al in alias:
                         if al in kwargs:
                             query = query + "&" + d + "%3E=" + kwargs[al]
@@ -309,7 +305,6 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
         # print("IS INDICATOR=====", is_indicator)
         # print("IS GRAPH=====", is_graph)
         # print("IS ANNUAL=====", is_annual)
-        # print("kwargs=====", kwargs)
         if is_indicator == "true" and is_graph == False:
             #print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
             # print("DENTRO IND TRUE IS GRAPH FALSE")
@@ -2857,7 +2852,6 @@ def getDataPolygonNew(
                     )
                     df = pd.read_csv(url, dtype="unicode")
                 else:
-                    # print("Entro quiiiiiii!!!!")
                     try:
                         url = url_is_indicator(
                             is_indicator,

@@ -375,7 +375,6 @@ def task_get_data_polygon(self,request_data):
                             )
                             df = pd.read_csv(url, dtype="unicode")
                         else:
-                            # print("Entro quiiiiiii!!!!")
                                 url = url_is_indicator(
                                     is_indicator,
                                     True,
