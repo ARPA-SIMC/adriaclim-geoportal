@@ -1392,7 +1392,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     /**
      * SLIDER
      */
-    if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+    if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearlyy") {
       if (arrow === "left") {
 
         const selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
@@ -1472,7 +1472,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.navigateDateLeftSeason = false;
             this.getMeta(metaId, "ok", this.valueCustom);
           }
-
 
         } else {
           //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!
@@ -1696,6 +1695,133 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         //}
       } //FINE ELSE IF RIGHT
     } // FINE SEASONAL
+    else {
+      // CASO DAILY
+      // PER IL MOMENTO MODIFICA SOLO MESE PER MESE, DA LAVORARCI
+      if (arrow === "left") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        const d1 = _.cloneDeep(selD);
+        if (this.isLastDayOfMonth(d1)) {
+          //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
+          let d2 = _.cloneDeep(selD);
+          d2 = this.subtractLastDayMonth(d2, 1);
+          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+          if (d2 <= this.dateStart) {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = true;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+
+          }
+          else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+        }
+        else {
+          //NON SIAMO ALL'ULTIMO GIORNO DEL MESE
+          let d2 = _.cloneDeep(selD);
+          d2 = this.subtractRealMonth(moment(d2), 1).toDate();
+          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+          if (d2 <= this.dateStart) {
+            //ULTIMA DATA!
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = true;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+          else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+        }
+      }
+      else if (arrow === "right") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        const d1 = _.cloneDeep(selD);
+        if (this.isLastDayOfMonth(d1)) {
+          //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
+          let d2 = _.cloneDeep(selD);
+          d2 = this.addLastDayMonth(d2, 1);
+          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+          if (d2 >= this.dateEnd) {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = true;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+          else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+        }
+        else {
+          //NON SIAMO ALL'ULTIMO GIORNO DEL MESE
+          let d2 = _.cloneDeep(selD);
+          d2 = this.addRealMonth(moment(d2), 1).toDate();
+          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+          if (d2 >= this.dateEnd) {
+            //ULTIMA DATA POSSIBILE
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = true;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+          else {
+            selD = d2;
+            this.selectedDate.get("dateSel")?.setValue(selD);
+            this.navigateDateLeftMonth = false;
+            this.navigateDateRightMonth = false;
+            this.navigateDateRightSeason = false;
+            this.navigateDateRightYear = false;
+            this.navigateDateLeftYear = false;
+            this.navigateDateLeftSeason = false;
+            this.getMeta(metaId, "ok", this.valueCustom);
+          }
+        }
+      }
+    }
     if (this.dateStart?.toString() === this.dateEnd?.toString()) {
       this.navigateDateLeftYear = true;
       this.navigateDateRightYear = true;
@@ -1809,13 +1935,19 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.dateFilter = (date: Date | null): boolean => {
       if (date) {
-        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+        console.log("TIME PERIOD DATASET SEL =", this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod);
+
+        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearlyy") {
+          console.log("DENTRO YEARLY");
+
           return date.getMonth() === this.dateEnd.getMonth() &&
             date.getDate() === this.dateEnd.getDate() &&
             date.getFullYear() >= this.dateStart.getFullYear() &&
             date.getFullYear() <= this.dateEnd.getFullYear()
         }
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
+          console.log("DENTRO MONTHLY");
+
           //GESTIRE ULTIMO GIORNO DEL MESE!
           const d1 = _.cloneDeep(this.dateEnd);
           if (this.isLastDayOfMonth(d1)) {
@@ -1834,6 +1966,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
         }
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
+          console.log("DENTRO SEASONAL");
+
           //SAME DAY AND 3 MONTHS DIFFERENCE BETWEEN DAYS!
           //GESTIRE ULTIMO GIORNO DEL MESE
           const d1 = _.cloneDeep(this.dateEnd);
@@ -1854,6 +1988,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
 
         } else {
+          console.log("NON DENTRO YEARLY MONTHLY SEASONAL");
+
           //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
         }
