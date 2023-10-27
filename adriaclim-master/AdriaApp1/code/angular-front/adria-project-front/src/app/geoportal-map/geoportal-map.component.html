@@ -367,7 +367,7 @@
                     <mat-datepicker-actions>
                       <button mat-button matDatepickerCancel>Cancel</button>
                       <button mat-raised-button color="primary" matDatepickerApply
-                        (click)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">Apply</button>
+                        (click)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok'); disableArrowDate()">Apply</button>
                     </mat-datepicker-actions>
                   </mat-datepicker>
                 </mat-form-field>

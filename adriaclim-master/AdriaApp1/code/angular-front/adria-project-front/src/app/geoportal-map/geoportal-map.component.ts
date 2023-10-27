@@ -135,7 +135,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   compliantErrorErddap = "";
   showAlertGenericError = false;
@@ -736,8 +736,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       //chiamare il backend prendendo tutti i punti e poi filtrare quelli che sono dentro il poligono
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
-      if(this.highlightedPolygon) {
-        if(this.highlightedPolygon.pol.getBounds().contains(e.latlng)) {
+      if (this.highlightedPolygon) {
+        if (this.highlightedPolygon.pol.getBounds().contains(e.latlng)) {
           console.log("POLYGON HIGHLIGHTED =", this.highlightedPolygon);
           this.openGraphDialog(null, null, this.highlightedPolygon)
         }
@@ -1283,7 +1283,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     // }
     // console.log("thisVariableArray: ", this.variableArray);
 
-    if(this.variableArray.length > 0) {
+    if (this.variableArray.length > 0) {
       this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
 
     }
@@ -1325,8 +1325,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   isLastDayOfMonth(d: any) {
-    d.setDate(d.getDate() + 1);
-    if (d.getDate() === 1) {
+    // d.setDate(d.getDate() + 1);
+    if (d.getDate() + 1 === 1) {
       return true;
     } else {
       return false;
@@ -1347,6 +1347,46 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.map.removeLayer(rectangle);
     });
     this.allRectangles = [];
+  }
+
+  disableArrowDate() {
+    let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+    // console.log("DATE SEL =", selD);
+    // console.log("DATE START =", this.dateStart.toString());
+    // console.log("DATE END =", this.dateEnd.toString());
+    // console.log("SELD ANNO MESE GIORNO =", selD.getFullYear(), selD.getMonth(), selD.getDate());
+    // console.log("DATE START ANNO MESE GIORNO =", this.dateStart.getFullYear(), this.dateStart.getMonth(), this.dateStart.getDate());
+    // console.log("DATE END ANNO MESE GIORNO =", this.dateEnd.getFullYear(), this.dateEnd.getMonth(), this.dateEnd.getDate());
+
+    // if(this.selectedDate.get("dateSel")?.value.toString() === this.dateStart.toString()) {
+    if(selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
+
+      this.navigateDateLeftMonth = true;
+      this.navigateDateRightMonth = false;
+      this.navigateDateRightSeason = false;
+      this.navigateDateRightYear = false;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+    }
+    else if(selD.getFullYear() === this.dateEnd.getFullYear() && selD.getMonth() === this.dateEnd.getMonth() && selD.getDate() === this.dateEnd.getDate()) {
+
+      this.navigateDateLeftMonth = false;
+      this.navigateDateRightMonth = true;
+      this.navigateDateRightSeason = false;
+      this.navigateDateRightYear = false;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+    }
+    else {
+
+      this.navigateDateLeftMonth = false;
+      this.navigateDateRightMonth = false;
+      this.navigateDateRightSeason = false;
+      this.navigateDateRightYear = false;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+    }
+
   }
 
   /**
@@ -1420,6 +1460,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         }
       }
       else if (arrow === "right") {
+        console.log("YEARLY RIGHT CLICKED");
+
         const selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         if ((selD.getFullYear() + 1) === this.dateEnd.getFullYear()) {
           selD.setFullYear(selD.getFullYear() + 1);
@@ -1697,128 +1739,123 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     } // FINE SEASONAL
     else {
       // CASO DAILY
-      // PER IL MOMENTO MODIFICA SOLO MESE PER MESE, DA LAVORARCI
       if (arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
-        if (this.isLastDayOfMonth(d1)) {
-          //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
-          let d2 = _.cloneDeep(selD);
-          d2 = this.subtractLastDayMonth(d2, 1);
-          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
-          if (d2 <= this.dateStart) {
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = true;
-            this.navigateDateRightMonth = false;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
+        let d2 = _.cloneDeep(selD);
+
+        // Tolgo un giorno a d2
+        d2.setDate(d2.getDate() - 1);
+
+        // Verifico se d2 è il primo giorno del mese o il primo giorno dell'anno
+        if (d2.getDate() === 1) {
+
+
+          if (d2.getMonth() === 0) {
+
+            // Se è il primo giorno di gennaio, vai all'ultimo giorno di dicembre dell'anno precedente
+            d2.setFullYear(d2.getFullYear() - 1);
+            d2.setMonth(11); // Dicembre
+            d2.setDate(31); // Ultimo giorno di dicembre
+          }
+          else if (d1.getDate() === 2 && d2.getDate() === 1) {
+
+            // Se la data selezionata era il secondo giorno del mese,
+            // e ora d2 è diventato il primo giorno, vai al primo giorno del mese
+            d2.setDate(1);
+          }
+          else {
+
+            // Altrimenti, vai all'ultimo giorno del mese precedente
+            d2.setDate(0); // Ultimo giorno del mese precedente
+            console.log("D2 = ", d2);
+            console.log("D2 = ", d2.getDate(0));
 
           }
-          else {
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = false;
-            this.navigateDateRightMonth = false;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
-          }
         }
-        else {
-          //NON SIAMO ALL'ULTIMO GIORNO DEL MESE
-          let d2 = _.cloneDeep(selD);
-          d2 = this.subtractRealMonth(moment(d2), 1).toDate();
-          d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
-          if (d2 <= this.dateStart) {
-            //ULTIMA DATA!
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = true;
-            this.navigateDateRightMonth = false;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
-          }
-          else {
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = false;
-            this.navigateDateRightMonth = false;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
-          }
+
+        // Imposta l'orario su quello specifico se necessario
+        d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+
+        // Verifica se d2 è minore o uguale a this.dateStart
+        if (d2 <= this.dateStart) {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = true;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
+        } else {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
         }
       }
       else if (arrow === "right") {
+
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
-        if (this.isLastDayOfMonth(d1)) {
-          //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
-          let d2 = _.cloneDeep(selD);
-          d2 = this.addLastDayMonth(d2, 1);
-          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
-          if (d2 >= this.dateEnd) {
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = false;
-            this.navigateDateRightMonth = true;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
+        let d2 = _.cloneDeep(selD);
+
+        // Aggiungo un giorno a d2
+        d2.setDate(d2.getDate() + 1);
+
+        // Verifico se d2 è il primo giorno del mese o il primo giorno dell'anno
+        if (this.isLastDayOfMonth(d2)) {
+
+          if (d2.getMonth() === 11) {
+
+            // Se è il primo giorno di gennaio, vai all'ultimo giorno di dicembre dell'anno precedente
+            d2.setFullYear(d2.getFullYear() + 1);
+            d2.setMonth(); // Gennaio
+            d2.setDate(1); // Primo giorno di dicembre
+          }
+          else if (this.isLastDayOfMonth(d1 - 1) && d2.getDate() === 1) {
+
+            d2.setDate(d1);
           }
           else {
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = false;
-            this.navigateDateRightMonth = false;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
+
+            // Altrimenti, vai al primo giorno del mese precedente
+            d2.setMonth(d1.getMonth() + 1);
+            d2.setDate(1); // Primo giorno del mese precedente
+            console.log("D2 = ", d2);
+            console.log("D2 = ", d2.getDate(0));
+
           }
         }
+
+        d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+        if (d2 >= this.dateEnd) {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = true;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
+        }
         else {
-          //NON SIAMO ALL'ULTIMO GIORNO DEL MESE
-          let d2 = _.cloneDeep(selD);
-          d2 = this.addRealMonth(moment(d2), 1).toDate();
-          d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
-          if (d2 >= this.dateEnd) {
-            //ULTIMA DATA POSSIBILE
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = false;
-            this.navigateDateRightMonth = true;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
-          }
-          else {
-            selD = d2;
-            this.selectedDate.get("dateSel")?.setValue(selD);
-            this.navigateDateLeftMonth = false;
-            this.navigateDateRightMonth = false;
-            this.navigateDateRightSeason = false;
-            this.navigateDateRightYear = false;
-            this.navigateDateLeftYear = false;
-            this.navigateDateLeftSeason = false;
-            this.getMeta(metaId, "ok", this.valueCustom);
-          }
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
         }
       }
     }
@@ -1935,7 +1972,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.dateFilter = (date: Date | null): boolean => {
       if (date) {
-        console.log("TIME PERIOD DATASET SEL =", this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod);
+        // console.log("TIME PERIOD DATASET SEL =", this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod);
 
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearlyy") {
           console.log("DENTRO YEARLY");
@@ -1988,7 +2025,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
 
         } else {
-          console.log("NON DENTRO YEARLY MONTHLY SEASONAL");
+          // console.log("NON DENTRO YEARLY MONTHLY SEASONAL");
 
           //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
@@ -2632,13 +2669,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         this.isExtraParam = false;
       }
     }
-
-    /**
-     * Settiamo un timeout per permettere il multi click del bottone per 500ms
-     */
-    setTimeout(() => {
-      this.spinnerLoader.spinnerShow = true;
-    }, 500);
+    // Settiamo un timeout per permettere un multiclick sul bottone
+    // setTimeout(() => {
+    this.spinnerLoader.spinnerShow = true;
+    // }, 500);
 
     this.httpService.post('test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
@@ -2649,7 +2683,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }).subscribe({
       next: (res: any) => {
         // console.log("RES VECTORIAL =", res);
-        if(res.dataVect.includes("HTTP Error 404")) {
+        if (res.dataVect.includes("HTTP Error 404")) {
           this.compliantErrorErddap = "The data is not compliant"
           // console.log("ERR =", this.compliantErrorErddap);
 
@@ -2671,7 +2705,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           let bounds: any;
           let rectangle: any;
           let value_mid: any;
-          if(parseFloat(value_min) !== parseFloat(value_max)) {
+          if (parseFloat(value_min) !== parseFloat(value_max)) {
             if (parseFloat(value_min) < 0) {
               value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
             } else {
@@ -2686,7 +2720,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.valueMid = value_mid;
 
           this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-          if(this.allRectangles.length > 0) {
+          if (this.allRectangles.length > 0) {
             this.removeAllRectangles();
 
           }
@@ -2710,7 +2744,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           // console.log("centerlat =", centerLat);
           // console.log("centerlng =", centerLong);
           const zoomTest = L.latLng(centerLat, centerLong);
-          if(zoomTest) {
+          if (zoomTest) {
             if (allLatCoordinates.length === 1) {
               // zoom più elevato essendo un singolo punto!
               this.map.setView(zoomTest, 14);
@@ -2726,7 +2760,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
             if (this.isIndicator) {
 
-              if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+              if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
 
                 this.circleCoords.push(
                   {
@@ -2762,7 +2796,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               // this.rettangoliLayer.clearLayers();
               //griddap case with rectangle, NON SERVONO I MARKER!
 
-              if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+              if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
 
                 bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
 
@@ -2780,9 +2814,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
                 // this.map.removeLayer(this.rettangoliLayer);
                 // if(rectangle) {
-                  //   this.map.removeLayer(rectangle);
-                  // }
-                  // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+                //   this.map.removeLayer(rectangle);
+                // }
+                // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
 
                 rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
                 this.allRectangles.push(rectangle);
@@ -2856,18 +2890,18 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       mid: any;
     if (colorMin === "") {
       left = { r: 0, g: 0, b: 255 },
-      middle = { r: 255, g: 255, b: 0 },
-      right = { r: 255, g: 0, b: 0 },
-      mid = (max - min) / 2;
+        middle = { r: 255, g: 255, b: 0 },
+        right = { r: 255, g: 0, b: 0 },
+        mid = (max - min) / 2;
     }
     else {
       left = { r: this.hexToRgb(colorMin)?.r, g: this.hexToRgb(colorMin)?.g, b: this.hexToRgb(colorMin)?.b },
-      middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
-      right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
-      mid = (max - min) / 2;
+        middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
+        right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
+        mid = (max - min) / 2;
 
     }
-    if(min === max) {
+    if (min === max) {
       mid = min;
       this.sameColor = true;
     }
@@ -2901,7 +2935,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     let value_min_mid: any;
     let value_mid_max: any;
     this.legendNoWms = new L.Control({ position: "bottomleft" });
-    if(parseFloat(value_min) !== parseFloat(value_max)) {
+    if (parseFloat(value_min) !== parseFloat(value_max)) {
       if (parseFloat(value_min) < 0) {
 
         value_min_mid = Math.ceil((parseFloat(value_mid) - parseFloat(value_min)) / 2);
@@ -2969,7 +3003,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         from = grades[i];
         to = grades[i + 1];
 
-        if(from !== to) {
+        if (from !== to) {
           labels.push(
             "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
             "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
@@ -2977,7 +3011,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         }
       }
 
-      if(from === to) {
+      if (from === to) {
         labels.push(
           "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
           "<span>" + from + "</span>" + "</div>"
@@ -3173,7 +3207,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
             // const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i])
             const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-              // .bindTooltip(allValues[i]);
+            // .bindTooltip(allValues[i]);
             this.rettangoliLayer.addLayer(rectangle);
             this.map.addLayer(this.rettangoliLayer);
           }
