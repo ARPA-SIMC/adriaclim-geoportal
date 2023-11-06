@@ -1432,7 +1432,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     /**
      * SLIDER
      */
-    if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearlyy") {
+    if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
       if (arrow === "left") {
 
         const selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
@@ -1974,7 +1974,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       if (date) {
         // console.log("TIME PERIOD DATASET SEL =", this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod);
 
-        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearlyy") {
+        if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
           console.log("DENTRO YEARLY");
 
           return date.getMonth() === this.dateEnd.getMonth() &&
