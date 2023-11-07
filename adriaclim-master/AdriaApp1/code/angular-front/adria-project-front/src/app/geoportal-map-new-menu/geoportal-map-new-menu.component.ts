@@ -3050,6 +3050,7 @@ export class GeoportalMapNewMenuComponent {
       timeperiodDatasets: this.timeperiodDatasets,
       menuDatasets: this.menuDatasets,
     };
+    dialogConfig.position = {top: '4%'};
 
     const dialogRef = this.dialog.open(GeoportalMapMenuDialogComponent, dialogConfig);
     //prendere i due layers selezionati!
