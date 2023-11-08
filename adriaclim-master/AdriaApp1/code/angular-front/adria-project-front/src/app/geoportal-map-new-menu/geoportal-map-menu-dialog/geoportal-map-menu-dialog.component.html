@@ -42,13 +42,13 @@
       <div class="row">
         <mat-form-field appearance="fill" class="col-12">
           <mat-label>Dataset</mat-label>
-          <mat-select #quartoMatSelect formControlName="menu" (openedChange)="changeHeight()" class="d-flex">
+          <mat-select #quartoMatSelect formControlName="menu" (openedChange)="changeHeight(); setFilter()" class="d-flex">
             <div>
 
               <div class="col-12 d-flex flex-row justify-content-center align-items-center">
                 <mat-form-field class="example-full-width" color="primary" appearance="outline">
                   <mat-label>Filter</mat-label>
-                  <input type="text" matInput (keyup)="onKey($event)">
+                  <input type="text" matInput #searchInput (keyup)="onKey($event)">
                   <button matSuffix mat-icon-button aria-label="Clear">
                     <mat-icon>search</mat-icon>
                   </button>
