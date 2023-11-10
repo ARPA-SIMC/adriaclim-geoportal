@@ -3218,7 +3218,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
    * Funzione che carica il layer corrispondente sulla mappa alla selezione di un dataset
    */
   selDatasetProva(node: any) {
-    console.log("NODE PROVA NUOVO MENU =", node);
+    // console.log("NODE PROVA NUOVO MENU =", node);
     let obj = {
       name: node
     }

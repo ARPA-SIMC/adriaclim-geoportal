@@ -24,6 +24,7 @@ import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition
 import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, circleCoords } from '../interfaces/geoportal-map-int';
 import { titleCaseWord } from '../common-functions/functions';
 import { GeoportalMapMenuDialogComponent } from './geoportal-map-menu-dialog/geoportal-map-menu-dialog.component';
+import { SpinnerLoaderService } from '../services/spinner-loader.service';
 
 /**
  * Food data with nested structure.
@@ -88,6 +89,15 @@ const TREE_DATA: FoodNode[] = [
   ]
 })
 export class GeoportalMapNewMenuComponent {
+
+  showAlertGenericError = false;
+  errorMsgUploadGeojson = "";
+  showAlertUploadGeojson = false;
+  highlightedPolygon: any;
+
+  allLegendsNoWms: any[] = [];
+  allRectangles: any[] = [];
+  sameColor = false;
 
   toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
 
@@ -227,7 +237,7 @@ export class GeoportalMapNewMenuComponent {
   formMenuDatasets: FormGroup;
   formMenuCheckbox: FormGroup;
 
-  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService, private _snackBar: MatSnackBar, private fb: FormBuilder) {
+  constructor(private httpClient: HttpClient, private dialog: MatDialog, private httpService: HttpService, private _snackBar: MatSnackBar, private fb: FormBuilder, private spinnerLoader: SpinnerLoaderService) {
 
     this.selData = new FormGroup({
       dataSetSel: new FormControl(),
@@ -306,6 +316,22 @@ export class GeoportalMapNewMenuComponent {
         });
 
         let pol = L.polygon(polyg[0]).addTo(this.map);
+
+        // Aggiungo un evento per il mouseover al poligono per cambiare il colore del bordo
+        pol.on('mouseover', () => {
+          pol.setStyle({ color: 'red' }); // Ripristino il colore del bordo
+          this.highlightedPolygon = {
+            "pol": pol,
+            "polName": f.properties.popupContent
+          };
+
+        });
+
+        // Aggiungo un evento per il mouseout al poligono per ripristinare il colore del bordo iniziale
+        pol.on('mouseout', () => {
+          pol.setStyle({ color: 'rgb(51, 136, 255)' }); // Cambio il colore del bordo al passaggio del mouse
+          this.highlightedPolygon = null;
+        });
 
         this.allPolygons.push({
           "pol": pol,
@@ -391,42 +417,69 @@ export class GeoportalMapNewMenuComponent {
     return new Promise((resolve, reject) => {
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = '.geojson';
+      input.accept = ['.geojson', '.json'].join(',');
       input.addEventListener('change', () => {
         const file = input.files?.[0];
         if (file) {
-          resolve(file);
-          //now we have the file and we read it!
-          const reader = new FileReader();
+          console.log("FILE =", file);
 
-          reader.onload = (e: any) => {
-            const content = e.target.result;
-            const geojson = JSON.parse(content);
-            let polyg: any = [];
-            this.removeAllPolygons(); //first we remove all polygons
-            geojson.features.forEach((f: any) => {
+          if (file.type !== 'application/json' && !file.name.includes('.geojson')) {
+            this.errorMsgUploadGeojson = "Invalid file type";
+            this.showAlertUploadGeojson = true;
+            reject(new Error('Invalid file type'));
+          }
+          else {
+            resolve(file);
+            //now we have the file and we read it!
+            const reader = new FileReader();
 
-              f.geometry.coordinates.forEach((c: any) => {
-                c.forEach((coord: any) => {
-                  coord.reverse();
+            reader.onload = (e: any) => {
+              const content = e.target.result;
+              const geojson = JSON.parse(content);
+              let polyg: any = [];
+              this.removeAllPolygons(); //first we remove all polygons
+              geojson.features.forEach((f: any) => {
+
+                f.geometry.coordinates.forEach((c: any) => {
+                  c.forEach((coord: any) => {
+                    coord.reverse();
+                  });
+
+                  polyg.push(c);
+                  // poligon = L.polygon(c);
                 });
 
-                polyg.push(c);
-                // poligon = L.polygon(c);
-              });
+                let pol = L.polygon(polyg[0]).addTo(this.map);
+                // Aggiungo un evento per il mouseover al poligono per cambiare il colore del bordo
+                pol.on('mouseover', () => {
+                  pol.setStyle({ color: 'red' }); // Ripristino il colore del bordo
+                  this.highlightedPolygon = {
+                    "pol": pol,
+                    "polName": f.properties.popupContent
+                  };
+                });
 
-              const pol = L.polygon(polyg[0]).addTo(this.map);
-              this.allPolygons.push({
-                "pol": pol,
-                "polName": f.properties.popupContent
+                // Aggiungo un evento per il mouseout al poligono per ripristinare il colore del bordo iniziale
+                pol.on('mouseout', () => {
+                  pol.setStyle({ color: 'rgb(51, 136, 255)' }); // Cambio il colore del bordo al passaggio del mouse
+                  this.highlightedPolygon = null;
+                });
+
+                this.allPolygons.push({
+                  "pol": pol,
+                  "polName": f.properties.popupContent
+                });
+                polyg = [];
               });
-              polyg = [];
-            });
+            }
+
+            reader.readAsText(file);
+
           }
 
-          reader.readAsText(file);
-
         } else {
+          this.errorMsgUploadGeojson = "No file chosen";
+          this.showAlertUploadGeojson = true;
           reject(new Error('No file chosen'));
         }
       });
@@ -519,8 +572,12 @@ export class GeoportalMapNewMenuComponent {
     }
     this.clickPolygonOnOff = false;
     if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+
       this.circleMarkerArray.forEach((circle: any) => {
-        circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+        circle.addEventListener('click', (e: any) => {
+
+          this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
+        });
       });
       this.map.off("click");
       // this.clickPointOnOff = false;
@@ -697,64 +754,36 @@ export class GeoportalMapNewMenuComponent {
       //chiamare il backend prendendo tutti i punti e poi filtrare quelli che sono dentro il poligono
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
-      const polygonsContainingPoint = this.allPolygons.filter((polygon: any) => {
-        const copiaPoly = _.cloneDeep(polygon);
-        // console.log("Polygon copy: ", copiaPoly);
-        if (this.isPointInsidePolygon(e.latlng, polygon.pol)) {
-          return polygon;
+      if (this.highlightedPolygon) {
+        if (this.highlightedPolygon.pol.getBounds().contains(e.latlng)) {
+          console.log("POLYGON HIGHLIGHTED =", this.highlightedPolygon);
+          this.openGraphDialog(null, null, this.highlightedPolygon)
         }
-        // if (polygon.pol.getBounds().contains(e.latlng)) {
-        //   return polygon;
-        // }
-
-        // return polygon.pol.getBounds().contains(e.latlng);
-      }); //poligono che contiene il punto in cui l'utente ha cliccato
-      // let latLngObj: any[] = [];
-      // const bounds = L.latLngBounds(polygonsContainingPoint[0].getLatLngs());
-      // // console.log("BOUNDS SOUTH =", bounds.getSouth());
-      // // console.log("BOUNDS NORTH =", bounds.getNorth());
-      // // console.log("BOUNDS WEST =", bounds.getWest());
-      // // console.log("BOUNDS EAST =", bounds.getEast());
-      // // console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint);
-
-      // let latlngs: any[] = [];
-      if (polygonsContainingPoint.length > 0) {
-        //  console.log("POLYGON CONTAINING POINT =", polygonsContainingPoint[0].getLatLngs());
-        this.openGraphDialog(null, null, polygonsContainingPoint)
-        //   let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
-        //   splittedVar = splittedVar[splittedVar.length - 1];
-        //   this.httpClient.post('http://localhost:8000/test/dataPolygon', {
-        //   dataset: this.selData.get("dataSetSel")?.value.name,
-        //   selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
-        //   isIndicator: this.isIndicator ? "true" : "false",
-        //   selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
-        //   range: this.value ? Math.abs(this.value) : 0,
-        //   latLngObj: polygonsContainingPoint[0].getLatLngs()[0]
-        // }).subscribe({
-        //   next: (res: any) => {
-        //     console.log("RES =", res);
-        //     let allDataPolygon = res['dataVect'];
-        //     let valuesPol = allDataPolygon[0]; //media dei valori
-        //     let datesPol = allDataPolygon[1]; //tutte le date!
-
-
-        //   },
-        //   error: (msg: any) => {
-        //     console.log('METADATA ERROR: ', msg);
-        //   }
-
-        // });
-
       }
+
+      // const polygonsContainingPoint = this.allPolygons.filter((polygon: any) => {
+      //   const copiaPoly = _.cloneDeep(polygon);
+      //   // console.log("Polygon copy: ", copiaPoly);
+      //   if (this.isPointInsidePolygon(e.latlng, polygon.pol)) {
+      //     console.log("POLYGON =", polygon);
+
+      //     return polygon;
+      //   }
+      //   // if (polygon.pol.getBounds().contains(e.latlng)) {
+      //   //   return polygon;
+      //   // }
+
+      //   // return polygon.pol.getBounds().contains(e.latlng);
+      // }); //poligono che contiene il punto in cui l'utente ha cliccato
+
+      // if (polygonsContainingPoint.length > 0) {
+
+      //   this.openGraphDialog(null, null, polygonsContainingPoint)
+
+      // }
       else {
         alert("Select a polygon");
       }
-      // this.allPolygons.forEach((pol: any) => {
-      //   if (pol.getBounds().contains(e.latlng)) {
-      //     console.log("The polygon is rullo di tamburi", pol);
-      //   }
-      // });
-      // alert("You must select a polygon!"); nel caso in cui non viene selezionato un poligono
     }
   }
 
@@ -908,36 +937,34 @@ export class GeoportalMapNewMenuComponent {
         this.resAllNodes = res.nodes;
 
         this.resAllNodes.forEach((element: any) => {
-          if(element.adriaclim_dataset !== "no" && element.adriaclim_dataset !== "No" && element.adriaclim_dataset !== "Indicator") {
-            tmpCategoryDatasets.push(element.adriaclim_dataset);
-          }
+          // if(element.adriaclim_dataset !== "no" && element.adriaclim_dataset !== "No" && element.adriaclim_dataset !== "Indicator") {
+          //   tmpCategoryDatasets.push(element.adriaclim_dataset);
+          // }
+          // if(element.adriaclim_dataset === this.formMenuDatasets.get("category")?.value) {
+          //   tmpScale.push(element.adriaclim_scale);
+          // }
+          // if(element.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && element.adriaclim_scale === this.formMenuDatasets.get("scale")?.value) {
+          //   tmpTimeperiods.push(element.adriaclim_timeperiod);
+          // }
+          this.dataAllNodes.push(
+            { name: element }
+          );
         });
-        this.categoryDatasets = [...new Set(tmpCategoryDatasets)];
-        this.formMenuDatasets.get("category")?.setValue(this.categoryDatasets[0]);
 
-        this.resAllNodes.forEach((el: any) => {
-          if(el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value) {
-            tmpScale.push(el.adriaclim_scale);
-          }
-        });
-        this.scaleDatasets = [...new Set(tmpScale)];
-        this.formMenuDatasets.get("scale")?.setValue(this.scaleDatasets[0]);
+        // this.categoryDatasets = [...new Set(tmpCategoryDatasets)];
+        // this.formMenuDatasets.get("category")?.setValue(this.categoryDatasets[0]);
+        // this.scaleDatasets = [...new Set(tmpScale)];
+        // this.formMenuDatasets.get("scale")?.setValue(this.scaleDatasets[0]);
+        // this.timeperiodDatasets = [...new Set(tmpTimeperiods)];
+        // this.formMenuDatasets.get("timeperiod")?.setValue(this.timeperiodDatasets[0]);
 
-        this.resAllNodes.forEach((el: any) => {
-          if (el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value) {
-            tmpTimeperiods.push(el.adriaclim_timeperiod);
-          }
-        });
-        this.timeperiodDatasets = [...new Set(tmpTimeperiods)];
-        this.formMenuDatasets.get("timeperiod")?.setValue(this.timeperiodDatasets[0]);
+        // this.menuDatasets = this.resAllNodes.filter((el: any) => el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value && el.adriaclim_timeperiod === this.formMenuDatasets.get("timeperiod")?.value);
 
-        this.menuDatasets = this.resAllNodes.filter((el: any) => el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value && el.adriaclim_timeperiod === this.formMenuDatasets.get("timeperiod")?.value);
-
-        console.log("CATEGORY DATASETS =", this.categoryDatasets);
-        console.log("SCALE DATASETS =", this.scaleDatasets);
-        console.log("TIMEPERIOD DATASETS =", this.timeperiodDatasets);
-        console.log("MENU DATASETS =", this.menuDatasets);
-        console.log("FORM MENU DATASETS =", this.formMenuDatasets.value);
+        // console.log("CATEGORY DATASETS =", this.categoryDatasets);
+        // console.log("SCALE DATASETS =", this.scaleDatasets);
+        // console.log("TIMEPERIOD DATASETS =", this.timeperiodDatasets);
+        // console.log("MENU DATASETS =", this.menuDatasets);
+        // console.log("FORM MENU DATASETS =", this.formMenuDatasets.value);
 
         this.dataAllNodesTree.data = TREE_DATA;
 
@@ -1171,7 +1198,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   isLastDayOfMonth(d: any) {
-    d.setDate(d.getDate() + 1);
+    // d.setDate(d.getDate() + 1);
     if (d.getDate() === 1) {
       return true;
     } else {
@@ -1180,6 +1207,46 @@ export class GeoportalMapNewMenuComponent {
   }
 
   isAString(val: any): boolean { return typeof val === 'string'; }
+
+  disableArrowDate() {
+    let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+    // console.log("DATE SEL =", selD);
+    // console.log("DATE START =", this.dateStart.toString());
+    // console.log("DATE END =", this.dateEnd.toString());
+    // console.log("SELD ANNO MESE GIORNO =", selD.getFullYear(), selD.getMonth(), selD.getDate());
+    // console.log("DATE START ANNO MESE GIORNO =", this.dateStart.getFullYear(), this.dateStart.getMonth(), this.dateStart.getDate());
+    // console.log("DATE END ANNO MESE GIORNO =", this.dateEnd.getFullYear(), this.dateEnd.getMonth(), this.dateEnd.getDate());
+
+    // if(this.selectedDate.get("dateSel")?.value.toString() === this.dateStart.toString()) {
+    if(selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
+
+      this.navigateDateLeftMonth = true;
+      this.navigateDateRightMonth = false;
+      this.navigateDateRightSeason = false;
+      this.navigateDateRightYear = false;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+    }
+    else if(selD.getFullYear() === this.dateEnd.getFullYear() && selD.getMonth() === this.dateEnd.getMonth() && selD.getDate() === this.dateEnd.getDate()) {
+
+      this.navigateDateLeftMonth = false;
+      this.navigateDateRightMonth = true;
+      this.navigateDateRightSeason = false;
+      this.navigateDateRightYear = false;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+    }
+    else {
+
+      this.navigateDateLeftMonth = false;
+      this.navigateDateRightMonth = false;
+      this.navigateDateRightSeason = false;
+      this.navigateDateRightYear = false;
+      this.navigateDateLeftYear = false;
+      this.navigateDateLeftSeason = false;
+    }
+
+  }
 
   /**
    * FUNZIONE CHE PERMETTE DI GESTIRE OGNI CASISTICA LEGATA AI BOTTONI PER IL CAMBIO DATA
@@ -1231,6 +1298,8 @@ export class GeoportalMapNewMenuComponent {
         if ((selD.getFullYear() - 1) === this.dateStart.getFullYear()) {
           //it is the first year visible so after setting the new value we disable the left button
           selD.setFullYear(selD.getFullYear() - 1);
+          selD.setMonth(this.dateStart.getMonth());
+          selD.setDate(this.dateStart.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = true;
           this.navigateDateRightYear = false;
@@ -1239,6 +1308,8 @@ export class GeoportalMapNewMenuComponent {
           this.getMeta(metaId, "ok", this.valueCustom);
         } else {
           selD.setFullYear(selD.getFullYear() - 1);
+          selD.setMonth(this.dateEnd.getMonth());
+          selD.setDate(this.dateEnd.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateLeftYear = false;
           this.navigateDateRightYear = false;
@@ -1248,15 +1319,21 @@ export class GeoportalMapNewMenuComponent {
         }
       }
       else if (arrow === "right") {
+        console.log("YEARLY RIGHT CLICKED");
+
         const selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         if ((selD.getFullYear() + 1) === this.dateEnd.getFullYear()) {
           selD.setFullYear(selD.getFullYear() + 1);
+          selD.setMonth(this.dateEnd.getMonth());
+          selD.setDate(this.dateEnd.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = true;
           this.navigateDateLeftYear = false;
           this.getMeta(metaId, "ok", this.valueCustom);
         } else {
           selD.setFullYear(selD.getFullYear() + 1);
+          selD.setMonth(this.dateEnd.getMonth());
+          selD.setDate(this.dateEnd.getDate());
           this.selectedDate.get("dateSel")?.setValue(selD);
           this.navigateDateRightYear = false;
           this.navigateDateLeftYear = false;
@@ -1296,7 +1373,6 @@ export class GeoportalMapNewMenuComponent {
             this.navigateDateLeftSeason = false;
             this.getMeta(metaId, "ok", this.valueCustom);
           }
-
 
         } else {
           //NON SIAMO ALL'ULTIMO GIORNO DEL MESE!
@@ -1458,7 +1534,6 @@ export class GeoportalMapNewMenuComponent {
       else if (arrow === "right") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
-        // if(selD.getMonth() === 9) { NON VA FATTO QUESTO CHECK!
 
         // selD.setMonth(0);
         // selD.setFullYear(selD.getFullYear() + 1);
@@ -1521,6 +1596,128 @@ export class GeoportalMapNewMenuComponent {
         //}
       } //FINE ELSE IF RIGHT
     } // FINE SEASONAL
+    else {
+      // CASO DAILY
+      if (arrow === "left") {
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        const d1 = _.cloneDeep(selD);
+        let d2 = _.cloneDeep(selD);
+
+        // Tolgo un giorno a d2
+        d2.setDate(d2.getDate() - 1);
+
+        // Verifico se d2 è il primo giorno del mese o il primo giorno dell'anno
+        if (d2.getDate() === 1) {
+
+
+          if (d2.getMonth() === 0) {
+
+            // Se è il primo giorno di gennaio, vai all'ultimo giorno di dicembre dell'anno precedente
+            d2.setFullYear(d2.getFullYear() - 1);
+            d2.setMonth(11); // Dicembre
+            d2.setDate(31); // Ultimo giorno di dicembre
+          }
+          else if (d1.getDate() === 2 && d2.getDate() === 1) {
+
+            // Se la data selezionata era il secondo giorno del mese,
+            // e ora d2 è diventato il primo giorno, vai al primo giorno del mese
+            d2.setDate(1);
+          }
+          else {
+
+            // Altrimenti, vai all'ultimo giorno del mese precedente
+            d2.setDate(0); // Ultimo giorno del mese precedente
+            console.log("D2 = ", d2);
+            console.log("D2 = ", d2.getDate(0));
+
+          }
+        }
+
+        // Imposta l'orario su quello specifico se necessario
+        d2.setHours(this.dateStart.getHours(), this.dateStart.getMinutes(), this.dateStart.getSeconds());
+
+        // Verifica se d2 è minore o uguale a this.dateStart
+        if (d2 <= this.dateStart) {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = true;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
+        } else {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
+        }
+      }
+      else if (arrow === "right") {
+
+        let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+        const d1 = _.cloneDeep(selD);
+        let d2 = _.cloneDeep(selD);
+
+        // Aggiungo un giorno a d2
+        d2.setDate(d2.getDate() + 1);
+
+        // Verifico se d2 è il primo giorno del mese o il primo giorno dell'anno
+        if (this.isLastDayOfMonth(d2)) {
+
+          if (d2.getMonth() === 11) {
+
+            // Se è il primo giorno di gennaio, vai all'ultimo giorno di dicembre dell'anno precedente
+            d2.setFullYear(d2.getFullYear() + 1);
+            d2.setMonth(); // Gennaio
+            d2.setDate(1); // Primo giorno di dicembre
+          }
+          else if (this.isLastDayOfMonth(d1 - 1) && d2.getDate() === 1) {
+
+            d2.setDate(d1);
+          }
+          else {
+
+            // Altrimenti, vai al primo giorno del mese precedente
+            d2.setMonth(d1.getMonth() + 1);
+            d2.setDate(1); // Primo giorno del mese precedente
+            console.log("D2 = ", d2);
+            console.log("D2 = ", d2.getDate(0));
+
+          }
+        }
+
+        d2.setHours(this.dateEnd.getHours(), this.dateEnd.getMinutes(), this.dateEnd.getSeconds());
+        if (d2 >= this.dateEnd) {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = true;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
+        }
+        else {
+          selD = d2;
+          this.selectedDate.get("dateSel")?.setValue(selD);
+          this.navigateDateLeftMonth = false;
+          this.navigateDateRightMonth = false;
+          this.navigateDateRightSeason = false;
+          this.navigateDateRightYear = false;
+          this.navigateDateLeftYear = false;
+          this.navigateDateLeftSeason = false;
+          this.getMeta(metaId, "ok", this.valueCustom);
+        }
+      }
+    }
     if (this.dateStart?.toString() === this.dateEnd?.toString()) {
       this.navigateDateLeftYear = true;
       this.navigateDateRightYear = true;
@@ -1637,13 +1834,19 @@ export class GeoportalMapNewMenuComponent {
 
     this.dateFilter = (date: Date | null): boolean => {
       if (date) {
+        // console.log("TIME PERIOD DATASET SEL =", this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod);
+
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
+          console.log("DENTRO YEARLY");
+
           return date.getMonth() === this.dateEnd.getMonth() &&
             date.getDate() === this.dateEnd.getDate() &&
             date.getFullYear() >= this.dateStart.getFullYear() &&
             date.getFullYear() <= this.dateEnd.getFullYear()
         }
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "monthly") {
+          console.log("DENTRO MONTHLY");
+
           //GESTIRE ULTIMO GIORNO DEL MESE!
           const d1 = _.cloneDeep(this.dateEnd);
           if (this.isLastDayOfMonth(d1)) {
@@ -1662,6 +1865,8 @@ export class GeoportalMapNewMenuComponent {
           }
         }
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
+          console.log("DENTRO SEASONAL");
+
           //SAME DAY AND 3 MONTHS DIFFERENCE BETWEEN DAYS!
           //GESTIRE ULTIMO GIORNO DEL MESE
           const d1 = _.cloneDeep(this.dateEnd);
@@ -1682,6 +1887,8 @@ export class GeoportalMapNewMenuComponent {
           }
 
         } else {
+          // console.log("NON DENTRO YEARLY MONTHLY SEASONAL");
+
           //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
         }
@@ -1735,6 +1942,7 @@ export class GeoportalMapNewMenuComponent {
     else {
 
       // this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
+      this.spinnerLoader.spinnerShow = true;
 
       if (num_parameters.length <= 3) {
         this.isExtraParam = false;
@@ -1881,6 +2089,12 @@ export class GeoportalMapNewMenuComponent {
 
       }
       this.datasetLayer = this.layer_to_attach.layer_name.addTo(this.map);
+
+      setTimeout(() => {
+        this.spinnerLoader.spinnerShow = false;
+
+      }, 500);
+
     }
 
   }
@@ -2210,6 +2424,8 @@ export class GeoportalMapNewMenuComponent {
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
 
+      // console.log("DATASET SELEZIONATO =", this.selData.get("dataSetSel")?.value);
+
       // CASO DATASET SELEZIONATO
       const title = this.selData.get("dataSetSel")?.value.name.title;
 
@@ -2243,9 +2459,12 @@ export class GeoportalMapNewMenuComponent {
         range: this.isExtraParam ? this.value : 0,
         openGraph: true,
         extraParamExport: this.isExtraParam ? this.extraParamExport : null,
-        polyExport: polygon ? polygon[0].pol.getBounds() : null,
-        polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-        polName: polygon ? polygon[0].polName : null,
+        // polyExport: polygon ? polygon[0].pol.getBounds() : null,
+        // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
+        // polName: polygon ? polygon[0].polName : null,
+        polyExport: polygon ? polygon.pol.getBounds() : null,
+        polygon: polygon ? polygon.pol.getLatLngs()[0] : null,
+        polName: polygon ? polygon.polName : null,
         circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };
@@ -2294,10 +2513,27 @@ export class GeoportalMapNewMenuComponent {
     });
   }
 
+  removeAllLegends() {
+    this.allLegendsNoWms.forEach((legend: any) => {
+      this.map.removeControl(legend);
+    });
+    this.allLegendsNoWms = [];
+  }
+
+  removeAllRectangles() {
+    this.allRectangles.forEach((rectangle: any) => {
+      this.map.removeLayer(rectangle);
+    });
+    this.allRectangles = [];
+  }
+
   /**
    * PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
    */
   getDataVectorialTabledap() {
+
+    this.rettangoliLayer.clearLayers();
+    this.removeAllLegends();
 
     let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
     splittedVar = splittedVar[splittedVar.length - 1];
@@ -2316,6 +2552,213 @@ export class GeoportalMapNewMenuComponent {
         this.isExtraParam = false;
       }
     }
+    // Settiamo un timeout per permettere un multiclick sul bottone
+    // setTimeout(() => {
+    this.spinnerLoader.spinnerShow = true;
+    // }, 500);
+
+    this.httpService.post('test/dataVectorial', {
+      dataset: this.selData.get("dataSetSel")?.value.name,
+      // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+      selVar: this.variableGroup.get("variableControl")?.value,
+      isIndicator: this.isIndicator ? "true" : "false",
+      selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
+    }).subscribe({
+      next: (res: any) => {
+        // console.log("RES VECTORIAL =", res);
+        if (res.dataVect.includes("HTTP Error 404")) {
+          this.compliantErrorErddap = "The data is not compliant"
+          // console.log("ERR =", this.compliantErrorErddap);
+
+          // Alert tramite bootstrap con html
+          this.showAlertGenericError = true;
+
+          // Alert tramite snackBar angular material
+          // this.openSnackBar("The data is not compliant", "Close", "center", "top");
+
+        }
+        else {
+
+          this.allDataVectorial = res['dataVect'];
+          let allLatCoordinates = this.allDataVectorial[1];
+          let allLongCoordinates = this.allDataVectorial[2];
+          let allValues = this.allDataVectorial[0];
+          let value_min = this.allDataVectorial[3];
+          let value_max = this.allDataVectorial[4];
+          let bounds: any;
+          let rectangle: any;
+          let value_mid: any;
+          if (parseFloat(value_min) !== parseFloat(value_max)) {
+            if (parseFloat(value_min) < 0) {
+              value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+            } else {
+              value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+            }
+          }
+          else {
+            value_mid = parseFloat(value_min);
+          }
+          this.valueMin = parseFloat(value_min);
+          this.valueMax = parseFloat(value_max);
+          this.valueMid = value_mid;
+
+          this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
+          if (this.allRectangles.length > 0) {
+            this.removeAllRectangles();
+
+          }
+          // this.markersLayer = L.layerGroup();
+          // markersLayer: L.LayerGroup = L.layerGroup();
+          let centerLat;
+          let centerLong;
+          // console.log("allLatCoordinates", allLatCoordinates);
+
+          if (allLatCoordinates.length === 1) {
+            centerLat = allLatCoordinates[0];
+            centerLong = allLongCoordinates[0];
+
+          } else {
+            const center = Math.round(allLatCoordinates.length / 2);
+            // console.log("Center",center);
+            centerLat = allLatCoordinates[center];
+            centerLong = allLongCoordinates[center];
+          }
+
+          // console.log("centerlat =", centerLat);
+          // console.log("centerlng =", centerLong);
+          const zoomTest = L.latLng(centerLat, centerLong);
+          if (zoomTest) {
+            if (allLatCoordinates.length === 1) {
+              // zoom più elevato essendo un singolo punto!
+              this.map.setView(zoomTest, 14);
+            } else {
+              this.map.setView(zoomTest, 8);
+            }
+
+          }
+
+          for (let i = 0; i < allLatCoordinates.length; i++) {
+
+            // console.log("IS INDICATOR =", this.isIndicator);
+
+            if (this.isIndicator) {
+
+              if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+                this.circleCoords.push(
+                  {
+                    lat: allLatCoordinates[i],
+                    lng: allLongCoordinates[i],
+                  }
+                )
+                // console.log("this.circleCoords.push",this.circleCoords);
+                //tabledap case, with circle
+                const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+
+                let varColor: any;
+                if (colorStorage) {
+
+                  const colorStorageJson = JSON.parse(colorStorage);
+                  varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
+                } else {
+
+                  varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
+                }
+
+                this.map.removeLayer(this.rettangoliLayer);
+
+                this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
+                this.circleMarkerArray.push(this.markerToAdd);
+                this.markersLayer.addLayer(this.markerToAdd);
+
+                this.map.addLayer(this.markersLayer);
+              }
+
+            } else {
+
+              // this.rettangoliLayer.clearLayers();
+              //griddap case with rectangle, NON SERVONO I MARKER!
+
+              if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+                bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
+
+                let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+                let varColor: any;
+                if (colorStorage) {
+                  let colorStorageJson = JSON.parse(colorStorage);
+                  varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
+
+                }
+                else {
+                  varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
+
+                }
+
+                // this.map.removeLayer(this.rettangoliLayer);
+                // if(rectangle) {
+                //   this.map.removeLayer(rectangle);
+                // }
+                // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+
+                rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+                this.allRectangles.push(rectangle);
+                // console.log("this.allRectangle", this.allRectangles);
+
+                this.rettangoliLayer.addLayer(rectangle);
+
+                this.map.addLayer(this.rettangoliLayer);
+
+              }
+
+            }
+          }
+          if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+            this.circleMarkerArray.forEach((circle: any) => {
+              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+            });
+            this.map.off('click');
+          }
+        }
+        setTimeout(() => {
+          this.spinnerLoader.spinnerShow = false;
+
+        }, 500);
+
+      },
+      error: (msg: any) => {
+        console.log('METADATA ERROR: ', msg);
+        this.spinnerLoader.spinnerShow = false;
+      }
+
+    });
+  }
+
+  /**
+   * PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
+   */
+  getDataVectorialTabledapOld() {
+
+    let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
+    splittedVar = splittedVar[splittedVar.length - 1];
+    //se isIndicator è true, allora si tratta di un tabledap, altrimenti è griddap
+    this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
+    if (this.isIndicator) {
+      //è un tabledap quindi niente extra param
+      this.isExtraParam = false;
+    } else {
+      //è un griddap
+      if (this.selData.get("dataSetSel")?.value.name.dimensions > 3) {
+
+        this.isExtraParam = true;
+        this.extraParamNoWms(this.metadata, this.valueCustom);
+      } else {
+        this.isExtraParam = false;
+      }
+    }
+
+    // this.spinnerLoader.spinnerShow = true;
+
     this.httpService.post('test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
@@ -2330,7 +2773,7 @@ export class GeoportalMapNewMenuComponent {
           // console.log("ERR =", this.compliantErrorErddap);
 
           // Alert tramite bootstrap con html
-          this.showAlert = true;
+          this.showAlertGenericError = true;
 
           // Alert tramite snackBar angular material
           // this.openSnackBar("The data is not compliant", "Close", "center", "top");
@@ -2439,9 +2882,15 @@ export class GeoportalMapNewMenuComponent {
           }
         }
 
+        // setTimeout(() => {
+        //   this.spinnerLoader.spinnerShow = false;
+
+        // }, 500);
+
       },
       error: (msg: any) => {
         console.log('METADATA ERROR: ', msg);
+        this.spinnerLoader.spinnerShow = false;
       }
 
     });
@@ -2469,10 +2918,15 @@ export class GeoportalMapNewMenuComponent {
   getColor(v: any, min: any, max: any, colorMin: any, colorMid: any, colorMax: any) {
 
     function getC(f: any, l: any, r: any) {
+
+      let rValue = Math.floor((1 - f) * l.r + f * r.r);
+      let gValue = Math.floor((1 - f) * l.g + f * r.g);
+      let bValue = Math.floor((1 - f) * l.b + f * r.b);
+
       return {
-        r: Math.floor((1 - f) * l.r + f * r.r),
-        g: Math.floor((1 - f) * l.g + f * r.g),
-        b: Math.floor((1 - f) * l.b + f * r.b),
+        r: rValue,
+        g: gValue,
+        b: bValue,
       };
     }
     let left: any,
@@ -2484,12 +2938,22 @@ export class GeoportalMapNewMenuComponent {
         middle = { r: 255, g: 255, b: 0 },
         right = { r: 255, g: 0, b: 0 },
         mid = (max - min) / 2;
-    } else {
+    }
+    else {
       left = { r: this.hexToRgb(colorMin)?.r, g: this.hexToRgb(colorMin)?.g, b: this.hexToRgb(colorMin)?.b },
         middle = { r: this.hexToRgb(colorMid)?.r, g: this.hexToRgb(colorMid)?.g, b: this.hexToRgb(colorMid)?.b },
         right = { r: this.hexToRgb(colorMax)?.r, g: this.hexToRgb(colorMax)?.g, b: this.hexToRgb(colorMax)?.b },
         mid = (max - min) / 2;
+
     }
+    if (min === max) {
+      mid = min;
+      this.sameColor = true;
+    }
+    else {
+      this.sameColor = false;
+    }
+
     return v < min + mid ?
       getC((v - min) / mid, left, middle) :
       getC((v - min - mid) / mid, middle, right);
@@ -2507,8 +2971,115 @@ export class GeoportalMapNewMenuComponent {
 
   }
 
-  // CREIAMO LA LEGENDA PER I NO WMS
+  /**
+   * FUNZIONE CHE PERMETTE DI CREARE LA LEGENDA PER I DATI SENZA WMS
+   */
   createLegend(value_min: any, value_max: any, value_mid: any) {
+    this.removeAllLegends();
+
+    let value_min_mid: any;
+    let value_mid_max: any;
+    this.legendNoWms = new L.Control({ position: "bottomleft" });
+    if (parseFloat(value_min) !== parseFloat(value_max)) {
+      if (parseFloat(value_min) < 0) {
+
+        value_min_mid = Math.ceil((parseFloat(value_mid) - parseFloat(value_min)) / 2);
+        value_mid_max = Math.ceil((parseFloat(value_max) - parseFloat(value_mid)) / 2);
+      }
+      else {
+        value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
+        value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
+      }
+
+    }
+    else {
+      value_min_mid = parseFloat(value_min);
+      value_mid_max = parseFloat(value_max);
+    }
+
+    value_min = this.formatNumber(value_min, 5);
+    value_min_mid = this.formatNumber(value_min_mid, 5);
+    value_mid = this.formatNumber(value_mid, 5);
+    value_mid_max = this.formatNumber(value_mid_max, 5);
+    value_max = this.formatNumber(value_max, 5);
+
+    const getColor = (v: any) => {
+      const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+      let colorStorageObj: any;
+      if (colorStorage) {
+        colorStorageObj = JSON.parse(colorStorage);
+        return v === value_min
+          ? colorStorageObj?.minColor
+          : v === value_min_mid
+            ? colorStorageObj?.minMidColor
+            : v === value_mid
+              ? colorStorageObj?.midColor
+              : v === value_mid_max
+                ? colorStorageObj?.midMaxColor
+                : v === value_max
+                  ? colorStorageObj?.maxColor
+                  : colorStorageObj?.maxColor;
+
+      }
+      else {
+        this.restoreDefaultColors();
+        return v === value_min
+          ? this.valueMinColor
+          : v === value_min_mid
+            ? this.valueMinMidColor
+            : v === value_mid
+              ? this.valueMidColor
+              : v === value_mid_max
+                ? this.valueMidMaxColor
+                : v === value_max
+                  ? this.valueMaxColor
+                  : this.valueMaxColor;
+      }
+    }
+
+    this.legendNoWms.onAdd = (map: any) => {
+      const div = L.DomUtil.create('div', 'info legend');
+      const grades = [value_min, value_min_mid, value_mid, value_mid_max, value_max];
+      const labels = [];
+      let from: any;
+      let to: any;
+
+      for (let i = 0; i < grades.length; i++) {
+        from = grades[i];
+        to = grades[i + 1];
+
+        if (from !== to) {
+          labels.push(
+            "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
+            "<span>" + from + (to ? '&ndash;' + to : "") + "</span>" + "</div>"
+          );
+        }
+      }
+
+      if (from === to) {
+        labels.push(
+          "<div class='color-number-legend'>" + '<i style="background:' + getColor(from) + '; margin-right: 10px;"></i> ' +
+          "<span>" + from + "</span>" + "</div>"
+        );
+      }
+
+      const button = L.DomUtil.create('button', 'color-number-legend');
+      button.innerHTML = `<span class='material-symbols-outlined'>settings</span>`;
+      button.addEventListener('click', (e) => this.changeLegendColors());
+
+      div.innerHTML = labels.join('');
+      div.appendChild(button);
+      return div;
+    };
+    // ********** LEGENDA NO WMS **********
+    this.legendNoWms.addTo(this.map);
+
+    this.allLegendsNoWms.push(this.legendNoWms);
+
+  }
+
+  // CREIAMO LA LEGENDA PER I NO WMS
+  createLegendOld(value_min: any, value_max: any, value_mid: any) {
     let value_min_mid: any;
     let value_mid_max: any;
     this.legendNoWms = new L.Control({ position: "bottomleft" });
@@ -2618,6 +3189,9 @@ export class GeoportalMapNewMenuComponent {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
+        // this.allPolygons.forEach(element => {
+        //   element.pol.off("mouseover");
+        // });
         // console.log("result =", result);
         this.datasetCompare = result;
         this.confronto = true;
@@ -2635,6 +3209,9 @@ export class GeoportalMapNewMenuComponent {
    */
   changeLegendColors = (title?: string) => {
 
+    this.rettangoliLayer.clearLayers();
+    this.removeAllLegends();
+
     const dialogConfig = new MatDialogConfig();
 
     dialogConfig.disableClose = true;
@@ -2649,6 +3226,7 @@ export class GeoportalMapNewMenuComponent {
       valueMidColor: this.valueMidColor,
       valueMaxColor: this.valueMaxColor,
       datasetName: this.selData.get("dataSetSel")?.value ? this.selData.get("dataSetSel")?.value.name.title : title,
+      sameColor: this.sameColor,
     };
 
 
@@ -2765,7 +3343,7 @@ export class GeoportalMapNewMenuComponent {
 
             // const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i])
             const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-              // .bindTooltip(allValues[i]);
+            // .bindTooltip(allValues[i]);
             this.rettangoliLayer.addLayer(rectangle);
             this.map.addLayer(this.rettangoliLayer);
           }
@@ -2821,119 +3399,6 @@ export class GeoportalMapNewMenuComponent {
     return number.toString();
   }
 
-  /**
-   *  APPLY FILTER CON EXPAND DA RIVEDERE
-   */
-  // applyFilter(filterValue: string): any[] {
-  //   // console.log();
-  //   // console.log();
-  //   // console.log();
-  //   // console.log();
-
-
-  //   // this.treeControl.collapseAll();
-  //   // this.treeControl.expandAll();
-
-  //   filterValue = filterValue.trim().toLowerCase();
-  //   console.log("FILTER VALUE =", filterValue);
-  //   let arr: any[] = [];
-  //   let treeFiltrato: any[] = [];
-  //   let treeClone: any;
-  //   const dataClone = _.cloneDeep(this.dataAllNodesTree);
-  //   if(this.treeControl.dataNodes) {
-  //     if(this.treeControl.dataNodes.length > 0) {
-  //       treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
-  //         if(typeof item.name === "object") {
-
-  //           return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
-  //         }
-  //         // console.log("============================================");
-  //         // console.log("============================================");
-  //         // console.log("ITEM APPLY FILTER =", item);
-  //         // console.log("ITEM TYPE =", typeof item);
-  //         // console.log("ITEM.NAME =", item.name);
-  //         // console.log("ITEM.NAME TYPE =", typeof item.name);
-  //         // console.log("============================================");
-  //         // console.log("============================================");
-  //         // if(typeof item.name === "object") {
-  //         //   console.log("INCLUDES NAME FILTER VALUE =", item.name.title.toLowerCase().includes(filterValue));
-  //         //   if(item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue)) {
-  //         //     // arr.push(item);
-  //         //     // console.log("ARR =", arr);
-  //         //     //return arr;
-  //         //   }
-  //         //   // return arr
-
-  //         // }
-
-
-  //       })
-  //       // console.log("TREE FILTRATO =", treeFiltrato);
-
-  //     }
-  //     const numeri = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  //     const numeriFiltrati = numeri.filter((item: any) => {
-  //       return item > 5;
-  //     });
-  //     // console.log("NUMERI FILTRATI =", numeriFiltrati);
-  //     treeClone = _.cloneDeep(this.treeControl);
-  //     treeClone.dataNodes = treeFiltrato;
-
-  //   }
-
-  // //  dataClone = _.cloneDeep(this.dataAllNodesTree);
-  //  console.log("TREE CONTROL =", this.treeControl);
-  //  //  console.log("ARR =", arr);
-  //  if(!filterValue) {
-  //   console.log("COLLAPSE");
-
-  //   // this.treeControl.collapseAll();
-  //   // this.dataAllNodesTree = dataClone;
-  //   return this.dataAllNodesTree.data;
-  //   //  this.dataAllNodesTree.data = arr;
-  //   // this.dataAllNodesTree.data = treeFiltrato
-  //   // return this.dataAllNodesTree.data;
-  // }
-  // else {
-  //   console.log("EXPAND");
-  //   // this.treeControl.dataNodes.forEach(tree => {
-  //     //   treeFiltrato.forEach(f => {
-  //       //     if(tree === f) {
-  //   //       tree = f;
-
-  //   //     }
-  //   //   });
-  //   // });
-  //   this.dataAllNodesTree.data = treeFiltrato;
-  //   // this.treeControl.expandAll();
-  //   // this.treeControl.dataNodes = treeFiltrato;
-  //   console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
-  //   this.dataAllNodesTree.data.forEach(element => {
-  //     this.treeControl.dataNodes.forEach(tree => {
-  //       if(element.name === tree.name) {
-  //         if(tree.expandable === true) {
-  //           this.treeControl.expand(tree);
-  //         }
-  //       }
-
-  //     });
-  //     // this.treeControl.expand(element)
-  //   });
-  //   return this.dataAllNodesTree.data;
-  //   // return this.treeControl.dataNodes
-  //     // this.treeControl.dataNodes.forEach(element => {
-
-  //     // });
-  //     // this.dataAllNodesTree.data = arr;
-  //     // this.dataAllNodesTree.data
-  //     // return this.dataAllNodesTree.data;
-  //   }
-
-  //   // this.treeControl.dataNodes = arr;
-  //   // return this.dataAllNodesTree.data
-
-
-  // }
   /**
    * Funzione che controlla quale bottone è stato cliccato aprendo e chiudendo il menu corrispondente
    */
@@ -3021,8 +3486,8 @@ export class GeoportalMapNewMenuComponent {
   /**
    * Funzione che carica il layer corrispondente sulla mappa alla selezione di un dataset
    */
-  selDatasetProva(node: any) {
-    console.log("NODE PROVA NUOVO MENU =", node);
+  selDatasetFromDialog(node: any) {
+    console.log("NODE PROVA NUOVO NUOVO MENU =", node);
     let obj = {
       name: node
     }
@@ -3057,6 +3522,7 @@ export class GeoportalMapNewMenuComponent {
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
         console.log("result close modal =", result);
+        this.selDatasetFromDialog(result);
         // this.datasetCompare = result;
         // this.confronto = true;
         // this.compare = true;

@@ -310,11 +310,16 @@
     </mat-toolbar>
   </div>
 
-  <!-- Alert tramite bootstrap con valore booleano controllato nel typescript -->
-  <div *ngIf="showAlert" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert"
-    style="z-index: 1500;">
+  <!-- Alert tramite bootstrap con valore booleano controllato nel typescript per errore generico dei dati presi da ERDDAP -->
+  <div *ngIf="showAlertGenericError" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert" style="z-index: 1500;">
     {{compliantErrorErddap}}
-    <button type="button" class="btn-close" (click)="showAlert = false" aria-label="Close"></button>
+    <button type="button" class="btn-close" (click)="showAlertGenericError = false" aria-label="Close"></button>
+  </div>
+
+  <!-- Alert tramite bootstrap con valore booleano controllato nel typescript per errore dovuto dal caricamento di un file sbagliato -->
+  <div *ngIf="showAlertUploadGeojson" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert" style="z-index: 1500;">
+    {{errorMsgUploadGeojson}}
+    <button type="button" class="btn-close" (click)="showAlertUploadGeojson = false" aria-label="Close"></button>
   </div>
 
   <!-- MAT MENU PER TOOLS -->

@@ -110,8 +110,6 @@ const TREE_DATA: FoodNode[] = [
 })
 export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
-  clickSubject = new Subject();
-
   allLegendsNoWms: any[] = [];
   allRectangles: any[] = [];
   sameColor = false;
@@ -1154,7 +1152,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * FUNZIONE CHE POPOLA LA LISTA DEI LAYER ATTIVI NEL PANNELLO ACTIVE LAYERS
    */
   addToActiveLayers(node: any) {
-
     if (this.activeLayersArray.indexOf(node) === -1) {
       this.activeLayersArray.push(node);
     }
@@ -1241,6 +1238,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * FUNZIONE CHE PRENDE IN INPUT IL NODO E GESTISCE LE SUE INFORMAZIONI PER ESEMPIO LE VARIABILI
    */
   getSelectedNode(node: any) {
+    // console.log("SELECTED NODE MENU CLASSICO VECCHIO =", node);
+
     this.variableArray = [];
 
     if (node.name) {
@@ -3263,119 +3262,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     return number.toString();
   }
 
-  /**
-   *  APPLY FILTER CON EXPAND DA RIVEDERE
-   */
-  // applyFilter(filterValue: string): any[] {
-  //   // console.log();
-  //   // console.log();
-  //   // console.log();
-  //   // console.log();
-
-
-  //   // this.treeControl.collapseAll();
-  //   // this.treeControl.expandAll();
-
-  //   filterValue = filterValue.trim().toLowerCase();
-  //   console.log("FILTER VALUE =", filterValue);
-  //   let arr: any[] = [];
-  //   let treeFiltrato: any[] = [];
-  //   let treeClone: any;
-  //   const dataClone = _.cloneDeep(this.dataAllNodesTree);
-  //   if(this.treeControl.dataNodes) {
-  //     if(this.treeControl.dataNodes.length > 0) {
-  //       treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
-  //         if(typeof item.name === "object") {
-
-  //           return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
-  //         }
-  //         // console.log("============================================");
-  //         // console.log("============================================");
-  //         // console.log("ITEM APPLY FILTER =", item);
-  //         // console.log("ITEM TYPE =", typeof item);
-  //         // console.log("ITEM.NAME =", item.name);
-  //         // console.log("ITEM.NAME TYPE =", typeof item.name);
-  //         // console.log("============================================");
-  //         // console.log("============================================");
-  //         // if(typeof item.name === "object") {
-  //         //   console.log("INCLUDES NAME FILTER VALUE =", item.name.title.toLowerCase().includes(filterValue));
-  //         //   if(item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue)) {
-  //         //     // arr.push(item);
-  //         //     // console.log("ARR =", arr);
-  //         //     //return arr;
-  //         //   }
-  //         //   // return arr
-
-  //         // }
-
-
-  //       })
-  //       // console.log("TREE FILTRATO =", treeFiltrato);
-
-  //     }
-  //     const numeri = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  //     const numeriFiltrati = numeri.filter((item: any) => {
-  //       return item > 5;
-  //     });
-  //     // console.log("NUMERI FILTRATI =", numeriFiltrati);
-  //     treeClone = _.cloneDeep(this.treeControl);
-  //     treeClone.dataNodes = treeFiltrato;
-
-  //   }
-
-  // //  dataClone = _.cloneDeep(this.dataAllNodesTree);
-  //  console.log("TREE CONTROL =", this.treeControl);
-  //  //  console.log("ARR =", arr);
-  //  if(!filterValue) {
-  //   console.log("COLLAPSE");
-
-  //   // this.treeControl.collapseAll();
-  //   // this.dataAllNodesTree = dataClone;
-  //   return this.dataAllNodesTree.data;
-  //   //  this.dataAllNodesTree.data = arr;
-  //   // this.dataAllNodesTree.data = treeFiltrato
-  //   // return this.dataAllNodesTree.data;
-  // }
-  // else {
-  //   console.log("EXPAND");
-  //   // this.treeControl.dataNodes.forEach(tree => {
-  //     //   treeFiltrato.forEach(f => {
-  //       //     if(tree === f) {
-  //   //       tree = f;
-
-  //   //     }
-  //   //   });
-  //   // });
-  //   this.dataAllNodesTree.data = treeFiltrato;
-  //   // this.treeControl.expandAll();
-  //   // this.treeControl.dataNodes = treeFiltrato;
-  //   console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
-  //   this.dataAllNodesTree.data.forEach(element => {
-  //     this.treeControl.dataNodes.forEach(tree => {
-  //       if(element.name === tree.name) {
-  //         if(tree.expandable === true) {
-  //           this.treeControl.expand(tree);
-  //         }
-  //       }
-
-  //     });
-  //     // this.treeControl.expand(element)
-  //   });
-  //   return this.dataAllNodesTree.data;
-  //   // return this.treeControl.dataNodes
-  //     // this.treeControl.dataNodes.forEach(element => {
-
-  //     // });
-  //     // this.dataAllNodesTree.data = arr;
-  //     // this.dataAllNodesTree.data
-  //     // return this.dataAllNodesTree.data;
-  //   }
-
-  //   // this.treeControl.dataNodes = arr;
-  //   // return this.dataAllNodesTree.data
-
-
-  // }
 
   provaFunzione() {
     return [1, 2, 3, 4, 5];

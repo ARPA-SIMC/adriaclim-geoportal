@@ -54,19 +54,19 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
       // this.menuDatasets = data.menuDatasets,
       this.compareObj = data.compareObj;
       this.form = this.fb.group({
-        category: new FormControl(),
-        scale: new FormControl(),
-        timeperiod: new FormControl(),
-        menu: new FormControl(),
+        category: new FormControl(null, Validators.required),
+        scale: new FormControl(null, Validators.required),
+        timeperiod: new FormControl(null, Validators.required),
+        menu: new FormControl(null, Validators.required),
       });
 
       this.getAllNodes();
 
     }
   ngAfterViewInit(): void {
-    if(this.quartoMatSelect) {
-      this.changeHeight();
-    }
+    // if(this.quartoMatSelect) {
+    //   this.changeHeight();
+    // }
     // this.quartoMatSelect.openedChange.subscribe((opened) => {
     //   if (opened) {
     //     const panel = document.querySelector('.mat-mdc-select-panel');
@@ -80,7 +80,7 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
   changeHeight() {
     const panel = document.querySelector('.mat-mdc-select-panel');
     if(panel) {
-      this.renderer.setStyle(panel, 'min-height', '400px'); // Sostituisci con l'altezza desiderata
+      this.renderer.setStyle(panel, 'height', '400px'); // Sostituisci con l'altezza desiderata
       // this.renderer.setStyle(panel, 'max-height', '100vh'); // Sostituisci con l'altezza desiderata
     }
   }
@@ -108,8 +108,10 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
     //   secondVarSel: this.form.get('variableSecondData')?.value,
     // }
     // this.dialogRef.close(data);
+    if(this.form.get("menu")?.value) {
+      this.dialogRef.close(this.form.get("menu")?.value);
 
-    this.dialogRef.close("ok");
+    }
 
   }
 
@@ -138,7 +140,6 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
         });
         this.categoryDatasets = [...new Set(tmpCategoryDatasets)];
         this.form.get("category")?.setValue([this.categoryDatasets[0]]);
-        console.log("FORM CATEGORY ALLO START =", this.form.get("category")?.value);
 
 
         this.resAllNodes.forEach((el: any) => {
@@ -148,7 +149,6 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
         });
         this.scaleDatasets = [...new Set(tmpScale)];
         this.form.get("scale")?.setValue([this.scaleDatasets[0]]);
-        console.log("FORM SCALE ALLO START =", this.form.get("scale")?.value);
 
         this.resAllNodes.forEach((el: any) => {
           if (el.adriaclim_dataset === this.form.get("category")?.value[0] && el.adriaclim_scale === this.form.get("scale")?.value[0]) {
@@ -157,7 +157,6 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
         });
         this.timeperiodDatasets = [...new Set(tmpTimeperiods)];
         this.form.get("timeperiod")?.setValue([this.timeperiodDatasets[0]]);
-        console.log("FORM TIMEPERIOD ALLO START =", this.form.get("timeperiod")?.value);
 
         this.menuDatasets = this.resAllNodes.filter((el: any) => {
           el.adriaclim_dataset === this.form.get("category")?.value && el.adriaclim_scale === this.form.get("scale")?.value && el.adriaclim_timeperiod === this.form.get("timeperiod")?.value
@@ -200,11 +199,9 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
    * Funzione che cambia dinamicamente gli elementi all'interno dei vari menu
    */
   changeSel(type?: string) {
-    console.log("TYPE =", type);
-    console.log("FORM =", this.form.get("category")?.value);
     // this.menuDatasets = [];
     // this.searchFilter = [];
-
+    this.searchInput!.nativeElement.value = '';
     let tmpScale: any[] = [];
     let tmpTimeperiods: any[] = [];
 
