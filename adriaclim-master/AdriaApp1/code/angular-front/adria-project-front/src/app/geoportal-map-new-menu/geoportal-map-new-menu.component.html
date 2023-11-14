@@ -322,6 +322,12 @@
     <button type="button" class="btn-close" (click)="showAlertUploadGeojson = false" aria-label="Close"></button>
   </div>
 
+  <!-- Alert tramite bootstrap con valore booleano controllato nel typescript per notifica dovuta dal click effettuato fuori dal poligono -->
+  <div *ngIf="alertSelectPolygon.openAlert" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert" style="z-index: 1500;">
+    {{alertSelectPolygon.text}}
+    <button type="button" class="btn-close" (click)="alertSelectPolygon.openAlert = false" aria-label="Close"></button>
+  </div>
+
   <!-- MAT MENU PER TOOLS -->
   <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools"> -->
   <div class="overlay-tools">
