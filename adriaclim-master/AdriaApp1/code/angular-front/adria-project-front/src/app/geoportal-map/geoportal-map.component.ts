@@ -330,7 +330,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE RIMUOVE TUTTI I POLIGONI DALLA MAPPA
+   * Funzione che rimuove tutti i poligoni dalla mappa
    */
   removeAllPolygons() {
     // console.log("allPolygons", this.allPolygons);
@@ -342,7 +342,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE RIMUOVE I POLIGONI DALLA MAPPA E AGGIUNGE L'AREA ADRIATICA
+   * Funzione che rimuove i poligoni dalla mappa e aggiunge l'area adriatica
    */
   adriaticView() {
     let polyg: any = [];
@@ -365,7 +365,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE MOSTRA I POLIGONI PRECEDENTEMENTE CONFIGURATI SULLA MAPPA
+   * Funzione che mostra i poligoni precedentemente configurati sulla mappa
    */
   pilotView() {
     let polyg: any = [];
@@ -390,7 +390,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * METODO CHE MOSTRA I DATI DEL POLIGONO CARICATO E SELEZIONATO!
+   * Metodo che mostra i dati del poligono caricato e selezionato
    */
   uploadGeo(): Promise<File> {
 
@@ -491,7 +491,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   // addPolygons() {
 
   /**
-   * METODO CHE APRE LA MODALE DOVE INSERIRE LE COORDINATE
+   * Metodo che apre la modale dove inserire le coordinate
    */
   openModalSelectCoords() {
     if (this.circleMarkerArray.length > 0) {
@@ -523,7 +523,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CON IL GRAFICO CORRISPONDENTE AL PUNTO CLICCATO ALL'INTERNO DEL DATASET SULLA MAPPA
+   * Funzione che permette di aprire la modale con il grafico corrispondente al punto cliccato all'interno del dataset sulla mappa
    */
   pointSelect(lat?: any, lng?: any) {
 
@@ -673,7 +673,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CON IL GRAFICO CORRISPONDENTE AL POLIGONO CLICCATO ALL'INTERNO DEL DATASET SULLA MAPPA
+   * Funzione che permette di aprire la modale con il grafico corrispondente al poligono cliccato all'interno del dataset sulla mappa
    */
   polygonSelect() {
     if (this.circleMarkerArray.length > 0) {
@@ -768,7 +768,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * METODO RICHIAMATO AL CLICK SULLA MAPPA
+   * Metodo richiamato al click sulla mappa
    */
   onMapClick = (e: L.LeafletMouseEvent) => {
 
@@ -895,7 +895,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE RICHIAMA TUTTI I NUOVI DATASET DI ERDDAP ATTRAVERSO I SERVIZI API COLLEGATI AI NODI DEL DATABASE
+   * Funzione che richiama tutti i nuovi dataset di erddap attraverso i servizi api collegati ai nodi del database
    */
   getAllNodes() {
 
@@ -1114,7 +1114,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE RITORNA TUTTI I DATI PER POPOLARE POI IL TREE
+   * Funzione che ritorna tutti i dati per popolare poi il tree
    */
   getInd() {
     this.httpService.post('test/ind', {
@@ -1149,7 +1149,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE POPOLA LA LISTA DEI LAYER ATTIVI NEL PANNELLO ACTIVE LAYERS
+   * Funzione che popola la lista dei layer attivi nel pannello active layers
    */
   addToActiveLayers(node: any) {
     if (this.activeLayersArray.indexOf(node) === -1) {
@@ -1164,7 +1164,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE VIENE LANCIATA OGNI VOLTA CHE SI CAMBIA LA SELEZIONE DEL LAYER ATTRAVERSO LA LISTA DEGLI ACTIVE LAYERS PER AGGIORNARE LA MAPPA
+   * Funzione che viene lanciata ogni volta che si cambia la selezione del layer attraverso la lista degli active layers per aggiornare la mappa
    */
   selActiveLayer(event: any) {
 
@@ -1191,7 +1191,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RECUPERARE I METADATA SEI DATASET
+   * Funzione che permette di recuperare i metadata sei dataset
    */
   getMeta(idMeta: any, controlDate?: any, controlExtra?: any) {
 
@@ -1235,7 +1235,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PRENDE IN INPUT IL NODO E GESTISCE LE SUE INFORMAZIONI PER ESEMPIO LE VARIABILI
+   * Funzione che prende in input il nodo e gestisce le sue informazioni per esempio le variabili
    */
   getSelectedNode(node: any) {
     // console.log("SELECTED NODE MENU CLASSICO VECCHIO =", node);
@@ -1290,7 +1290,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RECUPERARE L'ULTIMO GIORNO DEL MESE
+   * Funzione che permette di recuperare l'ultimo giorno del mese
    */
   lastday(y: any, m: any) {
 
@@ -1298,7 +1298,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE RITORNA IL MESE REALE SUCCESSIVO
+   * Funzione che ritorna il mese reale successivo
    */
   addRealMonth(d: any, months: any) {
     const fm = moment(d).add(months, 'M');
@@ -1307,7 +1307,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE RITORNA IL MESE REALE PRECEDENTE
+   * Funzione che ritorna il mese reale precedente
    */
   subtractRealMonth(d: any, months: any) {
     const fm = moment(d).subtract(months, 'M');
@@ -1389,7 +1389,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI GESTIRE OGNI CASISTICA LEGATA AI BOTTONI PER IL CAMBIO DATA
+   * Funzione che permette di gestire ogni casistica legata ai bottoni per il cambio data
    */
   changeDate(arrow: any) {
 
@@ -1426,10 +1426,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.getMeta(metaId, "ok", this.valueCustom);
     }
     /**
-     * GET LAYER 3D
+     * Get layer 3D
      */
     /**
-     * SLIDER
+     * Slider
      */
     if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
       if (arrow === "left") {
@@ -2405,7 +2405,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI FORMATTARE OTTENENDO LA FORMATTAZIONE CORRETTA DA VISUALIZZARE
+   * Funzione che permette di formattare ottenendo la formattazione corretta da visualizzare
    */
   formatDate(date: any) {
     const d = new Date(date);
@@ -2424,7 +2424,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * TREE
+   * Tree
    */
   /** The selection for checklist */
   checklistSelection = new SelectionModel<ExampleFlatNode>(false /* multiple */);
@@ -2462,7 +2462,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   //   !!node.children && node.children.length > 0;
 
   /**
-   * FUNZIONE CHE APRE LA MODALE CONTENENTE LA TABELLA DEI METADATI DEL DATASET SELEZIONATO
+   * Funzione che apre la modale contenente la tabella dei metadati del dataset selezionato
    */
   openTableDialog(idMeta?: any, title?: any, n?: any) {
     let dataId: any;
@@ -2496,7 +2496,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CONTENENTE IL GRAFICO DEL DATASET SELEZIONATO
+   * Funzione che permette di aprire la modale contenente il grafico del dataset selezionato
    */
   openGraphDialog(lat?: any, lng?: any, polygon?: any) {
     // console.log("SONO DENTRO OPEN GRAPH DIALOG");
@@ -2644,7 +2644,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
+   * Prendiamo i dati del dataset tabledap selezionato
    */
   getDataVectorialTabledap() {
 
@@ -2914,7 +2914,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RIPRISTINARE I COLORI DI DEFAULT DELLA LEGENDA
+   * Funzione che permette di ripristinare i colori di default della legenda
    */
   restoreDefaultColors() {
     this.valueMinColor = this.valueMinColorDefault;
@@ -2926,7 +2926,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI CREARE LA LEGENDA PER I DATI SENZA WMS
+   * Funzione che permette di creare la legenda per i dati senza WMS
    */
   createLegend(value_min: any, value_max: any, value_mid: any) {
     this.removeAllLegends();
@@ -3033,7 +3033,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE PER IL CONFRONTO TRA DUE DATASET
+   * Funzione che permette di aprire la modale per il confronto tra due dataset
    */
   compareDialogModal = () => {
     this.clickPointOnOff = true;
@@ -3068,7 +3068,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI CAMBIARE I COLORI DELLA LEGENDA
+   * Funzione che permette di cambiare i colori della legenda
    */
   changeLegendColors = (title?: string) => {
 
@@ -3218,7 +3218,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE
+   * Filtro per tree con lista al posto del tree
    */
   applyFilter(filterValue: string): any[] {
     if (filterValue) {

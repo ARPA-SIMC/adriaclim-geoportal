@@ -113,7 +113,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
   }
 
   /**
-   * FUNZIONE CHE RITORNA IL COLORE INTERMEDIO PASSANDOGLI DUE COLORI
+   * Funzione che ritorna il colore intermedio passandogli due colori
    */
   mixColors(color1: string, color2: string): string {
     // Convert hexadecimal color strings to RGB values

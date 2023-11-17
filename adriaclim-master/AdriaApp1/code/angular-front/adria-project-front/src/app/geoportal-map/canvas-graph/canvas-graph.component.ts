@@ -293,7 +293,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   // }
 
   /**
-   * FUNZIONE CHE PERMETTE DI FORMATTARE I NUMERI VISUALIZZABILI CON UN MASSIMO DI 2 CIFRE DECIMALI
+   * Funzione che permette di formattare i numeri visualizzabili con un massimo di 2 cifre decimali
    */
   formatNumber(number: any) {
     const decimalCount = (number.toString().split('.')[1] || '').length;
@@ -306,7 +306,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI FORMATTARE LA DATA DA VISUALIZZARE SULLA BASE DELL'OPERAZIONE SELEZIONATA
+   * Funzione che permette di formattare la data da visualizzare sulla base dell'operazione selezionata
    */
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
@@ -583,7 +583,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI MOSTRARE IL GRAFICO DEL POLIGONO
+   * Funzione che permette di mostrare il grafico del poligono
    */
   getDataGraphPolygon(response: any) {
 
@@ -880,7 +880,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI FILTRARE I DATI DA MOSTRARE SUL GRAFICO IN BASE ALLO ZOOM EFFETTUATO
+   * Funzione che permette di filtrare i dati da mostrare sul grafico in base allo zoom effettuato
    */
   filterElement(min: any, max: any) {
     return function (a: any) {
@@ -907,7 +907,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * FUNZIONE CHE GESTISCE I DATI RICEVUTI PER MOSTRARE IL GRAFICO CORRISPONDENTE
+   * Funzione che gestisce i dati ricevuti per mostrare il grafico corrispondente
    */
   getDataGraph() {
     // Controllo che imposta a stringa vuota se l'unità di misura è "No", questo si presenta sopratutto per gli indicatori

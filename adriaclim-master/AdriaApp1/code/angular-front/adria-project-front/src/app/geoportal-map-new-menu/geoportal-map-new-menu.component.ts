@@ -89,11 +89,13 @@ interface SelPolygon {
   providers: [
     {
       provide: MAT_SELECT_CONFIG,
-      useValue: { overlayPanelClass: "select-overlay-pane"}
+      useValue: { overlayPanelClass: "select-overlay-pane" }
     }
   ]
 })
 export class GeoportalMapNewMenuComponent {
+
+  resultMenuDialog: any;
 
   alertSelectPolygon: SelPolygon = {
     openAlert: false,
@@ -359,7 +361,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE RIMUOVE TUTTI I POLIGONI DALLA MAPPA
+   * Funzione che rimuove tutti i poligoni dalla mappa
    */
   removeAllPolygons() {
 
@@ -370,7 +372,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE RIMUOVE I POLIGONI DALLA MAPPA E AGGIUNGE L'AREA ADRIATICA
+   * Funzione che rimuove i poligoni dalla mappa e aggiunge l'area adriatica
    */
   adriaticView() {
     let polyg: any = [];
@@ -393,7 +395,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE MOSTRA I POLIGONI PRECEDENTEMENTE CONFIGURATI SULLA MAPPA
+   * Funzione che mostra i poligoni precedentemente configurati sulla mappa
    */
   pilotView() {
     let polyg: any = [];
@@ -418,7 +420,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * METODO CHE MOSTRA I DATI DEL POLIGONO CARICATO E SELEZIONATO!
+   * Metodo che mostra i dati del poligono caricato e selezionato
    */
   uploadGeo(): Promise<File> {
 
@@ -519,7 +521,7 @@ export class GeoportalMapNewMenuComponent {
   // addPolygons() {
 
   /**
-   * METODO CHE APRE LA MODALE DOVE INSERIRE LE COORDINATE
+   * Metodo che apre la modale dove inserire le coordinate
    */
   openModalSelectCoords() {
     if (this.circleMarkerArray.length > 0) {
@@ -541,7 +543,6 @@ export class GeoportalMapNewMenuComponent {
     };
 
     const dialogRef = this.dialog.open(SelectCoordsDialogComponent, dialogConfig);
-    //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
         this.pointSelect(result.lat, result.lng);
@@ -551,7 +552,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CON IL GRAFICO CORRISPONDENTE AL PUNTO CLICCATO ALL'INTERNO DEL DATASET SULLA MAPPA
+   * Funzione che permette di aprire la modale con il grafico corrispondente al punto cliccato all'interno del dataset sulla mappa
    */
   pointSelect(lat?: any, lng?: any) {
 
@@ -700,7 +701,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CON IL GRAFICO CORRISPONDENTE AL POLIGONO CLICCATO ALL'INTERNO DEL DATASET SULLA MAPPA
+   * Funzione che permette di aprire la modale con il grafico corrispondente al poligono cliccato all'interno del dataset sulla mappa
    */
   polygonSelect() {
     if (this.circleMarkerArray.length > 0) {
@@ -763,7 +764,7 @@ export class GeoportalMapNewMenuComponent {
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
       if (this.highlightedPolygon) {
         if (this.highlightedPolygon.pol.getBounds().contains(e.latlng)) {
-          console.log("POLYGON HIGHLIGHTED =", this.highlightedPolygon);
+          // console.log("POLYGON HIGHLIGHTED =", this.highlightedPolygon);
           this.openGraphDialog(null, null, this.highlightedPolygon)
         }
       }
@@ -799,7 +800,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * METODO RICHIAMATO AL CLICK SULLA MAPPA
+   * Metodo richiamato al click sulla mappa
    */
   onMapClick = (e: L.LeafletMouseEvent) => {
 
@@ -883,6 +884,9 @@ export class GeoportalMapNewMenuComponent {
     }
   }
 
+  /**
+   * Funzione che viene richiamata quando si clicca sul marker
+   */
   markerPointClick() {
     this.openGraphDialog();
 
@@ -926,7 +930,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE RICHIAMA TUTTI I NUOVI DATASET DI ERDDAP ATTRAVERSO I SERVIZI API COLLEGATI AI NODI DEL DATABASE
+   * Funzione che rihciama tutti i nuovi dataset di erddap attraverso i servizi api collegati ai nodi del database
    */
   getAllNodes() {
     this.categoryDatasets = [];
@@ -994,7 +998,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE RITORNA TUTTI I DATI PER POPOLARE POI IL TREE
+   * Funzione che ritorna tutti i dati per popolare poi il tree
    */
   getInd() {
     this.httpService.post('test/ind', {
@@ -1029,7 +1033,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE POPOLA LA LISTA DEI LAYER ATTIVI NEL PANNELLO ACTIVE LAYERS
+   * Funzione che popola la lista dei layer attivi nel pannello active layers
    */
   addToActiveLayers(node: any) {
     if (this.activeLayersArray.indexOf(node) === -1) {
@@ -1044,7 +1048,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE VIENE LANCIATA OGNI VOLTA CHE SI CAMBIA LA SELEZIONE DEL LAYER ATTRAVERSO LA LISTA DEGLI ACTIVE LAYERS PER AGGIORNARE LA MAPPA
+   * Funzione che viene lanciata ogni volta che si cambia la selezione del layer attraverso la lista degli active layers per aggiornare la mappa
    */
   selActiveLayer(event: any) {
 
@@ -1071,7 +1075,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RECUPERARE I METADATA SEI DATASET
+   * Funzione che permette di recuperare i metadata dei dataset
    */
   getMeta(idMeta: any, controlDate?: any, controlExtra?: any) {
 
@@ -1115,7 +1119,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PRENDE IN INPUT IL NODO E GESTISCE LE SUE INFORMAZIONI PER ESEMPIO LE VARIABILI
+   * Funzione che prende in input il nodo e gestisce le sue informazioni per esempio le variabili
    */
   getSelectedNode(node: any) {
     this.variableArray = [];
@@ -1156,7 +1160,7 @@ export class GeoportalMapNewMenuComponent {
     //   this.variableArray = this.variableArray.slice(-1);
     // }
 
-    if(this.variableArray.length > 0) {
+    if (this.variableArray.length > 0) {
       this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
 
     }
@@ -1164,7 +1168,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RECUPERARE L'ULTIMO GIORNO DEL MESE
+   * Funzione che permette di recuperare l'ultimo giorno del mese
    */
   lastday(y: any, m: any) {
 
@@ -1172,7 +1176,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE RITORNA IL MESE REALE SUCCESSIVO
+   * Funzione che ritorna il mese reale successivo
    */
   addRealMonth(d: any, months: any) {
     const fm = moment(d).add(months, 'M');
@@ -1181,7 +1185,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE RITORNA IL MESE REALE PRECEDENTE
+   * Funzione che ritorna il mese reale precedente
    */
   subtractRealMonth(d: any, months: any) {
     const fm = moment(d).subtract(months, 'M');
@@ -1206,13 +1210,16 @@ export class GeoportalMapNewMenuComponent {
     }
   }
 
+  /**
+   * Funzione che restituisce true o false se il valore passato è di tipo stringa o no
+   */
   isAString(val: any): boolean { return typeof val === 'string'; }
 
   disableArrowDate() {
     let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
 
     // if(this.selectedDate.get("dateSel")?.value.toString() === this.dateStart.toString()) {
-    if(selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
+    if (selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
 
       this.navigateDateLeftMonth = true;
       this.navigateDateRightMonth = false;
@@ -1221,7 +1228,7 @@ export class GeoportalMapNewMenuComponent {
       this.navigateDateLeftYear = false;
       this.navigateDateLeftSeason = false;
     }
-    else if(selD.getFullYear() === this.dateEnd.getFullYear() && selD.getMonth() === this.dateEnd.getMonth() && selD.getDate() === this.dateEnd.getDate()) {
+    else if (selD.getFullYear() === this.dateEnd.getFullYear() && selD.getMonth() === this.dateEnd.getMonth() && selD.getDate() === this.dateEnd.getDate()) {
 
       this.navigateDateLeftMonth = false;
       this.navigateDateRightMonth = true;
@@ -1243,7 +1250,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI GESTIRE OGNI CASISTICA LEGATA AI BOTTONI PER IL CAMBIO DATA
+   * Funzione che permette di gestire ogni casistica legata ai bottoni per il cambio data
    */
   changeDate(arrow: any) {
 
@@ -1280,10 +1287,10 @@ export class GeoportalMapNewMenuComponent {
       this.getMeta(metaId, "ok", this.valueCustom);
     }
     /**
-     * GET LAYER 3D
+     * Get layer 3D
      */
     /**
-     * SLIDER
+     * Slider
      */
     if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
       if (arrow === "left") {
@@ -1462,9 +1469,6 @@ export class GeoportalMapNewMenuComponent {
     else if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
       if (arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        //if(selD.getMonth() === 0) { //NON VA FATTO QUESTO CHECK!!!!
-        // selD.setMonth(9);
-        // selD.setFullYear(selD.getFullYear() - 1);
         const d1 = _.cloneDeep(selD);
         if (this.isLastDayOfMonth(d1)) {
           //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
@@ -1724,7 +1728,7 @@ export class GeoportalMapNewMenuComponent {
   dateFilter = (date: Date | null): boolean => { return true; }
 
   /**
-   * FUNZIONE CHE GESTISCE IL PARAMETRO AGGIUNTIVO PER IL CASO SENZA WMS MOSTRANDO, DOVE C'E' IL PARAMETRO, IL NOME E I VALORI CORRETTI
+   * Funzione che gestisce il parametro aggiuntivo per il caso senza WMS mostrando, dove c'è il parametro, il nome e i valori corretti
    */
   extraParamNoWms(metadata: any, controlExtra?: any) {
     const num_parameters = metadata[0][1].split(", ");
@@ -1795,12 +1799,7 @@ export class GeoportalMapNewMenuComponent {
 
   getLayers(idMeta: any, controlDate?: any, controlExtra?: any) {
 
-    //let d = new Date()
-    // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
-    // console.log("Metadata=======",this.metadata);
-
-    // d.setUTCSeconds
 
     const seconds_epoch = this.metadata[0][2].split(",");
 
@@ -2243,7 +2242,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI FORMATTARE OTTENENDO LA FORMATTAZIONE CORRETTA DA VISUALIZZARE
+   * Funzione che permette di formattare ottenendo la formattazione corretta da visualizzare
    */
   formatDate(date: any) {
     const d = new Date(date);
@@ -2262,7 +2261,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * TREE
+   * Tree
    */
   /** The selection for checklist */
   checklistSelection = new SelectionModel<ExampleFlatNode>(false /* multiple */);
@@ -2300,7 +2299,7 @@ export class GeoportalMapNewMenuComponent {
   //   !!node.children && node.children.length > 0;
 
   /**
-   * FUNZIONE CHE APRE LA MODALE CONTENENTE LA TABELLA DEI METADATI DEL DATASET SELEZIONATO
+   * Funzione che apre la modale contenente la tabella dei metadati del dataset selezionato
    */
   openTableDialog(idMeta?: any, title?: any, n?: any) {
     let dataId: any;
@@ -2330,7 +2329,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE CONTENENTE IL GRAFICO DEL DATASET SELEZIONATO
+   * Funzione che permette di aprire la modale contenente il grafico del dataset selezionato
    */
   openGraphDialog(lat?: any, lng?: any, polygon?: any) {
 
@@ -2413,6 +2412,9 @@ export class GeoportalMapNewMenuComponent {
 
   }
 
+  /**
+   * Funzione che permette di aprire una snackbar di angular material per mostrare una notifica
+   */
   openSnackBar(message: string, action: string, horizontal: MatSnackBarHorizontalPosition, vertical: MatSnackBarVerticalPosition) {
     this._snackBar.open(message, action, {
       horizontalPosition: horizontal,
@@ -2420,6 +2422,9 @@ export class GeoportalMapNewMenuComponent {
     });
   }
 
+  /**
+   * Funzione che rimuove tutte le legende al momento applicate alla mappa
+   */
   removeAllLegends() {
     this.allLegendsNoWms.forEach((legend: any) => {
       this.map.removeControl(legend);
@@ -2427,6 +2432,9 @@ export class GeoportalMapNewMenuComponent {
     this.allLegendsNoWms = [];
   }
 
+  /**
+   * Funzione che rimuove tutti i rettangoli al momento applicati alla mappa
+   */
   removeAllRectangles() {
     this.allRectangles.forEach((rectangle: any) => {
       this.map.removeLayer(rectangle);
@@ -2435,7 +2443,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
+   * Prendiamo i dati del dataset tabledap selezionato
    */
   getDataVectorialTabledap() {
 
@@ -2625,7 +2633,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * PRENDIAMO I DATI DEL DATASET TABLEDAP SELEZIONATO
+   * Prendiamo i dati del dataset tabledap selezionato (vecchia)
    */
   getDataVectorialTabledapOld() {
 
@@ -2658,7 +2666,7 @@ export class GeoportalMapNewMenuComponent {
     }).subscribe({
       next: (res: any) => {
         // console.log("RES =", res);
-        if(res.dataVect.includes("HTTP Error 404")) {
+        if (res.dataVect.includes("HTTP Error 404")) {
           this.compliantErrorErddap = "The data is not compliant"
           // console.log("ERR =", this.compliantErrorErddap);
 
@@ -2846,7 +2854,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RIPRISTINARE I COLORI DI DEFAULT DELLA LEGENDA
+   * Funzione che permette di ripristinare i colori di default della legenda
    */
   restoreDefaultColors() {
     this.valueMinColor = this.valueMinColorDefault;
@@ -2858,7 +2866,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI CREARE LA LEGENDA PER I DATI SENZA WMS
+   * Funzione che permette di creare la legenda per i dati senza WMS
    */
   createLegend(value_min: any, value_max: any, value_mid: any) {
     this.removeAllLegends();
@@ -2964,7 +2972,9 @@ export class GeoportalMapNewMenuComponent {
 
   }
 
-  // CREIAMO LA LEGENDA PER I NO WMS
+  /**
+   * Funzione che permette di creare la legenda per i dati senza WMS (vecchia)
+   */
   createLegendOld(value_min: any, value_max: any, value_mid: any) {
     let value_min_mid: any;
     let value_mid_max: any;
@@ -3049,7 +3059,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI APRIRE LA MODALE PER IL CONFRONTO TRA DUE DATASET
+   * Funzione che permette di aprire la modale per il confronto tra due dataset
    */
   compareDialogModal = () => {
     this.clickPointOnOff = true;
@@ -3081,7 +3091,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI CAMBIARE I COLORI DELLA LEGENDA
+   * Funzione che permette di cambiare i colori della legenda
    */
   changeLegendColors = (title?: string) => {
 
@@ -3230,7 +3240,7 @@ export class GeoportalMapNewMenuComponent {
   }
 
   /**
-   *  FILTRO PER TREE CON LISTA AL POSTO DEL TREE
+   * Filtro per tree con lista al posto del tree
    */
   applyFilter(filterValue: string): any[] {
     if (filterValue) {
@@ -3278,31 +3288,31 @@ export class GeoportalMapNewMenuComponent {
   checkExpand(collapse: string) {
     if (collapse === "first") {
       this.isExpandedFirst = !this.isExpandedFirst;
-      if(this.isExpandedFirst) {
+      if (this.isExpandedFirst) {
         this.isExpandedSecond = false;
         this.isExpandedThird = false;
         this.isExpandedFourth = false;
       }
     }
-    else if(collapse === "second") {
+    else if (collapse === "second") {
       this.isExpandedSecond = !this.isExpandedSecond;
-      if(this.isExpandedSecond) {
+      if (this.isExpandedSecond) {
         this.isExpandedFirst = false;
         this.isExpandedThird = false;
         this.isExpandedFourth = false;
       }
     }
-    else if(collapse === "third") {
+    else if (collapse === "third") {
       this.isExpandedThird = !this.isExpandedThird;
-      if(this.isExpandedThird) {
+      if (this.isExpandedThird) {
         this.isExpandedFirst = false;
         this.isExpandedSecond = false;
         this.isExpandedFourth = false;
       }
     }
-    else if(collapse === "fourth") {
+    else if (collapse === "fourth") {
       this.isExpandedFourth = !this.isExpandedFourth;
-      if(this.isExpandedFourth) {
+      if (this.isExpandedFourth) {
         this.isExpandedFirst = false;
         this.isExpandedSecond = false;
         this.isExpandedThird = false;
@@ -3318,10 +3328,10 @@ export class GeoportalMapNewMenuComponent {
     let tmpScale: any[] = [];
     let tmpTimeperiods: any[] = [];
 
-    if(type === "c") {
+    if (type === "c") {
 
       this.resAllNodes.forEach((el: any) => {
-        if(el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value) {
+        if (el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value) {
           tmpScale.push(el.adriaclim_scale);
         }
       });
@@ -3339,7 +3349,7 @@ export class GeoportalMapNewMenuComponent {
       this.menuDatasets = this.resAllNodes.filter((el: any) => el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value && el.adriaclim_timeperiod === this.formMenuDatasets.get("timeperiod")?.value);
 
     }
-    else if(type === "s") {
+    else if (type === "s") {
       this.resAllNodes.forEach((el: any) => {
         if (el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value) {
           tmpTimeperiods.push(el.adriaclim_timeperiod);
@@ -3349,7 +3359,7 @@ export class GeoportalMapNewMenuComponent {
       this.formMenuDatasets.get("timeperiod")?.setValue(this.timeperiodDatasets[0]);
 
     }
-    else if(type === "t") {
+    else if (type === "t") {
       this.menuDatasets = this.resAllNodes.filter((el: any) => el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value && el.adriaclim_timeperiod === this.formMenuDatasets.get("timeperiod")?.value);
     }
 
@@ -3384,20 +3394,17 @@ export class GeoportalMapNewMenuComponent {
       scaleDatasets: this.scaleDatasets,
       timeperiodDatasets: this.timeperiodDatasets,
       menuDatasets: this.menuDatasets,
+      resultMenuDialog: this.resultMenuDialog,
     };
-    dialogConfig.position = {top: '4%'};
+    dialogConfig.position = { top: '4%' };
 
     const dialogRef = this.dialog.open(GeoportalMapMenuDialogComponent, dialogConfig);
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
-        this.selDatasetFromDialog(result);
-        // this.datasetCompare = result;
-        // this.confronto = true;
-        // this.compare = true;
-        // console.log("this.datasetCompare =", this.datasetCompare);
-        // this.pointSelect();
+        this.selDatasetFromDialog(result.menu);
 
+        this.resultMenuDialog = result;
       }
     })
 

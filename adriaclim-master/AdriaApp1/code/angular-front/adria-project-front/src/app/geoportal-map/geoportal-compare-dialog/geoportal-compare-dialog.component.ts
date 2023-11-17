@@ -93,7 +93,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE CHE CONTROLLA SE IL NOME DEL METADATO DIMENSIONS E' UGUALE A UN DETERMINATO NOME E RITORNA IL NOME CORRETTO DA VISUALIZZARE
+   * Funzione che controlla se il nome del metadato dimensions è uguale a un determinato nome e ritorna il nome corretto da visualizzare
    */
   checkDimensions() {
     if(this.firstDataset.name.dimensions > 3) {
@@ -240,7 +240,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE CHE OTTIENE LE VARIABILI DEL PRIMO DATASET SELEZIONATO
+   * Funzione che ottiene le variabili del primo dataset selezionato
    */
   async getSelectedVarFirstDataset(){
 
@@ -287,7 +287,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE CHE OTTIENE LE VARIABILI DEL SECONDO DATASET SELEZIONATO
+   * Funzione che ottiene le variabili del secondo dataset selezionato
    */
   async getSelectedVarSecondDataset(){
 

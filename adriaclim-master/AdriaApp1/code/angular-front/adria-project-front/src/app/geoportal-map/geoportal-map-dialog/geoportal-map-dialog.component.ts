@@ -214,7 +214,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   ];
 
   /**
-   * FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE SOPRA IL GRAFICO DELLA MODALE
+   * Funzione che controlla se mostrare o no le statistiche sopra il grafico della modale
    */
   showStat() {
     if (this.operation === "default") {
@@ -228,7 +228,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE CONTROLLA SE MOSTRARE O NO LE STATISTICHE ATTRAVERSO L'OPERAZIONE SELEZIONATA SOPRA IL GRAFICO DELLA MODALE
+   * Funzione che controlla se mostrare o no le statistiche attraverso l'operazione selezionata sopra il grafico della modale
    */
   showStatPointSelected(checkPoly: any) {
     if (!checkPoly) {
@@ -245,7 +245,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE MOSTRA O NASCONDE IL MENU A TENDINA RIGUARDANTE IL TIME SCALE
+   * Funzione che mostra o nasconde il menu a tendina riguardante il time scale
    */
   removeAnnualCycle(o: any): boolean {
 
@@ -278,7 +278,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE ABILITA O DISABILITA LE STATISTICHE ALL'INTERNO DEL MENU A TENDINA STATISTICS
+   * Funzione che abilita o disabilita le statistiche all'interno del menu a tendina statistics
    */
   disableStatistics(s: any): boolean {
     // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
@@ -417,7 +417,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE CAMBIA IL CONTENUTO DELLA MODALE DEL GRAFICO MOSTRANDO UNA PARTE DEDICATA ALLE INFORMAZIONI INERENTI AL GRAFICO
+   * Funzione che cambia il contenuto della modale del grafico mostrando una parte dedicata alle informazioni inerenti al grafico
    */
   showInfo() {
     // this.info = !this.info;
@@ -470,7 +470,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI OTTENERE I METADATI PER POPOLARE LA TABELLA
+   * Funzione che permette di ottenere i metadati per popolare la tabella
    */
   getMetadataTable() {
 
@@ -535,7 +535,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI POPOLARE LA TABELLA CON I METADATI
+   * Funzione che permette di popolare la tabella con i metadati
    */
   getGraphTable() {
     this.dimUnit = "";
@@ -615,7 +615,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI SCARICARE UN FILE DIRETTAMENTE DALLA PIATTAFORMA ERDDAP TRAMITE L'URL GENERATO CON TUTTE LE INFORMAZIONI NECESSARIE
+   * Funzione che permette di scaricare un file direttamente dalla piattaforma erddap tramite l'url generato con tutte le informazioni necessarie
    */
   exportData(typeSel: any) {
     //siamo nel caso del punto
@@ -806,7 +806,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLA VARIABILE SPINNERLOADING
+   * Funzione che permette di ricevere dal componente figlio il valore della variabile spinnerloading
    */
   spinnerLoadingChild(event: any) {
 
@@ -814,7 +814,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO IL VALORE DELLE STATISTICHE PER IL COMPARE DI DUE DATASET PER POI POPOLARE UN OGGETTO
+   * Funzione che permette di ricevere dal componente figlio il valore delle statistiche per il compare di due dataset per poi popolare un oggetto
    */
   compareStats(event: any) {
     this.stats = {
@@ -827,14 +827,14 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO L'ERRORE RICEVUTO ASSEGNANDOLO ALLA DESCRIZIONE PER MOSTRARLA SULLA MODALE
+   * Funzione che permette di ricevere dal componente figlio l'errore ricevuto assegnandolo alla descrizione per mostrarla sulla modale
    */
   descriptionError(event: any) {
     this.description = event;
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI DELLE STATISTICHE CALCOLATE PER IL DATASET MOSTRATO SUL GRAFICO
+   * Funzione che permette di ricevere dal componente figlio i valori delle statistiche calcolate per il dataset mostrato sul grafico
    */
   meanMedianStdev(event: any) {
     let mean_median_stdev = event.split("_");
@@ -842,7 +842,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI RICEVERE DAL COMPONENTE FIGLIO I VALORI CHE CONTROLLANO LA PROGRESSIONE DELLA PROGRESS BAR DI CARICAMENTO
+   * Funzione che permette di ricevere dal componente figlio i valori che controllano la progressione della progress bar di caricamento
    */
   progressBar(event: any) {
     this.progress = event;
@@ -850,7 +850,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PRENDE IN INPUT I VALORI DELLE STATISTICHE PERMETTE DI FORMATTARE I VALORI CON x10^ QUANDO I NUMERI SONO TROPPO GRANDI O TROPPO PICCOLI
+   * Funzione che prende in input i valori delle statistiche permette di formattare i valori con x10^ quando i numeri sono troppo grandi o troppo piccoli
    */
   expoFormat(mean_median_stdev: any) {
 
@@ -894,7 +894,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE ASSEGNA L'OPERAZIONE E LA STATISTICA SELEZIONATA DALL'UTENTE
+   * Funzione che assegna l'operazione e la statistica selezionata dall'utente
    */
   sendSelGraphPoly() {
     this.operation = this.form.get('operationSel')?.value;
@@ -906,7 +906,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * FUNZIONE CHE PERMETTE DI AGGIORNARE LE STATISTICHE DEL DATASET MOSTRATO SUL GRAFICO
+   * Funzione che permette di aggiornare le statistiche del dataset mostrato sul grafico
    */
   calcStatistics() {
     let data = {

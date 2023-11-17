@@ -29,7 +29,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE CHE REINDIRIZZA ALLA MAPPA E RICARICA LA PAGINA PER MOSTRARE I POLIGONI
+   * Funzione che reindirizza alla mappa e ricarica la pagina per mostrare i poligoni
    */
   goToMap() {
     this.router.navigate(['/map']).then(() => {
@@ -38,7 +38,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE CHE REINDIRIZZA AL LINK ESTERNO DEL WEB PROJECT
+   * Funzione che reindirizza al link esterno del web project
    */
   goToWebProject() {
     window.location.href = this.welJson.webProject;
@@ -46,7 +46,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE CHE REINDIRIZZA AL LINK ESTERNO DEL TOOLKIT
+   * Funzione che reinderizza al link esterno del toolkit
    */
   goToToolkit() {
     window.location.href = this.welJson.toolkit;

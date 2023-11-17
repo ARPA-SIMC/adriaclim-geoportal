@@ -1,7 +1,22 @@
 <form [formGroup]="form" style="width: 500px;">
 
   <div mat-dialog-content class="col-12">
-    <h1 mat-dialog-title><span class="info-title-dialog bolder">Filters</span></h1>
+    <div class="d-flex flex-row justify-content-between align-items-center pb-1">
+      <h1 mat-dialog-title class="d-flex flex-row justify-content-center align-items-center pb-0"><span class="info-title-dialog bolder">Filters</span></h1>
+      <!-- <button type="button" class="btn btn-xs btn-primary">Reset</button> -->
+      <button mat-raised-button color="primary" (click)="resetFilters()">Reset</button>
+    </div>
+
+
+    <!-- <div class="d-flex flex-row justify-content-start align-items-center pb-1">
+      <h1 mat-dialog-title class="d-flex flex-row justify-content-center align-items-center pb-0"><span class="info-title-dialog bolder">Select dataset</span></h1>
+      <button *ngIf="form.get('menu')?.value" style="background-color: #F0F0F0;"
+          class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
+          (click)="openTableDialog()" matTooltip="Info about the layer">
+        <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
+      </button>
+
+    </div> -->
 
     <div class="row">
       <mat-form-field appearance="fill" class="col-12">
@@ -40,7 +55,16 @@
 
     </div>
     <div class="row">
-      <h1 mat-dialog-title><span class="info-title-dialog bolder">Select dataset</span></h1>
+      <div class="d-flex flex-row justify-content-start align-items-center pb-1">
+        <h1 mat-dialog-title class="d-flex flex-row justify-content-center align-items-center pb-0"><span class="info-title-dialog bolder">Select dataset</span></h1>
+        <button *ngIf="form.get('menu')?.value" style="background-color: #F0F0F0;"
+            class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
+            (click)="openTableDialog()" matTooltip="Info about the layer">
+            <!-- matTooltip="Info about the layer"> -->
+          <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
+        </button>
+
+      </div>
     </div>
     <div class="row">
       <mat-form-field appearance="fill" class="col-12">
@@ -68,6 +92,16 @@
 
     </div>
 
+    <!-- <div class="row justify-content-center align-items-center" *ngIf="form.get('menu')?.value">
+      <button style="background-color: #F0F0F0;"
+          class="col-2 border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
+          (click)="openTableDialog()" matTooltip="Info about the layer">
+        <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
+      </button>
+    </div> -->
+    <!-- <div class="row">
+      {{this.form.get("menu")?.value | json}}
+    </div> -->
 
   </div>
 

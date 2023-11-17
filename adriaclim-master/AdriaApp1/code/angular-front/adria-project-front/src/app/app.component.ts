@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
     //this.getMBIndicator("monthly"); //2138.8134632110596 MB per yearly, 8442.947506904602  MB seasonal, 25252.07095527649  MB monthly
 
     /**
-     *  LANCIO DELLA FUNZIONE ALL'ORARIO PREDEFINITO
+     * Lancio della funzione all'orario predefinito
      */
     // console.log("PRIMA");
     // const dataNow = new Date();
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * FUNZIONE DA RICHIAMARE NELL'NGONINIT SOLO PER AGGIORNARE I DATI LATO SVILUPPO QUANDO SERVE POI COMMENTARE
+   * Funzione da richiamare nell'ngoninit solo per aggiornare i dati lato sviluppo quando serve poi commentare
    */
   getAllData() {
     this.httpService.post('myFunctions/getAllDatasets', {
