@@ -12,7 +12,8 @@ import * as L from 'leaflet';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
-import * as poly from '../../assets/geojson/geojson.json';
+// import * as poly from '../../assets/geojson/geojson.json';
+import * as poly from '../../assets/geojson/adriaclim_pilot_label.json';
 import { GeoportalMapDialogComponent } from '../geoportal-map/geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
 import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
@@ -287,16 +288,16 @@ export class GeoportalMapNewMenuComponent {
 
     // this.dataSource.data = TREE_DATA;
 
-    this.filteredData = this.dataAllNodesTree.data;
+    // this.filteredData = this.dataAllNodesTree.data;
     // if(this.selData.get('searchTextDataset')?.value) {
-    this.selData.get('searchTextDataset')?.valueChanges.pipe(
-      startWith(''),
-      debounceTime(500),
-      distinctUntilChanged(),
-      map((text: string) => this.applyFilter(text))
-    ).subscribe((filteredData: any) => {
-      this.filteredData = filteredData;
-    });
+    // this.selData.get('searchTextDataset')?.valueChanges.pipe(
+    //   startWith(''),
+    //   debounceTime(500),
+    //   distinctUntilChanged(),
+    //   map((text: string) => this.applyFilter(text))
+    // ).subscribe((filteredData: any) => {
+    //   this.filteredData = filteredData;
+    // });
 
     // }
 
@@ -974,7 +975,7 @@ export class GeoportalMapNewMenuComponent {
 
         // this.menuDatasets = this.resAllNodes.filter((el: any) => el.adriaclim_dataset === this.formMenuDatasets.get("category")?.value && el.adriaclim_scale === this.formMenuDatasets.get("scale")?.value && el.adriaclim_timeperiod === this.formMenuDatasets.get("timeperiod")?.value);
 
-        this.dataAllNodesTree.data = TREE_DATA;
+        // this.dataAllNodesTree.data = TREE_DATA;
 
         this.dataAllNodes.sort((o1, o2) => {
           if (o1.name.title > o2.name.title) {
@@ -1020,7 +1021,7 @@ export class GeoportalMapNewMenuComponent {
 
         });
 
-        this.dataSource.data = TREE_DATA;
+        // this.dataSource.data = TREE_DATA;
 
 
       },
@@ -2264,37 +2265,37 @@ export class GeoportalMapNewMenuComponent {
    * Tree
    */
   /** The selection for checklist */
-  checklistSelection = new SelectionModel<ExampleFlatNode>(false /* multiple */);
+  // checklistSelection = new SelectionModel<ExampleFlatNode>(false /* multiple */);
 
-  // typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
-  private _transformer = (node: FoodNode, level: number) => {
-    return {
-      expandable: !!node.children && node.children.length > 0,
-      name: node.name,
-      level: level,
-    };
-  };
+  // // typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
+  // private _transformer = (node: FoodNode, level: number) => {
+  //   return {
+  //     expandable: !!node.children && node.children.length > 0,
+  //     name: node.name,
+  //     level: level,
+  //   };
+  // };
 
-  treeControl = new FlatTreeControl<ExampleFlatNode>(
-    node => node.level,
-    node => node.expandable,
-  );
+  // treeControl = new FlatTreeControl<ExampleFlatNode>(
+  //   node => node.level,
+  //   node => node.expandable,
+  // );
 
-  // treeControl = new NestedTreeControl<FoodNode>((node) => node.children);
-  // dataSource = new MatTreeNestedDataSource<FoodNode>();
+  // // treeControl = new NestedTreeControl<FoodNode>((node) => node.children);
+  // // dataSource = new MatTreeNestedDataSource<FoodNode>();
 
-  treeFlattener = new MatTreeFlattener(
-    this._transformer,
-    node => node.level,
-    node => node.expandable,
-    node => node.children,
-  );
+  // treeFlattener = new MatTreeFlattener(
+  //   this._transformer,
+  //   node => node.level,
+  //   node => node.expandable,
+  //   node => node.children,
+  // );
 
-  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  // dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  // dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+  // hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
   // hasChild = (_: number, node: FoodNode) =>
   //   !!node.children && node.children.length > 0;
 
@@ -3242,33 +3243,33 @@ export class GeoportalMapNewMenuComponent {
   /**
    * Filtro per tree con lista al posto del tree
    */
-  applyFilter(filterValue: string): any[] {
-    if (filterValue) {
+  // applyFilter(filterValue: string): any[] {
+  //   if (filterValue) {
 
-      filterValue = filterValue.trim().toLowerCase();
-    }
-    let treeFiltrato: any[] = [];
-    this.dataAllNodesTree.data = TREE_DATA;
+  //     filterValue = filterValue.trim().toLowerCase();
+  //   }
+  //   let treeFiltrato: any[] = [];
+  //   this.dataAllNodesTree.data = TREE_DATA;
 
-    if (this.treeControl.dataNodes) {
-      if (this.treeControl.dataNodes.length > 0) {
-        treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
-          if (typeof item.name === "object") {
+  //   if (this.treeControl.dataNodes) {
+  //     if (this.treeControl.dataNodes.length > 0) {
+  //       treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
+  //         if (typeof item.name === "object") {
 
-            return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
-          }
+  //           return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
+  //         }
 
-        })
+  //       })
 
-      }
-    }
-    if (!filterValue) {
-      return this.dataAllNodesTree.data;
-    }
-    else {
-      return this.dataAllNodesTree.data = treeFiltrato;
-    }
-  }
+  //     }
+  //   }
+  //   if (!filterValue) {
+  //     return this.dataAllNodesTree.data;
+  //   }
+  //   else {
+  //     return this.dataAllNodesTree.data = treeFiltrato;
+  //   }
+  // }
 
   formatNumber(number: any, fix: number) {
     const decimalCount = (number.toString().split('.')[1] || '').length;

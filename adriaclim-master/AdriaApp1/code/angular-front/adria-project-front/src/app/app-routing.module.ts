@@ -9,7 +9,7 @@ const routes: Routes = [
   // { path: "", component: WelcomePageGeoportalComponent },
   { path: '', loadChildren: () => import('./modules/pages/pages.module').then(m => m.PagesModule) },
   { path: "map", component: GeoportalMapComponent },
-  { path: "mapNew", component: GeoportalMapNewComponent },
+  // { path: "mapNew", component: GeoportalMapNewComponent },
   { path: "mapNewMenu", component: GeoportalMapNewMenuComponent },
   { path: "info", component: InfoPageComponent },
 ];
