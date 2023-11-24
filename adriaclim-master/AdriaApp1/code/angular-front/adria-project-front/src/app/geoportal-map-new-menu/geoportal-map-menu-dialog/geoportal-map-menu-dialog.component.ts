@@ -132,7 +132,6 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
         this.categoryDatasets = [...new Set(tmpCategoryDatasets)];
         this.form.get("category")?.setValue([this.categoryDatasets[0]]);
 
-
         this.resAllNodes.forEach((el: any) => {
           if(el.adriaclim_dataset === this.form.get("category")?.value[0]) {
             tmpScale.push(el.adriaclim_scale);
@@ -154,13 +153,7 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
           this.form.get("scale")?.setValue(this.resultMenuDialog.scale);
           this.form.get("timeperiod")?.setValue(this.resultMenuDialog.timeperiod);
         }
-        // this.menuDatasets = this.resAllNodes.filter((el: any) => {
-        //   el.adriaclim_dataset === this.form.get("category")?.value && el.adriaclim_scale === this.form.get("scale")?.value && el.adriaclim_timeperiod === this.form.get("timeperiod")?.value
-        //   const categoryMatch = this.form.get("category")?.value.every((category: any) => category === el.adriaclim_dataset);
-        //   const scaleMatch = this.form.get("scale")?.value.every((scale: any) => scale === el.adriaclim_scale);
-        //   const timeperiodMatch = this.form.get("timeperiod")?.value.every((timeperiod: any) => timeperiod === el.adriaclim_timeperiod);
-        //   return categoryMatch && scaleMatch && timeperiodMatch;
-        // });
+
         let condizione1: any;
         let condizione2: any;
         let condizione3: any;
@@ -180,7 +173,6 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
         console.log('ALL NODES ERROR: ', msg);
       }
     })
-    // this.dataSource.data = TREE_DATA;
 
   }
 

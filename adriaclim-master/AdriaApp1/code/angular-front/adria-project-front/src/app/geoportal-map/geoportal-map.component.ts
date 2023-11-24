@@ -26,31 +26,6 @@ import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, circleCoord
 import { Subject } from 'rxjs';
 import { SpinnerLoaderService } from '../services/spinner-loader.service';
 
-/**
- * Food data with nested structure.
- * Each node has a name and an optional list of children.
- */
-
-// const TREE_DATA: FoodNode[] = [
-//   {
-//     name: 'Fruit',
-//     children: [{name: 'Apple'}, {name: 'Banana'}, {name: 'Fruit loops'}],
-//   },
-//   {
-//     name: 'Vegetables',
-//     children: [
-//       {
-//         name: 'Green',
-//         children: [{name: 'Broccoli'}, {name: 'Brussels sprouts'}],
-//       },
-//       {
-//         name: 'Orange',
-//         children: [{name: 'Pumpkins'}, {name: 'Carrots'}],
-//       },
-//     ],
-//   },
-// ];
-
 const TREE_DATA: FoodNode[] = [
   //i children di tutti sono riempiti in maniera dinamica con il metodo getAllNodes
   {
@@ -61,36 +36,7 @@ const TREE_DATA: FoodNode[] = [
   {
     name: 'Indicators',
     // childVisible: true,
-    children: [
-
-      // {
-      //   name: 'Large scale',
-      //   // childVisible: true,
-      //   children: [
-      //     { name: 'Yearly', children: [] },
-      //     { name: 'Monthly', children: [] },
-      //     { name: 'Seasonal', children: [] }
-      //   ],
-      // },
-      // {
-      //   name: 'Pilot scale',
-      //   // childVisible: true,
-      //   children: [
-      //     { name: 'Yearly', children: [] },
-      //     { name: 'Monthly', children: [] },
-      //     { name: 'Seasonal', children: [] }
-      //   ],
-      // },
-      // {
-      //   name: 'Local scale',
-      //   // childVisible: true,
-      //   children: [
-      //     { name: 'Yearly', children: [] },
-      //     { name: 'Monthly', children: [] },
-      //     { name: 'Seasonal', children: [] }
-      //   ],
-      // },
-    ],
+    children: [],
   },
   {
     name: 'Numerical models',
@@ -277,10 +223,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   // }
 
   async ngAfterViewInit(): Promise<void> {
-
-    // this.landLayers();
-
-    // let geo = L.geoJSON(this.polygon).addTo(this.map);
 
     let polyg: any = [];
 
@@ -528,15 +470,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    */
   pointSelect(lat?: any, lng?: any) {
 
-    // if(this.pointBoolean === false) {
-    // this.pointBoolean = true;
-    // }else{
-    //   this.pointBoolean = false;
-    // }
-    // this.pointBoolean = true;
-    // '../../assets/geojson/geojson.json'
-    // console.log("MAP CONTAINER =", this.map.getContainer().style)
-
     this.map.off('click');
     this.map.getContainer().style.cursor = "url('../../assets/img/pointer-map-marker-removebg.png') 16 31, auto";
     if (this.datasetCompare === null) {
@@ -742,26 +675,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         }
       }
 
-      // const polygonsContainingPoint = this.allPolygons.filter((polygon: any) => {
-      //   const copiaPoly = _.cloneDeep(polygon);
-      //   // console.log("Polygon copy: ", copiaPoly);
-      //   if (this.isPointInsidePolygon(e.latlng, polygon.pol)) {
-      //     console.log("POLYGON =", polygon);
-
-      //     return polygon;
-      //   }
-      //   // if (polygon.pol.getBounds().contains(e.latlng)) {
-      //   //   return polygon;
-      //   // }
-
-      //   // return polygon.pol.getBounds().contains(e.latlng);
-      // }); //poligono che contiene il punto in cui l'utente ha cliccato
-
-      // if (polygonsContainingPoint.length > 0) {
-
-      //   this.openGraphDialog(null, null, polygonsContainingPoint)
-
-      // }
       else {
         alert("Select a polygon");
       }
@@ -1273,15 +1186,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
         }
       });
-      // console.log("Test===========",test);
-      // this.variableArray = node.variable_names.split(" ");
     }
-    // this.isIndicator = node.name.griddap_url !== "" ? false : true; //true se è tabledap, false se è griddap
-    // if (this.isIndicator) {
-
-    //   this.variableArray = this.variableArray.slice(-1);
-    // }
-    // console.log("thisVariableArray: ", this.variableArray);
 
     if (this.variableArray.length > 0) {
       this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
@@ -1351,15 +1256,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   disableArrowDate() {
     let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-    // console.log("DATE SEL =", selD);
-    // console.log("DATE START =", this.dateStart.toString());
-    // console.log("DATE END =", this.dateEnd.toString());
-    // console.log("SELD ANNO MESE GIORNO =", selD.getFullYear(), selD.getMonth(), selD.getDate());
-    // console.log("DATE START ANNO MESE GIORNO =", this.dateStart.getFullYear(), this.dateStart.getMonth(), this.dateStart.getDate());
-    // console.log("DATE END ANNO MESE GIORNO =", this.dateEnd.getFullYear(), this.dateEnd.getMonth(), this.dateEnd.getDate());
 
     // if(this.selectedDate.get("dateSel")?.value.toString() === this.dateStart.toString()) {
-    if(selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
+    if (selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
 
       this.navigateDateLeftMonth = true;
       this.navigateDateRightMonth = false;
@@ -1368,7 +1267,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.navigateDateLeftYear = false;
       this.navigateDateLeftSeason = false;
     }
-    else if(selD.getFullYear() === this.dateEnd.getFullYear() && selD.getMonth() === this.dateEnd.getMonth() && selD.getDate() === this.dateEnd.getDate()) {
+    else if (selD.getFullYear() === this.dateEnd.getFullYear() && selD.getMonth() === this.dateEnd.getMonth() && selD.getDate() === this.dateEnd.getDate()) {
 
       this.navigateDateLeftMonth = false;
       this.navigateDateRightMonth = true;
@@ -1879,12 +1778,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     const max = Number(min_max_value[1]);
     const step = Number(metadata[0][5].split("=")[1]);
 
-    // console.log("ENTRO NEL CASO DEL PARAMETRO AGGIUNTIVO!");
-    // console.log("NOME PARAMETRO AGGIUNTIVO======",name);
-    // console.log("VALORE MIN",min);
-    // console.log("VALORE MAX",max);
-    // console.log("STEP",step);
-
     //se non c'è ci sono questi due if, se c'è hai sempre
     if (name === "depth") {
       // this.extraParam.name = "elevation";
@@ -1922,8 +1815,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         nameExtraParam: name,
       }
     }
-    // if(this.value this.extraParam.maxValue){
-    // console.log("CONSTROL EXTRA: ", controlExtra);
     this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
 
     this.options = {
@@ -1950,9 +1841,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //let d = new Date()
     // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
-    // console.log("Metadata=======",this.metadata);
-
-    // d.setUTCSeconds
 
     const seconds_epoch = this.metadata[0][2].split(",");
 
@@ -2025,7 +1913,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
 
         } else {
-          // console.log("NON DENTRO YEARLY MONTHLY SEASONAL");
 
           //SE NON è SEASONAL,MONTHLY O YEARLY PRENDE TUTTE LE DATE COMPRESE!
           return date >= this.dateStart && date <= this.dateEnd;
@@ -2079,8 +1966,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     }
     else {
 
-      // this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
-
       if (num_parameters.length <= 3) {
         this.isExtraParam = false;
         //siamo nel caso di layers 2D!!!
@@ -2112,11 +1997,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         const min = Number(min_max_value[0]);
         const max = Number(min_max_value[1]);
         const step = Number(this.metadata[0][5].split("=")[1]);
-        // console.log("ENTRO NEL CASO DEL PARAMETRO AGGIUNTIVO!");
-        // console.log("NOME PARAMETRO AGGIUNTIVO======",name);
-        // console.log("VALORE MIN",min);
-        // console.log("VALORE MAX",max);
-        // console.log("STEP",step);
 
         //se non c'è ci sono questi due if, se c'è hai sempre
         if (name === "depth") {
@@ -2155,8 +2035,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             nameExtraParam: name,
           }
         }
-        // if(this.value this.extraParam.maxValue){
-        // console.log("CONSTROL EXTRA: ", controlExtra);
         this.value = controlExtra ? controlExtra : this.extraParam.maxValue.toFixed(4);
         this.options = {
           floor: this.extraParam.minValue,
@@ -2467,9 +2345,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    */
   openTableDialog(idMeta?: any, title?: any, n?: any) {
     let dataId: any;
-    // console.log("ID META =", idMeta);
-    // console.log("title =====",title);
-    // console.log("N =", n);
 
     if (!idMeta) {
       if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
@@ -2505,52 +2380,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
-
-    // if (this.circleMarkerArray.length > 0) {
-    //   this.circleMarkerArray.forEach((circle: any) => {
-    //     circle.removeEventListener('click');
-    //   });
-    // }
-
-    // if(this.confronto) {
-    //   // firstDataset: this.form.get('firstDataset')?.value,
-    //   // secondDataset: this.form.get('secondDataset')?.value,
-    //   // firstVarSel: this.form.get('variableFirstData')?.value,
-    //   // secondVarSel: this.form.get('variableSecondData')?.value,
-    //   let dataId = this.datasetCompare.firstDataset.name.dataset_id;
-    //   let title = this.datasetCompare.firstDataset.name.title;
-    //   let firstDataset = this.datasetCompare.firstDataset;
-    //   let secondDataset = this.datasetCompare.secondDataset;
-    //   let firstVariable = this.datasetCompare.firstVarSel;
-    //   let secondVariable = this.datasetCompare.secondVarSel;
-
-    //   dialogConfig.data = {
-    //     success: true,
-    //     datasetId: dataId,
-    //     datasetName: title,
-    //     confronto: this.confronto,
-    //     firstDataset: firstDataset,
-    //     seconddataset: secondDataset,
-    //     latlng: this.coordOnClick,
-    //     firstVariable: firstVariable,
-    //     secondVariable: secondVariable,
-
-    //     dateStart: this.dateStart,
-    //     dateEnd: this.dateEnd,
-
-    //     // arrayVariable: this.variableArray,
-    //     // range: this.value,
-    //     openGraph: true,
-    //     // extraParamExport: this.extraParamExport,
-    //     // polyExport: polygon ? polygon[0].pol.getBounds() : null,
-    //     // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-    //     // polName: polygon ? polygon[0].polName : null,
-    //     // circleCoords: this.circleCoords,
-    //     isIndicator: this.isIndicator ? "true" : "false",
-    //   };
-
-    // }
-    // else {
 
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
@@ -2590,18 +2419,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         range: this.isExtraParam ? this.value : 0,
         openGraph: true,
         extraParamExport: this.isExtraParam ? this.extraParamExport : null,
-        // polyExport: polygon ? polygon[0].pol.getBounds() : null,
-        // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-        // polName: polygon ? polygon[0].polName : null,
         polyExport: polygon ? polygon.pol.getBounds() : null,
         polygon: polygon ? polygon.pol.getLatLngs()[0] : null,
         polName: polygon ? polygon.polName : null,
         circleCoords: this.circleCoords,
         isIndicator: this.isIndicator ? "true" : "false",
       };
-
-      // console.log("RANGE =", this.value);
-      // console.log("EXTRA PARAM EXPORT =", this.extraParamExport);
 
     }
     else {
@@ -2690,9 +2513,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           // Alert tramite bootstrap con html
           this.showAlertGenericError = true;
 
-          // Alert tramite snackBar angular material
-          // this.openSnackBar("The data is not compliant", "Close", "center", "top");
-
         }
         else {
 
@@ -2724,11 +2544,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             this.removeAllRectangles();
 
           }
-          // this.markersLayer = L.layerGroup();
-          // markersLayer: L.LayerGroup = L.layerGroup();
           let centerLat;
           let centerLong;
-          // console.log("allLatCoordinates", allLatCoordinates);
 
           if (allLatCoordinates.length === 1) {
             centerLat = allLatCoordinates[0];
@@ -2736,13 +2553,10 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           } else {
             const center = Math.round(allLatCoordinates.length / 2);
-            // console.log("Center",center);
             centerLat = allLatCoordinates[center];
             centerLong = allLongCoordinates[center];
           }
 
-          // console.log("centerlat =", centerLat);
-          // console.log("centerlng =", centerLong);
           const zoomTest = L.latLng(centerLat, centerLong);
           if (zoomTest) {
             if (allLatCoordinates.length === 1) {
@@ -2756,8 +2570,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           for (let i = 0; i < allLatCoordinates.length; i++) {
 
-            // console.log("IS INDICATOR =", this.isIndicator);
-
             if (this.isIndicator) {
 
               if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
@@ -2768,8 +2580,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                     lng: allLongCoordinates[i],
                   }
                 )
-                // console.log("this.circleCoords.push",this.circleCoords);
-                //tabledap case, with circle
                 const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
 
                 let varColor: any;
@@ -2811,12 +2621,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
                   varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
 
                 }
-
-                // this.map.removeLayer(this.rettangoliLayer);
-                // if(rectangle) {
-                //   this.map.removeLayer(rectangle);
-                // }
-                // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
 
                 rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
                 this.allRectangles.push(rectangle);
@@ -3043,7 +2847,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     //dobbiamo passargli la lista dei layers attivi!
-    // console.log("this.activeLayersArray =", this.activeLayersArray);
 
     dialogConfig.data = {
       activeLayersArray: this.activeLayersArray,
@@ -3053,14 +2856,9 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
-        // this.allPolygons.forEach(element => {
-        //   element.pol.off("mouseover");
-        // });
-        // console.log("result =", result);
         this.datasetCompare = result;
         this.confronto = true;
         this.compare = true;
-        // console.log("this.datasetCompare =", this.datasetCompare);
         this.pointSelect();
 
       }
@@ -3205,7 +3003,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
             const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
 
-            // const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i])
             const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
             // .bindTooltip(allValues[i]);
             this.rettangoliLayer.addLayer(rectangle);
@@ -3238,7 +3035,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
 
         })
-        // console.log("TREE FILTRATO =", treeFiltrato);
 
       }
     }

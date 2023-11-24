@@ -130,40 +130,17 @@
 
                     </mat-tree-node>
 
-                    <!-- <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-                    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
-                      <mat-icon class="mat-icon-rtl-mirror">
-                        {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                      </mat-icon>
-                    </button>
-                    {{node.name}}
-
-                  </mat-tree-node> -->
-
                   </mat-tree>
 
-                  <!-- <button mat-menu-item>A 1</button>
-                <button mat-menu-item>A 2</button>
-                <button mat-menu-item>A 3</button> -->
                 </ng-template>
               </mat-menu>
             </mat-radio-group>
           </form>
 
-          <!-- <button fxFlex="20" mat-raised-button color="warn"
-          #menuTrigger="matMenuTrigger"
-          [matMenuTriggerFor]="myMenu2"> <span class="text-menu"> Variable </span></button> -->
-          <!-- (mouseenter)="openMyMenu(menuTrigger)" -->
-
           <!-- <div fxFlex="20" fxLayout="row" class="menu-var" LayoutAlign="center center"> -->
           <div class="menu-var col-2 row" LayoutAlign="center center">
             <form [formGroup]="variableGroup">
               <ng-container *ngIf="variableArray.length > 0; else noVariable">
-                <!-- <ng-container *ngFor="let v of variableArray; let lastItem = last">
-
-                <button mat-menu-item>{{v}}</button>
-                <mat-divider *ngIf="!lastItem"></mat-divider>
-              </ng-container> -->
 
                 <mat-form-field appearance="fill" class="prova-form">
                   <mat-label>Select variable</mat-label>
@@ -335,10 +312,6 @@
                 (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
                 <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
               </button>
-              <!-- <button fxFlex="40" matTooltip="Remove the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'red'}" -->
-              <!-- <button (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"><mat-icon [ngStyle]="{'color': 'red'}"
-                  >delete</mat-icon>
-              </button> -->
 
             </div>
           </div>
