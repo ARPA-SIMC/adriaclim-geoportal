@@ -8,8 +8,9 @@ import { GeoportalMapNewMenuComponent } from './geoportal-map-new-menu/geoportal
 const routes: Routes = [
   // { path: "", component: WelcomePageGeoportalComponent },
   { path: '', loadChildren: () => import('./modules/pages/pages.module').then(m => m.PagesModule) },
-  { path: "map", component: GeoportalMapComponent },
-  // { path: "mapNew", component: GeoportalMapNewComponent },
+  //Scommentare per usare vecchio menu
+  // { path: "map", component: GeoportalMapComponent },
+  //Scommentare per usare nuovo menu
   { path: "mapNewMenu", component: GeoportalMapNewMenuComponent },
   { path: "info", component: InfoPageComponent },
 ];

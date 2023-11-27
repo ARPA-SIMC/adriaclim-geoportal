@@ -80,7 +80,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   compliantErrorErddap = "";
   showAlertGenericError = false;
@@ -449,7 +449,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     //dobbiamo passargli la lista dei layers attivi!
-    // console.log("this.activeLayersArray =", this.activeLayersArray);
 
     dialogConfig.data = {
       selectCoords: this.selectCoords,
@@ -497,9 +496,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       // this.clickPointOnOff = false;
     }
     else {
-      // console.log("ENTRO NELL'ELSE QUESTO è IL VALORE DI THIS.SELECTCOORDS",this.selectCoords);
       if (this.selectCoords) {
-        // console.log("SONO DENTRO SELECTCOORDS");
 
         this.map.getContainer().style.cursor = "default";
 
@@ -543,12 +540,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           button.className = 'border btn btn-xs btn-icon px-0 col-3 d-flex flex-row justify-content-center align-items-center';
           button.style.backgroundColor = '#F0F0F0';
           button.innerHTML = "<span class='material-icons col-12' style='color: red; font-size: 20px'>delete</span>";
-          // button.innerHTML = "<span class='material-icons col-12' style='color: red;>delete</span>";
-          // <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
-          //         (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
-          //         <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
-          //         </button>
-          // <i class="material-icons" style="font-size:48px;color:red">delete</i>
           button.addEventListener('click', () => {
             this.map.removeLayer(this.markerPoint);
           });
@@ -556,16 +547,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           const lat_lng = this.markerPoint.getLatLng();
 
           const content = document.createElement('div');
-          // content.className = 'd-flex flex-row justify-content-center align-items-center';
           content.style.display = 'flex';
           content.style.flexDirection = 'column';
           content.style.alignItems = 'center';
           content.style.justifyContent = 'center';
           content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
-          // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
           content.appendChild(button);
 
-          // this.markerPoint.on('click', this.markerPointClick.bind(this));
           if (this.datasetCompare === null) {
             this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
 
@@ -590,20 +578,11 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         else {
           this.map.off('click');
           this.map.getContainer().style.cursor = "default";
-          // this.map.on('click', this.onMapClick.bind(this));
 
         }
 
       }
     }
-    // if(this.markerToAdd) {
-    //   this.markerToAdd.addEventListener('click', (e: any) => this.openGraphDialog(this.markerToAdd.getLatLng().lat,this.markerToAdd.getLatLng().lng));
-
-    // }
-
-    // }
-
-    // this.initMap();
   }
 
   /**
@@ -631,7 +610,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     else {
       this.map.off('click');
       this.map.getContainer().style.cursor = "default";
-      // this.map.on('click', this.onMapClick.bind(this));
 
     }
 
@@ -664,7 +642,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.openGraphDialog();
 
     } else {
-      //console.log("EVENT POLYGON =", e);
       //chiamare il backend prendendo tutti i punti e poi filtrare quelli che sono dentro il poligono
       //è il modo più giusto?
       //oppure prendere tutti i punti e poi filtrare quelli che sono dentro il poligono
@@ -699,16 +676,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.openGraphDialog();
     const marker = L.marker(e.latlng, {
       icon: L.icon({
-        // iconSize: [25, 41],
         iconSize: [32, 32],
         iconAnchor: [16, 32],
-        // iconUrl: 'marker-icon.png',
         iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
       })
     });
     marker.on('click', this.onMarkerClick.bind(this));
 
-    // marker.addTo(this.map);
     this.markers.push(marker);
     if (this.selData.get("dataSetSel")?.value) {
       if (this.markerPoint) {
@@ -716,27 +690,17 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       }
       this.markerPoint = L.marker(e.latlng, {
         icon: L.icon({
-          // iconSize: [25, 41],
           iconSize: [32, 32],
           iconAnchor: [16, 32],
-          // iconUrl: 'marker-icon.png',
           iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
         })
       })
-        // .bindPopup("Info marker")
         .addTo(this.map)
 
       const button = document.createElement('button');
-      // button.classList.add('btn');
       button.className = 'border btn btn-xs btn-icon px-0 col-3 d-flex flex-row justify-content-center align-items-center';
       button.style.backgroundColor = '#F0F0F0';
       button.innerHTML = "<span class='material-icons col-12' style='color: red; font-size: 20px'>delete</span>";
-      // button.innerHTML = "<span class='material-icons col-12' style='color: red;>delete</span>";
-      // <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
-      //         (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
-      //         <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
-      //         </button>
-      // <i class="material-icons" style="font-size:48px;color:red">delete</i>
       button.addEventListener('click', () => {
         this.map.removeLayer(this.markerPoint);
       });
@@ -744,16 +708,13 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       const lat_lng = this.markerPoint.getLatLng();
 
       const content = document.createElement('div');
-      // content.className = 'd-flex flex-row justify-content-center align-items-center';
       content.style.display = 'flex';
       content.style.flexDirection = 'column';
       content.style.alignItems = 'center';
       content.style.justifyContent = 'center';
       content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
-      // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
       content.appendChild(button);
 
-      // this.markerPoint.on('click', this.markerPointClick.bind(this));
       if (this.datasetCompare === null) {
         this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
 
@@ -767,18 +728,15 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   markerPointClick() {
-    // console.log("MARKER POINT CLICKED");
     this.openGraphDialog();
 
   }
 
   removeMarker() {
     // this.map.removeLayer(this.markerPoint);
-    // console.log("SONO DENTRO REMOVE MARKER");
   }
 
   onMarkerClick(event: any) {
-    // console.log("MARKER CLICKED");
     const marker = event.target;
 
     this.map.removeLayer(marker);
@@ -787,7 +745,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   openMyMenu(menuTrigger: MatMenuTrigger) {
 
-    // menuTrigger.openMenu();
     menuTrigger.openMenu();
   }
 
@@ -816,7 +773,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.httpService.post('test/allNodes', {
     }).subscribe({
       next: (res: any) => {
-        // console.log("SUB NEXT");
 
         res.nodes.forEach((node: any) => {
 
@@ -1023,7 +979,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         console.log('ALL NODES ERROR: ', msg);
       }
     })
-    // this.dataSource.data = TREE_DATA;
 
   }
 
@@ -1045,7 +1000,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
             time?.children?.push({
               name: ind
             });
-            // time.childVisible = true;
           }
 
         });
@@ -1129,8 +1083,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           }
         }
         this.metadata = res;
-        // console.log("METADATA =", this.metadata);
-        // console.log("Id meta======", idMeta);
 
         if (controlDate === "ok") {
 
@@ -1152,14 +1104,12 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * Funzione che prende in input il nodo e gestisce le sue informazioni per esempio le variabili
    */
   getSelectedNode(node: any) {
-    // console.log("SELECTED NODE MENU CLASSICO VECCHIO =", node);
 
     this.variableArray = [];
 
     if (node.name) {
       let variableNames = node.name.variable_names.split(" ");
       let variableTypes = node.name.variable_types.split(" ");
-      // console.log("VariableName===========", variableNames, "variable types==========", variableTypes);
       variableNames.forEach((variableName: any, index: number) => {
         // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
 
@@ -1171,8 +1121,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
         }
       });
-      // console.log("Test===========",test);
-      // this.variableArray = node.name.variable_names.split(" ");
     }
     else if (node.variable_names) {
       let variableNames = node.variable_names.split(" ");
@@ -1509,9 +1457,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     else if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "seasonal") {
       if (arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
-        //if(selD.getMonth() === 0) { //NON VA FATTO QUESTO CHECK!!!!
-        // selD.setMonth(9);
-        // selD.setFullYear(selD.getFullYear() - 1);
         const d1 = _.cloneDeep(selD);
         if (this.isLastDayOfMonth(d1)) {
           //SIAMO ALL'ULTIMO GIORNO DEL MESE!!!!!!!!!
@@ -1575,8 +1520,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
 
-        // selD.setMonth(0);
-        // selD.setFullYear(selD.getFullYear() + 1);
         if (this.isLastDayOfMonth(d1)) {
           //SIAMO A RIGHT E ALL'ULTIMO GIORNO DEL MESE CASE!
           let d2 = _.cloneDeep(selD);
@@ -1838,8 +1781,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
   getLayers(idMeta: any, controlDate?: any, controlExtra?: any) {
 
-    //let d = new Date()
-    // d.setUTCSeconds
     this.metadata = this.metadata["metadata"];
 
     const seconds_epoch = this.metadata[0][2].split(",");
@@ -1860,7 +1801,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.dateFilter = (date: Date | null): boolean => {
       if (date) {
-        // console.log("TIME PERIOD DATASET SEL =", this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod);
 
         if (this.selData.get("dataSetSel")?.value.name.adriaclim_timeperiod === "yearly") {
           console.log("DENTRO YEARLY");
@@ -1922,7 +1862,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         return true;
       }
     }
-    // this.myFilter(this.selectedDate.get("dateSel")?.value);
 
     let time;
     if (controlDate === "ok") {
@@ -1954,9 +1893,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     const layer_name = this.variableGroup.get("variableControl")?.value;
 
-    //if num_parameters.length > 3, layers3D!!!
     const num_parameters = this.metadata[0][1].split(", ");
-    // console.log("NUM PARAMETERS =", num_parameters.length);
 
     if (this.selData.get("dataSetSel")?.value.name.wms_url === "") {
 
@@ -1984,7 +1921,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
               opacity: 0.7,
             } as ExtendedWMSOptions)
         };
-        // console.log("NON ENTRO NEL PARAMETRO AGGIUNTIVO");
 
         this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
 
@@ -2000,7 +1936,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
         //se non c'è ci sono questi due if, se c'è hai sempre
         if (name === "depth") {
-          // this.extraParam.name = "elevation";
           this.extraParam = {
             name: "Elevation",
             minValue: - max,
@@ -2109,7 +2044,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   sliderControl(event: any) {
-    // console.log("EVENTO SLIDERRRRRRRRR =", event.value);
 
     this.valueCustom = event.value;
     let metaId: any;
@@ -2250,9 +2184,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     });
     if (this.activeLayersArray.length >= 1) {
       this.selData.get("dataSetSel")?.setValue(this.activeLayersArray[this.activeLayersArray.length - 1]);
-      // if(this.selData.get("dataSetSel")?.value) {
-      //   this.getMeta();
-      // }
       if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
       }
@@ -2308,7 +2239,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   /** The selection for checklist */
   checklistSelection = new SelectionModel<ExampleFlatNode>(false /* multiple */);
 
-  // typesOfShoes: string[] = ['Boots', 'Clogs', 'Loafers', 'Moccasins', 'Sneakers'];
   private _transformer = (node: FoodNode, level: number) => {
     return {
       expandable: !!node.children && node.children.length > 0,
@@ -2322,9 +2252,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     node => node.expandable,
   );
 
-  // treeControl = new NestedTreeControl<FoodNode>((node) => node.children);
-  // dataSource = new MatTreeNestedDataSource<FoodNode>();
-
   treeFlattener = new MatTreeFlattener(
     this._transformer,
     node => node.level,
@@ -2337,8 +2264,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   dataAllNodesTree = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
-  // hasChild = (_: number, node: FoodNode) =>
-  //   !!node.children && node.children.length > 0;
 
   /**
    * Funzione che apre la modale contenente la tabella dei metadati del dataset selezionato
@@ -2375,7 +2300,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * Funzione che permette di aprire la modale contenente il grafico del dataset selezionato
    */
   openGraphDialog(lat?: any, lng?: any, polygon?: any) {
-    // console.log("SONO DENTRO OPEN GRAPH DIALOG");
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -2383,8 +2307,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
-
-      // console.log("DATASET SELEZIONATO =", this.selData.get("dataSetSel")?.value);
 
       // CASO DATASET SELEZIONATO
       const title = this.selData.get("dataSetSel")?.value.name.title;
@@ -2403,7 +2325,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         this.coordOnClick = { "lat": lat, "lng": lng };
       }
 
-      // console.log("POLYGON =", polygon);
       dialogConfig.data = {
         success: true,
         datasetId: dataId,
@@ -2413,7 +2334,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         latlng: this.coordOnClick,
         dateStart: this.dateStart,
         dateEnd: this.dateEnd,
-        // variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
         variable: this.variableGroup.get("variableControl")?.value,
         arrayVariable: this.getValuesByKey(this.variableArray, "name"),
         range: this.isExtraParam ? this.value : 0,
@@ -2435,7 +2355,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         openGraph: true,
       };
     }
-    // console.log("DATASET COMPARE =", this.datasetCompare);
 
     if (this.datasetCompare != null && this.compare) {
       this.compareObj = {
@@ -2452,9 +2371,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.compare = false;
       this.datasetCompare = null;
     }
-    // console.log("DIALOG CONFIG DATA =", dialogConfig.data);
-
-    // }
 
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
 
@@ -2505,10 +2421,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        // console.log("RES VECTORIAL =", res);
         if (res.dataVect.includes("HTTP Error 404")) {
           this.compliantErrorErddap = "The data is not compliant"
-          // console.log("ERR =", this.compliantErrorErddap);
 
           // Alert tramite bootstrap con html
           this.showAlertGenericError = true;
@@ -2603,7 +2517,6 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
             } else {
 
-              // this.rettangoliLayer.clearLayers();
               //griddap case with rectangle, NON SERVONO I MARKER!
 
               if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {

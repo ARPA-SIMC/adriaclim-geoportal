@@ -32,6 +32,12 @@ export class WelcomeComponent implements OnInit {
    * Funzione che reindirizza alla mappa e ricarica la pagina per mostrare i poligoni
    */
   goToMap() {
+    // Scommentare per usare vecchio menu
+    // this.router.navigate(['/map']).then(() => {
+    //   window.location.reload();
+    // });
+
+    // Scommentare per usare nuovo menu
     this.router.navigate(['/mapNewMenu']).then(() => {
       window.location.reload();
     });

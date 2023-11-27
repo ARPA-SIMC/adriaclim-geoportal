@@ -87,7 +87,7 @@ export class GeoportalMapNewMenuComponent {
   markersLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   compliantErrorErddap = "";
   showAlert = false;
@@ -222,10 +222,6 @@ export class GeoportalMapNewMenuComponent {
 
   async ngAfterViewInit(): Promise<void> {
 
-    // this.landLayers();
-
-    // let geo = L.geoJSON(this.polygon).addTo(this.map);
-
     let polyg: any = [];
 
     this.polygon.features.forEach(f => {
@@ -237,7 +233,6 @@ export class GeoportalMapNewMenuComponent {
           });
 
           polyg.push(c);
-          // poligon = L.polygon(c);
         });
 
         let pol = L.polygon(polyg[0]).addTo(this.map);
@@ -295,7 +290,6 @@ export class GeoportalMapNewMenuComponent {
       if (f.properties.popupContent === "") {
         f.geometry.coordinates.forEach(c => {
           polyg.push(c);
-          // poligon = L.polygon(c);
         });
         const pol = L.polygon(polyg[0]).addTo(this.map);
         this.allPolygons.push({
@@ -317,7 +311,6 @@ export class GeoportalMapNewMenuComponent {
     this.polygon.features.forEach(f => {
       f.geometry.coordinates.forEach(c => {
         polyg.push(c);
-        // poligon = L.polygon(c);
       });
       const pol = L.polygon(polyg[0]);
       if (f.properties.popupContent !== "") {
@@ -370,7 +363,6 @@ export class GeoportalMapNewMenuComponent {
                   });
 
                   polyg.push(c);
-                  // poligon = L.polygon(c);
                 });
 
                 let pol = L.polygon(polyg[0]).addTo(this.map);
@@ -450,7 +442,6 @@ export class GeoportalMapNewMenuComponent {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     //dobbiamo passargli la lista dei layers attivi!
-    // console.log("this.activeLayersArray =", this.activeLayersArray);
 
     dialogConfig.data = {
       selectCoords: this.selectCoords,
@@ -497,7 +488,6 @@ export class GeoportalMapNewMenuComponent {
         });
       });
       this.map.off("click");
-      // this.clickPointOnOff = false;
     }
     else {
 
@@ -513,16 +503,13 @@ export class GeoportalMapNewMenuComponent {
         this.openGraphDialog();
         const marker = L.marker(latlng, {
           icon: L.icon({
-            // iconSize: [25, 41],
             iconSize: [32, 32],
             iconAnchor: [16, 32],
-            // iconUrl: 'marker-icon.png',
             iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
           })
         });
         marker.on('click', this.onMarkerClick.bind(this));
 
-        // marker.addTo(this.map);
         this.markers.push(marker);
         if (this.selData.get("dataSetSel")?.value) {
           if (this.markerPoint) {
@@ -530,27 +517,17 @@ export class GeoportalMapNewMenuComponent {
           }
           this.markerPoint = L.marker(latlng, {
             icon: L.icon({
-              // iconSize: [25, 41],
               iconSize: [32, 32],
               iconAnchor: [16, 32],
-              // iconUrl: 'marker-icon.png',
               iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
             })
           })
-            // .bindPopup("Info marker")
             .addTo(this.map)
 
           const button = document.createElement('button');
-          // button.classList.add('btn');
           button.className = 'border btn btn-xs btn-icon px-0 col-3 d-flex flex-row justify-content-center align-items-center';
           button.style.backgroundColor = '#F0F0F0';
           button.innerHTML = "<span class='material-icons col-12' style='color: red; font-size: 20px'>delete</span>";
-          // button.innerHTML = "<span class='material-icons col-12' style='color: red;>delete</span>";
-          // <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
-          //         (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
-          //         <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
-          //         </button>
-          // <i class="material-icons" style="font-size:48px;color:red">delete</i>
           button.addEventListener('click', () => {
             this.map.removeLayer(this.markerPoint);
           });
@@ -558,16 +535,13 @@ export class GeoportalMapNewMenuComponent {
           const lat_lng = this.markerPoint.getLatLng();
 
           const content = document.createElement('div');
-          // content.className = 'd-flex flex-row justify-content-center align-items-center';
           content.style.display = 'flex';
           content.style.flexDirection = 'column';
           content.style.alignItems = 'center';
           content.style.justifyContent = 'center';
           content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
-          // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
           content.appendChild(button);
 
-          // this.markerPoint.on('click', this.markerPointClick.bind(this));
           if (this.datasetCompare === null) {
             this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
 
@@ -592,7 +566,6 @@ export class GeoportalMapNewMenuComponent {
         else {
           this.map.off('click');
           this.map.getContainer().style.cursor = "default";
-          // this.map.on('click', this.onMapClick.bind(this));
 
         }
 
@@ -629,7 +602,6 @@ export class GeoportalMapNewMenuComponent {
     else {
       this.map.off('click');
       this.map.getContainer().style.cursor = "default";
-      // this.map.on('click', this.onMapClick.bind(this));
 
     }
 
@@ -656,7 +628,6 @@ export class GeoportalMapNewMenuComponent {
   }
 
   onPolygonClick = (e: L.LeafletMouseEvent) => {
-    // this.map.off('click');
     if (this.activeLayersArray.length === 0) {
       //hai cliccato il bottone e un punto ma non ci sono layer attivi
       this.openGraphDialog();
@@ -675,7 +646,6 @@ export class GeoportalMapNewMenuComponent {
           openAlert: true,
           text: "Select a polygon"
         };
-        // alert("Select a polygon");
       }
     }
   }
@@ -698,16 +668,13 @@ export class GeoportalMapNewMenuComponent {
     this.openGraphDialog();
     const marker = L.marker(e.latlng, {
       icon: L.icon({
-        // iconSize: [25, 41],
         iconSize: [32, 32],
         iconAnchor: [16, 32],
-        // iconUrl: 'marker-icon.png',
         iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
       })
     });
     marker.on('click', this.onMarkerClick.bind(this));
 
-    // marker.addTo(this.map);
     this.markers.push(marker);
     if (this.selData.get("dataSetSel")?.value) {
       if (this.markerPoint) {
@@ -715,10 +682,8 @@ export class GeoportalMapNewMenuComponent {
       }
       this.markerPoint = L.marker(e.latlng, {
         icon: L.icon({
-          // iconSize: [25, 41],
           iconSize: [32, 32],
           iconAnchor: [16, 32],
-          // iconUrl: 'marker-icon.png',
           iconUrl: '../../assets/img/pointer-map-marker-removebg.png',
         })
       })
@@ -730,12 +695,6 @@ export class GeoportalMapNewMenuComponent {
       button.className = 'border btn btn-xs btn-icon px-0 col-3 d-flex flex-row justify-content-center align-items-center';
       button.style.backgroundColor = '#F0F0F0';
       button.innerHTML = "<span class='material-icons col-12' style='color: red; font-size: 20px'>delete</span>";
-      // button.innerHTML = "<span class='material-icons col-12' style='color: red;>delete</span>";
-      // <button style="background-color: #F0F0F0;" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"
-      //         (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
-      //         <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
-      //         </button>
-      // <i class="material-icons" style="font-size:48px;color:red">delete</i>
       button.addEventListener('click', () => {
         this.map.removeLayer(this.markerPoint);
       });
@@ -743,16 +702,13 @@ export class GeoportalMapNewMenuComponent {
       const lat_lng = this.markerPoint.getLatLng();
 
       const content = document.createElement('div');
-      // content.className = 'd-flex flex-row justify-content-center align-items-center';
       content.style.display = 'flex';
       content.style.flexDirection = 'column';
       content.style.alignItems = 'center';
       content.style.justifyContent = 'center';
       content.innerHTML = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5) + "<br>";
-      // content.textContent = "Lat: " + lat_lng.lat.toFixed(5) + ", Lng: " + lat_lng.lng.toFixed(5);
       content.appendChild(button);
 
-      // this.markerPoint.on('click', this.markerPointClick.bind(this));
       if (this.datasetCompare === null) {
         this.markerPoint.on('dblclick', this.markerPointClick.bind(this));
 
@@ -789,7 +745,6 @@ export class GeoportalMapNewMenuComponent {
 
   openMyMenu(menuTrigger: MatMenuTrigger) {
 
-    // menuTrigger.openMenu();
     menuTrigger.openMenu();
   }
 
@@ -801,11 +756,9 @@ export class GeoportalMapNewMenuComponent {
     this.httpService.post('test/pluto', {
     }).subscribe({
       next(position: any) {
-        // console.log("PLUTO =", position);
 
       },
       error(msg: any) {
-        // console.log('PLUTO ERROR: ', msg);
       }
     });
   }
@@ -827,7 +780,6 @@ export class GeoportalMapNewMenuComponent {
     this.httpService.post('test/allNodes', {
     }).subscribe({
       next: (res: any) => {
-        // console.log("RES NODES =", res.nodes);
 
         this.resAllNodes = res.nodes;
 
@@ -924,8 +876,6 @@ export class GeoportalMapNewMenuComponent {
           }
         }
         this.metadata = res;
-        // console.log("METADATA =", this.metadata);
-        // console.log("Id meta======", idMeta);
 
         if (controlDate === "ok") {
 
@@ -1020,7 +970,6 @@ export class GeoportalMapNewMenuComponent {
   }
 
   isLastDayOfMonth(d: any) {
-    // d.setDate(d.getDate() + 1);
     if (d.getDate() === 1) {
       return true;
     } else {
@@ -1036,7 +985,6 @@ export class GeoportalMapNewMenuComponent {
   disableArrowDate() {
     let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
 
-    // if(this.selectedDate.get("dateSel")?.value.toString() === this.dateStart.toString()) {
     if (selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
 
       this.navigateDateLeftMonth = true;
@@ -1350,8 +1298,6 @@ export class GeoportalMapNewMenuComponent {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
 
-        // selD.setMonth(0);
-        // selD.setFullYear(selD.getFullYear() + 1);
         if (this.isLastDayOfMonth(d1)) {
           //SIAMO A RIGHT E ALL'ULTIMO GIORNO DEL MESE CASE!
           let d2 = _.cloneDeep(selD);
@@ -1726,9 +1672,7 @@ export class GeoportalMapNewMenuComponent {
 
     const layer_name = this.variableGroup.get("variableControl")?.value;
 
-    //if num_parameters.length > 3, layers3D!!!
     const num_parameters = this.metadata[0][1].split(", ");
-    // console.log("NUM PARAMETERS =", num_parameters.length);
 
     if (this.selData.get("dataSetSel")?.value.name.wms_url === "") {
 
@@ -1738,7 +1682,6 @@ export class GeoportalMapNewMenuComponent {
     }
     else {
 
-      // this.legendLayer_src = this.ERDDAP_URL + "/griddap/" + idMeta + ".png?" + layer_name + "%5B(" + this.formatDate(time) + ")%5D%5B%5D%5B%5D&.legend=Only";
       this.spinnerLoader.spinnerShow = true;
 
       if (num_parameters.length <= 3) {
@@ -2025,9 +1968,6 @@ export class GeoportalMapNewMenuComponent {
     });
     if (this.activeLayersArray.length >= 1) {
       this.selData.get("dataSetSel")?.setValue(this.activeLayersArray[this.activeLayersArray.length - 1]);
-      // if(this.selData.get("dataSetSel")?.value) {
-      //   this.getMeta();
-      // }
       if (this.selData.get("dataSetSel")?.value.name.dataset_id) {
         metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
       }
@@ -2145,15 +2085,11 @@ export class GeoportalMapNewMenuComponent {
         latlng: this.coordOnClick,
         dateStart: this.dateStart,
         dateEnd: this.dateEnd,
-        // variable: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
         variable: this.variableGroup.get("variableControl")?.value,
         arrayVariable: this.getValuesByKey(this.variableArray, "name"),
         range: this.isExtraParam ? this.value : 0,
         openGraph: true,
         extraParamExport: this.isExtraParam ? this.extraParamExport : null,
-        // polyExport: polygon ? polygon[0].pol.getBounds() : null,
-        // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-        // polName: polygon ? polygon[0].polName : null,
         polyExport: polygon ? polygon.pol.getBounds() : null,
         polygon: polygon ? polygon.pol.getLatLngs()[0] : null,
         polName: polygon ? polygon.polName : null,
@@ -2299,8 +2235,6 @@ export class GeoportalMapNewMenuComponent {
             this.removeAllRectangles();
 
           }
-          // this.markersLayer = L.layerGroup();
-          // markersLayer: L.LayerGroup = L.layerGroup();
           let centerLat;
           let centerLong;
 
@@ -2434,20 +2368,16 @@ export class GeoportalMapNewMenuComponent {
       }
     }
 
-    // this.spinnerLoader.spinnerShow = true;
 
     this.httpService.post('test/dataVectorial', {
       dataset: this.selData.get("dataSetSel")?.value.name,
-      // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
       selVar: this.variableGroup.get("variableControl")?.value,
       isIndicator: this.isIndicator ? "true" : "false",
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        // console.log("RES =", res);
         if (res.dataVect.includes("HTTP Error 404")) {
           this.compliantErrorErddap = "The data is not compliant"
-          // console.log("ERR =", this.compliantErrorErddap);
 
           // Alert tramite bootstrap con html
           this.showAlertGenericError = true;
@@ -2477,8 +2407,6 @@ export class GeoportalMapNewMenuComponent {
           this.valueMid = value_mid;
 
           this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-          // this.markersLayer = L.layerGroup();
-          // markersLayer: L.LayerGroup = L.layerGroup();
           let centerLat;
           let centerLong;
           if (allLatCoordinates.length === 1) {
@@ -2539,7 +2467,6 @@ export class GeoportalMapNewMenuComponent {
 
               }
 
-              // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
               let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
               this.rettangoliLayer.addLayer(rectangle);
 
@@ -2554,11 +2481,6 @@ export class GeoportalMapNewMenuComponent {
             this.map.off('click');
           }
         }
-
-        // setTimeout(() => {
-        //   this.spinnerLoader.spinnerShow = false;
-
-        // }, 500);
 
       },
       error: (msg: any) => {
@@ -2855,10 +2777,6 @@ export class GeoportalMapNewMenuComponent {
     //prendere i due layers selezionati!
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
-        // this.allPolygons.forEach(element => {
-        //   element.pol.off("mouseover");
-        // });
-        // console.log("result =", result);
         this.datasetCompare = result;
         this.confronto = true;
         this.compare = true;
@@ -3005,15 +2923,12 @@ export class GeoportalMapNewMenuComponent {
             bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
             const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
 
-            // const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i])
             const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-            // .bindTooltip(allValues[i]);
             this.rettangoliLayer.addLayer(rectangle);
             this.map.addLayer(this.rettangoliLayer);
           }
         }
       }
-      //this.createLegend(this.valueMin, this.valueMax, this.valueMid);
     });
 
   }
