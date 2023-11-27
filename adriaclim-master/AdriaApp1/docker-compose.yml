@@ -1,15 +1,17 @@
 version: "3.9"
 
 services:
-  web:
+  django:
     build:
       context: .
-    ports:
-      - "8000:8000"
+    container_name: adriapp_django
+    expose:
+      - "8000"
     volumes:
       - ./code:/code
+      - /static:/static
     command: >
-      sh -c "python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && hypercorn --bind '0.0.0.0:8000' AdriaProject.asgi:application --reload "
+      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -17,8 +19,45 @@ services:
       - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       - db
+      - redis
+  nginx:
+    build: ./nginx
+    container_name: adriapp_nginx
+    volumes:
+      - /static:/static
+    ports:
+      - "8000:8000"
+      # - "80:80"
+    depends_on:
+      - django
+      - angular
+  angular:
+    build: code/angular-front/adria-project-front
+    container_name: adriapp_angular
+    ports:
+      - "4200:4200"
+    depends_on:
+      - django
+    environment:
+      - WDS_SOCKET_PORT=0
+
+  redis:
+   image: redis:alpine
+   container_name: adriapp_redis
+   ports:
+     - "6379:6379"
+  # memcached:
+  #  image: memcached
+  #  container_name: adriapp_memcached
+  #  ports:
+  #    - "11211:11211"
+  #  entrypoint:
+  #   - memcached
+  #   - -m 64
   db:
-    image: postgres:13
+    # image: postgis/postgis
+    image: postgis/postgis:13-3.3
+    container_name: adriapp_postgres
     ports:
       - "5433:5433"
       - "5532:5432"
@@ -26,8 +65,50 @@ services:
       - POSTGRES_DB=$POSTGRES_NAME
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - PGDATA=/var/lib/postgresql/data
     volumes:
-    - postgres-volume:/var/lib/postgresql/data
+    - postgres-volume:/var/lib/postgresql/data:rw
+  
+    # Celery
+  celery:
+    restart: always
+    build:
+      context: .
+    command: >
+      sh -c "cd AdriaProject && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25 && celery -A AdriaProject inspect scheduled"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./code:/code
+    container_name: adriapp_celery
+    depends_on:
+      - db
+      - redis
+  celery-beat:
+    restart: always
+    build:
+      context: .
+    command: >
+      sh -c "cd AdriaProject && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./code:/code
+    container_name: adriapp_celery_beat
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres-volume:
+
+
+# sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate Dataset && python AdriaProject/manage.py test AdriaProject  && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"

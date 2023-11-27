@@ -19,6 +19,41 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
+      <td>adriaclim_dataset</td>
+      <td>String</td>
+      <td>indicator</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_model</td>
+      <td>String</td>
+      <td>EOBS</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_scale</td>
+      <td>String</td>
+      <td>adriatic</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_timeperiod</td>
+      <td>String</td>
+      <td>yearly</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>adriaclim_type</td>
+      <td>String</td>
+      <td>timeseries</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
       <td>CDI</td>
       <td>String</td>
       <td>Climate Data Interface version 1.9.8 (https://mpimet.mpg.de/cdi)</td>
@@ -49,21 +84,28 @@
       <td>NC_GLOBAL</td>
       <td>Easternmost_Easting</td>
       <td>double</td>
-      <td>21.98158</td>
+      <td>21.94986030317809</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_max</td>
       <td>double</td>
-      <td>46.97328</td>
+      <td>46.94985982579791</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lat_min</td>
       <td>double</td>
-      <td>37.00147</td>
+      <td>37.04986023051415</td>
+    </tr>
+    <tr>
+      <td>attribute</td>
+      <td>NC_GLOBAL</td>
+      <td>geospatial_lat_resolution</td>
+      <td>double</td>
+      <td>0.09999999591195717</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -77,21 +119,21 @@
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_max</td>
       <td>double</td>
-      <td>21.98158</td>
+      <td>21.94986030317809</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_min</td>
       <td>double</td>
-      <td>10.0168</td>
+      <td>10.049860350783696</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>geospatial_lon_resolution</td>
       <td>double</td>
-      <td>0.062316562500000006</td>
+      <td>0.0999999995999529</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -103,30 +145,30 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
-      <td>history_of_appended_files</td>
+      <td>history</td>
       <td>String</td>
-      <td>Mon Dec 19 15:53:54 2022: Appended file lat1.nc had following "history" attribute:\nMon Dec 19 15:53:53 2022: ncrename -O -d south_north,lat lat1.nc\nMon Dec 19 15:53:53 2022: ncwa -a west_east lat.nc lat1.nc\nMon Dec 19 15:53:52 2022: ncks -v XLAT adriaclim_WRF_r95p_hist_monthly_1991_2005.nc lat.nc\nIndicator provided by CMCC Foundation\nMon Dec 19 15:53:54 2022: Appended file lon1.nc had following "history" attribute:\nMon Dec 19 15:53:53 2022: ncrename -O -d west_east,lon lon1.nc\nMon Dec 19 15:53:52 2022: ncwa -a south_north lon.nc lon1.nc\nMon Dec 19 15:53:52 2022: ncks -v XLONG adriaclim_WRF_r95p_hist_monthly_1991_2005.nc lon.nc\nIndicator provided by CMCC Foundation</td>
+      <td>Indicator provided by CMCC Foundation</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>infoUrl</td>
       <td>String</td>
-      <td>???</td>
+      <td>https://cmcc.it</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>institution</td>
       <td>String</td>
-      <td>???</td>
+      <td>CMCC</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>keywords</td>
       <td>String</td>
-      <td>95th, above, all, amount, calculated, daily, data, day, days, given, least, local, meteorology, per, percent, percentile, period, precipitation, rain, rainfall, reference, source, sum, time, value, very_wet_days_wrt_95th_percentile_of_reference_period, wet, where, year</td>
+      <td>95th, above, all, amount, calculated, daily, data, day, days, given, latitude, least, local, longitude, meteorology, per, percent, percentile, period, precipitation, rain, rainfall, reference, source, sum, time, value, very_wet_days_wrt_95th_percentile_of_reference_period, wet, where, year</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -138,16 +180,9 @@
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
-      <td>NCO</td>
-      <td>String</td>
-      <td>netCDF Operators version 4.8.1 (Homepage = http://nco.sf.net, Code = https://github.com/nco/nco)</td>
-    </tr>
-    <tr>
-      <td>attribute</td>
-      <td>NC_GLOBAL</td>
       <td>Northernmost_Northing</td>
       <td>double</td>
-      <td>46.97328</td>
+      <td>46.94985982579791</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -161,7 +196,7 @@
       <td>NC_GLOBAL</td>
       <td>Southernmost_Northing</td>
       <td>double</td>
-      <td>37.00147</td>
+      <td>37.04986023051415</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -175,42 +210,42 @@
       <td>NC_GLOBAL</td>
       <td>summary</td>
       <td>String</td>
-      <td>AdriaClim Indicators | adriaclim_WRF | monthly | hist | r95p</td>
+      <td>AdriaClim Indicators | EOBS | yearly | r95p</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_end</td>
       <td>String</td>
-      <td>2020-12-01T00:00:00Z</td>
+      <td>2020-12-31T00:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>time_coverage_start</td>
       <td>String</td>
-      <td>1991-01-01T00:00:00Z</td>
+      <td>1950-12-31T00:00:00Z</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>title</td>
       <td>String</td>
-      <td>AdriaClim Indicators | adriaclim_WRF | monthly | hist | r95p</td>
+      <td>AdriaClim Indicators | EOBS | yearly | r95p</td>
     </tr>
     <tr>
       <td>attribute</td>
       <td>NC_GLOBAL</td>
       <td>Westernmost_Easting</td>
       <td>double</td>
-      <td>10.0168</td>
+      <td>10.049860350783696</td>
     </tr>
     <tr>
       <td>dimension</td>
       <td>time</td>
       <td>Value not available</td>
       <td>double</td>
-      <td>nValues=360, evenlySpaced=false, averageSpacing=30 days 10h 29m 45s</td>
+      <td>nValues=71, evenlySpaced=false, averageSpacing=365 days 6h 10m 17s</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -224,7 +259,7 @@
       <td>time</td>
       <td>actual_range</td>
       <td>double</td>
-      <td>6.62688E8, 1.6067808E9</td>
+      <td>-5.997024E8, 1.6093728E9</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -238,7 +273,7 @@
       <td>time</td>
       <td>calendar</td>
       <td>String</td>
-      <td>proleptic_gregorian</td>
+      <td>standard</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -279,8 +314,8 @@
       <td>dimension</td>
       <td>latitude</td>
       <td>Value not available</td>
-      <td>float</td>
-      <td>nValues=217, evenlySpaced=false, averageSpacing=0.04616578703703706</td>
+      <td>double</td>
+      <td>nValues=100, evenlySpaced=true, averageSpacing=0.09999999591195717</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -293,8 +328,8 @@
       <td>attribute</td>
       <td>latitude</td>
       <td>actual_range</td>
-      <td>float</td>
-      <td>37.00147, 46.97328</td>
+      <td>double</td>
+      <td>37.04986023051415, 46.94985982579791</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -335,8 +370,8 @@
       <td>dimension</td>
       <td>longitude</td>
       <td>Value not available</td>
-      <td>float</td>
-      <td>nValues=193, evenlySpaced=true, averageSpacing=0.062316562500000006</td>
+      <td>double</td>
+      <td>nValues=120, evenlySpaced=true, averageSpacing=0.0999999995999529</td>
     </tr>
     <tr>
       <td>attribute</td>
@@ -349,8 +384,8 @@
       <td>attribute</td>
       <td>longitude</td>
       <td>actual_range</td>
-      <td>float</td>
-      <td>10.0168, 21.98158</td>
+      <td>double</td>
+      <td>10.049860350783696, 21.94986030317809</td>
     </tr>
     <tr>
       <td>attribute</td>

@@ -1,0 +1,28 @@
+.info-title-dialog {
+  font-weight: 500;
+  font-size: medium;
+  text-align: center;
+}
+
+.title-dialog {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.choose-color-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  .color-value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    gap: 10px;
+  }
+}

@@ -1,0 +1,49 @@
+<form [formGroup]="coordsForm" style="width: 500px;">
+
+  <h1 mat-dialog-title><span class="info-title-dialog">Choose coordinates</span></h1>
+  <div mat-dialog-content class="col-12">
+
+    <div class="row">
+      <mat-form-field appearance="fill" class="col-12">
+        <mat-label>Latitude</mat-label>
+        <input matInput formControlName="lat">
+        <mat-error *ngIf="coordsForm.get('lat')?.hasError('pattern') && !coordsForm.get('lat')?.hasError('required')">
+          Please enter a valid latitude
+        </mat-error>
+        <mat-error *ngIf="coordsForm.get('lat')?.hasError('required')">
+          Latitude is <strong>required</strong>
+        </mat-error>
+        <mat-error *ngIf="(coordsForm.get('lat')?.hasError('min') || coordsForm.get('lat')?.hasError('max')) && !coordsForm.get('lat')?.hasError('required')">
+          Please enter a value between -90 and 90
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row mt-1">
+      <mat-form-field appearance="fill" class="col-12">
+        <mat-label>Longitude</mat-label>
+        <input matInput formControlName="lng">
+        <mat-error *ngIf="coordsForm.get('lng')?.hasError('pattern') && !coordsForm.get('lng')?.hasError('required')">
+          Please enter a valid longitude
+        </mat-error>
+        <mat-error *ngIf="coordsForm.get('lng')?.hasError('required')">
+          Longitude is <strong>required</strong>
+        </mat-error>
+        <mat-error *ngIf="(coordsForm.get('lng')?.hasError('min') || coordsForm.get('lng')?.hasError('max')) && !coordsForm.get('lng')?.hasError('required')">
+          Please enter a value between -180 and 180
+        </mat-error>
+      </mat-form-field>
+
+    </div>
+
+
+  </div>
+
+  <mat-dialog-actions class="row justify-content-center">
+
+    <button mat-raised-button color="primary" class="col-3" [disabled]="coordsForm.invalid" (click)="compareDatasets()">Ok</button>
+    <button mat-raised-button color="accent" class="col-3" (click)="close()">Cancel</button>
+
+  </mat-dialog-actions>
+
+
+</form>

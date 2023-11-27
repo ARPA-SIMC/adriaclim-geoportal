@@ -1,0 +1,15 @@
+<!-- <div class="overlay-spinner d-flex flex-row justify-content-center align-items-center" *ngIf="spinnerService.spinnerShow"> -->
+  <!-- <mat-spinner></mat-spinner> -->
+<!-- </div> -->
+<div class="div-loader d-flex flex-row justify-content-center align-items-center" *ngIf="spinnerService.spinnerShow">
+  <div class="loader-outside d-flex flex-row justify-content-center align-items-center">
+    <div class="loader d-flex flex-row justify-content-center align-items-center">
+      <div class="loader-inside">
+        <div class="loader-small-inside d-flex flex-row justify-content-center align-items-center"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<router-outlet></router-outlet>

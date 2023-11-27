@@ -5,11 +5,6 @@ from myFunctions import allFunctions
 
 
 # Create your views here.
-
-def getMetadataUrl(request,dataset_id):
-    metadata=allFunctions.getMetadataOfASpecificDataset(dataset_id)
-    return HttpResponse(metadata)
-
 def getMetadataForm(request,dataset_id):
     if request.method=="GET":
         form=DatasetForm(request.GET)

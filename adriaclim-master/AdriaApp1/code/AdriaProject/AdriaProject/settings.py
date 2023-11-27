@@ -11,14 +11,17 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from kombu import Queue
+from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
+from datetime import datetime
+# import AdriaProject 
+import json
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+USE_TZ = True
+TIME_ZONE = "Europe/Rome"
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 load_dotenv(find_dotenv())
@@ -30,22 +33,105 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
-# Application definition
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/0',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.gis',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'AdriaProject.apps.AdriaProjectConfig',
     'Dataset.apps.DatasetConfig',
     'Metadata',
     'Utente',
-    'crispy_forms'
+    'crispy_forms',
+    'rest_framework',
+    'corsheaders',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://localhost:8080",
+    "http://127.0.0.1:9000",
+    "http://localhost:8000",
+    "https://geoportale-adriaclim.datamb.it"
+ ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    'http://localhost:4200',
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'X-CSRFToken',
+    'x-csrftoken',
+    'X-XSRF-TOKEN',
+    'XSRF-TOKEN',
+    'csrfmiddlewaretoken',
+    'csrftoken',
+    'X-CSRF'
+)
+
+CSRF_COOKIE_SECURE = False  # not DEBUG
+CSRF_COOKIE_SAMESITE = None
+CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_USE_SESSIONS = True
+
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        # 'rest_framework.permissions.DjangoModelPermissions'
+
+    ),
+}
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,6 +140,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'AdriaProject.urls'
@@ -86,7 +174,7 @@ ASGI_APPLICATION = 'AdriaProject.asgi:application'
 
 DATABASES = {
     'default': {
-         'ENGINE': 'django.db.backends.postgresql',
+         'ENGINE': 'django.contrib.gis.db.backends.postgis',
           'HOST': os.environ.get('DB_HOST'),
           'NAME': os.environ.get('DB_NAME'),
           'USER': os.environ.get('DB_USER'),
@@ -128,11 +216,13 @@ USE_L10N = True
 USE_TZ = True
 
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
+
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT=os.path.join(BASE_DIR,'static_root/')
+#STATIC_ROOT=os.path.join(BASE_DIR,'static/assets')
+STATIC_ROOT = '/static'
 
 STATICFILES_DIRS=[
     BASE_DIR / 'static',
@@ -143,3 +233,32 @@ STATICFILES_DIRS=[
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap" 
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = "Europe/Rome"
+CELERY_QUEUES = (
+    Queue('my_queue', routing_key='my_queue'),
+)
+CELERY_BEAT_SCHEDULE = {
+    'my_task': {
+        'task': 'AdriaProject.tasks.task_get_all_data',
+        'schedule': crontab(hour=22, minute=10),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
+    },
+    'my_task2': {
+        'task': 'AdriaProject.tasks.download_big_data_yearly',
+        'schedule': crontab(hour=22, minute=30,day_of_week="friday"),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
+    },
+    'my_task3': {
+        'task': 'AdriaProject.tasks.download_big_data_seasonal',
+        'schedule': crontab(hour=22, minute=30,day_of_week="saturday"),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
+    }
+}
+
