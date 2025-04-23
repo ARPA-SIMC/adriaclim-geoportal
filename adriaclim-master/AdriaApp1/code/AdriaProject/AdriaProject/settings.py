@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'rest_framework',
     'corsheaders',
+    'myFunctions',
 ]
 
 CORS_ALLOWED_ORIGINS = [

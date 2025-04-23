@@ -4,5 +4,10 @@
     "python.formatting.provider": "black",
     "python.analysis.extraPaths": [
         "./adriaclim-master/AdriaApp1/code/AdriaProject/myFunctions"
-    ]
+    ],
+    "python.testing.pytestArgs": [
+        "adriaclim-master"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

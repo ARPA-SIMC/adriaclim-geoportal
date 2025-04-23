@@ -1,3 +1,4 @@
+# Funzioni inutilizzate DA ELIMINARE
 # Da views.py
 
 # def index(request):
