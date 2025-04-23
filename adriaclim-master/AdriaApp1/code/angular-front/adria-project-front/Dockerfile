@@ -29,7 +29,7 @@ COPY . /usr/src/app
 RUN chmod 777 /usr/src/app/node_modules/.bin/ng
 # RUN chmod 777 /app/node_modules/.bin/ng
 
-RUN chmod 777 /usr/src/app/node_modules/.bin/ng.cmd
+# RUN chmod 777 /usr/src/app/node_modules/.bin/ng.cmd
 # RUN chmod 777 /app/node_modules/.bin/ng.cmd
 
 # Expose the port the app runs in
