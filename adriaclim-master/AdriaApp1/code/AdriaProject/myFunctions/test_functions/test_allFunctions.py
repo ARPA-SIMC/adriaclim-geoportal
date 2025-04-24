@@ -9,6 +9,476 @@ import datetime as dt
 import sys
 import os
 import numpy as np
+from types import SimpleNamespace
+from statistics import mean, median, stdev
+
+
+# # Function -> delete_all
+
+# def delete_all(param, **kwargs):
+#     if param == "Node":
+#         # Simulazione di oggetti e cancellazione
+#         objects = [FakeObject(), FakeObject()]
+#         for obj in objects:
+#             obj.delete()
+#     elif param == "Polygon":
+#         polygons = [FakeObject()]
+#         for poly in polygons:
+#             poly.delete()
+
+# class FakeObject:
+#     def delete(self):
+#         return True
+
+# def test_delete_all_node_sync():
+#     delete_all("Node")
+#     assert True
+
+# def test_delete_all_polygon_sync():
+#     delete_all("Polygon")
+#     assert True
+
+# # TEST OK!
+
+
+# # Function -> getGraphicGeneric
+
+
+# def getDataGraphicGeneric(
+#     dataset_id,
+#     adriaclim_timeperiod,
+#     layer_name,
+#     time_start,
+#     time_finish,
+#     latitude,
+#     longitude,
+#     num_parameters,
+#     range_value,
+#     is_indicator,
+#     lat_start,
+#     long_start,
+#     lat_end,
+#     long_end,
+#     **kwargs
+# ):
+#     try:
+#         # simulazione URL
+#         if kwargs.get("simulate") == "fail":
+#             return "fuoriWms"
+#         values = [1.0, 2.0, 3.0]
+#         dates = ["2020-01-01", "2020-01-02", "2020-01-03"]
+#         unit = "mockUnit"
+#         layerName = [layer_name] * 3
+#         lats = [latitude] * 3
+#         longs = [longitude] * 3
+#         allData = [values, dates, unit, layerName, lats, longs]
+#         return allData
+#     except Exception as e:
+#         return str(e)
+
+# # Test base
+
+# def test_getDataGraphicGeneric_default():
+#     result = getDataGraphicGeneric(
+#         dataset_id="id1",
+#         adriaclim_timeperiod="monthly",
+#         layer_name="temp",
+#         time_start="2020-01-01",
+#         time_finish="2020-01-03",
+#         latitude=45.0,
+#         longitude=12.0,
+#         num_parameters=1,
+#         range_value=0,
+#         is_indicator=True,
+#         lat_start="no",
+#         long_start="no",
+#         lat_end="no",
+#         long_end="no",
+#     )
+#     assert isinstance(result, list)
+#     assert result[0] == [1.0, 2.0, 3.0]
+
+
+# def test_getDataGraphicGeneric_fallback():
+#     result = getDataGraphicGeneric(
+#         dataset_id="id2",
+#         adriaclim_timeperiod="daily",
+#         layer_name="sal",
+#         time_start="2021-01-01",
+#         time_finish="2021-01-03",
+#         latitude=42.0,
+#         longitude=13.0,
+#         num_parameters=2,
+#         range_value=5,
+#         is_indicator=False,
+#         lat_start="no",
+#         long_start="no",
+#         lat_end="no",
+#         long_end="no",
+#         simulate="fail"
+#     )
+#     assert result == "fuoriWms"
+    
+# # TEST OK!
+
+
+
+# # Function -> getAllDatasets, getMetadataTime1, getMetadata, getMetadataofASpecificDataset
+
+# def getAllDatasets():
+#     print("Mock getAllDatasets eseguito")
+#     return True
+
+# def getMetadataTime1(dataset_id):
+#     return [["v1,v2"], ["v1,v2"], ["spacing"]]
+
+# def getMetadata(dataset_id):
+#     metadata = getMetadataTime1(dataset_id)
+#     return [metadata, [0, 0], [0, 0]]
+
+# def getMetadataOfASpecificDataset(dataset_id):
+#     if dataset_id == "Node":
+#         return {"source": "Node", "metadata_url": "http://mocked.com"}
+#     elif dataset_id == "Indicator":
+#         return {"source": "Indicator", "metadata_url": "http://mocked.com"}
+#     else:
+#         return {}
+
+# # Test getAllDatasets
+
+# def test_getAllDatasets_runs():
+#     assert getAllDatasets() is True
+
+# # Test getMetadataTime1
+
+# def test_getMetadataTime1_returns():
+#     result = getMetadataTime1("test_dataset")
+#     assert isinstance(result, list)
+#     assert len(result) == 3
+
+# # Test getMetadata
+
+# def test_getMetadata_returns():
+#     result = getMetadata("dataset_id")
+#     assert isinstance(result, list)
+#     assert len(result) == 3
+
+# # Test getMetadataOfASpecificDataset (Node)
+
+# def test_getMetadataOfASpecificDataset_node():
+#     result = getMetadataOfASpecificDataset("Node")
+#     assert result["source"] == "Node"
+
+# # Test getMetadataOfASpecificDataset (Indicator)
+
+# def test_getMetadataOfASpecificDataset_indicator():
+#     result = getMetadataOfASpecificDataset("Indicator")
+#     assert result["source"] == "Indicator"
+
+# # TEST OK!
+
+
+
+# Function -> packageGraphData
+
+
+# def calculate_trend(dates, values, timeperiod=None):
+#     return 1.0  # valore mock
+
+# # Funzione da testare
+# def packageGraphData(allData, **kwargs):
+#     try:
+#         values = allData[0]
+#         dates = allData[1]
+#         unit = allData[2]
+#         layerName = allData[3]
+#         lats = allData[4]
+#         longs = allData[5]
+#         data = {}
+#         data["unit"] = unit
+#         data["entries"] = []
+#         if "operation" in kwargs:
+#             if kwargs["operation"] == "default":
+#                 try:
+#                     mean_result = mean(values)
+#                     median_result = median(values)
+#                     stdev_result = stdev(values)
+#                     trend_result = calculate_trend(dates, values, timeperiod=kwargs["adriaclim_timeperiod"])
+#                     data["mean"] = float(mean_result)
+#                     data["median"] = float(median_result)
+#                     data["stdev"] = float(stdev_result)
+#                     data["trend_yr"] = float(trend_result)
+#                 except Exception as e:
+#                     if str(e) == "variance requires at least two data points":
+#                         data["mean"] = values
+#                         data["stdev"] = values
+#                         data["median"] = values
+#                         data["trend_yr"] = values
+#         if "output" in kwargs:
+#             if kwargs["output"] == "csv":
+#                 out = "Date,Dataset,Latitude,Longitude,Value\n"
+#                 for n in range(len(values)):
+#                     out += f"{dates[n]},{layerName[n]},{lats[n]},{longs[n]},{values[n]}\n"
+#                 return out
+#         for n in range(len(values)):
+#             dictKey = layerName[n]
+#             dictValue = data.get(dictKey, [])
+#             if dictKey not in data:
+#                 data[dictKey] = dictValue
+#                 data["entries"].append(dictKey)
+#             entry = {"x": dates[n], "y": values[n]}
+#             dictValue.append(entry)
+#         return data
+#     except Exception as e:
+#         print("Exception in packageGraphData: " + str(e))
+#         return str(e)
+
+# # Test semplice
+
+# def test_packageGraphData_default():
+#     allData = (
+#         [1, 2, 3],
+#         ["2020-01-01", "2020-01-02", "2020-01-03"],
+#         "°C",
+#         ["temp"] * 3,
+#         [45.0] * 3,
+#         [12.0] * 3,
+#     )
+#     result = packageGraphData(allData, operation="default", adriaclim_timeperiod="monthly")
+#     assert result["unit"] == "°C"
+#     assert "temp" in result
+#     assert isinstance(result["mean"], float)
+
+
+# def test_packageGraphData_csv():
+#     allData = (
+#         [1, 2],
+#         ["2020-01-01", "2020-01-02"],
+#         "°C",
+#         ["temp", "temp"],
+#         [45.0, 45.0],
+#         [12.0, 12.0],
+#     )
+#     result = packageGraphData(allData, output="csv")
+#     assert result.startswith("Date,Dataset")
+#     assert "2020-01-01,temp,45.0,12.0,1" in result
+    
+# # TEST OK!
+
+
+
+# # Function -> aggregateGraphicValues & processOperation
+
+
+# def aggregateGraphicValues(operation, values):
+#     return sum(values) / len(values)  # media semplice per mock
+
+# # Funzione da testare
+
+# def processOperation(operation, values, dates, unit, layerName, lats, longs):
+#     if operation == "default":
+#         return [values, dates, unit, layerName, lats, longs]
+#     values2 = []
+#     dates2 = []
+#     layerName2 = []
+#     lats2 = []
+#     longs2 = []
+#     i = 0
+#     vals = []
+#     lastDate = None
+#     for n in range(len(values)):
+#         if lastDate is None:
+#             lastDate = dates[n]
+#         elif lastDate != dates[n]:
+#             dates2.insert(i, lastDate)
+#             lats2.insert(i, 0)
+#             longs2.insert(i, 0)
+#             layerName2.insert(i, layerName[0])
+#             values2.insert(i, aggregateGraphicValues(operation, vals))
+#             i += 1
+#             lastDate = dates[n]
+#             vals = []
+#         vals.append(values[n])
+#     if lastDate is not None:
+#         dates2.insert(i, lastDate)
+#         lats2.insert(i, 0)
+#         longs2.insert(i, 0)
+#         layerName2.insert(i, layerName[0])
+#         values2.insert(i, aggregateGraphicValues(operation, vals))
+#         i += 1
+#     return [values2, dates2, unit, layerName2, lats2, longs2]
+
+# # Test
+
+# def test_processOperation_default():
+#     result = processOperation(
+#         "default",
+#         [1, 2, 3],
+#         ["2020-01-01", "2020-01-02", "2020-01-03"],
+#         "units",
+#         ["layer"] * 3,
+#         [45.0, 45.0, 45.0],
+#         [12.0, 12.0, 12.0],
+#     )
+#     assert result[0] == [1, 2, 3]
+#     assert result[1][0] == "2020-01-01"
+#     assert result[2] == "units"
+
+# def test_processOperation_avg():
+#     result = processOperation(
+#         "avg",
+#         [1, 1, 2, 2],
+#         ["2020-01-01", "2020-01-01", "2020-01-02", "2020-01-02"],
+#         "units",
+#         ["layer"] * 4,
+#         [0] * 4,
+#         [0] * 4,
+#     )
+#     assert result[0] == [1.0, 2.0]  # avg per giorno
+#     assert result[1] == ["2020-01-01", "2020-01-02"]
+#     assert result[2] == "units"
+    
+
+# # TEST OK!
+
+
+
+
+# # Function-> operation_before_after_cache
+
+
+# def percentile_new(n):
+#     def percentile_(x):
+#         return np.percentile(x, n)
+#     percentile_.__name__ = f"percentile_{n}"
+#     return percentile_
+
+# def operation_before_after_cache(df_polygon, statistic, time_op):
+#     try:
+#         ops = {
+#             "avg": "mean",
+#             "min": "min",
+#             "max": "max",
+#             "sum": "sum",
+#             "median": "median",
+#             "10thPerc": percentile_new(10),
+#             "90thPerc": percentile_new(90),
+#             "min_mean_max": "min_mean_max",
+#             "min_10thPerc_median_90thPerc_max": "min_10thPerc_median_90thPerc_max",
+#         }
+#         if time_op == "annualSeason":
+#             df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
+#             df_polygon["season"] = df_polygon["date_value"].apply(get_season)
+
+#         if time_op == "default":
+#             groupby_col = "date_value"
+#         elif time_op == "annualMonth":
+#             groupby_col = df_polygon["date_value"].dt.month
+#         elif time_op == "annualSeason":
+#             groupby_col = df_polygon["season"]
+#         else:
+#             df_polygon["day_month"] = df_polygon["date_value"].dt.strftime('%m-%d')
+#             groupby_col = df_polygon["date_month"]
+
+#         if ops[statistic] == "min_mean_max":
+#             agg_func = ["min", "mean", "max"]
+#         elif ops[statistic] == "min_10thPerc_median_90thPerc_max":
+#             agg_func = ["min", percentile_new(10), "median", percentile_new(90), "max"]
+#         else:
+#             agg_func = ops[statistic]
+
+#         res_values = df_polygon.groupby(groupby_col)["value_0"].agg(agg_func)
+#         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
+
+#         if time_op == "default":
+#             list_time = list(res_values.index.strftime('%Y-%m-%dT%H:%M:%SZ'))
+#         elif time_op == "annualMonth":
+#             list_time = [months[index] for index in res_values.index.tolist()]
+#         elif time_op == "annualDay":
+#             list_time = list(res_values.index.strftime("%d/%m"))
+#         elif time_op == "annualSeason":
+#             list_time = [seasons[index] for index in res_values.index.tolist()]
+
+#         data_pol_list = []
+#         if ops[statistic] == "min_mean_max":
+#             for i in range(len(list_time)):
+#                 data_pol = {
+#                     "x": list_time[i],
+#                     "Minimum": res_values["min"].tolist()[i],
+#                     "Mean": res_values["mean"].tolist()[i],
+#                     "Maximum": res_values["max"].tolist()[i]
+#                 }
+#                 data_pol_list.append(data_pol)
+#         elif ops[statistic] == "min_10thPerc_median_90thPerc_max":
+#             for i in range(len(list_time)):
+#                 data_pol = {
+#                     "x": list_time[i],
+#                     "Minimum": res_values["min"].tolist()[i],
+#                     "10th Percentile": res_values["percentile_10"].tolist()[i],
+#                     "90th Percentile": res_values["percentile_90"].tolist()[i],
+#                     "Median": res_values["median"].tolist()[i],
+#                     "Maximum": res_values["max"].tolist()[i]
+#                 }
+#                 data_pol_list.append(data_pol)
+#         else:
+#             for i in range(len(list_time)):
+#                 data_pol = {
+#                     "x": list_time[i],
+#                     "y": list(res_values)[i]
+#                 }
+#                 data_pol_list.append(data_pol)
+
+#         return data_pol_list
+#     except Exception as e:
+#         print("eccezione========", e)
+#         return str(e)
+
+# def test_operation_before_after_cache_min():
+#     df = pd.DataFrame({
+#         "date_value": pd.date_range("2020-01-01", periods=3),
+#         "value_0": [3, 1, 2]
+#     })
+#     result = operation_before_after_cache(df, "min", "default")
+#     assert isinstance(result, list)
+#     assert "x" in result[0] and "y" in result[0]
+    
+# # TEST OK!
+
+
+
+# # Function -> updateStatistics
+
+
+# class allFunctions:
+#     @staticmethod
+#     def updateStatistics(dates, values, timeperiod, polygon):
+#         return [float(v) * 2 for v in values]  # semplice mock: raddoppia i valori
+
+# # Funzione originale riscritta senza DRF
+
+# def updateStatistics(request):
+#     new_dates = request.data.get("dates")
+#     new_values = request.data.get("values")
+#     dataset = request.data.get("dataset")
+#     polygon = request.data.get("polygon")
+#     adriaclim_timeperiod = dataset.get("adriaclim_timeperiod")
+#     new_values_calculated = allFunctions.updateStatistics(new_dates,new_values,adriaclim_timeperiod,polygon)
+#     return {"newValues": new_values_calculated}
+
+# def test_update_statistics_post():
+#     request = SimpleNamespace()
+#     request.data = {
+#         "dates": ["2020-01-01", "2020-01-02"],
+#         "values": [1, 2],
+#         "dataset": {"adriaclim_timeperiod": "monthly"},
+#         "polygon": "dummy"
+#     }
+#     response = updateStatistics(request)
+#     assert response["newValues"] == [2, 4]
+
+# # TEST OK!
+
+
 
 # # Function -> subtract_mean_trend
 
