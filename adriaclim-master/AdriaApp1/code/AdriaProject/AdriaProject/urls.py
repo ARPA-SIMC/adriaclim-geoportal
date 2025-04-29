@@ -1,90 +1,17 @@
-"""AdriaProject URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.conf.urls import handler404, handler500
-from django.contrib import admin
-from django.urls import path
-from Dataset import views as data_views
-from Metadata import views as metadata_views
-from Utente import views as utente_views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.decorators.csrf import csrf_exempt
-from myFunctions.views_datasets import getAllDatasets, getMetadataNew, getAllNodes, getDataVectorialNew, getDataGraphicNewCanvas, getDataTableNew, get_metadata_table, check_task_status, discover_mb_indicator, compareDatasets
-from myFunctions.external_wms import layers2DNew, layers3DNew, overlaysNew
-from myFunctions.geospatial_processing import getDataPolygonNew
-from myFunctions.data_analysis import updateStatistics
- 
+from django.contrib import admin
+from django.urls import path, include
 
+from django.conf.urls import handler404, handler500
 
 urlpatterns = [
-    # path("AdriaApp/WMS/request",data_views.layers2D),
-    # path("AdriaApp/WMS/3D/<str:parameter>/request",data_views.layers3D),
-    # path("AdriaApp/WMS/overlays/<str:dataset_id>/request",data_views.overlays),
-    # path("administration",utente_views.index),
-    # path("administration/modify",utente_views.modify),
-    # path('admin/adminPage', admin.site.urls),
-    # path('',data_views.index,name="homepage"),
-    # path('myFunctions/rottoTutto',data_views.rompiamo_tutto),
-    # path('myFunctions/downloadBigData',data_views.download_big_data),
-    # path('getDataExport/<str:dataset_id>/<str:selectedType>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
-    # '<str:longitude>',data_views.getDataExport),
-    # path('getDataVectorial/<str:dataset_id>/<str:layer_name>/<str:date_start>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param>/<int:range_value>/<str:is_indicator>',data_views.getDataVectorial),
-    # # path('getWindArrows/<str:datasetId1>/<str:datasetId2>/<str:layer_name1>/<str:date_start1>/<int:num_param1>/<int:range_value1>/<str:layer_name2>/<str:date_start2>/<str:latitude_start>/<str:latitude_end>/<str:longitude_start>/<str:longitude_end>/<int:num_param2>/<int:range_value2>',data_views.getWindArrows),
-    # path('allDatasets',data_views.allDatasets),
-    # path('getMetadata/<str:dataset_id>',data_views.getMetadataUrl),
-    # path('getDataTable/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude>/<str:longitude>/<int:num_parameters>/<int:range_value>',data_views.getDataTable),
-    # path('getDataTableIndicator/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:lat_min>/<str:lat_max>/<str:long_min>/<str:long_max>/<int:num_parameters>/<int:range_value>',data_views.getDataTableIndicator),
-    # path('getDataGraphic/<str:dataset_id>/<str:layer_name>/<str:time_start>/<str:time_finish>/<str:latitude1>/'+
-    # '<str:longitude1>/<int:num_parameters>/<int:range_value>/<str:is_indicator>/<str:latMin>/'+
-    # '<str:longMin>/<str:latMax>/<str:longMax>/',data_views.getDataGraphic),
-    # path('getDataGraphicNew/<str:dataset_id>/<str:layer_name>/<str:operation>/<str:context>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
-    # '<str:longitude>/<int:range_value>/<str:latMin>/'+
-    # '<str:longMin>/<str:latMax>/<str:longMax>/',data_views.getDataGraphicNew),
-    # path('getDataGraphicCsv/<str:dataset_id>/<str:layer_name>/<str:operation>/<str:context>/<str:time_start>/<str:time_finish>/<str:latitude>/'+
-    # '<str:longitude>/<int:range_value>/<str:latMin>/'+
-    # '<str:longMin>/<str:latMax>/<str:longMax>/',data_views.getDataGraphicCsv),
-    # path('getDataGraphicPolygon/<str:dataset_id>/<str:layer_name>/<str:operation>/<str:context>/<str:time_start>/<str:time_finish>/<str:latMin>/'+
-    # '<str:longMin>/<str:latMax>/<str:longMax>/<int:range_value>',data_views.getDataGraphicPolygon),
-    # path('myFunctions/getMetadata/<str:title>',data_views.getMetadata),
-    # path("myFunctions/getWMS",data_views.getWMS),
-    # path("myFunctions/getTitle",data_views.getTitle),
-    # path("myFunctions/getIndicators",data_views.getIndicators),
-    path("myFunctions/getAllDatasets", getAllDatasets, name="getAllDatasets"),
-    # path("<str:dataset_id>",metadata_views.getMetadataForm),
-    # path("test/prova",data_views.getTest),
-    # path("test/pippo",data_views.getPippo),
-    # path("test/pluto",data_views.getPluto),
-    # path("test/ind",data_views.getInd),
-    path("test/allNodes", getAllNodes, name="getAllNodes"),
-    path("test/metadata", getMetadataNew,name="getMetadataNew"),
-    path("test/layers2d", layers2DNew),
-    path('test/layers3d/<str:parameter>', layers3DNew),
-    path("test/addOverlays/<str:dataset_id>", overlaysNew,name="overlaysNew"),
-    path("test/metadataTable", get_metadata_table,name="get_metadata_table"),
-    path("test/dataGraphTable", getDataTableNew),
-    path("test/dataGraphCanvas", getDataGraphicNewCanvas),
-    path("myFunctions/dataVectorial", getDataVectorialNew, name="getDataVectorialNew"),
-    path("test/dataPolygon", getDataPolygonNew),
-    path("test/updateStatistics", updateStatistics),
-    path('test/check_task_status', check_task_status),
-    path("test/discover_mb", discover_mb_indicator),
-    path("test/compareDatasets",compareDatasets),
-  
-  
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('admin/', admin.site.urls),
+    path('dataset/', include('Dataset.urls')),
+    path('metadata/', include('Metadata.urls')),
+    path('utente/', include('Utente.urls')),
+    path('myFunctions/', include('myFunctions.urls')),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 

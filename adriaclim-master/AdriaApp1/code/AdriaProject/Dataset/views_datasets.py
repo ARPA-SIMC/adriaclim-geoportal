@@ -18,7 +18,7 @@ from .dataset_manager import getMetadata, getMetadataOfASpecificDataset
 # from AdriaProject.settings import ERDDAP_URL
 # from myFunctions.database_operations import is_database_almost_full, delete_all
 # from myFunctions.utils import download_with_cache_as_csv
-from myFunctions.geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
+from .geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
 from myFunctions.data_analysis import updateStatistics
 # from myFunctions.views_datasets import getDataVectorialNew
 
@@ -223,7 +223,7 @@ def check_task_status(request):
 
 @api_view(['GET','POST'])
 def discover_mb_indicator(request):
-    from .data_analysis import discover_how_mb_indicator_are
+    from myFunctions.data_analysis import discover_how_mb_indicator_are
     dataset_id = request.GET.get("dataset_id")
     result = discover_how_mb_indicator_are(dataset_id)
     return JsonResponse(result, safe=False)

@@ -9,8 +9,8 @@ from django.db import transaction
 from django.core.cache import cache
 from Dataset.models import Node, Indicator
 from AdriaProject.settings import ERDDAP_URL
-from .utils import download_with_cache_as_csv
-from .database_operations import is_database_almost_full, delete_all
+from myFunctions.utils import download_with_cache_as_csv
+from myFunctions.database_operations import is_database_almost_full, delete_all
 
 
 def getAllDatasets():
