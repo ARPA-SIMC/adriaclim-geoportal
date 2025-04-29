@@ -22,6 +22,11 @@ from Utente import views as utente_views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.decorators.csrf import csrf_exempt
+from myFunctions.views_datasets import getAllDatasets, getMetadataNew, getAllNodes, getDataVectorialNew, getDataGraphicNewCanvas, getDataTableNew, get_metadata_table, check_task_status, discover_mb_indicator, compareDatasets
+from myFunctions.external_wms import layers2DNew, layers3DNew, overlaysNew
+from myFunctions.geospatial_processing import getDataPolygonNew
+from myFunctions.data_analysis import updateStatistics
+ 
 
 
 urlpatterns = [
@@ -57,26 +62,26 @@ urlpatterns = [
     # path("myFunctions/getWMS",data_views.getWMS),
     # path("myFunctions/getTitle",data_views.getTitle),
     # path("myFunctions/getIndicators",data_views.getIndicators),
-    path("myFunctions/getAllDatasets",data_views.getAllDatasets),
+    path("myFunctions/getAllDatasets", getAllDatasets, name="getAllDatasets"),
     # path("<str:dataset_id>",metadata_views.getMetadataForm),
     # path("test/prova",data_views.getTest),
     # path("test/pippo",data_views.getPippo),
     # path("test/pluto",data_views.getPluto),
     # path("test/ind",data_views.getInd),
-    path("test/allNodes",data_views.getAllNodes,name="get_all_nodes"),
-    path("test/metadata",data_views.getMetadataNew,name="get_metadata_new"),
-    path("test/layers2d",data_views.layers2DNew),
-    path('test/layers3d/<str:parameter>',data_views.layers3DNew),
-    path("test/addOverlays/<str:dataset_id>",data_views.overlaysNew,name="get_overlays_new"),
-    path("test/metadataTable",data_views.get_metadata_table,name="get_metadata_table"),
-    path("test/dataGraphTable",data_views.getDataTableNew),
-    path("test/dataGraphCanvas",data_views.getDataGraphicNewCanvas),
-    path("test/dataVectorial",data_views.getDataVectorialNew),
-    path("test/dataPolygon",data_views.getDataPolygonNew),
-    path("test/updateStatistics",data_views.updateStatistics),
-    path('test/check_task_status',data_views.check_task_status),
-    path("test/discover_mb",data_views.discover_mb_indicator),
-    path("test/compareDatasets",data_views.compareDatasets),
+    path("test/allNodes", getAllNodes, name="getAllNodes"),
+    path("test/metadata", getMetadataNew,name="getMetadataNew"),
+    path("test/layers2d", layers2DNew),
+    path('test/layers3d/<str:parameter>', layers3DNew),
+    path("test/addOverlays/<str:dataset_id>", overlaysNew,name="overlaysNew"),
+    path("test/metadataTable", get_metadata_table,name="get_metadata_table"),
+    path("test/dataGraphTable", getDataTableNew),
+    path("test/dataGraphCanvas", getDataGraphicNewCanvas),
+    path("myFunctions/dataVectorial", getDataVectorialNew, name="getDataVectorialNew"),
+    path("test/dataPolygon", getDataPolygonNew),
+    path("test/updateStatistics", updateStatistics),
+    path('test/check_task_status', check_task_status),
+    path("test/discover_mb", discover_mb_indicator),
+    path("test/compareDatasets",compareDatasets),
   
   
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

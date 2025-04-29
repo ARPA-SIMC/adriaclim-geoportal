@@ -1,6 +1,7 @@
 import pandas as pd
-from myFunctions.allFunctions import getIndicatorQueryUrl, download_with_cache_as_csv, packageGraphData, processOperation
-
+from myFunctions.indicator_manager import getIndicatorQueryUrl
+from myFunctions.utils import download_with_cache_as_csv
+from myFunctions.data_analysis import packageGraphData, processOperation
 
 # x = 500000
 x = 400000

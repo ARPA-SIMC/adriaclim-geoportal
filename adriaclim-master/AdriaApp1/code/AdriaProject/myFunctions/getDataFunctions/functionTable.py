@@ -1,4 +1,4 @@
-from myFunctions.allFunctions import getIndicatorQueryUrl
+from myFunctions.indicator_manager import getIndicatorQueryUrl
 import requests
 
 def getDataFunctionsTable(
