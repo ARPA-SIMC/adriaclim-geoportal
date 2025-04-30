@@ -21,6 +21,25 @@ DATASET_COLUMNS = [
 ]
 INFO_COLUMNS = ["RowType", "VariableName", "AttributeName", "DataType", "Value"]
 
+
+# Old function
+# def fetch_datasets() -> pd.DataFrame:
+#     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=100000"
+#     try:
+#         df = pd.read_table(
+#             download_with_cache_as_csv(url_datasets),
+#             header=0,
+#             sep=",",
+#             engine="c",
+#             names=DATASET_COLUMNS,
+#             na_values="Value not available",
+#         ).fillna("")
+#         df.drop(index=df.index[0], axis=0, inplace=True)
+#         return df
+#     except Exception as e:
+#         print(f"Error fetching datasets: {e}")
+#         return pd.DataFrame()
+
 def fetch_datasets() -> pd.DataFrame:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=100000"
     try:
@@ -32,11 +51,15 @@ def fetch_datasets() -> pd.DataFrame:
             names=DATASET_COLUMNS,
             na_values="Value not available",
         ).fillna("")
-        df.drop(index=df.index[0], axis=0, inplace=True)
+
+        if not df.empty:
+            df.drop(index=df.index[0], axis=0, inplace=True)
+
         return df
     except Exception as e:
         print(f"Error fetching datasets: {e}")
         return pd.DataFrame()
+
 
 def process_metadata(info_url: str) -> List[Dict[str, Any]]:
     try:

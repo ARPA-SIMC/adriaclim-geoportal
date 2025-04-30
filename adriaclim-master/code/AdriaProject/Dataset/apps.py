@@ -3,13 +3,14 @@ import os
 from pathlib import Path
 
 
+
 class DatasetConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Dataset'
 
     def ready(self):
-        from myFunctions import allFunctions
+        from Dataset import dataset_manager
         from .models import Node
         print("Ci entro in init.py")
         if Node.objects.count() == 0:
-            allFunctions.getAllDatasets()
+            dataset_manager.getAllDatasets()
