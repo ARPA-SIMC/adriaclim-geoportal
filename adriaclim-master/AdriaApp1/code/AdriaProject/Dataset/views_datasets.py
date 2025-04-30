@@ -12,6 +12,12 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from celery.result import AsyncResult
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from operator import itemgetter
+import traceback
+from myFunctions.getDataFunctions import functionPoint 
+from myFunctions import compareStatistics
+
 
 from Dataset.models import Node, Polygon, Indicator
 from .dataset_manager import getMetadata, getMetadataOfASpecificDataset
@@ -243,70 +249,60 @@ def updateStatistics(request):
 
 @api_view(['GET','POST'])
 def compareDatasets(request):
-    if request.method == 'GET' or request.method == 'POST':
-        try:
-            dataset_id_1 = request.POST.get("dataset_id_1")
-            dataset_id_2 = request.POST.get("dataset_id_2")
-            lat = request.POST.get("latitude")
-            lon = request.POST.get("longitude")
-            time_start = request.POST.get("timeMin")
-            time_end = request.POST.get("timeMax")
-            variable = request.POST.get("variable")
-            range_value = request.POST.get("range_value")
-            layer_name = request.POST.get("layer_name")
-            operation = request.POST.get("operation")
+    try:
+        # print("Request",request)
+        compare_obj = request.data
+        # print("COMPARE_OBJ===============",compare_obj)
+        context = "one"
+        operation = "default"
+        latitude = str(compare_obj.get('latlng')["lat"])
+        longitude = str(compare_obj.get('latlng')["lng"])
+        # print("Latitude: ",latitude)
+        # print("Longitude: ",longitude)
+        first_dataset = compare_obj.get('firstDataset')["name"]
+        # print("First_dataset: ",first_dataset)
+        first_dataset_id = first_dataset["id"]
+        # print("First_dataset_id: ",first_dataset_id)
+        first_dataset_timeperiod = first_dataset["adriaclim_timeperiod"]
+        first_dataset_layer_name = str(compare_obj.get('firstVarSel'))
+        first_dataset_time_start = first_dataset["time_start"]
+        first_dataset_time_end = first_dataset["time_end"]
+        first_dataset_param = str(compare_obj.get('firstValue'))
+        first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
+        first_list = first_result[first_dataset_layer_name]
+        all_values_first =  list(map(float, map(itemgetter('y'), first_list))) #prendo tutti i valori del primo dataset
+        # print("all_values_first",all_values_first)
+        second_dataset = compare_obj.get('secondDataset')["name"]
+        # print("Second_dataset: ",second_dataset)
+        second_dataset_id = second_dataset["id"]
+        second_dataset_timeperiod = second_dataset["adriaclim_timeperiod"]
+        second_dataset_layer_name = str(compare_obj.get('secondVarSel'))
+        second_dataset_time_start = second_dataset["time_start"]
+        second_dataset_time_end = second_dataset["time_end"]
+        second_dataset_param = str(compare_obj.get('secondValue'))
+        second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
+        second_list = second_result[second_dataset_layer_name]
+        # print("second list===",second_list)
+        all_values_second =  list(map(float, map(itemgetter('y'), second_list))) #prendo tutti i valori del secondo dataset
+        # print("all_values_second===",all_values_second)
+        mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
+        mean_diff_avg_abs = compareStatistics.mean_difference_avg(all_values_first, all_values_second, True)
+        root_squared_diff = compareStatistics.root_mean_squared_difference(all_values_first, all_values_second)
+        allData = {
+            "firstResult": first_result,
+            "secondResult": second_result,
+            "meanDiffAvg": mean_diff_avg,
+            "meanDiffAvgAbs": mean_diff_avg_abs,
+            "rootSquaredDiff": root_squared_diff,
+        }
+        
+        # allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+        # if allData == "fuoriWms":
+        #     return JsonResponse({"compareResult":allData})
+        # else:
+        #     return JsonResponse({'compareResult':allData})
 
-            data1 = getDataGraphicGeneric(
-                dataset_id_1,
-                None,
-                layer_name,
-                time_start,
-                time_end,
-                lat,
-                lon,
-                None,
-                range_value,
-                False,
-                "no",
-                "no",
-                "no",
-                "no",
-                operation=operation
-            )
-
-            data2 = getDataGraphicGeneric(
-                dataset_id_2,
-                None,
-                layer_name,
-                time_start,
-                time_end,
-                lat,
-                lon,
-                None,
-                range_value,
-                False,
-                "no",
-                "no",
-                "no",
-                "no",
-                operation=operation
-            )
-
-            values1 = [float(v) for v in data1[0]]
-            values2 = [float(v) for v in data2[0]]
-
-            mean_difference = np.mean(np.array(values1) - np.array(values2))
-            mean_absolute_difference = np.mean(np.abs(np.array(values1) - np.array(values2)))
-            rmse = np.sqrt(np.mean((np.array(values1) - np.array(values2)) ** 2))
-
-            result = {
-                "mean_difference_avg": mean_difference,
-                "mean_difference_avg_abs": mean_absolute_difference,
-                "root_mean_squared_difference": rmse,
-                "data1": data1,
-                "data2": data2,
-            }
-
-            return JsonResponse(result)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"compareResult": allData})
+    except Exception as e:
+        print("Eccezione",e)
+        return HttpResponse("Errore",status=400)
