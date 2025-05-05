@@ -59,3 +59,36 @@ ENV LC_CTYPE="C.UTF-8"
 COPY . /code
 
 RUN pip install -r requirements.txt
+
+
+# Test new Dockerfile
+
+# FROM python:3.9-slim
+
+# # Set environment variables
+# ENV PYTHONUNBUFFERED=1 \
+#     PYTHONDONTWRITEBYTECODE=1 \
+#     CPLUS_INCLUDE_PATH=/usr/include/gdal \
+#     C_INCLUDE_PATH=/usr/include/gdal \
+#     LC_ALL="C.UTF-8" \
+#     LC_CTYPE="C.UTF-8"
+
+# # Create and set the working directory
+# WORKDIR /code
+
+# # Add unstable repo and install dependencies
+# RUN echo "deb http://deb.debian.org/debian trixie main contrib non-free" >> /etc/apt/sources.list && \
+#     apt-get update && \
+#     apt-get remove -y binutils && \
+#     apt-get autoremove -y && \
+#     apt-get install -y --no-install-recommends \
+#         libgdal-dev g++ postgis=3.3.* postgresql && \
+#     pip install --no-cache-dir pipenv whitenoise gunicorn && \
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Copy project files
+# COPY . /code
+
+# # Install Python dependencies
+# RUN pip install --no-cache-dir -r requirements.txt
