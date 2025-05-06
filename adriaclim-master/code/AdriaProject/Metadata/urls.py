@@ -1,5 +1,5 @@
 from django.urls import path
-from Dataset.views_datasets import get_metadata_table, getMetadataNew
+from Dataset.views import get_metadata_table, getMetadataNew
 
 urlpatterns = [
     path('getMetadataNew/', getMetadataNew, name='getMetadataNew'),

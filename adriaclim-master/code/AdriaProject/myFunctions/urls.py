@@ -1,5 +1,5 @@
 from django.urls import path
-from Dataset.views_datasets import (
+from Dataset.views import (
     getDataGraphicNewCanvas,
     getDataVectorialNew,
     getDataPolygonNew,

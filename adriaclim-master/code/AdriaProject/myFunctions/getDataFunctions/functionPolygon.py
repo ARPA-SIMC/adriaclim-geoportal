@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.geos import Polygon as GeosPolygon
 import time
 import json
-from myFunctions.geospatial_processing import operation_before_after_cache, calculate_trend
+from Dataset.geospatial_processing import operation_before_after_cache, calculate_trend
 from myFunctions.indicator_manager import url_is_indicator
 from myFunctions.time_processing import convertToTime
 from myFunctions.database_operations import is_database_almost_full

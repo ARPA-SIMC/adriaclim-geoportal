@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from .views import welcome_page
-from Dataset import views_datasets
+from Dataset import views
 
 from django.conf.urls import handler404, handler500
 

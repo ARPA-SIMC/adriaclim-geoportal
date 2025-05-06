@@ -1,5 +1,5 @@
 from django.urls import path
-from .views_datasets import (
+from .views import (
     getAllDatasets,
     dataset_id_wrong,
     getDataTable,
