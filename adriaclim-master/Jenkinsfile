@@ -1,0 +1,54 @@
+pipeline {
+  agent any
+
+  environment {
+    PROJECT_DIR = 'code/AdriaProject'
+    ANGULAR_DIR = 'code/angular-front/adria-project-front'
+  }
+
+  stages {
+
+    stage('Check repo') {
+      steps {
+        echo "Repository checked out. Jenkins is ready."
+      }
+    }
+
+    stage('Optional Lint Checks') {
+      when {
+        expression { return false } // <-- non esegue nulla finché non lo attivi
+      }
+      steps {
+        echo "Linting..."
+        // Esempio: sh 'flake8 .'
+      }
+    }
+
+    stage('Optional Build Angular') {
+      when {
+        expression { return false } // <-- disabilitato per ora
+      }
+      steps {
+        dir("${ANGULAR_DIR}") {
+          sh 'npm install'
+          sh 'ng build --configuration production'
+        }
+      }
+    }
+
+    stage('Optional Run Docker') {
+      when {
+        expression { return false } // <-- disabilitato per ora
+      }
+      steps {
+        sh 'docker compose up -d'
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'Pipeline completed.'
+    }
+  }
+}
