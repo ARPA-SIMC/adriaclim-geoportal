@@ -10,8 +10,7 @@ services:
     volumes:
       - ./code:/code
       - /static:/static
-    command: >
-      sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations && python AdriaProject/manage.py migrate && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
+    entrypoint: /entrypoint.sh
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
