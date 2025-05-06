@@ -1,5 +1,4 @@
 #!/bin/sh
-
 echo "💡 [ENTRYPOINT] Avvio inizializzazione Django..."
 
 # Colleziona file statici

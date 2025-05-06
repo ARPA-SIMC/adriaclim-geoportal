@@ -1,16 +1,36 @@
 from django.apps import AppConfig
-import os
-from pathlib import Path
-
-
+from django.db.utils import OperationalError, ProgrammingError
 
 class DatasetConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Dataset'
 
     def ready(self):
-        from Dataset import dataset_manager
-        from .models import Node
-        print("Ci entro in init.py")
-        if Node.objects.count() == 0:
-            dataset_manager.getAllDatasets()
+        try:
+            from Dataset import dataset_manager
+            from .models import Node
+            if Node.objects.count() == 0:
+                print("📥 Nessun dataset trovato, avvio importazione iniziale...")
+                dataset_manager.getAllDatasets()
+        except (OperationalError, ProgrammingError):
+            # Le migrazioni non sono ancora state eseguite, quindi ignoro
+            print("⚠️ Database non pronto. Skip inizializzazione automatica.")
+            
+
+
+# from django.apps import AppConfig
+# import os
+# from pathlib import Path
+
+
+
+# class DatasetConfig(AppConfig):
+#     default_auto_field = 'django.db.models.BigAutoField'
+#     name = 'Dataset'
+
+#     def ready(self):
+#         from Dataset import dataset_manager
+#         from .models import Node
+#         print("Ci entro in init.py")
+#         if Node.objects.count() == 0:
+#             dataset_manager.getAllDatasets()
