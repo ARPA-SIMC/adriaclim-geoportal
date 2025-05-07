@@ -4,37 +4,90 @@
 {% block title %}{{ welJson.title }}{% endblock %}
 
 {% block content %}
-<div class="main-content col-12">
-  <div class="col-12">
-    <div class="mat-toolbar bg-primary text-white py-3">
-      <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons">
-        <a class="btn" href="/mapNewMenu" style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
-          🌐 <span class="text-menu"> Geoportal map </span>
-        </a>
-      </div>
-    </div>
-  </div>
+<link rel="stylesheet" href="{% static 'assets/css/stylesheet.css' %}">
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    background-color: #A1F5FF;
+    height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .top-bar {
+    width: 100%;
+    height: 60px; 
+    background-color: #3F51B5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .geoportal-button {
+    background-color: #0DC1D5;
+    border: 1px solid black;
+    border-radius: 8px;
+    color: white;
+    padding: 8px 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  
+  .center-container {
+    background-color: white;
+    margin: 20px 120px; /* margine laterale circa 3 cm */
+    height: 120px; /* 3 cm circa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  
+  .center-container h1 {
+    color: black;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  
+  .top-left-btn, .top-right-btn {
+    position: absolute;
+    top: 10px;
+    padding: 6px 12px;
+    color: white;
+    background-color: #0053A5;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .top-left-btn {
+    left: 10px;
+  }
+  
+  .top-right-btn {
+    right: 10px;
+  }
+</style>
+<div class="container-fluid">
+<div class="top-bar ">
+  <a class="geoportal-button" href="/mapNewMenu">
+    🌐 <span>Geoportal map</span>
+  </a>
+</div>
+</div>
 
-  <div class="container">
-    <div class="row justify-content-between pt-3">
-      <div class="col-2 d-flex justify-content-center align-items-center">
-        <a class="col btn btn-primary" href="{{ welJson.web_project }}">Web project</a>
-      </div>
-
-      <div class="col arrow"></div>
-
-      <div class="col-2 d-flex justify-content-center align-items-center">
-        <a class="col btn btn-primary" href="{{ welJson.toolkit }}">Toolkit</a>
-      </div>
-    </div>
-
-    <div class="row">
-      <h2 class="text-center col">{{ welJson.title }}</h2>
-    </div>
-    <div class="row">
-      <p class="col">{{ welJson.text }}</p>
-    </div>
-  </div>
+<div class="center-container">
+  <a class="top-left-btn" href="{{ welJson.web_project }}">Web project</a>
+  <h1>Geoportal Adriaclim</h1>
+  <a class="top-right-btn" href="{{ welJson.toolkit }}">Toolkit</a>
 </div>
 {% endblock %}
 

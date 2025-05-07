@@ -11,6 +11,7 @@ services:
       - ./code:/code
       - /static:/static
     entrypoint: /entrypoint.sh
+    command: sh -c "cd AdriaProject && python manage.py runserver 0.0.0.0:8000"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME

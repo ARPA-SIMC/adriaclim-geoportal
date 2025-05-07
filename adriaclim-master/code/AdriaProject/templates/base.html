@@ -36,22 +36,18 @@
 </head>
 
 <body>
-    <header class="bg-dark text-white text-center py-3">
-        <h1 class="mb-0">AdriaClim Geoportal</h1>
-    </header>
+   
 
-    <main class="container py-4">
+    
         {% block content %}
         <!-- Default content goes here -->
         {% endblock %}
-    </main>
+    
 
-    <footer class="bg-light text-center py-3 border-top">
+    {% comment %} <footer class="bg-light text-center py-3 border-top">
         <small>&copy; 2025 AdriaClim Project</small>
-    </footer>
+    </footer> {% endcomment %}
 
-    {% block extra_scripts %}
-    <!-- Page-specific scripts -->
-    {% endblock %}
+   
 </body>
 </html>
