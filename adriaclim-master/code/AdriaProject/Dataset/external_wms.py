@@ -1,5 +1,5 @@
 import requests
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from AdriaProject.settings import ERDDAP_URL
 
 def build_wms_url(base_url, dataset_id, params):
