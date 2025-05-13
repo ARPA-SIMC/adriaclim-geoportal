@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    PROJECT_DIR = 'code/AdriaProject'
-    ANGULAR_DIR = 'code/angular-front/adria-project-front'
+    PROJECT_DIR = 'code/AdriaProject'  // Percorso backend Django
+    ANGULAR_DIR = 'code/angular-front/adria-project-front'  // Percorso frontend Angular
   }
 
   stages {
@@ -14,19 +14,28 @@ pipeline {
       }
     }
 
+    stage('Run Django Tests') {
+      steps {
+        dir("${PROJECT_DIR}") {
+          // Esegui i test Django nel container Docker
+          sh 'docker compose run --rm adriapp_django python manage.py test'
+        }
+      }
+    }
+
     stage('Optional Lint Checks') {
       when {
-        expression { return false } // <-- non esegue nulla finché non lo attivi
+        expression { return false }  // Può essere attivato in futuro
       }
       steps {
-        echo "Linting..."
-        // Esempio: sh 'flake8 .'
+        echo "Linting checks (e.g., flake8)..."
+        // sh 'flake8 .'
       }
     }
 
     stage('Optional Build Angular') {
       when {
-        expression { return false } // <-- disabilitato per ora
+        expression { return false }  // Disattivato per ora
       }
       steps {
         dir("${ANGULAR_DIR}") {
@@ -38,7 +47,7 @@ pipeline {
 
     stage('Optional Run Docker') {
       when {
-        expression { return false } // <-- disabilitato per ora
+        expression { return false }  // Disattivato per ora
       }
       steps {
         sh 'docker compose up -d'
@@ -49,6 +58,8 @@ pipeline {
   post {
     always {
       echo 'Pipeline completed.'
+      // Arresta eventuali container lasciati attivi
+      sh 'docker compose down || true'
     }
   }
 }
