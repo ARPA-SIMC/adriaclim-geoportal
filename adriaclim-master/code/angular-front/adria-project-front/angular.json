@@ -39,6 +39,11 @@
               "./node_modules/bootstrap/dist/js/bootstrap.min.js",
               "./node_modules/bootstrap-italia/dist/js/bootstrap-italia.bundle.min.js",
               "./node_modules/bootstrap-italia/dist/js/bootstrap-italia.min.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "moment",
+              "lodash"
             ]
           },
           "configurations": {
