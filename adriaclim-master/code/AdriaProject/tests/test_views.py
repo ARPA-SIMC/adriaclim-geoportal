@@ -2,9 +2,11 @@ from django.test import TestCase, Client
 from django.http import JsonResponse
 from django.core import serializers
 import json
+import time
 from django.urls import reverse
 from Dataset.models import Node
 import Dataset.views as views
+from unittest.mock import patch
 
 class TestViews(TestCase):
 
@@ -72,3 +74,28 @@ def test_get_metadata_new(self):
     finally:
         # Ripristina la funzione originale
         views.getMetadata = original_get_metadata
+        
+class TestOverlays(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.dataset_id = "atm_regional_eaf9_c559_9752"  # anche se non ha WMS
+
+    @patch('Dataset.external_wms.fetch_wms_response')  # <-- mock qui
+    def test_get_overlays(self, mock_fetch):
+        # Definiamo la risposta finta del WMS
+        mock_fetch.return_value = JsonResponse({"overlay": "mocked response"})
+
+        response = self.client.get(
+            reverse('get_overlays_new', args=[self.dataset_id]),
+            {
+                "service": "WMS",
+                "request": "GetCapabilities",
+                "version": "1.3.0"
+            }
+        )
+
+        print(f"⏱️ overlaysNew mocked response time OK")
+        print("📦 Mocked content:", response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("overlay", response.json())

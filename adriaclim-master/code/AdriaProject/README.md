@@ -32,11 +32,12 @@ docker exec -it adriapp_django bash
         python manage.py test tests.test_dataset_manager
         python manage.py test tests.test_views
         python manage.py test tests.test_models
+        python manage.py test tests.test_performance
 🧠 Cosa verificano i test
-        test_dataset_manager.py	Funzioni critiche di importazione e parsing dei dataset (getAllDatasets, process_dataset_row)
-        test_views.py	Risposte corrette da API chiave (getAllNodes, getMetadataNew)
-        test_models.py	Creazione e integrità del modello Node
-
+        test_dataset_manager.py	-> Funzioni critiche di importazione e parsing dei dataset (getAllDatasets, process_dataset_row)
+        test_views.py -> Risposte corrette da API chiave (getAllNodes, getMetadataNew)
+        test_models.py -> Creazione e integrità del modello Node
+        test_performance.py -> Misura dei tempi di risposta del backend isolando le chiamate a servizi esterni (getMetadataNew)
 💡 Note aggiuntive
         Alcuni test usano mocking manuale per isolare il codice da dipendenze esterne (es. chiamate a URL o parsing file remoti).
 

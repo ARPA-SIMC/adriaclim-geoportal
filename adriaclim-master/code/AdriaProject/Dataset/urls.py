@@ -1,4 +1,5 @@
 from django.urls import path
+from Dataset.external_wms import overlaysNew
 from .views import (
     getAllDatasets,
     dataset_id_wrong,
@@ -7,6 +8,7 @@ from .views import (
     getMetadataNew,
     get_metadata_table,
     getDataTableNew,
+    
 )
 
 urlpatterns = [
@@ -17,4 +19,5 @@ urlpatterns = [
     path('getMetadataNew/', getMetadataNew, name='getMetadataNew'),
     path('get_metadata_table/', get_metadata_table, name='get_metadata_table'),
     path('getDataTableNew/', getDataTableNew, name='getDataTableNew'),
+    path('getOverlaysNew/<str:dataset_id>/', overlaysNew, name='get_overlays_new'),
 ]
