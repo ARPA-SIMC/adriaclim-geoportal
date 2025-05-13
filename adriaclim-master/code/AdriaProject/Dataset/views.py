@@ -48,9 +48,9 @@ def getAllNodes(request):
     try:
         nodes = Node.objects.all()
         nodes_list = [model_to_dict(node) for node in nodes]
-        return JsonResponse(nodes_list, safe=False)
+        return JsonResponse({"nodes": nodes_list})
     except Exception as e:
-        return JsonResponse(str(e), safe=False)
+        return JsonResponse({"error": str(e)})
 
 @api_view(['GET','POST'])
 def getMetadataNew(request):
