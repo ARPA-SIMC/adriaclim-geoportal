@@ -3,10 +3,6 @@ from django.http import HttpResponse, JsonResponse
 from AdriaProject.settings import ERDDAP_URL
 from urllib.parse import urlencode
 
-# def build_wms_url(base_url, dataset_id, params):
-#     """Helper function to construct the WMS URL."""
-#     query_string = "&".join(f"{key}={value}" for key, value in params.items())
-#     return f"{base_url}/wms/{dataset_id}?{query_string}"
 
 def build_wms_url(base_url, dataset_id, params):
     """Costruisce URL WMS evitando i parametri None"""

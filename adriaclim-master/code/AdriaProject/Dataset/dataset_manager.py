@@ -167,11 +167,6 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
 def getAllDatasets() -> None:
     start_time = time.time()
     print("Started getAllDatasets()")
-    
-    ## NON SCOMMENTARE QUI, CANCELLA TUTTO IL DB
-    # from asyncio import run
-    # run(delete_all("Node"))
-
     datasets = fetch_datasets()
     if datasets.empty:
         print("No datasets found.")
