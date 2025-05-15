@@ -1,8 +1,8 @@
 from django.test import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import pandas as pd
-from Dataset.dataset_manager import getAllDatasets, process_dataset_row, process_metadata
-from Dataset.models import Node  # o qualsiasi modello tu ti aspetti venga creato
+from Dataset.dataset_manager import getAllDatasets, process_dataset_row, process_metadata, getMetadataOfASpecificDataset, fetch_datasets
+from Dataset.models import Node, Indicator
 import time
 from io import StringIO
 
@@ -125,3 +125,65 @@ class ProcessMetadataTests(TestCase):
         mock_download.side_effect = Exception("Fake error")
         result = process_metadata("http://fake-url.com/fail.csv")
         self.assertEqual(result, [])
+        
+class GetMetadataOfASpecificDatasetTests(TestCase):
+
+    @patch("Dataset.dataset_manager.requests.get")
+    def test_node_found_returns_json(self, mock_get):
+        node = Node.objects.create(
+        id="node1",
+        title="Test Node",
+        metadata_url="http://example.com/data.csv"
+)
+
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"mock": "data"}
+        mock_get.return_value = mock_response
+
+        result = getMetadataOfASpecificDataset("node1")
+        self.assertEqual(result, {"mock": "data"})
+
+    @patch("Dataset.dataset_manager.requests.get")
+    def test_indicator_found_returns_json(self, mock_get):
+        indicator = Indicator.objects.create(
+            dataset_id="ind1",
+            title="Test Indicator",
+            metadata_url="http://example.com/data.csv"
+        )
+
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"mock": "data"}
+        mock_get.return_value = mock_response
+
+        result = getMetadataOfASpecificDataset("ind1")
+        self.assertEqual(result, {"mock": "data"})
+
+    def test_no_node_or_indicator_returns_none(self):
+        result = getMetadataOfASpecificDataset("nonexistent_id")
+        self.assertIsNone(result)
+        
+DATASET_COLUMNS = ["col1", "col2", "col3"]
+
+class FetchDatasetsTests(TestCase):
+
+    @patch("Dataset.dataset_manager.download_with_cache_as_csv")
+    @patch("Dataset.dataset_manager.DATASET_COLUMNS", DATASET_COLUMNS)
+    def test_fetch_datasets_success(self, mock_download):
+        fake_csv = StringIO("col1,col2,col3\nval1,val2,val3\nval4,val5,val6\n")
+        df = pd.read_csv(fake_csv, names=DATASET_COLUMNS)
+        fake_csv.seek(0)
+
+        mock_download.return_value = fake_csv
+
+        with patch("pandas.read_table", return_value=df):
+            result = fetch_datasets()
+            self.assertIsInstance(result, pd.DataFrame)
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result.iloc[0].to_dict(), {"col1": "val1", "col2": "val2", "col3": "val3"})
+
+    @patch("Dataset.dataset_manager.download_with_cache_as_csv")
+    def test_fetch_datasets_failure(self, mock_download):
+        mock_download.side_effect = Exception("Fake download error")
+        result = fetch_datasets()
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertTrue(result.empty)
