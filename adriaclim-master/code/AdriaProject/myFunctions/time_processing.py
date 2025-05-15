@@ -1,5 +1,8 @@
 from datetime import datetime
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 MONTHS = {
     1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',
@@ -40,7 +43,7 @@ def check_dates_format_trend(dates):
                         continue
         return dates
     except Exception as e:
-        print(f"Errore in check_dates_format_trend: {e}")
+        logger.error(f"Errore in check_dates_format_trend: {e}")
         return []
 
 def convertToTime(date_str):
@@ -48,7 +51,7 @@ def convertToTime(date_str):
     try:
         return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
     except ValueError as e:
-        print(f"Errore in convertToTime: {e}")
+        logger.error(f"Errore in convertToTime: {e}")
         return None
 
 def get_season(date):
@@ -65,10 +68,3 @@ def get_season(date):
     elif date in autumn:
         return 4
     return 1  # Default: Winter
-
-
-
-
-
-
-

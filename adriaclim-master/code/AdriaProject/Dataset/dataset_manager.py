@@ -5,6 +5,8 @@ import numpy as np
 import asyncio
 import pandas as pd
 import requests
+import logging  # Aggiunto logger
+
 from django.db import transaction
 from django.core.cache import cache
 from Dataset.models import Node, Indicator
@@ -13,6 +15,7 @@ from typing import List, Dict, Any, Optional
 from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.database_operations import is_database_almost_full, delete_all
 
+logger = logging.getLogger(__name__)  # Definizione logger
 
 DATASET_COLUMNS = [
     "griddap", "subset", "tabledap", "MakeAGraph", "wms", "files", "Title",
@@ -20,7 +23,6 @@ DATASET_COLUMNS = [
     "Email", "Institution", "DatasetID",
 ]
 INFO_COLUMNS = ["RowType", "VariableName", "AttributeName", "DataType", "Value"]
-
 
 def fetch_datasets() -> pd.DataFrame:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=100000"
@@ -39,9 +41,8 @@ def fetch_datasets() -> pd.DataFrame:
 
         return df
     except Exception as e:
-        print(f"Error fetching datasets: {e}")
+        logger.error(f"Error fetching datasets: {e}")
         return pd.DataFrame()
-
 
 def process_metadata(info_url: str) -> List[Dict[str, Any]]:
     try:
@@ -55,7 +56,7 @@ def process_metadata(info_url: str) -> List[Dict[str, Any]]:
         metadata.drop(index=metadata.index[0], axis=0, inplace=True)
         return metadata.to_dict(orient="records")
     except Exception as e:
-        print(f"Error processing metadata: {e}")
+        logger.error(f"Error processing metadata: {e}")
         return []
 
 def save_node_to_db(node_id: str, defaults: Dict[str, Any]) -> None:
@@ -166,16 +167,16 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
 
 def getAllDatasets() -> None:
     start_time = time.time()
-    print("Started getAllDatasets()")
+    logger.info("Started getAllDatasets()")
     datasets = fetch_datasets()
     if datasets.empty:
-        print("No datasets found.")
+        logger.warning("No datasets found.")
         return
 
     for _, row in datasets.iterrows():
         process_dataset_row(row)
 
-    print(f"Finished getAllDatasets() in {time.time() - start_time:.2f} seconds")
+    logger.info(f"Finished getAllDatasets() in {time.time() - start_time:.2f} seconds")
 
 def getMetadataTime1(dataset_id: str) -> List[Any]:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"
@@ -274,7 +275,3 @@ def getMetadataOfASpecificDataset(dataset_id: str) -> Optional[Dict[str, Any]]:
             return r.json()
         except Indicator.DoesNotExist:
             return None
-
-
-
-

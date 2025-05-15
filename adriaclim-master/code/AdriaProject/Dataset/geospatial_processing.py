@@ -3,6 +3,7 @@ import datetime as dt
 import pandas as pd
 import json
 import numpy as np
+import logging  # Aggiunto
 from typing import List, Dict, Any, Union
 from django.db.models import Q
 from django.contrib.gis.geos import Polygon as GeosPolygon
@@ -14,15 +15,15 @@ from myFunctions.data_analysis import calculate_trend, operation_before_after_ca
 from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.indicator_manager import getIndicatorQueryUrl
 
+logger = logging.getLogger(__name__)  # Inizializzazione logger
+
 # Constants
 CACHE_TIMEOUT = 43200  # 12 hours
 MAX_SAMPLING_POINTS = 1000
 
-
 def log_error(message: str, exception: Exception) -> None:
     """Log errors with a consistent format."""
-    print(f"{message}: {exception}")
-
+    logger.error(f"{message}: {exception}")
 
 def create_geos_polygon(vertices: List[tuple]) -> Union[GeosPolygon, str]:
     """Create a GEOS polygon from vertices."""
@@ -34,21 +35,18 @@ def create_geos_polygon(vertices: List[tuple]) -> Union[GeosPolygon, str]:
         log_error("Error creating GEOS Polygon", e)
         return str(e)
 
-
 def fetch_from_cache(key: str) -> Union[Dict[str, Any], None]:
     """Fetch data from cache."""
     cache_result = cache.get(key=key)
     if cache_result is not None:
-        print("CACHE HIT!")
+        logger.info("CACHE HIT!")
         return json.loads(cache_result)
-    print("CACHE MISS!")
+    logger.info("CACHE MISS!")
     return None
-
 
 def save_to_cache(key: str, data: Dict[str, Any]) -> None:
     """Save data to cache."""
     cache.set(key, json.dumps(data), timeout=CACHE_TIMEOUT)
-
 
 def calculate_statistics(df: pd.DataFrame, values: List[float], time_op: str, adriaclim_timeperiod: str) -> Dict[str, Any]:
     """Calculate statistics like mean, median, standard deviation, and trend."""
@@ -59,7 +57,6 @@ def calculate_statistics(df: pd.DataFrame, values: List[float], time_op: str, ad
         stats["stdev"] = np.std(values)
         stats["trend_yr"] = calculate_trend(df["date_value"].tolist(), values, timeperiod=adriaclim_timeperiod)
     return stats
-
 
 def getDataPolygonNew(
     dataset_id: str,
@@ -82,12 +79,9 @@ def getDataPolygonNew(
 ) -> Union[Dict[str, Any], str]:
     """
     Fetch polygon data based on the given parameters.
-
-    Returns:
-        A dictionary containing the processed data or an error message.
     """
     start_time = time.time()
-    print("STARTED getDataPolygonNew!")
+    logger.info("STARTED getDataPolygonNew!")
 
     vertices = [(float(lat_lng["lat"]), float(lat_lng["lng"])) for lat_lng in lat_lng_obj]
     vertices_geos_poly = [(float(lat_lng["lng"]), float(lat_lng["lat"])) for lat_lng in lat_lng_obj]
@@ -105,11 +99,11 @@ def getDataPolygonNew(
         cached_data.update(calculate_statistics(df, cached_data["dataPol"].get("y", []), time_op, adriaclim_timeperiod))
         return cached_data
 
-    print("CACHE MISS, checking DB...")
+    logger.info("CACHE MISS, checking DB...")
     polygons = Polygon.objects.filter(dataset_id=dataset_id, coordinate__within=geos_polygon)
     if polygons.exists():
         try:
-            print("DB HIT!")
+            logger.info("DB HIT!")
             allData = {"dataTable": []}
             for pol in polygons:
                 entry = {
@@ -138,16 +132,15 @@ def getDataPolygonNew(
 
             save_to_cache(key_cached, allData)
             allData["dataPol"] = operation_before_after_cache(df, statistic, time_op)
-            print(f"DB TIME: {time.time() - start_time:.2f} seconds")
+            logger.info(f"DB TIME: {time.time() - start_time:.2f} seconds")
             return allData
 
         except Exception as e:
             log_error("Error during DB handling", e)
             return str(e)
 
-    print("NO CACHE, NO DB! Fetching external data...")
+    logger.warning("NO CACHE, NO DB! Fetching external data...")
     return "External data fetching not yet implemented here"
-
 
 def getDataGraphicGeneric(
     dataset_id: str,
@@ -168,9 +161,6 @@ def getDataGraphicGeneric(
 ) -> Union[List[Any], str]:
     """
     Fetch generic graphic data based on the given parameters.
-
-    Returns:
-        A list containing processed data or an error message.
     """
     try:
         onlyone = kwargs.get("context") == "one"
@@ -252,19 +242,3 @@ def getDataGraphicGeneric(
     except Exception as e:
         log_error("General exception in getDataGraphicGeneric", e)
         return str(e)
-
-
-
-
-
-
-    
-    
-    
-
-
-    
-
-
-
-

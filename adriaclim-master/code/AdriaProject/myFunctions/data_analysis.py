@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
+import logging  # Aggiunto logger
 from statistics import mean, median, stdev
 from scipy import stats
 from .utils import percentile_new
 from .time_processing import get_season, seasons, check_dates_format_trend
 
+logger = logging.getLogger(__name__)  # Inizializzazione logger
 
 def aggregateGraphicValues(vals, operation):
     if not vals:
@@ -24,7 +26,6 @@ def aggregateGraphicValues(vals, operation):
         return sum(vals_sorted) / len(vals_sorted)
     return None
 
-
 def percentileFunction(array, perc):
     array_sorted = sorted(array)
     k = (len(array_sorted) - 1) * perc / 100
@@ -35,7 +36,6 @@ def percentileFunction(array, perc):
     d0 = array_sorted[f] * (c - k)
     d1 = array_sorted[c] * (k - f)
     return d0 + d1
-
 
 def subtract_mean_trend(dates, values, timeperiod):
     df = pd.DataFrame({"date": pd.to_datetime(dates), "value": values})
@@ -55,7 +55,6 @@ def subtract_mean_trend(dates, values, timeperiod):
 
     return df["value"].values
 
-
 def calculate_trend(dates, values, **kwargs):
     try:
         y = np.array(values)
@@ -68,9 +67,8 @@ def calculate_trend(dates, values, **kwargs):
         slope, _, _, _, _ = stats.linregress(days, y)
         return slope * 86400 * 365.25
     except Exception as e:
-        print("Errore in calculate_trend:", e)
+        logger.error(f"Errore in calculate_trend: {e}")
         return str(e)
-
 
 def updateStatistics(new_dates, new_values, polygon, timeperiod):
     try:
@@ -94,7 +92,6 @@ def updateStatistics(new_dates, new_values, polygon, timeperiod):
         if str(e) == "variance requires at least two data points":
             return {key: new_values for key in ["mean", "stdev", "median", "trend"]}
         return {}
-
 
 def packageGraphData(allData, **kwargs):
     try:
@@ -127,9 +124,8 @@ def packageGraphData(allData, **kwargs):
 
         return data
     except Exception as e:
-        print("Exception in packageGraphData:", str(e))
+        logger.error(f"Exception in packageGraphData: {e}")
         return str(e)
-
 
 def processOperation(operation, values, dates, unit, layerName, lats, longs):
     import re
@@ -151,7 +147,6 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 values2.append(aggregateGraphicValues(vals, "avg"))
 
     return [values2, dates2, unit, layerName2, lats2, longs2]
-
 
 def operation_before_after_cache(df_polygon, statistic, time_op):
     try:
@@ -228,9 +223,5 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
 
         return data_pol_list
     except Exception as e:
-        print("eccezione========", e)
+        logger.error(f"Exception in operation_before_after_cache: {e}")
         return str(e)
-
-
-
-
