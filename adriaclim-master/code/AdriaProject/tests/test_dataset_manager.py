@@ -1,7 +1,10 @@
 from django.test import TestCase
-from Dataset.dataset_manager import getAllDatasets, process_dataset_row
+from unittest.mock import patch
+import pandas as pd
+from Dataset.dataset_manager import getAllDatasets, process_dataset_row, process_metadata
 from Dataset.models import Node  # o qualsiasi modello tu ti aspetti venga creato
 import time
+from io import StringIO
 
 class TestDatasetManager(TestCase):
 
@@ -96,3 +99,29 @@ class TestDatasetManager(TestCase):
         finally:
             # Ripristina la funzione originale
             manager.process_metadata = original_process_metadata
+            
+INFO_COLUMNS = ["col1", "col2", "col3"]
+
+class ProcessMetadataTests(TestCase):
+
+    @patch("Dataset.dataset_manager.download_with_cache_as_csv")
+    @patch("Dataset.dataset_manager.INFO_COLUMNS", INFO_COLUMNS)
+    def test_process_metadata_success(self, mock_download):
+        fake_csv = StringIO("header1,header2,header3\nval1,val2,val3\nval4,val5,val6\n")
+        df = pd.read_csv(fake_csv, names=INFO_COLUMNS)
+        df.iloc[0] = ["nan", "nan", "nan"]
+        fake_csv.seek(0)
+
+        mock_download.return_value = fake_csv
+
+        with patch("pandas.read_table", return_value=df):
+            result = process_metadata("http://fake-url.com/metadata.csv")
+            self.assertIsInstance(result, list)
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0], {"col1": "val1", "col2": "val2", "col3": "val3"})
+
+    @patch("Dataset.dataset_manager.download_with_cache_as_csv")
+    def test_process_metadata_failure(self, mock_download):
+        mock_download.side_effect = Exception("Fake error")
+        result = process_metadata("http://fake-url.com/fail.csv")
+        self.assertEqual(result, [])
