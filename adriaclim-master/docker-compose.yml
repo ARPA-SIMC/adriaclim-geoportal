@@ -32,7 +32,7 @@ services:
       - django
       - angular
   angular:
-    build: code/angular-front/adria-project-front
+    build: ./code/angular-front/adria-project-front
     container_name: adriapp_angular
     ports:
       - "4200:4200"

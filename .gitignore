@@ -15,6 +15,7 @@ static_root/
 
 # Celery
 code/AdriaProject/celerybeat-schedule
+adriaclim-master/code/AdriaProject/celerybeat-schedule
 
 # Node.js
 node_modules/

@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 # WORKDIR '/app'
 
 # Copy dependency definitions
-COPY package.json /usr/src/app
+COPY package*.json ./
 # COPY package.json /app
 
 # Install dependecies
@@ -23,7 +23,7 @@ RUN npm install
 # RUN npm run build # probabilmente non serve
 
 # Get all the code needed to run the app
-COPY . /usr/src/app
+COPY . .
 # COPY . /app
 
 RUN chmod 777 /usr/src/app/node_modules/.bin/ng
