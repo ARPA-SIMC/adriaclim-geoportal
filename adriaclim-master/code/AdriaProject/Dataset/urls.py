@@ -1,7 +1,7 @@
 from django.urls import path
 from Dataset.external_wms import overlaysNew
 from .views import (
-    getAllDatasets,
+    allDatasets,
     dataset_id_wrong,
     getDataTable,
     getAllNodes,
@@ -12,7 +12,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('getAllDatasets/', getAllDatasets, name='getAllDatasets'),
+    path('allDatasets/', allDatasets, name='allDatasets'),
     path('dataset_id_wrong/', dataset_id_wrong, name='dataset_id_wrong'),
     path('getDataTable/', getDataTable, name='getDataTable'),
     path('getAllNodes/', getAllNodes, name='getAllNodes'),

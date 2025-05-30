@@ -8,14 +8,14 @@ import json
 import pandas as pd
 
 from Dataset.models import Node, Polygon, Indicator
-from .dataset_manager import getMetadata, getMetadataOfASpecificDataset
+from .dataset_manager import getMetadata, getMetadataOfASpecificDataset, getAllDatasets
 from .geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
 from myFunctions.data_analysis import updateStatistics
 from myFunctions.getDataFunctions import functionPoint 
 from myFunctions import compareStatistics
 
 @api_view(['GET','POST'])
-def getAllDatasets(request):
+def allDatasets(request):
     if request.method in ['GET', 'POST']:
         getAllDatasets()
         return HttpResponse("Ok")

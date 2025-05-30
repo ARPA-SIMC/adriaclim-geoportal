@@ -770,7 +770,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    */
   getAllNodes() {
 
-    this.httpService.post('test/allNodes', {
+    this.httpService.post('getAllNodes', {
     }).subscribe({
       next: (res: any) => {
 
