@@ -118,7 +118,7 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
     let tmpScale: any[] = [];
     let tmpTimeperiods: any[] = [];
 
-    this.httpService.post('getAllNodes', {
+    this.httpService.post('dataset/getAllNodes/', {
     }).subscribe({
       next: (res: any) => {
 

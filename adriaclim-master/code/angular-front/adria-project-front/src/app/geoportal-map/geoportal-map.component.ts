@@ -80,7 +80,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentProd;
+  apiUrl = environmentDev;
 
   compliantErrorErddap = "";
   showAlertGenericError = false;
@@ -770,7 +770,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    */
   getAllNodes() {
 
-    this.httpService.post('getAllNodes', {
+    this.httpService.post('dataset/getAllNodes/', {
     }).subscribe({
       next: (res: any) => {
 

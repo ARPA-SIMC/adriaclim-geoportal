@@ -63,7 +63,7 @@ export class AppComponent implements OnInit {
   }
 
   getMBIndicator(timeperiod: string) {
-    this.httpService.post('test/discover_mb', {
+    this.httpService.post('myFunctions/discover_mb', {
       timeperiod: timeperiod
     }).subscribe({
       next(position: any) {

@@ -165,18 +165,242 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
         }
         save_node_to_db(node_id, defaults)
 
-def getAllDatasets() -> None:
+# def getAllDatasets() -> None:
+#     start_time = time.time()
+#     logger.info("Started getAllDatasets()")
+#     datasets = fetch_datasets()
+#     if datasets.empty:
+#         logger.warning("No datasets found.")
+#         return
+
+#     for _, row in datasets.iterrows():
+#         process_dataset_row(row)
+
+#     logger.info(f"Finished getAllDatasets() in {time.time() - start_time:.2f} seconds")
+
+def getAllDatasets():
     start_time = time.time()
-    logger.info("Started getAllDatasets()")
-    datasets = fetch_datasets()
-    if datasets.empty:
-        logger.warning("No datasets found.")
-        return
+    print("Started getAllDatasets()")
+    url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
+    # asyncio.run(cache.clear())
+    # cache.clear()
+    # node_list = []
+    asyncio.run(delete_all("Node"))  # delete all existing nodes
+    try:
+        df = pd.read_table(
+            download_with_cache_as_csv(url_datasets),
+            header=0,
+            sep=",",
+            engine="c",
+            names=[
+                "griddap",
+                "subset",
+                "tabledap",
+                "MakeAGraph",
+                "wms",
+                "files",
+                "Title",
+                "Summary",
+                "FGDC",
+                "ISO 19115",
+                "Info",
+                "BackgroundInfo",
+                "RSS",
+                "Email",
+                "Institution",
+                "DatasetID",
+            ],
+            na_values="Value not available",
+        )
 
-    for _, row in datasets.iterrows():
-        process_dataset_row(row)
+        df = df.fillna("")
+        df.drop(index=df.index[0], axis=0, inplace=True)
+    except Exception as e:
+        print("Error", e)
+        return str(e)
+    for row in df.to_dict(orient="records"):
+        info = row["Info"]
+        adriaclim_scale = None
+        adriaclim_dataset = None
+        adriaclim_timeperiod = None
+        adriaclim_model = None
+        adriaclim_type = None
+        institution = "UNKNOWN"
+        time_start = ""
+        time_end = ""
+        lat_min = None
+        lat_max = None
+        lng_min = None
+        lng_max = None
 
-    logger.info(f"Finished getAllDatasets() in {time.time() - start_time:.2f} seconds")
+        variables = 0
+        variable_names = ""
+        variable_types = ""
+        dimensions = 0
+        dimension_names = ""
+        param_min = 0
+        param_max = 0
+        param_step = 0
+        node_id = row["DatasetID"]
+        metadata_url = row["Info"]
+        tabledap_url = row["tabledap"]
+        griddap_url = row["griddap"]
+        wms_url = row["wms"]
+        get_info = pd.read_table(
+            download_with_cache_as_csv(info),
+            header=None,
+            sep=",",
+            engine="c",
+            names=["RowType", "VariableName", "AttributeName", "DataType", "Value"],
+        ).fillna("nan")
+        get_info.drop(index=get_info.index[0], axis=0, inplace=True)
+        get_info = get_info.to_dict(orient="records")
+        for row1 in get_info:
+            if row1 == get_info[-1] and time_start != "" and time_end != "":
+                defaults = {
+                    "adriaclim_dataset": adriaclim_dataset,
+                    "adriaclim_model": adriaclim_model,
+                    "adriaclim_timeperiod": adriaclim_timeperiod,
+                    "adriaclim_scale": adriaclim_scale,
+                    "adriaclim_type": adriaclim_type,
+                    "title": row["Title"],
+                    "metadata_url": metadata_url,
+                    "institution": institution,
+                    "lat_min": lat_min,
+                    "lat_max": lat_max,
+                    "lng_min": lng_min,
+                    "lng_max": lng_max,
+                    "time_start": time_start,
+                    "time_end": time_end,
+                    "param_min": param_min,
+                    "param_max": param_max,
+                    "param_step": param_step,
+                    "tabledap_url": tabledap_url,
+                    "dimensions": dimensions,
+                    "dimension_names": dimension_names,
+                    "variables": variables,
+                    "variable_names": variable_names,
+                    "variable_types": variable_types,
+                    "griddap_url": griddap_url,
+                    "wms_url": wms_url,
+                }
+                if not is_database_almost_full():
+                    Node.objects.update_or_create(id=node_id, defaults=defaults)
+            else:
+                # now we create our datasets that we put in our db
+                if row1["RowType"] == "dimension":
+                    if dimensions > 0:
+                        dimension_names = dimension_names + " "
+
+                    dimensions = dimensions + 1
+                    dimension_names = dimension_names + row1["VariableName"]
+
+                if row1["RowType"] == "variable":
+                    if variables > 0:
+                        variable_names = variable_names + " "
+                        variable_types = variable_types + " "
+
+                    variables = variables + 1
+                    variable_names = variable_names + row1["VariableName"]
+                    variable_types = variable_types + row1["DataType"]
+                    # print("variable_types=" + variable_types)
+
+                if row1["AttributeName"] == "adriaclim_dataset":
+                    adriaclim_dataset = row1["Value"]
+                if row1["AttributeName"] == "adriaclim_model":
+                    adriaclim_model = row1["Value"]
+                if row1["AttributeName"] == "adriaclim_scale":
+                    adriaclim_scale = row1["Value"]
+                if row1["AttributeName"] == "adriaclim_timeperiod":
+                    adriaclim_timeperiod = row1["Value"]
+                if row1["AttributeName"] == "adriaclim_type":
+                    adriaclim_type = row1["Value"]
+                if row1["AttributeName"] == "title":
+                    title = row1["Value"]
+                if row1["AttributeName"] == "institution":
+                    institution = row1["Value"]
+                if row1["AttributeName"] == "time_coverage_start":
+                    time_start = row1["Value"]
+                if row1["AttributeName"] == "time_coverage_end":
+                    time_end = row1["Value"]
+                if row1["AttributeName"] == "geospatial_lat_min":
+                    lat_min = row1["Value"]
+                if row1["AttributeName"] == "geospatial_lat_max":
+                    lat_max = row1["Value"]
+                if row1["AttributeName"] == "geospatial_lon_min":
+                    lng_min = row1["Value"]
+                if row1["AttributeName"] == "geospatial_lon_max":
+                    lng_max = row1["Value"]
+                if griddap_url != "":
+                    if (
+                        row1["AttributeName"] == "actual_range"
+                        and row1["VariableName"] != "time"
+                        and row1["VariableName"] != "latitude"
+                        and row1["VariableName"] != "longitude"
+                    ):
+                        param_agg = row1["Value"].split(",")
+                        param_min = float(param_agg[0])
+                        param_max = float(param_agg[1].replace(" ", ""))
+                    elif (
+                        row1["RowType"] == "dimension"
+                        and row1["VariableName"] != "time"
+                        and row1["VariableName"] != "Times"
+                        and row1["VariableName"] != "latitude"
+                        and row1["VariableName"] != "longitude"
+                    ):
+                        #parametro aggiuntivo lo step!
+                        try:
+                            spacing = row1["Value"]
+                            average_spacing_others = spacing.split(",")[2]
+                            # print("PARAMETRO AGGIUNTIVO STEP===",average_spacing_others)
+                            # print("PARAMETRO AGGIUNTIVO VALORE=======",average_spacing_others.split("=")[1])
+                            param_step = abs(float(average_spacing_others.split("=")[1]))
+                            # print("PARAM_STEP=====",param_step)
+                        except Exception as e:
+                            pass
+                    
+                        
+
+                # is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
+                is_indicator = re.search("indicator", row["Title"], re.IGNORECASE)
+
+                if is_indicator and adriaclim_scale is None:
+                    adriaclim_scale = "large"
+
+                if adriaclim_timeperiod == "day":
+                    adriaclim_timeperiod = "daily"
+
+                if adriaclim_scale is None and not is_indicator:
+                    adriaclim_scale = "UNKNOWN"
+
+                if adriaclim_model is None:
+                    adriaclim_model = "UNKNOWN"
+
+                if adriaclim_type is None:
+                    adriaclim_type = "UNKNOWN"
+
+                if adriaclim_dataset is None:
+                    adriaclim_dataset = "no"
+
+                if adriaclim_timeperiod is None:
+                    if "yearly" in row["Title"].lower():
+                        adriaclim_timeperiod = "yearly"
+                    if "monthly" in row["Title"].lower():
+                        adriaclim_timeperiod = "monthly"
+                    if "seasonal" in row["Title"].lower():
+                        adriaclim_timeperiod = "seasonal"
+
+                if adriaclim_timeperiod is None:
+                    if is_indicator:
+                        adriaclim_timeperiod = "yearly"
+                    else:
+                        adriaclim_timeperiod = "UNKNOWN"
+
+    print(
+        "Time to finish getAllDatasets() ========= {:.2f} seconds".format(
+            time.time() - start_time
+        )
+    )
 
 def getMetadataTime1(dataset_id: str) -> List[Any]:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"

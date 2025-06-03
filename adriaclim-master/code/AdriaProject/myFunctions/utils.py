@@ -1,6 +1,7 @@
 import os
 import io
 import pandas as pd
+import urllib
 import numpy as np
 import requests
 from django.core.cache import cache

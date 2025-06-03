@@ -87,7 +87,7 @@ export class GeoportalMapNewMenuComponent {
   markersLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentProd;
+  apiUrl = environmentDev;
 
   compliantErrorErddap = "";
   showAlert = false;
@@ -777,7 +777,7 @@ export class GeoportalMapNewMenuComponent {
     let tmpScale: any[] = [];
     let tmpTimeperiods: any[] = [];
 
-    this.httpService.post('getAllNodes', {
+    this.httpService.post('dataset/getAllNodes/', {
     }).subscribe({
       next: (res: any) => {
 

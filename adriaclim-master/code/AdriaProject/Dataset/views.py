@@ -14,11 +14,15 @@ from myFunctions.data_analysis import updateStatistics
 from myFunctions.getDataFunctions import functionPoint 
 from myFunctions import compareStatistics
 
+# from dataset_manager import getAllDatasets
+
 @api_view(['GET','POST'])
 def allDatasets(request):
-    if request.method in ['GET', 'POST']:
-        getAllDatasets()
-        return HttpResponse("Ok")
+    # if request.method in ['GET', 'POST']:
+    #     getAllDatasets()
+    #     return HttpResponse("Ok")
+    allNodes = getAllDatasets()
+    return HttpResponse("Ok", status=200)
 
 def dataset_id_wrong(request):
     return render(request, "wrongIdPassed.html")
