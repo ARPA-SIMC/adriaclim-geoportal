@@ -3,7 +3,6 @@ from celery import shared_task,chain
 
 @shared_task
 def task_get_all_data():
-    from myFunctions import allFunctions
     from Dataset import dataset_manager
     dataset_manager.getAllDatasets()
 

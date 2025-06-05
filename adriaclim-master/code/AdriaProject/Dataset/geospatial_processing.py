@@ -64,7 +64,7 @@ def getDataPolygonNew(
     layer_name: str,
     date_start: str,
     date_end: str,
-    lat_lng_obj: List[Dict[str, float]],
+    lat_lng_obj: List[Any],  # <-- cambiato da Dict a Any per gestire anche liste
     statistic: str,
     time_op: str,
     num_param: int,
@@ -83,6 +83,11 @@ def getDataPolygonNew(
     start_time = time.time()
     logger.info("STARTED getDataPolygonNew!")
 
+    # ✅ Fix per gestire input in formato lista di liste
+    if lat_lng_obj and isinstance(lat_lng_obj[0], list):
+        lat_lng_obj = [{"lng": p[0], "lat": p[1]} for p in lat_lng_obj]
+
+    # ✅ Ora funziona correttamente il parsing
     vertices = [(float(lat_lng["lat"]), float(lat_lng["lng"])) for lat_lng in lat_lng_obj]
     vertices_geos_poly = [(float(lat_lng["lng"]), float(lat_lng["lat"])) for lat_lng in lat_lng_obj]
 
@@ -198,8 +203,8 @@ def getDataGraphicGeneric(
         try:
             df = pd.read_csv(url, dtype="unicode")
         except Exception as e:
-            log_error("Error reading CSV", e)
-            return "fuoriWms"
+            logger.error("ERRORE pd.read_csv: %s", e)
+            return f"ERRORE LETTURA CSV: {str(e)}"
 
         if df.empty or layer_name not in df.columns:
             return "fuoriWms"

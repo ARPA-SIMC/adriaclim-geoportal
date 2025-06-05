@@ -2,9 +2,12 @@ from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import render
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 from celery.result import AsyncResult
 from operator import itemgetter
-import json
+from django.core import serializers
+import json, traceback
 import pandas as pd
 
 from Dataset.models import Node, Polygon, Indicator
@@ -13,16 +16,13 @@ from .geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
 from myFunctions.data_analysis import updateStatistics
 from myFunctions.getDataFunctions import functionPoint 
 from myFunctions import compareStatistics
+from .tasks import task_get_data_polygon
 
-# from dataset_manager import getAllDatasets
 
-@api_view(['GET','POST'])
+@api_view(['GET'])
 def allDatasets(request):
-    # if request.method in ['GET', 'POST']:
-    #     getAllDatasets()
-    #     return HttpResponse("Ok")
-    allNodes = getAllDatasets()
-    return HttpResponse("Ok", status=200)
+    datasets = Node.objects.exclude(wms_url="").values('id', 'title', 'wms_url')
+    return JsonResponse({"datasets": list(datasets)})
 
 def dataset_id_wrong(request):
     return render(request, "wrongIdPassed.html")
@@ -150,61 +150,55 @@ def getDataVectorialNew(request):
 
 @api_view(['GET','POST'])
 def getDataPolygonNew(request):
-    dataset_id = request.POST.get("dataset_id")
-    adriaclim_timeperiod = request.POST.get("adriaclim_timeperiod")
-    layer_name = request.POST.get("layer_name")
-    date_start = request.POST.get("date_start")
-    date_end = request.POST.get("date_end")
-    lat_lng_obj = json.loads(request.POST.get("lat_lng_obj"))
-    statistic = request.POST.get("statistic")
-    time_op = request.POST.get("time_op")
-    num_param = request.POST.get("num_param")
-    range_value = request.POST.get("range_value")
-    is_indicator = request.POST.get("is_indicator")
-    lat_min = request.POST.get("lat_min")
-    lat_max = request.POST.get("lat_max")
-    lng_min = request.POST.get("lng_min")
-    lng_max = request.POST.get("lng_max")
-    parametro_agg = request.POST.get("parametro_agg")
-    circle_coords = json.loads(request.POST.get("circle_coords"))
+    try:
+        request_data = request.data
+        #call celery task
+        task = task_get_data_polygon.apply_async(args=[request_data],queue="my_queue")
+        return JsonResponse({'task_id':task.id})
+    except Exception as e:
+        print("eccezione",e)
+        return str(e)
 
-    data = getDataPolygonNew(
-        dataset_id,
-        adriaclim_timeperiod,
-        layer_name,
-        date_start,
-        date_end,
-        lat_lng_obj,
-        statistic,
-        time_op,
-        num_param,
-        range_value,
-        is_indicator,
-        lat_min,
-        lat_max,
-        lng_min,
-        lng_max,
-        parametro_agg,
-        circle_coords,
-    )
 
-    return JsonResponse(data, safe=False)
-
-@api_view(['GET','POST'])
+@api_view(['GET', 'POST'])
 def check_task_status(request):
-    task_id = request.GET.get("task_id")
-    task = AsyncResult(task_id)
-    response_data = {"state": task.state}
-    if task.state == "SUCCESS":
-        response_data["result"] = task.result
-    return JsonResponse(response_data)
+    try:
+        task_id = request.data.get("task_id") or request.GET.get("task_id")
+        if not task_id:
+            return JsonResponse({"error": "Missing task_id"}, status=400)
 
-@api_view(['GET','POST'])
-def discover_mb_indicator(request):
-    from myFunctions.data_analysis import discover_how_mb_indicator_are
-    dataset_id = request.GET.get("dataset_id")
-    result = discover_how_mb_indicator_are(dataset_id)
-    return JsonResponse(result, safe=False)
+        task = AsyncResult(task_id)
+
+        response_data = {
+            "task_id": task_id,
+            "state": task.state,
+        }
+
+        if task.state == "SUCCESS":
+            response_data["dataVect"] = {
+                "status": "SUCCESS",
+                "result": task.result
+            }
+        elif task.state == "FAILURE":
+            response_data["dataVect"] = {
+                "status": "FAILURE",
+                "error": str(task.result)
+            }
+        elif task.state == "PROGRESS":
+            meta = task.info or {}
+            response_data["dataVect"] = {
+                "status": "PROGRESS",
+                "progressBar": meta.get("current", 0)
+            }
+        else:
+            response_data["dataVect"] = {
+                "status": task.state
+            }
+
+        return JsonResponse(response_data)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 @api_view(['GET','POST'])
 def updateStatistics(request):
@@ -215,6 +209,19 @@ def updateStatistics(request):
 
     data = updateStatistics(dates, values, is_polygon, time_period)
     return JsonResponse(data, safe=False)
+
+@api_view(['GET', 'POST'])
+def getPluto(request):
+    prova = Indicator.objects.get(dataset_id = "adriaclim_WRF_5e78_b419_ec8a")
+    provaSer = serializers.serialize('json', [prova, ]) # type: ignore
+    provaJson = json.loads(provaSer)
+    return JsonResponse({"pluto": provaJson})
+
+@api_view(['GET', 'POST'])
+def getInd(request):
+    ind = Indicator.objects.all()
+    data = [model_to_dict(i) for i in ind]
+    return JsonResponse({"ind": data})
 
 @api_view(['GET','POST'])
 def compareDatasets(request):
@@ -234,12 +241,18 @@ def compareDatasets(request):
         first_dataset_param = str(compare_obj.get('firstValue'))
 
         first_result = functionPoint.getDataGraphicGeneric(
-            first_dataset_id, first_dataset_timeperiod, first_dataset_layer_name,
-            first_dataset_time_start, first_dataset_time_end,
-            latitude, longitude, 0, first_dataset_param, 0,
-            "no", "no", "no", "no",
-            operation=operation, context=context
+        first_dataset_id, first_dataset_timeperiod, first_dataset_layer_name,
+        first_dataset_time_start, first_dataset_time_end,
+        latitude, longitude, 0, first_dataset_param, 0,
+        "no", "no", "no", "no",
+        operation=operation, context=context
         )
+
+        if not isinstance(first_result, dict):
+            return JsonResponse({
+            "error": f"Il primo dataset non contiene dati per il punto selezionato. Risposta: {first_result}"
+        }, status=400)
+
         first_list = first_result[first_dataset_layer_name]
         all_values_first = list(map(float, map(itemgetter('y'), first_list)))
 
@@ -252,13 +265,20 @@ def compareDatasets(request):
         second_dataset_param = str(compare_obj.get('secondValue'))
 
         second_result = functionPoint.getDataGraphicGeneric(
-            second_dataset_id, second_dataset_timeperiod, second_dataset_layer_name,
-            second_dataset_time_start, second_dataset_time_end,
-            latitude, longitude, 0, second_dataset_param, 0,
-            "no", "no", "no", "no",
-            operation=operation, context=context
+        second_dataset_id, second_dataset_timeperiod, second_dataset_layer_name,
+        second_dataset_time_start, second_dataset_time_end,
+        latitude, longitude, 0, second_dataset_param, 0,
+        "no", "no", "no", "no",
+        operation=operation, context=context
         )
+
+        if not isinstance(second_result, dict):
+            return JsonResponse({
+        "error": f"Il secondo dataset non contiene dati per il punto selezionato. Risposta: {second_result}"
+        }, status=400)
+        
         second_list = second_result[second_dataset_layer_name]
+        all_values_second = list(map(float, map(itemgetter('y'), second_list)))
         all_values_second = list(map(float, map(itemgetter('y'), second_list)))
 
         mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
@@ -276,6 +296,7 @@ def compareDatasets(request):
         return JsonResponse({"compareResult": allData})
     except Exception as e:
         print("Eccezione", e)
+        
         return HttpResponse("Errore", status=400)
 
 
