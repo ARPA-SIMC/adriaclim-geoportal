@@ -151,8 +151,8 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
     }
     // console.log("RANGE: ", this.range);
 
-    // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
-    this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
+    // this.httpService.post('dataset/getDataGraphicNewCanvas/', data, { responseType: 'text' }).subscribe(response => {
+    this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe((response: any) => {
 
       if (response.allData !== "fuoriWms"){
         if (typeof response == 'string') {
@@ -280,7 +280,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   getGraphCompare() {
     // this.compareObj["operation"] = this.operation;
     let data = this.compareObj;
-    this.httpService.post('test/compareDatasets', data).subscribe({
+    this.httpService.post('dataset/compareDatasets/', data).subscribe({
       next: (res: any) => {
         let firstDataset = res.compareResult.firstResult;
         let secondDataset = res.compareResult.secondResult;

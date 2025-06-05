@@ -340,6 +340,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   getDataGraphPolygonInterval() {
+    if (this.polygon && this.polygon.length >= 3) {
+      const first = this.polygon[0];
+      const last = this.polygon[this.polygon.length - 1];
+    if (first.lat !== last.lat || first.lng !== last.lng) {
+      this.polygon.push({ lat: first.lat, lng: first.lng });
+      }
+    }
+    
     let data = {
       dataset: this.dataset,
       selVar: this.variable,
@@ -359,7 +367,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     // send HTTP POST request to Django view function
     if (this.statistic !== "boxPlot") {
-      this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
+      this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
         console.log("PRIMA RESPONSE", response);
 
         // extract task ID from response
@@ -370,7 +378,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
-          this.httpService.post('test/check_task_status', data).subscribe({
+          this.httpService.post('dataset/check_task_status/', data).subscribe({
             next: (res: any) => {
               console.log("SECONDA RESPONSE", res);
 
@@ -411,7 +419,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
-      this.httpService.post('test/dataPolygon', data).subscribe((response: any) => {
+      this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
 
         // extract task ID from response
         let data = {
@@ -420,7 +428,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         // periodically check task status
         let checkTaskStatus = setInterval(() => {
-          this.httpService.post('test/check_task_status', data).subscribe({
+          this.httpService.post('dataset/check_task_status/', data).subscribe({
             next: (res: any) => {
 
               this.data1 = res.dataVect.result.dataPol.map((el: any) => {
@@ -948,8 +956,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     this.timeforProgressBar();
-    // this.httpService.post('test/dataGraphCanvas', data, { responseType: 'text' }).subscribe(response => {
-      this.httpService.post('test/dataGraphCanvas', data).subscribe((response: any) => {
+    // this.httpService.post('dataset/getDataGraphicNewCanvas/', data, { responseType: 'text' }).subscribe(response => {
+      this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe((response: any) => {
     // {
     //   reportProgress: true,
     //   observe: 'events'

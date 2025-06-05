@@ -477,7 +477,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     let data = {
       idMeta: this.datasetId
     }
-    this.httpService.post('test/metadataTable', data).subscribe((response: any) => {
+    this.httpService.post('dataset/get_metadata_table/', data).subscribe((response: any) => {
       if (typeof response === 'string') {
         response = JSON.parse(response);
       }
@@ -554,8 +554,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
         range: this.range ? Math.abs(this.range) : null
       }
 
-      // this.httpClient.post('http://localhost:8000/test/dataGraphTable', data, { responseType: 'text' }).subscribe(response => {
-      this.httpService.post('test/dataGraphTable', data).subscribe((response: any) => {
+      // this.httpClient.post('http://localhost:8000/dataset/getDataTableNew/', data, { responseType: 'text' }).subscribe(response => {
+      this.httpService.post('dataset/getDataTableNew/', data).subscribe((response: any) => {
         if (response.data !== "fuoriWms") {
           // this.spinnerLoading = false;
           if (typeof response === 'string') {
@@ -917,7 +917,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
 
     if (this.statCalc.values.length > 0) {
-      this.httpService.post('test/updateStatistics', data).subscribe({
+      this.httpService.post('myFunctions/updateStatistics/', data).subscribe({
         next: (res: any) => {
           let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
           this.expoFormat(mean_median_stdev);

@@ -753,7 +753,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   }
 
   getPluto() {
-    this.httpService.post('test/pluto', {
+    this.httpService.post('dataset/pluto', {
     }).subscribe({
       next(position: any) {
         // console.log("PLUTO =", position);
@@ -986,7 +986,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * Funzione che ritorna tutti i dati per popolare poi il tree
    */
   getInd() {
-    this.httpService.post('test/ind', {
+    this.httpService.post('dataset/ind', {
     }).subscribe({
       next: (res: any) => {
 
@@ -1068,7 +1068,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
       this.deleteLayer(idMeta);
 
     }
-    this.httpService.post('test/metadata', {
+    this.httpService.post('dataset/getMetadataNew/', {
       idMeta: idMeta
     }).subscribe({
       next: (res: any) => {
@@ -1908,7 +1908,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         //siamo nel caso di layers 2D!!!
         this.layer_to_attach = {
           layer_name: L.tileLayer.wms(
-            this.apiUrl + 'test/layers2d', {
+            this.apiUrl + 'dataset/layers2DNew/', {
               attribution: this.metadata[0][6],
               bgcolor: '0x808080',
               crs: L.CRS.EPSG4326,
@@ -1981,7 +1981,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           this.layer_to_attach = {
             layer_name: L.tileLayer.wms(
-              this.apiUrl + 'test/layers3d/' + this.extraParam.name, {
+              this.apiUrl + 'dataset/layers3DNew/' + this.extraParam.name, {
                 attribution: this.metadata[0][6],
                 bgcolor: '0x808080',
                 crs: L.CRS.EPSG4326,
@@ -2013,7 +2013,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
           this.layer_to_attach = {
             layer_name: L.tileLayer.wms(
-              this.apiUrl + 'test/layers3d/' + this.extraParam.name, {
+              this.apiUrl + 'dataset/layers3DNew/' + this.extraParam.name, {
                 attribution: this.metadata[0][6],
                 bgcolor: '0x808080',
                 crs: L.CRS.EPSG4326,
@@ -2068,7 +2068,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     const overlays = {
       Land: L.tileLayer.wms(
-        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'dataset/getOverlaysNew/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -2079,7 +2079,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         } as ExtendedWMSOptions
       ),
       Coastlines: L.tileLayer.wms(
-        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'dataset/getOverlaysNew/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -2090,7 +2090,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         } as ExtendedWMSOptions
       ),
       LakesAndRivers: L.tileLayer.wms(
-        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'dataset/getOverlaysNew/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -2101,7 +2101,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         } as ExtendedWMSOptions
       ),
       Nations: L.tileLayer.wms(
-        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'dataset/getOverlaysNew/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -2112,7 +2112,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
         } as ExtendedWMSOptions
       ),
       States: L.tileLayer.wms(
-        this.apiUrl + 'test/addOverlays/atm_regional_76a1_c4ac_038a', {
+        this.apiUrl + 'dataset/getOverlaysNew/atm_regional_76a1_c4ac_038a', {
           bgcolor: '0x808080',
           crs: L.CRS.EPSG4326,
           format: 'image/png',
@@ -2413,7 +2413,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
     this.spinnerLoader.spinnerShow = true;
     // }, 500);
 
-    this.httpService.post('test/dataVectorial', {
+    this.httpService.post('dataset/getDataVectorialNew/', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
       selVar: this.variableGroup.get("variableControl")?.value,
