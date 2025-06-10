@@ -1,11 +1,10 @@
-import io
-import time
 import re
-import numpy as np
+import time
 import asyncio
-import pandas as pd
+import logging
 import requests
-import logging  # Aggiunto logger
+import numpy as np
+import pandas as pd
 
 from django.db import transaction
 from django.core.cache import cache
@@ -15,7 +14,7 @@ from typing import List, Dict, Any, Optional
 from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.database_operations import is_database_almost_full, delete_all
 
-logger = logging.getLogger(__name__)  # Definizione logger
+logger = logging.getLogger(__name__)  
 
 DATASET_COLUMNS = [
     "griddap", "subset", "tabledap", "MakeAGraph", "wms", "files", "Title",
@@ -165,27 +164,11 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
         }
         save_node_to_db(node_id, defaults)
 
-# def getAllDatasets() -> None:
-#     start_time = time.time()
-#     logger.info("Started getAllDatasets()")
-#     datasets = fetch_datasets()
-#     if datasets.empty:
-#         logger.warning("No datasets found.")
-#         return
-
-#     for _, row in datasets.iterrows():
-#         process_dataset_row(row)
-
-#     logger.info(f"Finished getAllDatasets() in {time.time() - start_time:.2f} seconds")
-
 def getAllDatasets():
     start_time = time.time()
     print("Started getAllDatasets()")
     url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
-    # asyncio.run(cache.clear())
-    # cache.clear()
-    # node_list = []
-    asyncio.run(delete_all("Node"))  # delete all existing nodes
+    asyncio.run(delete_all("Node"))  
     try:
         df = pd.read_table(
             download_with_cache_as_csv(url_datasets),
@@ -287,7 +270,6 @@ def getAllDatasets():
                 if not is_database_almost_full():
                     Node.objects.update_or_create(id=node_id, defaults=defaults)
             else:
-                # now we create our datasets that we put in our db
                 if row1["RowType"] == "dimension":
                     if dimensions > 0:
                         dimension_names = dimension_names + " "
@@ -303,7 +285,6 @@ def getAllDatasets():
                     variables = variables + 1
                     variable_names = variable_names + row1["VariableName"]
                     variable_types = variable_types + row1["DataType"]
-                    # print("variable_types=" + variable_types)
 
                 if row1["AttributeName"] == "adriaclim_dataset":
                     adriaclim_dataset = row1["Value"]
@@ -348,19 +329,13 @@ def getAllDatasets():
                         and row1["VariableName"] != "latitude"
                         and row1["VariableName"] != "longitude"
                     ):
-                        #parametro aggiuntivo lo step!
                         try:
                             spacing = row1["Value"]
                             average_spacing_others = spacing.split(",")[2]
-                            # print("PARAMETRO AGGIUNTIVO STEP===",average_spacing_others)
-                            # print("PARAMETRO AGGIUNTIVO VALORE=======",average_spacing_others.split("=")[1])
                             param_step = abs(float(average_spacing_others.split("=")[1]))
-                            # print("PARAM_STEP=====",param_step)
                         except Exception as e:
                             pass
                     
-                        
-
                 # is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
                 is_indicator = re.search("indicator", row["Title"], re.IGNORECASE)
 
@@ -396,11 +371,6 @@ def getAllDatasets():
                     else:
                         adriaclim_timeperiod = "UNKNOWN"
 
-    print(
-        "Time to finish getAllDatasets() ========= {:.2f} seconds".format(
-            time.time() - start_time
-        )
-    )
 
 def getMetadataTime1(dataset_id: str) -> List[Any]:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"

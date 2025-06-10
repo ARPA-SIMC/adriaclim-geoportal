@@ -1,29 +1,27 @@
 import time
 import json
-# The above code is a Python script that imports various libraries and modules such as pandas, numpy,
-# Django ORM related modules, geospatial libraries like shapely and django.contrib.gis, as well as
-# custom functions from different files in the project. It defines a Django model for Node and
-# Polygon, imports functions related to geospatial processing, data analysis, indicator management,
-# time processing, and database operations.
-import pandas as pd
+import logging
 import numpy as np
+import pandas as pd
+
 from django.db.models import Q
 from django.core.cache import cache
 from django.contrib.gis.geos import Point, Polygon as GeosPolygon
-from shapely.geometry import Point as ShapelyPoint, Polygon as ShapelyPolygon
-import shapely.speedups
 from django.forms import model_to_dict
-from celery import shared_task
-import logging
 
-from Dataset.models import Node, Polygon
-from Dataset.geospatial_processing import getDataPolygonNew
 from myFunctions.data_analysis import operation_before_after_cache, calculate_trend
 from myFunctions.indicator_manager import url_is_indicator
 from myFunctions.time_processing import convertToTime
 from myFunctions.database_operations import is_database_almost_full
 
-# ✅ Configura il logger
+from Dataset.models import Node, Polygon
+from Dataset.geospatial_processing import getDataPolygonNew
+
+from shapely.geometry import Point as ShapelyPoint, Polygon as ShapelyPolygon
+import shapely.speedups
+
+from celery import shared_task
+
 logger = logging.getLogger(__name__)
 
 @shared_task(bind=True)
@@ -68,12 +66,7 @@ def task_get_data_polygon(self,request_data):
         parametro_agg=parametro_agg,
         circle_coords=circle_coords
         )
-        # dataVect = functionPolygon.getDataPolygonNew(dataset_id,adriaclim_timeperiod,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords)
-        # si rompe alla riga sotto *********************************************
         start_time = time.time()
-        print("STARTED GETDATAPOLYGONNEW!")
-        # print("Parametro aggiuntivo=======",parametro_agg)
-        # print("ADRIACLIM_TIMEPERIOD======",adriaclim_timeperiod)
         vertices = []
         vertices_geos_poly = []
 
@@ -104,50 +97,13 @@ def task_get_data_polygon(self,request_data):
         area = None
         circ = None
 
-        #aggiungere controllo cache prima.....
         cache_result = cache.get(key=key_cached)
-        # print("cache_result",cache_result)
-        # if cache_result is not None:
-        #     cache.delete(key_cached)
-
-        
         if cache_result is not None:
-            print("CACHE HIT!")
-            #siamo nella cache
-            #prendere tutti i dati memorizzati nella cache ed elaborarli e passarli al frontend
             pol_from_cache = json.loads(cache_result)
             dataframe_from_dict = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"])
             dataframe_from_dict = dataframe_from_dict.dropna(how="any")
             dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
             pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
-
-            # a seconda del valore di operation e di time_op viene fatta l'operazione7
-            # df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
-            # pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
-            # date_value_to_list = pol_from_cache_dataframe.copy()
-            # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
-            # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
-
-            # print("POL FROM CACHE DATAFRAME", pol_from_cache_dataframe)
-            # # si rompe alla riga sotto perché in pol_from_cache_dataframe non c'è la colonna y *********************************************************
-            # #risolvere zoom statistiche per grafici multi-statistici
-
-            # pol_from_cache_values = pol_from_cache_dataframe["y"].tolist()
-            # if len(pol_from_cache_values) == 1:
-            #     # print("LEN 1 =", pol_from_cache_values)
-            #     mean = pol_from_cache_values[0]
-            #     median = pol_from_cache_values[0]
-            #     std_dev = pol_from_cache_values[0]
-            #     trend_value = pol_from_cache_values[0]
-            # else:
-            #     trend_value = calculate_trend(pol_from_cache_dataframe["x"].tolist(),pol_from_cache_dataframe["y"].tolist())
-            #     mean = pol_from_cache_dataframe["y"].mean()
-            #     median = pol_from_cache_dataframe["y"].median()
-            #     std_dev = pol_from_cache_dataframe["y"].std()
-            # pol_from_cache["mean"] = mean
-            # pol_from_cache["median"] = median
-            # pol_from_cache["stdev"] = std_dev
-            # pol_from_cache["trend_yr"] = trend_value
             if parametro_agg != "None":
                 pol_from_cache["dataTable"][0][parametro_agg] = (
                     pol_from_cache["dataTable"][0][parametro_agg]
@@ -164,11 +120,8 @@ def task_get_data_polygon(self,request_data):
             print("Check if it is in db!")
             polygons = Polygon.objects.filter(
                 Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
-            # polygons.delete()
             if polygons.exists():
-                # print("DOPO FILTER")
-                
-                # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
+                 # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
                 try:
                     print("CACHE MISS AND DB HIT!")
                     current = 80
@@ -188,9 +141,6 @@ def task_get_data_polygon(self,request_data):
                         if parametro_agg != "None":
                             data_table[parametro_agg] = pol.parametro_agg if not pd.isna(pol.parametro_agg) else "Value not defined"
                         data_table_list.append(data_table)
-                            
-                            
-                        #
                     allData[
                         "dataTable"
                     ] = data_table_list  # così abbiamo la tabella, ora ci serve il grafico.....
@@ -246,50 +196,23 @@ def task_get_data_polygon(self,request_data):
                     current = 100
                     self.update_state(state='PROGRESS',
                             meta={'current': current, 'total': total})
-                    # value, date_value, latitude, longitude
-                    print("DB TIME: ", time.time() - start_time)
-
                     return allData
                 except Exception as e:
-                    print("Errore", e)
                     return str(e)
 
             else:
-                print("DB AND CACHE MISS!")
                 # Definisci i limiti del poligono
-
                 # caso di circle coords
 
                 xmin, ymin, xmax, ymax = shapely_polygon.bounds
-                # distanze = []
                 circ = shapely_polygon.length
                 area = shapely_polygon.area
-                # current = 20
-                # self.update_state(state='PROGRESS',
-                #             meta={'current': current, 'total': total})
-
-                # 2.23 = circonferenza poligono piccolo
-                # 8.54 = circonferenza poligono grande
-                # 4.67 = circonferenza poligono marche
-                # 10.09 = circonferenza poligono puglia
-
-                # 0.24 = area poligono piccolo
-                # 3.11 = area poligono grande
-                # 1.17 = area poligono marche
-                # 2.33 = area poligono puglia
                 if area > 2:
                     step = 0.3
                 elif area < 2 and area > 1:
                     step = 0.2
                 else:
                     step = 0.1
-                # distanza = sqrt((x2 - x1)^2 + (y2 - y1)^2)
-
-                # anomaly 0.01 2378 points 625.62 seconds poligono più piccolo
-                # anomaly 0.05 75 points 19.05 seconds poligono più piccolo
-                # anomaly 0.05 1244 points 335.21 seconds croazia(poligono più grande)
-                # r95p yearly 0.05 75 points 23.31 seconds poligono più piccolo
-
                 # Salva tutte le coordinate dei punti interni al poligono
                 points_inside_polygon = []
                 try:
@@ -420,22 +343,14 @@ def task_get_data_polygon(self,request_data):
                                     num_parameters=num_param,
                                     range_value=range_value,
                                 )
-                                #print("URL DATA VECTORIAL========", url)
                                 df = pd.read_csv(url, dtype="unicode")
 
                     except Exception as e:
-                        print("POINT NOT OF THE DATASET==", e)
                         continue
-
-                    # print("LAYER NAME PRIMA DI TUTTO =", layer_name)
-                    # DA SISTEMARE QUI!!!!!!!!!!!***********************************
                     try:
                         for index,row in enumerate(df.to_dict(orient="records")):
-                            # print("PARAMETRO AGGIUNTIVO =", type(parametro_agg))
-                            # print("PARAMETRO AGGIUNTIVO",parametro_agg)
                             if parametro_agg != "None":
                                 if len(dataTable) == 0:
-                                    # print("LAYER NAME SE PARAMETRO =", row[layer_name])
                                     dat_tab = {}
                                     dat_tab["time"] = row["time"]
                                     dat_tab["latitude"] = row["latitude"]
@@ -451,8 +366,6 @@ def task_get_data_polygon(self,request_data):
                                         else "Value not defined"
                                     )
                                     dataTable.append(dat_tab)
-                                    # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
-                                    # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
                                 if index > 0:
                                     dat_tab = {}
                                     dat_tab["time"] = convertToTime(row["time"])
@@ -493,27 +406,21 @@ def task_get_data_polygon(self,request_data):
                                     i += 1
                             else:
                                 if len(dataTable) == 0:
-                                    # print("LAYER NAME SE NON PARAMETRO PRIMO =", row[layer_name])
                                     dat_tab = {}
                                     dat_tab["time"] = row["time"]
                                     dat_tab["latitude"] = row["latitude"]
                                     dat_tab["longitude"] = row["longitude"]
-                                    # dat_tab[parametro_agg] = row[parametro_agg]
-                                    # print("Sono arrvato qui")
                                     dat_tab[layer_name] = (
                                         row[layer_name]
                                         if not pd.isna(row[layer_name])
                                         else "Value not defined"
                                     )
                                     dataTable.append(dat_tab)
-                                    #  dataTable.append(dat)
                                 if index > 0:
-                                    # print("LAYER NAME SE NON PARAMETRO SECONDO =", row[layer_name])
                                     dat_tab = {}
                                     dat_tab["time"] = convertToTime(row["time"])
                                     dat_tab["latitude"] = row["latitude"]
                                     dat_tab["longitude"] = row["longitude"]
-                                    # dat_tab[parametro_agg] = row[parametro_agg]
                                     dat_tab[layer_name] = (
                                         row[layer_name]
                                         if not pd.isna(row[layer_name])
@@ -540,9 +447,7 @@ def task_get_data_polygon(self,request_data):
                                                             coordinate = Point(float(row["longitude"]), float(row["latitude"])),
                                                             defaults=defaults,
                                                                             )
-                                    i += 1
-                                    # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
-                                    # TIME GETDATAPOLYGONNEW 1960.06 seconds Snowfall rate (projections, day)
+                                            i += 1
                     except Exception as e:
                         print("EXCEPTION 3", e)
                         return str(e)
@@ -573,8 +478,6 @@ def task_get_data_polygon(self,request_data):
                         # a seconda del valore di operation e di time_op viene fatta l'operazione7
                         df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
                         pol_values = df_polygon["value_0"].tolist()
-
-                        # print("POL_VALUESSSS=============",pol_values)
                         trend_value_mean = df_polygon.groupby("date_value")["value_0"].mean().tolist()
                         if len(pol_values) == 1:
                             trend_value = pol_values[0]
@@ -595,10 +498,6 @@ def task_get_data_polygon(self,request_data):
                         allData["median"] = median
                         allData["stdev"] = std_dev
                         allData["trend_yr"] = trend_value
-                    
-                    # current = 75
-                    # self.update_state(state='PROGRESS',
-                    #         meta={'current': current, 'total': total})
 
                     data_table_list = []
                     for i in range(len(dataTable)):
@@ -614,23 +513,15 @@ def task_get_data_polygon(self,request_data):
                     allData["dataTable"] = data_table_list
                     # Mi setto la cache prima di fare l'operazione richiesta ma con tutte le date e tutti i valori!
                     cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #12 ore di cache
-                    print("DB AND CACHE setted!")
                     # current = 85
                     # self.update_state(state='PROGRESS',
                     #         meta={'current': current, 'total': total})
                     allData["dataPol"] = operation_before_after_cache(
                         df_polygon, statistic, time_op
                     )
-                    print(
-                        "TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time() - start_time)
-                    )
                 except Exception as e:
-                    print("EXCEPTION 1", e)
                     return str(e)
                 
                 return allData
-        # dataVect = getDataPolygonTask.apply_async(args=[dataset_id,adriaclim_timeperiod,layer_name,date_start,date_end,lat_lng_obj,statistic,time_op,num_param,range,is_indicator,lat_min,lat_max,lng_min,lng_max,parametro_agg,circle_coords], queue="my_queue")
-        # return dataVect
     except Exception as e:
-        print("eccezione task",e)
         return str(e)

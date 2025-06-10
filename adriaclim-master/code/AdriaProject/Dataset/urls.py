@@ -2,8 +2,6 @@ from django.urls import path
 from .external_wms import overlaysNew, layers2DNew, layers3DNew
 from .views import (
     allDatasets,
-    dataset_id_wrong,
-    # getDataTable,
     getAllNodes,
     getMetadataNew,
     get_metadata_table,
@@ -19,8 +17,6 @@ from .views import (
 
 urlpatterns = [
     path('allDatasets/', allDatasets, name='allDatasets'),
-    # path('dataset_id_wrong/', dataset_id_wrong, name='dataset_id_wrong'),
-    # path('getDataTable/', getDataTable, name='getDataTable'),
     path('getAllNodes/', getAllNodes, name='getAllNodes'),
     path('getMetadataNew/', getMetadataNew, name='getMetadataNew'),
     path('get_metadata_table/', get_metadata_table, name='get_metadata_table'),
@@ -34,8 +30,6 @@ urlpatterns = [
     path('updateStatistics/', updateStatistics, name='updateStatistics'),
     path('compareDatasets/', compareDatasets, name='compareDatasets'),
     path('check_task_status/', check_task_status, name='check_task_status'),
-    # path("pluto", getPluto),
-    # path("ind", getInd),
 ]
 
 

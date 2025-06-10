@@ -1,27 +1,31 @@
 import time
-import datetime as dt
-from django.forms import model_to_dict
-import pandas as pd
 import json
+import datetime as dt
+import logging 
 import numpy as np
-import logging  # Aggiunto
-from typing import List, Dict, Any, Union
-from django.db.models import Q
-from django.contrib.gis.geos import Polygon as GeosPolygon
-from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
+import pandas as pd
 import shapely.speedups
+
+from django.db.models import Q
 from django.core.cache import cache
+from django.forms import model_to_dict
+from django.contrib.gis.geos import Polygon as GeosPolygon
+
 from Dataset.models import Node, Polygon
 
+from typing import List, Dict, Any, Union
+
+from myFunctions.utils import download_with_cache_as_csv
+from myFunctions.time_processing import convertToTime, get_season
 from myFunctions.database_operations import is_database_almost_full
 from myFunctions.data_analysis import calculate_trend, operation_before_after_cache, processOperation, packageGraphData
-from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.indicator_manager import getIndicatorQueryUrl, url_is_indicator
-from myFunctions.time_processing import convertToTime, get_season
 
-logger = logging.getLogger(__name__)  # Inizializzazione logger
+from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
 
-# Constants
+logger = logging.getLogger(__name__)  
+
+
 CACHE_TIMEOUT = 43200  # 12 hours
 MAX_SAMPLING_POINTS = 1000
 

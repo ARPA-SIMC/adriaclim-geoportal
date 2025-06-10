@@ -3,9 +3,8 @@ from unittest.util import _MAX_LENGTH
 from django.contrib.gis.db import models
 from postgres_copy import CopyManager
 
-
-# Create your models here.
 class Node(models.Model):
+    
     id = models.CharField(primary_key=True,max_length=500,default="")
     adriaclim_dataset = models.CharField(max_length=500,default="")
     adriaclim_model = models.CharField(max_length=500,default="")
@@ -34,6 +33,7 @@ class Node(models.Model):
     wms_url = models.CharField(max_length=500,default="",null=True)
     
 class Indicator(models.Model):
+    
     dataset_id = models.CharField(primary_key=True,max_length=500,default="")
     adriaclim_dataset = models.CharField(max_length=500,default="")
     adriaclim_model = models.CharField(max_length=500,default="")
@@ -60,7 +60,6 @@ class Indicator(models.Model):
     variable_types = models.CharField(max_length=250, default="",null=True)
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
-
 
 class Polygon(models.Model):
 

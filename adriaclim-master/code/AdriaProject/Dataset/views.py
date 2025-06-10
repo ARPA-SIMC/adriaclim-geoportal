@@ -98,13 +98,11 @@ def getDataGraphicNewCanvas(request):
         operation = request.data.get("operation") #default or type of operation
         context = request.data.get("context") #one or poylgon
         allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
-        # print("ALL DATA =============",allData)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:
             return JsonResponse({'allData':allData})
     except Exception as e:
-        print("ERRORE:",e)
         return "fuoriWms"
 
 @api_view(['GET','POST'])
@@ -124,16 +122,14 @@ def getDataGraphicNewCanvas(request):
         lat_max =str(request.data.get("lat_max"))
         lng_min = str(request.data.get("lng_min"))
         lng_max =str(request.data.get("lng_max"))
-        operation = request.data.get("operation") #default or type of operation
-        context = request.data.get("context") #one or poylgon
+        operation = request.data.get("operation")
+        context = request.data.get("context")
         allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
-        # print("ALL DATA =============",allData)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:
             return JsonResponse({'allData':allData})
     except Exception as e:
-        print("ERRORE:",e)
         return "fuoriWms"
 
 @api_view(['GET','POST'])
@@ -153,16 +149,14 @@ def getDataGraphicNewCanvas(request):
         lat_max =str(request.data.get("lat_max"))
         lng_min = str(request.data.get("lng_min"))
         lng_max =str(request.data.get("lng_max"))
-        operation = request.data.get("operation") #default or type of operation
-        context = request.data.get("context") #one or poylgon
+        operation = request.data.get("operation") 
+        context = request.data.get("context") 
         allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
-        # print("ALL DATA =============",allData)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:
             return JsonResponse({'allData':allData})
     except Exception as e:
-        print("ERRORE:",e)
         return "fuoriWms"
 
 
@@ -177,40 +171,16 @@ def getDataVectorialNew(request):
         layer_name = request.data.get('selVar')
         num_param = dataset.get('variables')
         num_dimensions = dataset.get('dimensions')
-        # print("SEL VAR ============",layer_name)
         lat_min = dataset.get('lat_min')
         lat_max = dataset.get('lat_max')
         lng_min = dataset.get('lng_min')
         lng_max = dataset.get('lng_max')
         is_indicator = request.data.get('isIndicator')
-        # print("DATASET ID =", dataset_id)
-        # print("SEL DATE =", sel_date)
-        # print("LAYER NAME =", layer_name)
-        # print("NUM PARAM =", num_param)
-        # print("NUM PARAM TYPE =", type(num_param))
-        # print("NUM DIMENSIONS =", num_dimensions)
-        # print("NUM DIMENSIONS TYPE =", type(num_dimensions))
-        # print("LAT MIN =", lat_min)
-        # print("LAT MAX =", lat_max)
-        # print("LNG MIN =", lng_min)
-        # print("LNG MAX =", lng_max)
-        # print("IS INDICATOR =", is_indicator)
         if is_indicator == "false":
             num_param = int(num_dimensions)
-        
-        # print("NUM PARAM =", num_param)
-        # print("NUM PARAM TYPE =", type(num_param))
-        # print("NUM DIMENSIONS =", num_dimensions)
-        # print("NUM DIMENSIONS TYPE =", type(num_dimensions))
-        
-        # print("DATASET =", dataset)
         dataVect=getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
-        # print("*************************************")
-        # print("DATA VECT =============",dataVect)
-        # print("*************************************")
         return JsonResponse({'dataVect': dataVect})
     except Exception as e:
-        print("ERRORE GET VECTORIAL FINALE =", e)
         return str(e)
         
 
@@ -222,7 +192,6 @@ def getDataPolygonNew_view(request):
         task = task_get_data_polygon.apply_async(args=[request_data],queue="my_queue")
         return JsonResponse({'task_id':task.id})
     except Exception as e:
-        print("eccezione",e)
         return str(e)
 
 @api_view(['GET','POST'])
@@ -230,9 +199,6 @@ def check_task_status(request):
     try:
         task = AsyncResult(request.data.get('task_id'))
         response = {'status': task.status}
-        print("Qui?")
-        # print("Task status",task.status)
-        # print("TASK======",task)
         if task.status == 'SUCCESS':
             response['result'] = task.result
         print("Tipo result:", type(task.result))
@@ -240,16 +206,12 @@ def check_task_status(request):
         if task.state == "PROGRESS":
             response["progressBar"] = task.info.get('current')
         return JsonResponse({"dataVect":response})
-    
     except Exception as e:
-        
-        print("Eccezione check_task_status",e)
         response["error"] = str(e)
         return JsonResponse({"dataVect":response})
 
 @api_view(['GET','POST'])
 def updateStatistics(request):
-    print("QUI")
     new_dates = request.data.get("dates")
     new_values = request.data.get("values")
     dataset = request.data.get("dataset")
@@ -258,35 +220,16 @@ def updateStatistics(request):
     new_values_calculated = updateStatisticsNew(new_dates,new_values,adriaclim_timeperiod,polygon)
     return JsonResponse({"newValues":new_values_calculated})
 
-@api_view(['GET', 'POST'])
-def getPluto(request):
-    prova = Indicator.objects.get(dataset_id = "adriaclim_WRF_5e78_b419_ec8a")
-    provaSer = serializers.serialize('json', [prova, ]) # type: ignore
-    provaJson = json.loads(provaSer)
-    return JsonResponse({"pluto": provaJson})
-
-@api_view(['GET', 'POST'])
-def getInd(request):
-    ind = Indicator.objects.all()
-    data = [model_to_dict(i) for i in ind]
-    return JsonResponse({"ind": data})
-
 @api_view(['GET','POST'])
 def compareDatasets(request):
     try:
-        # print("Request",request)
         compare_obj = request.data
-        # print("COMPARE_OBJ===============",compare_obj)
         context = "one"
         operation = "default"
         latitude = str(compare_obj.get('latlng')["lat"])
         longitude = str(compare_obj.get('latlng')["lng"])
-        # print("Latitude: ",latitude)
-        # print("Longitude: ",longitude)
         first_dataset = compare_obj.get('firstDataset')["name"]
-        # print("First_dataset: ",first_dataset)
         first_dataset_id = first_dataset["id"]
-        # print("First_dataset_id: ",first_dataset_id)
         first_dataset_timeperiod = first_dataset["adriaclim_timeperiod"]
         first_dataset_layer_name = str(compare_obj.get('firstVarSel'))
         first_dataset_time_start = first_dataset["time_start"]
@@ -295,9 +238,7 @@ def compareDatasets(request):
         first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         first_list = first_result[first_dataset_layer_name]
         all_values_first =  list(map(float, map(itemgetter('y'), first_list))) #prendo tutti i valori del primo dataset
-        # print("all_values_first",all_values_first)
         second_dataset = compare_obj.get('secondDataset')["name"]
-        # print("Second_dataset: ",second_dataset)
         second_dataset_id = second_dataset["id"]
         second_dataset_timeperiod = second_dataset["adriaclim_timeperiod"]
         second_dataset_layer_name = str(compare_obj.get('secondVarSel'))
@@ -306,9 +247,7 @@ def compareDatasets(request):
         second_dataset_param = str(compare_obj.get('secondValue'))
         second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         second_list = second_result[second_dataset_layer_name]
-        # print("second list===",second_list)
         all_values_second =  list(map(float, map(itemgetter('y'), second_list))) #prendo tutti i valori del secondo dataset
-        # print("all_values_second===",all_values_second)
         mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
         mean_diff_avg_abs = compareStatistics.mean_difference_avg(all_values_first, all_values_second, True)
         root_squared_diff = compareStatistics.root_mean_squared_difference(all_values_first, all_values_second)
