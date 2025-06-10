@@ -63,62 +63,407 @@ def buildQueryString(variables: List[str], dimensions: List[str], griddap: bool,
                 query += f"&{dim}%3E={min_val}&{dim}%3C={max_val}"
     return query
 
+def safe_str(val, default=""):
+    return str(val) if val is not None else default
 
-def getIndicatorQueryUrl(ind: Node, onlyFirstVariable: bool, skipDimensions: bool, **kwargs) -> str:
-    """Construct the query URL for the indicator."""
-    if isinstance(ind, str):
+def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
+    if type(ind) == str:
         ind = getIndicator(ind)
 
-    base_url = getIndicatorBaseUrl(ind)
-    if not base_url:
-        return ""
+    # print("INDICATOR ========",ind)
+    url = getIndicatorBaseUrl(ind)
 
-    data_format = getIndicatorDataFormat(ind)
-    griddap = data_format == "griddap"
+    # print("URL GET INDICATOR QUERY URL ========",url)
+    if "format" in kwargs and kwargs["format"] is not None:
+        url = url + "." + safe_str(kwargs.get("format"))
 
-    variables = getIndicatorVariables(ind) or []
-    dimensions = [] if skipDimensions else (getIndicatorDimensions(ind) or [])
+    di = getIndicatorDimensions(ind)
+    # print("All dimensions=======",di)
 
-    if griddap and onlyFirstVariable and len(variables) > 1:
-        variables = [variables[0]]
+    va = getIndicatorVariables(ind)
+    # print("All VARIABLES=========",va)
+
+    selVar = [kwargs["variable"]]
+
+    tipo = getIndicatorDataFormat(ind)
+
+    griddap = tipo == "griddap"
+
+    if griddap and onlyFirstVariable and va.count() > 1:
+        va = [va[0]]
 
     if griddap and "variable" in kwargs:
-        variables = [kwargs["variable"]]
+        va = [kwargs["variable"]]
 
-    query = buildQueryString(variables, dimensions, griddap, **kwargs)
-    result = f"{base_url}.{kwargs.get('format', 'csv')}{query}"
+    if skipDimensions:
+        di = []
+    
+    # va = selVar       
 
-    return result.replace("None", "0")
+    query = "?"
 
+    if griddap:
+        for v in va:
+            # print("VARIABLE GRIDDAP:",v)
 
-def getIndicatorQueryUrlPoint(
-    ind: Node, onlyFirstVariable: bool, skipDimensions: bool, lat: str, lon: str, time: str, range: str, **kwargs
-) -> str:
-    """Construct the query URL for a specific point."""
-    return getIndicatorQueryUrl(
-        ind,
-        onlyFirstVariable,
-        skipDimensions,
-        latitude=lat,
-        longitude=lon,
-        time=time,
-        range=range,
-        **kwargs,
-    )
+            if query != "?":
+                query = query + ","
+            query = query + v
+            for d in di:
+                query = query + "%5B("
 
+                if d in kwargs and not (d + "Min") in kwargs:
+                    query = query + kwargs[d]
+                elif (d + "Min") in kwargs:
+                    query = query + kwargs[d + "Min"]
+                else:
+                    alias = getVariableAliases(d)
+                    # print("Alias ========",alias)
+                    for al in alias:
+                        if al in kwargs:
+                            query = query + kwargs[al]
+                        elif (al + "Min") in kwargs:
+                            query = query + kwargs[al + "Min"]
 
-def url_is_indicator(is_indicator: bool, is_graph: bool, is_annual: bool, **kwargs) -> str:
-    """Construct the URL for an indicator or graph."""
-    params = {key: kwargs[key] for key in ["dataset_id", "time_start", "time_finish", "latitude", "longitude", "num_parameters", "range_value"] if key in kwargs}
-    base_url = ERDDAP_URL
+                query = query + "):1:("
 
-    if is_indicator:
-        time_range = "[2020-01-01T00:00:00Z):1:(2020-12-31T00:00:00Z]" if is_annual else "[2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z]"
-        url = f"{base_url}/griddap/{params['dataset_id']}.csv?{params['range_value']}{time_range}[({params['latitude']}):1:({params['latitude']})][({params['longitude']}):1:({params['longitude']})]"
+                if d in kwargs and not (d + "Max") in kwargs:
+                    query = query + kwargs[d]
+                elif (d + "Max") in kwargs:
+                    query = query + kwargs[d + "Max"]
+                else:
+                    alias = getVariableAliases(d)
+
+                    for al in alias:
+                        if al in kwargs:  
+                            query = query + kwargs[al]
+                        elif (al + "Max") in kwargs:
+                            query = query + kwargs[al + "Max"]
+
+                query = query + ")%5D"
+
     else:
-        query_string = urlencode(params)
-        url = f"{base_url}/griddap/{params['dataset_id']}.csv?{query_string}" if is_graph else f"{base_url}/griddap/{params['dataset_id']}.csv"
+        for v in va:
+            # print("VARIABLE TABLEDAP:",v)
+            # print("URL + QUERY =", url + query)
+            if query != "?":
+                query = query + "%2C"
+            query = query + v
 
-    return url
+        for d in va:
+            if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
+            # if d != "Indicator":
+                if d in kwargs and not (d + "Min") in kwargs:
+                    query = query + "&" + d + "%3E=" + kwargs[d]
+                elif (d + "Min") in kwargs:
+                    query = query + "&" + d + "%3E=" + kwargs[d + "Min"]
+                else:
+                    alias = getVariableAliases(d)
+                    # print("alias",alias)
+                    for al in alias:
+                        if al in kwargs:
+                            query = query + "&" + d + "%3E=" + kwargs[al]
+                        elif (al + "Min") in kwargs:
+                            query = query + "&" + d + "%3E=" + kwargs[al + "Min"]
 
+                if d in kwargs and not (d + "Max") in kwargs:
+                    query = query + "&" + d + "%3C=" + kwargs[d]
+                elif (d + "Max") in kwargs:
+                    query = query + "&" + d + "%3C=" + kwargs[d + "Max"]
+                else:
+                    alias = getVariableAliases(d)
+                    for al in alias:
+                        if al in kwargs:
+                            query = query + "&" + d + "%3C=" + kwargs[al]
+                        elif (al + "Max") in kwargs:
+                            query = query + "&" + d + "%3C=" + kwargs[al + "Max"]
+
+    result = url + query
+    # print("URL + QUERY =", url + query)
+    if result.find("None") != -1:
+        result = result.replace("None","0")
+    
+    print("final result =", result)
+    # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/EOBS_a583_d8f2_21c0.json?very_wet_days_wrt_95th_percentile_of_reference_period%5B(2020-12-31T00:00:00Z):1:(2020-12-31T00:00:00Z)%5D%5B(46.94985982579791):1:(46.94985982579791)%5D%5B(21.94986030317809):1:(21.94986030317809)%5D
+    return result
+
+
+def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
+    # true, true, false
+    try:
+        # print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
+        # print("IS INDICATOR=====", is_indicator)
+        # print("IS GRAPH=====", is_graph)
+        # print("IS ANNUAL=====", is_annual)
+        if is_indicator == "true" and is_graph == False:
+            #print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
+            # print("DENTRO IND TRUE IS GRAPH FALSE")
+            url = (
+                ERDDAP_URL
+                + "/tabledap/"
+                + kwargs["dataset_id"]
+                + ".csv?"
+                + "time%2Clatitude%2Clongitude%2C"
+                + kwargs["layer_name"]
+                + "&time%3E="
+                + kwargs["date_start"]
+                + "&time%3C="
+                + kwargs["date_start"]
+            )
+
+        elif is_indicator == "true" and is_graph and is_annual:
+            # print("DENTRO IND TRUE IS GRAPH TRUE IS ANNUAL TRUE")
+            try:
+                #print("Entro qui parte 2!!!!!!")
+                url = (
+                    ERDDAP_URL
+                    + "/tabledap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + "time%2Clatitude%2Clongitude%2C"
+                    + kwargs["layer_name"]
+                    + "&time%3E="
+                    + kwargs["time_start"]
+                    + "&time%3C="
+                    + kwargs["time_finish"]
+                    + "&latitude%3E="
+                    + kwargs["latitude"]
+                    + "&latitude%3C="
+                    + kwargs["latitude"]
+                    + "&longitude%3E="
+                    + kwargs["longitude"]
+                    + "&longitude%3C="
+                    + kwargs["longitude"]
+                )
+            except Exception as e1:
+                print("Eccezione 2", e1)
+                return str(e1)
+        elif is_indicator == "true" and is_graph and not is_annual:
+            # print("DENTRO IND TRUE IS GRAPH TRUE IS ANNUAL FALSE")
+            #  url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
+            #                     longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
+            # https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
+            # https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
+            url = (
+                ERDDAP_URL
+                + "/tabledap/"
+                + kwargs["dataset_id"]
+                + ".csv?"
+                + "time%2Clatitude%2Clongitude%2C"
+                + kwargs["layer_name"]
+                + "&time%3E="
+                + kwargs["time_start"]
+                + "&time%3C="
+                + kwargs["time_finish"]
+                + "&latitude%3E="
+                + kwargs["latMin"]
+                + "&latitude%3C="
+                + kwargs["latMax"]
+                + "&longitude%3E="
+                + kwargs["longMin"]
+                + "&longitude%3C="
+                + kwargs["longMax"]
+            )
+
+        elif is_indicator == "false" and is_graph == False and is_annual == False:
+            # print("DENTRO IND FALSE IS GRAPH FALSE IS ANNUAL FALSE")
+            if kwargs["num_param"] > 3:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["time_start"]
+                    + "):1:("
+                    + kwargs["time_finish"]
+                    + ")%5D%5B("
+                    + str(kwargs["range_value"])
+                    + "):1:("
+                    + str(kwargs["range_value"])
+                    + ")%5D%5B("
+                    + kwargs["latitude_start"]
+                    + "):1:("
+                    + kwargs["latitude_end"]
+                    + ")%5D%5B("
+                    + kwargs["longitude_start"]
+                    + "):1:("
+                    + kwargs["longitude_end"]
+                    + ")%5D"
+                )
+            else:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["time_start"]
+                    + "):1:("
+                    + kwargs["time_finish"]
+                    + ")%5D%5B("
+                    + kwargs["latitude_start"]
+                    + "):1:("
+                    + kwargs["latitude_end"]
+                    + ")%5D%5B("
+                    + kwargs["longitude_start"]
+                    + "):1:("
+                    + kwargs["longitude_end"]
+                    + ")%5D"
+                )
+
+        elif is_indicator == "false" and is_graph and is_annual == False:
+            # print("DENTRO IND FALSE IS GRAPH TRUE IS ANNUAL FALSE")
+            if kwargs["num_parameters"] > 3:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["time_start"]
+                    + "):1:("
+                    + kwargs["time_finish"]
+                    + ")%5D%5B("
+                    + str(kwargs["range_value"])
+                    + "):1:("
+                    + str(kwargs["range_value"])
+                    + ")%5D%5B("
+                    + kwargs["latitude"]
+                    + "):1:("
+                    + kwargs["latitude"]
+                    + ")%5D%5B("
+                    + kwargs["longitude"]
+                    + "):1:("
+                    + kwargs["longitude"]
+                    + ")%5D"
+                )
+            else:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["time_start"]
+                    + "):1:("
+                    + kwargs["time_finish"]
+                    + ")%5D%5B("
+                    + kwargs["latitude"]
+                    + "):1:("
+                    + kwargs["latitude"]
+                    + ")%5D%5B("
+                    + kwargs["longitude"]
+                    + "):1:("
+                    + kwargs["longitude"]
+                    + ")%5D"
+                )
+
+        elif is_indicator == "false" and is_graph and is_annual:
+            # print("DENTRO IND FALSE IS GRAPH TRUE IS ANNUAL TRUE")
+            if kwargs["num_parameters"] > 3:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["time_start"]
+                    + "):1:("
+                    + kwargs["time_finish"]
+                    + ")%5D%5B("
+                    + str(kwargs["range_value"])
+                    + "):1:("
+                    + str(kwargs["range_value"])
+                    + ")%5D%5B("
+                    + kwargs["latMax"]
+                    + "):1:("
+                    + kwargs["latMin"]
+                    + ")%5D%5B("
+                    + kwargs["longMax"]
+                    + "):1:("
+                    + kwargs["longMin"]
+                    + ")%5D"
+                )
+
+            else:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["time_start"]
+                    + "):1:("
+                    + kwargs["time_finish"]
+                    + ")%5D%5B("
+                    + kwargs["latMax"]
+                    + "):1:("
+                    + kwargs["latMin"]
+                    + ")%5D%5B("
+                    + kwargs["longMax"]
+                    + "):1:("
+                    + kwargs["longMin"]
+                    + ")%5D"
+                )
+
+        elif is_indicator == "false" and is_graph == False and is_annual:
+            # print("DENTRO IND FALSE IS GRAPH FALSE IS ANNUAL TRUE")
+            if kwargs["num_param"] > 3:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["date_start"]
+                    + "):1:("
+                    + kwargs["date_start"]
+                    + ")%5D%5B("
+                    + str(kwargs["range_value"])
+                    + "):1:("
+                    + str(kwargs["range_value"])
+                    + ")%5D%5B("
+                    + kwargs["latitude_start"]
+                    + "):1:("
+                    + kwargs["latitude_end"]
+                    + ")%5D%5B("
+                    + kwargs["longitude_start"]
+                    + "):1:("
+                    + kwargs["longitude_end"]
+                    + ")%5D"
+                )
+            else:
+                url = (
+                    ERDDAP_URL
+                    + "/griddap/"
+                    + kwargs["dataset_id"]
+                    + ".csv?"
+                    + kwargs["layer_name"]
+                    + "%5B("
+                    + kwargs["date_start"]
+                    + "):1:("
+                    + kwargs["date_start"]
+                    + ")%5D%5B("
+                    + kwargs["latitude_start"]
+                    + "):1:("
+                    + kwargs["latitude_end"]
+                    + ")%5D%5B("
+                    + kwargs["longitude_start"]
+                    + "):1:("
+                    + kwargs["longitude_end"]
+                    + ")%5D"
+                )
+
+        return url
+    except Exception as e:
+        print("Error", e)
+        return str(e)
 

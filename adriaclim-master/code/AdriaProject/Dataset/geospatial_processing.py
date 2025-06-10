@@ -1,5 +1,6 @@
 import time
 import datetime as dt
+from django.forms import model_to_dict
 import pandas as pd
 import json
 import numpy as np
@@ -7,13 +8,16 @@ import logging  # Aggiunto
 from typing import List, Dict, Any, Union
 from django.db.models import Q
 from django.contrib.gis.geos import Polygon as GeosPolygon
-from shapely.geometry import Polygon as ShapelyPolygon
+from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
 import shapely.speedups
 from django.core.cache import cache
-from Dataset.models import Polygon
+from Dataset.models import Node, Polygon
+
+from myFunctions.database_operations import is_database_almost_full
 from myFunctions.data_analysis import calculate_trend, operation_before_after_cache, processOperation, packageGraphData
 from myFunctions.utils import download_with_cache_as_csv
-from myFunctions.indicator_manager import getIndicatorQueryUrl
+from myFunctions.indicator_manager import getIndicatorQueryUrl, url_is_indicator
+from myFunctions.time_processing import convertToTime, get_season
 
 logger = logging.getLogger(__name__)  # Inizializzazione logger
 
@@ -59,129 +63,545 @@ def calculate_statistics(df: pd.DataFrame, values: List[float], time_op: str, ad
     return stats
 
 def getDataPolygonNew(
-    dataset_id: str,
-    adriaclim_timeperiod: str,
-    layer_name: str,
-    date_start: str,
-    date_end: str,
-    lat_lng_obj: List[Any],  # <-- cambiato da Dict a Any per gestire anche liste
-    statistic: str,
-    time_op: str,
-    num_param: int,
-    range_value: float,
-    is_indicator: bool,
-    lat_min: float,
-    lat_max: float,
-    lng_min: float,
-    lng_max: float,
-    parametro_agg: str,
-    circle_coords: List[Dict[str, float]],
-) -> Union[Dict[str, Any], str]:
-    """
-    Fetch polygon data based on the given parameters.
-    """
+    dataset_id,
+    adriaclim_timeperiod,
+    layer_name,
+    date_start,
+    date_end,
+    lat_lng_obj,
+    statistic,
+    time_op,
+    num_param,
+    range_value,
+    is_indicator,
+    lat_min,
+    lat_max,
+    lng_min,
+    lng_max,
+    parametro_agg,
+    circle_coords,
+):
     start_time = time.time()
-    logger.info("STARTED getDataPolygonNew!")
+    print("STARTED GETDATAPOLYGONNEW!")
+    # print("ADRIACLIM_TIMEPERIOD======",adriaclim_timeperiod)
+    vertices = []
+    vertices_geos_poly = []
 
-    # ✅ Fix per gestire input in formato lista di liste
-    if lat_lng_obj and isinstance(lat_lng_obj[0], list):
-        lat_lng_obj = [{"lng": p[0], "lat": p[1]} for p in lat_lng_obj]
+    for lat_lng in lat_lng_obj:
+        vertices.append((float(lat_lng["lat"]), float(lat_lng["lng"])))
+        vertices_geos_poly.append((float(lat_lng["lng"]), float(lat_lng["lat"])))
 
-    # ✅ Ora funziona correttamente il parsing
-    vertices = [(float(lat_lng["lat"]), float(lat_lng["lng"])) for lat_lng in lat_lng_obj]
-    vertices_geos_poly = [(float(lat_lng["lng"]), float(lat_lng["lat"])) for lat_lng in lat_lng_obj]
+    shapely_polygon = ShapelyPolygon(vertices)
+    shapely_polygon_inverse = ShapelyPolygon(vertices_geos_poly)
+   
+    try:
+        geos_polygon = GeosPolygon.from_ewkt(shapely_polygon_inverse.wkt)
+    except Exception as e:
+        print("exc",e)
+        return str(e)
+  
+    shapely.speedups.enable()
+    pol_vertices_str = str(vertices[0][0]).replace(" ", "")
+    key_cached = dataset_id + "_" + pol_vertices_str #chiave della cache!
+    xmin = None
+    ymin = None
+    xmax = None
+    ymax = None
+    area = None
+    circ = None
 
-    geos_polygon = create_geos_polygon(vertices_geos_poly)
-    if isinstance(geos_polygon, str):  # Error occurred
-        return geos_polygon
+    #aggiungere controllo cache prima.....
+    cache_result = cache.get(key=key_cached)
+    
+    if cache_result is not None:
+        print("CACHE HIT!")
+        #siamo nella cache
+        #prendere tutti i dati memorizzati nella cache ed elaborarli e passarli al frontend
+        pol_from_cache = json.loads(cache_result)
+        dataframe_from_dict = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"])
+        dataframe_from_dict = dataframe_from_dict.dropna(how="any")
+        dataframe_from_dict["date_value"] = pd.to_datetime(dataframe_from_dict["date_value"])
+        pol_from_cache["dataPol"] = operation_before_after_cache(dataframe_from_dict,statistic,time_op)
 
-    key_cached = f"{dataset_id}_{str(vertices[0][0]).replace(' ', '')}"
-    cached_data = fetch_from_cache(key_cached)
-    if cached_data:
-        df = pd.DataFrame.from_dict(cached_data["dataBeforeOp"]).dropna()
-        df["date_value"] = pd.to_datetime(df["date_value"])
-        cached_data["dataPol"] = operation_before_after_cache(df, statistic, time_op)
-        cached_data.update(calculate_statistics(df, cached_data["dataPol"].get("y", []), time_op, adriaclim_timeperiod))
-        return cached_data
+        # a seconda del valore di operation e di time_op viene fatta l'operazione7
+        # df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
+        pol_from_cache_dataframe = pd.DataFrame(pol_from_cache["dataPol"])
+        # date_value_to_list = pol_from_cache_dataframe.copy()
+        # date_value_to_list = date_value_to_list.drop_duplicates(subset="x",keep="first")
+        # # date_value_to_list["x"] = pd.to_datetime(date_value_to_list["x"])
+        pol_from_cache_values = pol_from_cache_dataframe["y"].tolist()
+        if len(pol_from_cache_values) == 1:
+            # print("LEN 1 =", pol_from_cache_values)
+            mean = pol_from_cache_values[0]
+            median = pol_from_cache_values[0]
+            std_dev = pol_from_cache_values[0]
+            trend_value = pol_from_cache_values[0]
+        else:
+            trend_value = calculate_trend(pol_from_cache_dataframe["x"].tolist(),pol_from_cache_dataframe["y"].tolist())
+            mean = pol_from_cache_dataframe["y"].mean()
+            median = pol_from_cache_dataframe["y"].median()
+            std_dev = pol_from_cache_dataframe["y"].std()
+        
+        pol_from_cache["mean"] = mean
+        pol_from_cache["median"] = median
+        pol_from_cache["stdev"] = std_dev
+        pol_from_cache["trend_yr"] = trend_value
+        if parametro_agg != "None":
+            pol_from_cache["dataTable"][0][parametro_agg] = (
+                pol_from_cache["dataTable"][0][parametro_agg]
+                if not pd.isna(pol_from_cache["dataTable"][0][parametro_agg])
+                else "Value not defined"
+                ) 
+        return pol_from_cache
 
-    logger.info("CACHE MISS, checking DB...")
-    polygons = Polygon.objects.filter(dataset_id=dataset_id, coordinate__within=geos_polygon)
-    if polygons.exists():
-        try:
-            logger.info("DB HIT!")
-            allData = {"dataTable": []}
-            for pol in polygons:
-                entry = {
-                    "time": pol.date_value,
-                    "latitude": pol.latitude,
-                    "longitude": pol.longitude,
-                    layer_name: pol.value_0 if not pd.isna(pol.value_0) else "Value not defined",
-                }
-                if parametro_agg != "None":
-                    entry[parametro_agg] = pol.parametro_agg if not pd.isna(pol.parametro_agg) else "Value not defined"
-                allData["dataTable"].append(entry)
+    else:
+        print("Check if it is in db!")
+        polygons = Polygon.objects.filter(
+            Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
+        if polygons.exists():
+            # print("DOPO FILTER")
+            
+            # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
+            try:
+                print("CACHE MISS AND DB HIT!")
+                allData = {}
+                data_table_list = []
+                for pol in polygons:
+                    #checkare se quel determinato punto del dataset sta nel poligono selezionato
+                    #sta nel poligono selezionato 
+                    data_table = {}
+                    data_table["time"] = pol.date_value
+                    data_table["latitude"] = pol.latitude
+                    data_table["longitude"] = pol.longitude
+                    data_table[layer_name] = pol.value_0 if not pd.isna(pol.value_0) else "Value not defined"
+                    
+                    if parametro_agg != "None":
+                        data_table[parametro_agg] = pol.parametro_agg if not pd.isna(pol.parametro_agg) else "Value not defined"
+                    data_table_list.append(data_table)
+                        
+                        
+                    #
+                allData[
+                    "dataTable"
+                ] = data_table_list  # così abbiamo la tabella, ora ci serve il grafico.....
 
-            df = pd.DataFrame([p.__dict__ for p in polygons]).drop(columns=["_state", "coordinate"], errors="ignore").drop_duplicates()
-            allData["dataBeforeOp"] = df.to_dict(orient="records")
-            df["date_value"] = pd.to_datetime(df["date_value"])
+                df_polygon_model = pd.DataFrame(
+                    [
+                        model_to_dict(p, fields=[field.name for field in p._meta.fields])
+                        for p in polygons
+                    ]
+                )
+                df_polygon_model = df_polygon_model.drop("coordinate",axis=1)
+                df_polygon_model = df_polygon_model.drop_duplicates(
+                    subset=["date_value", "latitude", "longitude", "value_0"], keep="first"
+                )
+                df_polygon_model = df_polygon_model.dropna(how="all", axis=1)
+                allData["dataBeforeOp"] = df_polygon_model.to_dict(orient="records")
 
-            if time_op == "default":
-                values = df["value_0"].tolist()
-                trend_value = calculate_trend(df["date_value"].tolist(), values, timeperiod=adriaclim_timeperiod) if len(values) > 1 else (values[0] if values else 0)
-                allData.update({
-                    "mean": np.mean(values),
-                    "median": np.median(values),
-                    "stdev": np.std(values),
-                    "trend_yr": trend_value,
-                })
+                if time_op == "default":
+                    date_value_to_list = df_polygon_model.copy()
+                    date_value_to_list = date_value_to_list.drop_duplicates(subset="date_value",keep="first")
+                    date_value_to_list["date_value"] = pd.to_datetime(date_value_to_list["date_value"])
 
-            save_to_cache(key_cached, allData)
-            allData["dataPol"] = operation_before_after_cache(df, statistic, time_op)
-            logger.info(f"DB TIME: {time.time() - start_time:.2f} seconds")
+                    # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                    df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
+
+                    pol_from_db_values = df_polygon_model["value_0"].tolist()
+                    trend_value_mean = df_polygon_model.groupby("date_value")["value_0"].mean().tolist()
+                    if len(pol_from_db_values) == 1:
+                        # print("LEN DB =", pol_from_db_values)
+                        mean = pol_from_db_values[0]
+                        median = pol_from_db_values[0]
+                        std_dev = pol_from_db_values[0]
+                        trend_value = pol_from_db_values[0]
+                    else:
+                        if len(trend_value_mean) == 1:
+                            trend_value = trend_value_mean[0]
+                        else:
+                            trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean,timeperiod=adriaclim_timeperiod)
+                            
+                        mean = df_polygon_model["value_0"].mean()
+                        median = df_polygon_model["value_0"].median()
+                        std_dev = df_polygon_model["value_0"].std()
+                    
+                    allData["mean"] = mean
+                    allData["median"] = median
+                    allData["stdev"] = std_dev
+                    allData["trend_yr"] = trend_value
+                
+                cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #lo setta nella cache per 12 ore
+                allData["dataPol"] = operation_before_after_cache(
+                    df_polygon_model, statistic, time_op
+                )
+
+                # value, date_value, latitude, longitude
+                print("DB TIME: ", time.time() - start_time)
+
+                return allData
+            except Exception as e:
+                print("Errore", e)
+                return str(e)
+
+        else:
+            print("DB AND CACHE MISS!")
+            # Definisci i limiti del poligono
+
+            # caso di circle coords
+
+            xmin, ymin, xmax, ymax = shapely_polygon.bounds
+            # distanze = []
+            circ = shapely_polygon.length
+            area = shapely_polygon.area
+
+            # 2.23 = circonferenza poligono piccolo
+            # 8.54 = circonferenza poligono grande
+            # 4.67 = circonferenza poligono marche
+            # 10.09 = circonferenza poligono puglia
+
+            # 0.24 = area poligono piccolo
+            # 3.11 = area poligono grande
+            # 1.17 = area poligono marche
+            # 2.33 = area poligono puglia
+            if area > 2:
+                step = 0.3
+            elif area < 2 and area > 1:
+                step = 0.2
+            else:
+                step = 0.1
+            # distanza = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+
+            # anomaly 0.01 2378 points 625.62 seconds poligono più piccolo
+            # anomaly 0.05 75 points 19.05 seconds poligono più piccolo
+            # anomaly 0.05 1244 points 335.21 seconds croazia(poligono più grande)
+            # r95p yearly 0.05 75 points 23.31 seconds poligono più piccolo
+
+            # Salva tutte le coordinate dei punti interni al poligono
+            points_inside_polygon = []
+            try:
+                if len(circle_coords) > 0:
+                    for coord in circle_coords:
+                        # print("Cooord",coord)
+                        point = ShapelyPoint(coord["lat"], coord["lng"]) # type: ignore
+                        if point.within(shapely_polygon):
+                            points_inside_polygon.append((coord["lat"], coord["lng"]))
+                else:
+                    for x in range(int(xmin / step), int(xmax / step)):
+                        for y in range(int(ymin / step), int(ymax / step)):
+                            point = ShapelyPoint(x * step, y * step)
+                            if point.within(shapely_polygon):
+                                points_inside_polygon.append((x * step, y * step))
+            except Exception as coord:
+                print("Eccezione", coord)
+                return str(coord)
+
+            # Visualizza le coordinate dei punti all'interno del poligono
+            # print("PUNTI INTERNI AL POLIGONO =", points_inside_polygon)
+            print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
+            df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
+
+            i = 0
+            dataTable = []
+            for point in points_inside_polygon:
+                if is_indicator == "false":
+                    url = url_is_indicator(
+                        is_indicator,
+                        True,
+                        False,
+                        dataset_id=dataset_id,
+                        layer_name=layer_name,
+                        time_start=date_start,
+                        time_finish=date_end,
+                        latitude=str(point[0]),
+                        longitude=str(point[1]),
+                        num_parameters=num_param,
+                        range_value=range_value,
+                    )
+                    df = pd.read_csv(url, dtype="unicode")
+                else:
+                    try:
+                        url = url_is_indicator(
+                            is_indicator,
+                            True,
+                            True,
+                            dataset_id=dataset_id,
+                            layer_name=layer_name,
+                            time_start=date_start,
+                            time_finish=date_end,
+                            latitude=str(point[0]),
+                            longitude=str(point[1]),
+                            num_parameters=num_param,
+                            range_value=range_value,
+                        )
+                        #print("URL DATA VECTORIAL========", url)
+                        df = pd.read_csv(url, dtype="unicode")
+                    except Exception as e:
+                        print("fdkjsjk", e)
+                        continue
+
+                # print("LAYER NAME PRIMA DI TUTTO =", layer_name)
+                # DA SISTEMARE QUI!!!!!!!!!!!***********************************
+                try:
+                    for index,row in enumerate(df.to_dict(orient="records")):
+                        # print("PARAMETRO AGGIUNTIVO =", type(parametro_agg))
+                        # print("PARAMETRO AGGIUNTIVO",parametro_agg)
+                        if parametro_agg != "None":
+                            if len(dataTable) == 0:
+                                # print("LAYER NAME SE PARAMETRO =", row[layer_name])
+                                dat_tab = {}
+                                dat_tab["time"] = row["time"]
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                dat_tab[parametro_agg] = (
+                                    row[parametro_agg]
+                                    if not pd.isna(row[parametro_agg])
+                                    else "Value not defined"
+                                )
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
+                                # EOBS_de0d_3ca1_a77a_45.60425767756453_avg
+                            if index > 0:
+                                dat_tab = {}
+                                dat_tab["time"] = convertToTime(row["time"])
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                dat_tab[parametro_agg] = (
+                                    row[parametro_agg]
+                                    if not pd.isna(row[parametro_agg])
+                                    else "Value not defined"
+                                )
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                df_polygon.loc[i] = [
+                                    row["time"],
+                                    "(" + row["latitude"] + "," + row["longitude"] + ")",
+                                    row[layer_name],
+                                ]
+                                defaults = {
+                                    "value_0": float(row[layer_name]),
+                                    "pol_vertices_str": pol_vertices_str,
+                                    "parametro_agg": row[parametro_agg],
+                                }
+                                if not is_database_almost_full():
+                                    Polygon.objects.update_or_create(
+                                                    dataset_id=Node.objects.get(id=dataset_id),
+                                                    date_value=convertToTime(row["time"]),
+                                                    latitude=float(row["latitude"]),
+                                                    longitude=float(row["longitude"]),
+                                                    coordinate = point(float(row["longitude"]), float(row["latitude"])),
+                                                    defaults=defaults,
+                                                                    )
+                                i += 1
+                        else:
+                            if len(dataTable) == 0:
+                                # print("LAYER NAME SE NON PARAMETRO PRIMO =", row[layer_name])
+                                dat_tab = {}
+                                dat_tab["time"] = row["time"]
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                # dat_tab[parametro_agg] = row[parametro_agg]
+                                # print("Sono arrvato qui")
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                #  dataTable.append(dat)
+                            if index > 0:
+                                # print("LAYER NAME SE NON PARAMETRO SECONDO =", row[layer_name])
+                                dat_tab = {}
+                                dat_tab["time"] = convertToTime(row["time"])
+                                dat_tab["latitude"] = row["latitude"]
+                                dat_tab["longitude"] = row["longitude"]
+                                # dat_tab[parametro_agg] = row[parametro_agg]
+                                dat_tab[layer_name] = (
+                                    row[layer_name]
+                                    if not pd.isna(row[layer_name])
+                                    else "Value not defined"
+                                )
+                                dataTable.append(dat_tab)
+                                df_polygon.loc[i] = [
+                                    row["time"],
+                                    "(" + row["latitude"] + "," + row["longitude"] + ")",
+                                    row[layer_name],
+                                ]
+
+                                defaults = {
+                                    "value_0": float(row[layer_name]),
+                                    "pol_vertices_str": pol_vertices_str,
+                                }
+                                if not is_database_almost_full():
+                                    Polygon.objects.update_or_create(
+                                                    dataset_id=Node.objects.get(id=dataset_id),
+                                                    date_value=convertToTime(row["time"]),
+                                                    latitude=float(row["latitude"]),
+                                                    longitude=float(row["longitude"]),
+                                                    coordinate = point(float(row["longitude"]), float(row["latitude"])),
+                                                    defaults=defaults,
+                                                                    )
+                                i += 1
+                                # TIME GETDATAPOLYGONNEW 8.58 seconds r95p monthly senza save su db
+                                # TIME GETDATAPOLYGONNEW 1960.06 seconds Snowfall rate (projections, day)
+                except Exception as e:
+                    print("EXCEPTION 3", e)
+                    return str(e)
+
+            try:
+                df_polygon = df_polygon.drop_duplicates(
+                    subset=["date_value", "lat_lng", "value_0"], keep="first"
+                )
+                df_polygon = df_polygon.dropna(how="all", axis=1)
+                allData = {}
+                
+                df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
+                allData["dataBeforeOp"] = df_polygon.to_dict(orient="records")
+                #calcolare la media di tutti i valori raggruppati per data
+                # date_value_to_list = df_polygon["date_value"].tolist()
+               
+                # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                if time_op == "default":
+                    date_value_to_list = df_polygon.copy()
+                    date_value_to_list = date_value_to_list.drop_duplicates(subset="date_value",keep="first")
+                    date_value_to_list["date_value"] = pd.to_datetime(date_value_to_list["date_value"])
+
+                
+                    # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                    df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
+                    pol_values = df_polygon["value_0"].tolist()
+
+                    # print("POL_VALUESSSS=============",pol_values)
+                    trend_value_mean = df_polygon.groupby("date_value")["value_0"].mean().tolist()
+                    if len(pol_values) == 1:
+                        trend_value = pol_values[0]
+                        mean = pol_values[0]
+                        median = pol_values[0]
+                        std_dev = pol_values[0]
+                    else:
+                        if len(trend_value_mean) == 1:
+                            trend_value = trend_value_mean[0]
+                        else:
+                            trend_value = calculate_trend(date_value_to_list["date_value"].tolist(),trend_value_mean,timeperiod=adriaclim_timeperiod)
+        
+                        mean = df_polygon["value_0"].mean()
+                        median = df_polygon["value_0"].median()
+                        std_dev = df_polygon["value_0"].std()
+                    
+                    allData["mean"] = mean
+                    allData["median"] = median
+                    allData["stdev"] = std_dev
+                    allData["trend_yr"] = trend_value
+
+                data_table_list = []
+                for i in range(len(dataTable)):
+                    data_table = {}
+                    data_table["time"] = dataTable[i]["time"]
+                    data_table["latitude"] = dataTable[i]["latitude"]
+                    data_table["longitude"] = dataTable[i]["longitude"]
+                    data_table[layer_name] = dataTable[i][layer_name]
+                    if parametro_agg != "None":
+                        data_table[parametro_agg] = dataTable[i][parametro_agg]
+                    data_table_list.append(data_table)
+
+                allData["dataTable"] = data_table_list
+                # Mi setto la cache prima di fare l'operazione richiesta ma con tutte le date e tutti i valori!
+                cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #12 ore di cache
+                print("DB AND CACHE setted!")
+
+                allData["dataPol"] = operation_before_after_cache(
+                    df_polygon, statistic, time_op
+                )
+                print(
+                    "TIME GETDATAPOLYGONNEW {:.2f} seconds".format(time.time() - start_time)
+                )
+            except Exception as e:
+                print("EXCEPTION 1", e)
+                return str(e)
+            
             return allData
 
-        except Exception as e:
-            log_error("Error during DB handling", e)
-            return str(e)
+x = 500000
+months = {
+    1: "Jan",
+    2: "Feb",
+    3: "Mar",
+    4: "Apr",
+    5: "May",
+    6: "Jun",
+    7: "Jul",
+    8: "Aug",
+    9: "Sep",
+    10: "Oct",
+    11: "Nov",
+    12: "Dec",
+}
+seasons = {
+    0: "Winter",
+    1: "Spring",
+    2: "Summer",
+    3: "Autumn",
+}
 
-    logger.warning("NO CACHE, NO DB! Fetching external data...")
-    return "External data fetching not yet implemented here"
+season_trend = {
+    "01": "Winter",
+    "02": "Spring",
+    "03": "Summer",
+    "04": "Autumn",
+}
 
 def getDataGraphicGeneric(
-    dataset_id: str,
-    adriaclim_timeperiod: str,
-    layer_name: str,
-    time_start: str,
-    time_finish: str,
-    latitude: float,
-    longitude: float,
-    num_parameters: int,
-    range_value: float,
-    is_indicator: bool,
-    lat_start: Union[str, float],
-    long_start: Union[str, float],
-    lat_end: Union[str, float],
-    long_end: Union[str, float],
-    **kwargs,
-) -> Union[List[Any], str]:
-    """
-    Fetch generic graphic data based on the given parameters.
-    """
+    dataset_id,
+    adriaclim_timeperiod,
+    layer_name,
+    time_start,
+    time_finish,
+    latitude,
+    longitude,
+    num_parameters,
+    range_value,
+    is_indicator,
+    lat_start,
+    long_start,
+    lat_end,
+    long_end,
+    **kwargs
+):
+    
     try:
-        onlyone = kwargs.get("context") == "one"
-        use_cache = kwargs.get("cache") == "yes"
-        operation = kwargs.get("operation")
-        output = kwargs.get("output")
+        onlyone = 0
+        cache = 0
+        if "context" in kwargs and kwargs["context"] == "one":
+            onlyone = 1
+        if "cache" in kwargs and kwargs["cache"] == "yes":
+            cache = 1
+        onlylat = None
+        onlylong = None
+        operation = None
 
-        lat_start = latitude if lat_start == "no" else lat_start
-        lat_end = latitude if lat_end == "no" else lat_end
-        long_start = longitude if long_start == "no" else long_start
-        long_end = longitude if long_end == "no" else long_end
+        if "operation" in kwargs and kwargs["operation"] != "":
+            operation = kwargs["operation"]
 
+        if lat_start == "no":
+            lat_start = latitude
+        if lat_end == "no":
+            lat_end = latitude
+        if long_start == "no":
+            long_start = longitude
+        if long_end == "no":
+            long_end = longitude
+        print("ARRIVO QUI")
         url = getIndicatorQueryUrl(
             dataset_id,
-            is_indicator=False,
-            is_graph=False,
+            False,
+            False,
             latitude=latitude,
             longitude=longitude,
             latitudeMin=lat_start,
@@ -195,55 +615,160 @@ def getDataGraphicGeneric(
             timeMax=time_finish,
         )
 
-        if use_cache:
+        print("PRIMA URL=====")
+        if cache == 1:
             url = download_with_cache_as_csv(url)
         if url == "fuoriWms":
             return url
-
+        # print("ARRIVO QUO")
         try:
             df = pd.read_csv(url, dtype="unicode")
         except Exception as e:
-            logger.error("ERRORE pd.read_csv: %s", e)
-            return f"ERRORE LETTURA CSV: {str(e)}"
-
-        if df.empty or layer_name not in df.columns:
             return "fuoriWms"
-
-        df = df.iloc[1:, :]  # Skip header row
+        if df[layer_name] is not None:
+            unit = df[layer_name][0]
+        else:
+            unit = layer_name
+        unit = ""
+        df = df.iloc[1:, :]
+        print("DF Test",df.head())
         n_values = len(df)
-        every_nth = max(1, n_values // MAX_SAMPLING_POINTS)
-        df_iter = df[::every_nth].iterrows() if n_values > MAX_SAMPLING_POINTS else df.iterrows()
-
-        values, dates, lats, longs, layerName = [], [], [], [], []
-        onlylat = onlylong = None
-
-        for _, row in df_iter:
-            if onlyone and onlylat is None:
-                onlylat, onlylong = row["latitude"], row["longitude"]
-
-            if (
-                pd.notna(row[layer_name])
-                and row[layer_name] != "NaN"
-                and (not onlyone or (onlylat == row["latitude"] and onlylong == row["longitude"]))
-            ):
-                lats.append(row["latitude"])
-                longs.append(row["longitude"])
-                layerName.append(layer_name)
-                values.append(float(row[layer_name]))
-                dates.append(row["time"])
-
-        allData = [values, dates, "", layerName, lats, longs]
-
+        allData = []
+        values = []
+        dates = []
+        layerName = []
+        lats = []
+        longs = []
+        i = 0
+        # print("ARRIVO QUA")
+        if n_values <= x:  # all the data
+            for index, row in df.iterrows():
+                if onlyone == 1 and onlylat is None:
+                    onlylat = row["latitude"]
+                    onlylong = row["longitude"]
+                if (
+                    row[layer_name] == row[layer_name]
+                    and row[layer_name] != "NaN"
+                    and (
+                        onlyone == 0
+                        or (onlylat == row["latitude"] and onlylong == row["longitude"])
+                    )
+                ):
+                    lats.insert(i, row["latitude"])
+                    longs.insert(i, row["longitude"])
+                    layerName.insert(i, layer_name)
+                    values.insert(i, float(row[layer_name]))
+                    dates.insert(i, row["time"])
+                    i += 1
+        else:  # one every nvalues/x data
+            every_nth_rows = int(n_values / x)
+            df = df[::every_nth_rows]
+            for index, row in df.iterrows():
+                if (
+                    row[layer_name] == row[layer_name]
+                    and row[layer_name] != "NaN"
+                    and (
+                        onlyone == 0
+                        or (onlylat == row["latitude"] and onlylong == row["longitude"])
+                    )
+                ):
+                    lats.insert(i, row["latitude"])
+                    longs.insert(i, row["longitude"])
+                    layerName.insert(i, layer_name)
+                    values.insert(i, float(row[layer_name]))
+                    dates.insert(i, row["time"])
+                    i += 1
+        allData = [values, dates, unit, layerName, lats, longs]
         if operation is None:
             return allData
         else:
             try:
-                processed = processOperation(operation, values, dates, "", layerName, lats, longs)
-                return packageGraphData(processed, output=output, operation=operation, adriaclim_timeperiod=adriaclim_timeperiod)
-            except Exception as e:
-                log_error("Error in processOperation or packageGraphData", e)
-                return str(e)
+                output = None
+                if "output" in kwargs:
+                    output = kwargs["output"]
 
+                return packageGraphData(
+                    processOperation(operation, values, dates, unit, layerName, lats, longs),
+                    output=output,
+                    operation=operation,
+                    adriaclim_timeperiod=adriaclim_timeperiod,
+                )
+            except Exception as e:
+                print("Exception in packageGraphData or processOperation===" + e)
+                return str(e)
     except Exception as e:
-        log_error("General exception in getDataGraphicGeneric", e)
+        print("ARRIVO QUO")
+        print("ECCEZIONE NO WMS ==", e)
         return str(e)
+
+
+def check_dates_format_trend(dates):
+    #gestire tutti i possibili formati delle date per i trend!!!!!!!!!
+    if type(dates[0]) is str:
+        if dates[0].startswith("0000"):
+                #annual month by month point
+            # print("month by month point",dates[0])
+            try:
+                dates = [dt.datetime.strptime(d.replace("0000","2000"), "%Y-%m-%dT%H:%M:%SZ") for d in dates]
+            except Exception as e: 
+                return 'Invalid date format: '+ str(e)
+                # dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%d") for d in dates]
+        elif len(dates[0].split("-")) == 2: #01-01 1 gennaio 2000-01-01
+                 #annual day by day point
+            for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
+                try:
+                    dates = [dt.datetime.strptime("2000-" + d, fmt) for d in dates]
+                except ValueError:
+                    pass
+        elif dates[0] == "Jan":
+                #annual month by month polygon
+            create_dates = []
+            for d in dates:
+            #annual month by month polygon
+                for key, val in months.items():
+                    if val ==  d:
+                        month_number = key
+                        create_dates.append(dt.datetime.strptime("2000-01-" + str(month_number), "%Y-%d-%m"))
+
+            dates = list(create_dates)
+        elif dates[0] == "Winter" or dates[0] == "Spring" or dates[0] == "Summer" or dates[0] == "Autumn":
+            #annual season by season polygon
+            create_dates = []
+            for d in dates:
+                for key, val in season_trend.items():
+                    if val == d:
+                        season_number = key
+                        create_dates.append(dt.datetime.strptime("2000-01-" + str(season_number), "%Y-%d-%m"))
+            
+            dates = list(create_dates)
+        else:
+            for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
+                try:
+                    dates = [dt.datetime.strptime(str(d), fmt) for d in dates]
+                except ValueError:
+                    pass
+             
+    return dates
+
+def subtract_mean_trend(dates,values,timeperiod):
+    #creation of a dataFrame with dates and values
+    df_mean_trend = pd.DataFrame({"date":dates,"value":values})
+    df_mean_trend["date"] = pd.to_datetime(df_mean_trend["date"])
+    if timeperiod == "monthly":
+        groupby_col = df_mean_trend["date"].dt.month
+    if timeperiod == "daily":
+        df_mean_trend["day_month"] = df_mean_trend["date"].dt.strftime('%m-%d')
+        groupby_col = df_mean_trend["day_month"]
+    if timeperiod == "seasonal":
+        df_mean_trend["season"] = df_mean_trend["date"].apply(get_season)
+        groupby_col = df_mean_trend["season"]
+    
+    #raggrupparle a seconda della scala temporale del dataset e calcolarne la media
+    df_mean_trend["mean_timeperiod"] = df_mean_trend.groupby(groupby_col)["value"].transform("mean")
+
+    # print("DF_MEAN_TREND AFTER MEAN=====",df_mean_trend.head(20))
+    #sottrarre ad ogni data di un mese o di una stagione o di un giorno il valore della media calcolato
+    df_mean_trend["value"] = df_mean_trend["value"] - df_mean_trend["mean_timeperiod"]
+    # print("DF_MEAN_TREND AFTER MEAN=====",df_mean_trend.head(20))
+
+    return df_mean_trend["value"].values

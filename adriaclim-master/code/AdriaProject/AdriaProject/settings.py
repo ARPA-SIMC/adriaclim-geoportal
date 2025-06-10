@@ -251,15 +251,15 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=22, minute=10),
         'options': {'queue': 'my_queue'}  # Set the queue for this task
     },
-    # 'my_task2': {
-    #     'task': 'AdriaProject.tasks.download_big_data_yearly',
-    #     'schedule': crontab(hour=22, minute=30,day_of_week="friday"),
-    #     'options': {'queue': 'my_queue'}  # Set the queue for this task
-    # },
-    # 'my_task3': {
-    #     'task': 'AdriaProject.tasks.download_big_data_seasonal',
-    #     'schedule': crontab(hour=22, minute=30,day_of_week="saturday"),
-    #     'options': {'queue': 'my_queue'}  # Set the queue for this task
-    # }
+    'my_task2': {
+        'task': 'AdriaProject.tasks.download_big_data_yearly',
+        'schedule': crontab(hour=22, minute=30,day_of_week="friday"),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
+    },
+    'my_task3': {
+        'task': 'AdriaProject.tasks.download_big_data_seasonal',
+        'schedule': crontab(hour=22, minute=30,day_of_week="saturday"),
+        'options': {'queue': 'my_queue'}  # Set the queue for this task
+    }
 }
 
