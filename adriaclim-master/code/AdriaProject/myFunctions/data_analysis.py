@@ -72,8 +72,10 @@ def calculate_trend(dates, values, **kwargs):
         logger.error(f"Errore in calculate_trend: {e}")
         return str(e)
 
-def updateStatistics(new_dates,new_values,timeperiod,polygon):
+def updateStatisticsNew(new_dates,new_values,timeperiod,polygon):
+    print("QUO")
     try:
+        
         allData = {}
         if polygon is None:
             #single point!
@@ -97,6 +99,7 @@ def updateStatistics(new_dates,new_values,timeperiod,polygon):
 
         return allData
     except Exception as e:
+        ("QUA")
         if str(e) == "variance requires at least two data points":
             allData["mean"] = new_values
             allData["stdev"] = new_values

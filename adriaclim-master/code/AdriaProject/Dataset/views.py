@@ -1,25 +1,30 @@
+import json, traceback
+import pandas as pd
+import traceback  
+
 from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import render
+from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from celery.result import AsyncResult
 from operator import itemgetter
-from django.core import serializers
-import json, traceback
-import pandas as pd
-import traceback  
-from django.views.decorators.csrf import csrf_exempt
 
-from Dataset.models import Node, Polygon, Indicator
 from .dataset_manager import getMetadata, getMetadataOfASpecificDataset, getAllDatasets
 from .geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
-from myFunctions.data_analysis import updateStatistics, getDataVectorial
+from .tasks import task_get_data_polygon
+
+from Dataset.models import Node, Polygon, Indicator
+
+from myFunctions.data_analysis import updateStatisticsNew, getDataVectorial
 from myFunctions.getDataFunctions import functionPoint, functionTable
 from myFunctions import compareStatistics
-from .tasks import task_get_data_polygon
-# from Dataset.views import getDataTable, getDataTableNew
+
+
 
 
 @api_view(['GET'])
@@ -30,25 +35,6 @@ def allDatasets(request):
 def dataset_id_wrong(request):
     return render(request, "wrongIdPassed.html")
 
-# def getDataTable(request):
-#     if request.method in ['GET', 'POST']:
-#         idMeta = request.POST.get("idMeta")
-#         timeMin = request.POST.get("timeMin")
-#         timeMax = request.POST.get("timeMax")
-#         latitude = request.POST.get("latitude")
-#         longitude = request.POST.get("longitude")
-#         variable = request.POST.get("variable")
-#         range_value = request.POST.get("range_value")
-#         layer_name = request.POST.get("layer_name")
-#         operation = request.POST.get("operation")
-#         is_indicator = request.POST.get("is_indicator")
-
-#         data = getDataTableNew(
-#             idMeta, timeMin, timeMax, latitude, longitude, variable, range_value,
-#             layer_name, operation, is_indicator
-#         )
-
-#         return render(request, "getData.html", {"data": data})
 def getDataTable(request,dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value):
     data=getDataTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
     headers=[col for col in data.fieldnames]
@@ -79,37 +65,6 @@ def get_metadata_table(request):
     metadata = getMetadataOfASpecificDataset(idMeta)
     return JsonResponse(metadata, safe=False)
 
-# @api_view(['GET','POST'])
-# def getDataTableNew(request):
-#     try:
-#         dataset_id = request.data.get("idMeta")
-#         lat = request.data.get("latitude")
-#         lon = request.data.get("longitude")
-#         time_start = request.data.get("timeMin")
-#         time_end = request.data.get("timeMax")
-#         variable = request.data.get("variable")
-#         range_value = request.data.get("range_value")
-#         layer_name = request.data.get("layer_name")
-#         operation = request.data.get("operation")
-#         is_indicator = request.data.get("is_indicator")
-#         print("📌 dataset_id ricevuto:", dataset_id)
-#         data = getDataGraphicGeneric(
-#             dataset_id,
-#             None,
-#             layer_name,
-#             time_start,
-#             time_end,
-#             lat,
-#             lon,
-#             None,
-#             range_value,
-#             is_indicator,
-#             "no", "no", "no", "no",
-#             operation=operation
-#         )
-#         return JsonResponse(data, safe=False)
-#     except Exception as e:
-#         return JsonResponse(str(e), safe=False)
 @api_view(['GET','POST'])
 def getDataTableNew(request):
     dataset_id = request.data.get("idMeta")
@@ -210,37 +165,7 @@ def getDataGraphicNewCanvas(request):
         print("ERRORE:",e)
         return "fuoriWms"
 
-# @api_view(['GET','POST'])
-# def getDataGraphicNewCanvas(request):
-#     try:
-#         idMeta = request.POST.get("idMeta")
-#         latitude = request.POST.get("latitude")
-#         longitude = request.POST.get("longitude")
-#         time_start = request.POST.get("timeMin")
-#         time_end = request.POST.get("timeMax")
-#         variable = request.POST.get("variable")
-#         range_value = request.POST.get("range_value")
-#         layer_name = request.POST.get("layer_name")
-#         is_indicator = request.POST.get("is_indicator")
-#         operation = request.POST.get("operation")
 
-#         data = getDataGraphicGeneric(
-#             idMeta,
-#             None,
-#             layer_name,
-#             time_start,
-#             time_end,
-#             latitude,
-#             longitude,
-#             None,
-#             range_value,
-#             is_indicator,
-#             "no", "no", "no", "no",
-#             operation=operation
-#         )
-#         return JsonResponse(data, safe=False)
-#     except Exception as e:
-#         return JsonResponse(str(e), safe=False)
 
 @api_view(['GET','POST'])
 def getDataVectorialNew(request):
@@ -314,15 +239,6 @@ def check_task_status(request):
         print("Contenuto result:", task.result)
         if task.state == "PROGRESS":
             response["progressBar"] = task.info.get('current')
-            # print("Siamo nello stato di progress")
-            # return JsonResponse({"dataVect": task.info.get("current")})
-            # 
-            
-
-        # if task.info is not None and 'progress' in task.info:
-        #     print("TASK INFO PERCENTAGE============",task.info['progress'])
-            # print("response============",response)
-        print("Qua?")
         return JsonResponse({"dataVect":response})
     
     except Exception as e:
@@ -331,23 +247,15 @@ def check_task_status(request):
         response["error"] = str(e)
         return JsonResponse({"dataVect":response})
 
-# @api_view(['GET','POST'])
-# def updateStatistics(request):
-#     dates = json.loads(request.data.get("dates"))
-#     values = json.loads(request.data.get("values"))
-#     is_polygon = request.data.get("is_polygon")
-#     time_period = request.data.get("time_period")
-
-#     data = updateStatistics(dates, values, is_polygon, time_period)
-#     return JsonResponse(data, safe=False)
 @api_view(['GET','POST'])
 def updateStatistics(request):
+    print("QUI")
     new_dates = request.data.get("dates")
     new_values = request.data.get("values")
     dataset = request.data.get("dataset")
     polygon = request.data.get("polygon")
     adriaclim_timeperiod = dataset.get("adriaclim_timeperiod")
-    new_values_calculated = updateStatistics(new_dates,new_values,adriaclim_timeperiod,polygon)
+    new_values_calculated = updateStatisticsNew(new_dates,new_values,adriaclim_timeperiod,polygon)
     return JsonResponse({"newValues":new_values_calculated})
 
 @api_view(['GET', 'POST'])
@@ -412,12 +320,6 @@ def compareDatasets(request):
             "rootSquaredDiff": root_squared_diff,
         }
         
-        # allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
-        # if allData == "fuoriWms":
-        #     return JsonResponse({"compareResult":allData})
-        # else:
-        #     return JsonResponse({'compareResult':allData})
-
         return JsonResponse({"compareResult": allData})
     except Exception as e:
         print("Eccezione",e)
