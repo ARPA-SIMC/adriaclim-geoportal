@@ -1,14 +1,15 @@
-from datetime import time
+import logging
 import numpy as np
 import pandas as pd
-import logging  # Aggiunto logger
-from statistics import mean, median, stdev
+
 from scipy import stats
 from .utils import percentile_new
-from .time_processing import get_season, seasons, check_dates_format_trend
+from statistics import mean, median, stdev
 from .indicator_manager import url_is_indicator
+from .time_processing import get_season, seasons, check_dates_format_trend
 
-logger = logging.getLogger(__name__)  # Inizializzazione logger
+
+logger = logging.getLogger(__name__)
 
 def aggregateGraphicValues(vals, operation):
     if not vals:
@@ -78,34 +79,26 @@ def updateStatisticsNew(new_dates,new_values,timeperiod,polygon):
         
         allData = {}
         if polygon is None:
-            #single point!
             allData["mean"] = mean(new_values)
             allData["stdev"] = stdev(new_values)
             allData["median"] = median(new_values)
             allData["trend"] = calculate_trend(new_dates,new_values,timeperiod=timeperiod)
         else:
             #is a polygon so we need to calculate mean, stdev, median and trend
-            # print("new_values:",new_values)
             df_stats = pd.DataFrame({"date":new_dates, "value":new_values})
-            # print("df_stats:",df_stats.head())
             allData["mean"] = mean(df_stats["value"].tolist())
             allData["stdev"] = stdev(df_stats["value"].tolist())
             allData["median"] = median(df_stats["value"].tolist())
             mean_trend = df_stats.groupby("date")["value"].mean().tolist()
             df_stats = df_stats.drop_duplicates(subset=["date"], keep="first") 
-            # print("DF_STATS:",df_stats.head(30))
-            # df_stats["date"] = pd.to_datetime(df_stats["date"])
             allData["trend"] = calculate_trend(df_stats["date"].tolist(),mean_trend,timeperiod=timeperiod)
-
         return allData
     except Exception as e:
-        ("QUA")
         if str(e) == "variance requires at least two data points":
             allData["mean"] = new_values
             allData["stdev"] = new_values
             allData["median"] = new_values
             allData["trend"] = new_values
-            # print("Errore in update",e)
             return allData
 
 def packageGraphData(allData, **kwargs):
@@ -131,12 +124,10 @@ def packageGraphData(allData, **kwargs):
                 f"{dates[n]},{layerName[n]},{lats[n]},{longs[n]},{values[n]}" for n in range(len(values))
             )
             return csv_output
-
         for n in range(len(values)):
             entry = {"x": dates[n], "y": values[n]}
             data.setdefault(layerName[n], []).append(entry)
             data["entries"].append(layerName[n])
-
         return data
     except Exception as e:
         logger.error(f"Exception in packageGraphData: {e}")
@@ -255,17 +246,6 @@ def getDataVectorial(
 ):
     
     try:
-        # print("DATASET ID =", dataset_id)
-        # print("LAYER NAME =", layer_name)
-        # print("DATE START =", date_start)
-        # print("LATITUDE START =", latitude_start)
-        # print("LATITUDE END =", latitude_end)
-        # print("LONGITUDE START =", longitude_start)
-        # print("LONGITUDE END =", longitude_end)
-        # print("NUM PARAM =", num_param)
-        # print("RANGE VALUE =", range_value)
-        # print("IS INDICATOR =", is_indicator)
-        # https://erddap.cmcc-opa.eu/erddap/tabledap/ARPAE_f903_2ae5_11cb.htmlTable?time%2Clatitude%2Clongitude%2Ca_95_BO_9_m&time%3E=2022-11-24&time%3C=2022-12-01&latitude%3E=44.214583&latitude%3C=44.214583&longitude%3E=12.47585&longitude%3C=12.47585
         url = url_is_indicator(
             is_indicator,
             False,
@@ -282,26 +262,20 @@ def getDataVectorial(
         )
         print("LAYER NAME =", layer_name)
         print("URL =", url)
-        # start_time = time.time()
         df = pd.read_csv(url, dtype="unicode")
         print("DATAFRAME =", df)
         allData = []
         values = []
         lat_coordinates = []
         long_coordinates = []
-        df = df.dropna(how="any", axis=0) # per la seconda prova la riga è da scommentare
-        # df = df.dropna(subset=[layer_name])
+        df = df.dropna(how="any", axis=0)
         i = 0
         for index, row in df.iterrows():
-
             try:
                 value = float(row[layer_name])
             except ValueError:
                 value = 0.0
-
             values.insert(i, value)
-
-            # values.insert(i, row[layer_name])
             lat_coordinates.insert(i, row["latitude"])
             long_coordinates.insert(i, row["longitude"])
             i += 1
@@ -312,16 +286,9 @@ def getDataVectorial(
         else:
             value_min = 0.0 # valore predefinito se non ci sono valori validi
             value_max = 0.0 # valore predefinito se non ci sono valori validi
-
-        # per la seconda prova questi if sono da commentare
-        # if 'degrees_north' in lat_coordinates:
-        #     lat_coordinates.remove('degrees_north')
-        # if 'degrees_east' in long_coordinates:
-        #     long_coordinates.remove('degrees_east')
             
         allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
 
         return allData
     except Exception as e:
-        print("ECCEZIONE VETTORIALE", e)
         return str(e)

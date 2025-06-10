@@ -1,6 +1,7 @@
-from datetime import datetime
-import pandas as pd
 import logging
+import pandas as pd
+
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,6 @@ def check_dates_format_trend(dates):
     """Convert a list of dates from various formats to datetime objects."""
     if not dates:
         return []
-
     try:
         if isinstance(dates[0], str):
             if dates[0].startswith("0000"):

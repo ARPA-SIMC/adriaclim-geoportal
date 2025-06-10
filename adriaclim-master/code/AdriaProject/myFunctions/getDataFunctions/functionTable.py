@@ -1,5 +1,7 @@
-from myFunctions.indicator_manager import getIndicatorQueryUrl
 import requests
+
+from myFunctions.indicator_manager import getIndicatorQueryUrl
+
 
 def getDataFunctionsTable(
     dataset_id,
@@ -11,9 +13,7 @@ def getDataFunctionsTable(
     num_parameters,
     range_value,
 ):
-    # print("Time start: " + str(time_start))
-    # print("Time finish: " + str(time_finish))
-    
+ 
     try:
         
         url = getIndicatorQueryUrl(

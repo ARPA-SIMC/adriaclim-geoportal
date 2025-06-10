@@ -1,7 +1,7 @@
 from Dataset.models import Node
-from AdriaProject.settings import ERDDAP_URL
-from urllib.parse import urlencode
 from typing import Optional, List
+from AdriaProject.settings import ERDDAP_URL
+
 
 
 def getIndicator(id: int) -> Optional[Node]:
@@ -69,43 +69,23 @@ def safe_str(val, default=""):
 def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
     if type(ind) == str:
         ind = getIndicator(ind)
-
-    # print("INDICATOR ========",ind)
     url = getIndicatorBaseUrl(ind)
-
-    # print("URL GET INDICATOR QUERY URL ========",url)
     if "format" in kwargs and kwargs["format"] is not None:
         url = url + "." + safe_str(kwargs.get("format"))
-
     di = getIndicatorDimensions(ind)
-    # print("All dimensions=======",di)
-
     va = getIndicatorVariables(ind)
-    # print("All VARIABLES=========",va)
-
     selVar = [kwargs["variable"]]
-
     tipo = getIndicatorDataFormat(ind)
-
     griddap = tipo == "griddap"
-
     if griddap and onlyFirstVariable and va.count() > 1:
         va = [va[0]]
-
     if griddap and "variable" in kwargs:
         va = [kwargs["variable"]]
-
     if skipDimensions:
-        di = []
-    
-    # va = selVar       
-
+        di = []       
     query = "?"
-
     if griddap:
         for v in va:
-            # print("VARIABLE GRIDDAP:",v)
-
             if query != "?":
                 query = query + ","
             query = query + v
@@ -118,48 +98,38 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                     query = query + kwargs[d + "Min"]
                 else:
                     alias = getVariableAliases(d)
-                    # print("Alias ========",alias)
                     for al in alias:
                         if al in kwargs:
                             query = query + kwargs[al]
                         elif (al + "Min") in kwargs:
                             query = query + kwargs[al + "Min"]
-
                 query = query + "):1:("
-
                 if d in kwargs and not (d + "Max") in kwargs:
                     query = query + kwargs[d]
                 elif (d + "Max") in kwargs:
                     query = query + kwargs[d + "Max"]
                 else:
                     alias = getVariableAliases(d)
-
                     for al in alias:
                         if al in kwargs:  
                             query = query + kwargs[al]
                         elif (al + "Max") in kwargs:
                             query = query + kwargs[al + "Max"]
-
                 query = query + ")%5D"
-
     else:
         for v in va:
-            # print("VARIABLE TABLEDAP:",v)
-            # print("URL + QUERY =", url + query)
             if query != "?":
                 query = query + "%2C"
             query = query + v
 
         for d in va:
             if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
-            # if d != "Indicator":
                 if d in kwargs and not (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d]
                 elif (d + "Min") in kwargs:
                     query = query + "&" + d + "%3E=" + kwargs[d + "Min"]
                 else:
                     alias = getVariableAliases(d)
-                    # print("alias",alias)
                     for al in alias:
                         if al in kwargs:
                             query = query + "&" + d + "%3E=" + kwargs[al]
@@ -179,25 +149,16 @@ def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
                             query = query + "&" + d + "%3C=" + kwargs[al + "Max"]
 
     result = url + query
-    # print("URL + QUERY =", url + query)
     if result.find("None") != -1:
         result = result.replace("None","0")
     
     print("final result =", result)
-    # https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/EOBS_a583_d8f2_21c0.json?very_wet_days_wrt_95th_percentile_of_reference_period%5B(2020-12-31T00:00:00Z):1:(2020-12-31T00:00:00Z)%5D%5B(46.94985982579791):1:(46.94985982579791)%5D%5B(21.94986030317809):1:(21.94986030317809)%5D
     return result
 
 
 def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
-    # true, true, false
     try:
-        # print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
-        # print("IS INDICATOR=====", is_indicator)
-        # print("IS GRAPH=====", is_graph)
-        # print("IS ANNUAL=====", is_annual)
         if is_indicator == "true" and is_graph == False:
-            #print("ENTRO IN URL_IS_INDICATOR LATO TABLEDAP!")
-            # print("DENTRO IND TRUE IS GRAPH FALSE")
             url = (
                 ERDDAP_URL
                 + "/tabledap/"
@@ -212,9 +173,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
             )
 
         elif is_indicator == "true" and is_graph and is_annual:
-            # print("DENTRO IND TRUE IS GRAPH TRUE IS ANNUAL TRUE")
             try:
-                #print("Entro qui parte 2!!!!!!")
                 url = (
                     ERDDAP_URL
                     + "/tabledap/"
@@ -236,14 +195,8 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                     + kwargs["longitude"]
                 )
             except Exception as e1:
-                print("Eccezione 2", e1)
                 return str(e1)
         elif is_indicator == "true" and is_graph and not is_annual:
-            # print("DENTRO IND TRUE IS GRAPH TRUE IS ANNUAL FALSE")
-            #  url = url_is_indicator(is_indicator,True,False,dataset_id=dataset_id,layer_name=layer_name,time_start=date_start,time_finish=date_end,latitude=str(point[0]),
-            #                     longitude=str(point[1]),num_parameters=num_param,range_value=range_value)
-            # https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/indicators_wsdi_aba0_0062_8939.csv?time%2Clatitude%2Clongitude%2Cwsdi&time%3E=2021-07-01&time%3C=2050-07-01&latitude%3E=39.688777923584&latitude%3C=41.22824901518532&longitude%3E=14.740385055542&longitude%3C=15.183105468750002
-            # https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_PRCPTOT_yearly.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2021-12-25&time%3C=2022-01-01
             url = (
                 ERDDAP_URL
                 + "/tabledap/"
@@ -266,7 +219,6 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
             )
 
         elif is_indicator == "false" and is_graph == False and is_annual == False:
-            # print("DENTRO IND FALSE IS GRAPH FALSE IS ANNUAL FALSE")
             if kwargs["num_param"] > 3:
                 url = (
                     ERDDAP_URL
@@ -315,7 +267,6 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
 
         elif is_indicator == "false" and is_graph and is_annual == False:
-            # print("DENTRO IND FALSE IS GRAPH TRUE IS ANNUAL FALSE")
             if kwargs["num_parameters"] > 3:
                 url = (
                     ERDDAP_URL
@@ -364,7 +315,6 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
 
         elif is_indicator == "false" and is_graph and is_annual:
-            # print("DENTRO IND FALSE IS GRAPH TRUE IS ANNUAL TRUE")
             if kwargs["num_parameters"] > 3:
                 url = (
                     ERDDAP_URL
@@ -414,7 +364,6 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
 
         elif is_indicator == "false" and is_graph == False and is_annual:
-            # print("DENTRO IND FALSE IS GRAPH FALSE IS ANNUAL TRUE")
             if kwargs["num_param"] > 3:
                 url = (
                     ERDDAP_URL
@@ -464,6 +413,5 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
 
         return url
     except Exception as e:
-        print("Error", e)
         return str(e)
 

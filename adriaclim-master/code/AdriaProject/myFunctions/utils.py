@@ -1,11 +1,9 @@
-import os
 import io
-import pandas as pd
 import urllib
 import numpy as np
-import requests
-from django.core.cache import cache
+import pandas as pd
 
+from django.core.cache import cache
 
 def percentile_new(n):
     def percentile_(x):
@@ -17,7 +15,6 @@ def download_with_cache(u):
     cache_key = u  # needs to be unique
     cache_time = 43200  # time in seconds for cache to be valid (now it is 12 hours)
     output_value = cache.get(key=cache_key)  # returns None if no key-value pair
-    # print("output_value: ",output_value)
     if output_value == None:
         # if is none we save it in the cache and returns it
         try:
@@ -34,7 +31,6 @@ def download_with_cache(u):
 def remove_from_cache(u):
     cache_key = u  # needs to be unique
     output_value = cache.get(key=cache_key)  # returns None if no key-value pair
-    # print("output_value: ",output_value)
     if output_value:
         output_value = output_value.decode("utf-8")
         cache.delete(key=cache_key)
