@@ -201,8 +201,6 @@ def check_task_status(request):
         response = {'status': task.status}
         if task.status == 'SUCCESS':
             response['result'] = task.result
-        print("Tipo result:", type(task.result))
-        print("Contenuto result:", task.result)
         if task.state == "PROGRESS":
             response["progressBar"] = task.info.get('current')
         return JsonResponse({"dataVect":response})

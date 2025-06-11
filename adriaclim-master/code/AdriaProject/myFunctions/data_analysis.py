@@ -1,4 +1,3 @@
-import logging
 import numpy as np
 import pandas as pd
 
@@ -6,10 +5,12 @@ from scipy import stats
 from .utils import percentile_new
 from statistics import mean, median, stdev
 from .indicator_manager import url_is_indicator
+from AdriaProject.logger_config import setup_logger
 from .time_processing import get_season, seasons, check_dates_format_trend
 
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
+
 
 def aggregateGraphicValues(vals, operation):
     if not vals:
@@ -74,7 +75,6 @@ def calculate_trend(dates, values, **kwargs):
         return str(e)
 
 def updateStatisticsNew(new_dates,new_values,timeperiod,polygon):
-    print("QUO")
     try:
         
         allData = {}

@@ -1,9 +1,10 @@
-import logging
 import pandas as pd
 
 from datetime import datetime
 
-logger = logging.getLogger(__name__)
+from AdriaProject.logger_config import setup_logger
+
+logger = setup_logger(__name__)
 
 MONTHS = {
     1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',

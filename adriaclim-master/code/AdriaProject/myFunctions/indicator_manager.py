@@ -2,7 +2,9 @@ from Dataset.models import Node
 from typing import Optional, List
 from AdriaProject.settings import ERDDAP_URL
 
+from AdriaProject.logger_config import setup_logger
 
+logger = setup_logger(__name__)
 
 def getIndicator(id: int) -> Optional[Node]:
     """Retrieve an indicator by its ID."""
@@ -66,93 +68,71 @@ def buildQueryString(variables: List[str], dimensions: List[str], griddap: bool,
 def safe_str(val, default=""):
     return str(val) if val is not None else default
 
+def get_dim_value(dim_name, kwargs, bound_type):
+    """
+    Recupera il valore minimo o massimo da kwargs (es. "timeMin", "timeMax").
+    Se non trovato, prova con alias.
+    """
+    if bound_type not in ["Min", "Max"]:
+        raise ValueError("bound_type must be 'Min' or 'Max'")
+    
+    direct = kwargs.get(dim_name + bound_type)
+    if direct:
+        return direct
+
+    aliases = getVariableAliases(dim_name)
+    for al in aliases:
+        val = kwargs.get(al + bound_type)
+        if val:
+            return val
+    return kwargs.get(dim_name) or "0"
+
 def getIndicatorQueryUrl(ind, onlyFirstVariable, skipDimensions, **kwargs):
-    if type(ind) == str:
+    if isinstance(ind, str):
         ind = getIndicator(ind)
+
     url = getIndicatorBaseUrl(ind)
+
     if "format" in kwargs and kwargs["format"] is not None:
-        url = url + "." + safe_str(kwargs.get("format"))
+        url += "." + safe_str(kwargs.get("format"))
+
     di = getIndicatorDimensions(ind)
     va = getIndicatorVariables(ind)
-    selVar = [kwargs["variable"]]
     tipo = getIndicatorDataFormat(ind)
     griddap = tipo == "griddap"
+
     if griddap and onlyFirstVariable and va.count() > 1:
         va = [va[0]]
     if griddap and "variable" in kwargs:
         va = [kwargs["variable"]]
     if skipDimensions:
-        di = []       
+        di = []
+
     query = "?"
+
     if griddap:
         for v in va:
             if query != "?":
-                query = query + ","
-            query = query + v
+                query += ","
+            query += v
             for d in di:
-                query = query + "%5B("
-
-                if d in kwargs and not (d + "Min") in kwargs:
-                    query = query + kwargs[d]
-                elif (d + "Min") in kwargs:
-                    query = query + kwargs[d + "Min"]
-                else:
-                    alias = getVariableAliases(d)
-                    for al in alias:
-                        if al in kwargs:
-                            query = query + kwargs[al]
-                        elif (al + "Min") in kwargs:
-                            query = query + kwargs[al + "Min"]
-                query = query + "):1:("
-                if d in kwargs and not (d + "Max") in kwargs:
-                    query = query + kwargs[d]
-                elif (d + "Max") in kwargs:
-                    query = query + kwargs[d + "Max"]
-                else:
-                    alias = getVariableAliases(d)
-                    for al in alias:
-                        if al in kwargs:  
-                            query = query + kwargs[al]
-                        elif (al + "Max") in kwargs:
-                            query = query + kwargs[al + "Max"]
-                query = query + ")%5D"
+                query += "%5B(" + get_dim_value(d, kwargs, "Min") + "):1:(" + get_dim_value(d, kwargs, "Max") + ")%5D"
     else:
         for v in va:
             if query != "?":
-                query = query + "%2C"
-            query = query + v
+                query += "%2C"
+            query += v
 
         for d in va:
-            if d.lower().find("time") != -1 or d == "latitude" or d == "longitude":
-                if d in kwargs and not (d + "Min") in kwargs:
-                    query = query + "&" + d + "%3E=" + kwargs[d]
-                elif (d + "Min") in kwargs:
-                    query = query + "&" + d + "%3E=" + kwargs[d + "Min"]
-                else:
-                    alias = getVariableAliases(d)
-                    for al in alias:
-                        if al in kwargs:
-                            query = query + "&" + d + "%3E=" + kwargs[al]
-                        elif (al + "Min") in kwargs:
-                            query = query + "&" + d + "%3E=" + kwargs[al + "Min"]
-
-                if d in kwargs and not (d + "Max") in kwargs:
-                    query = query + "&" + d + "%3C=" + kwargs[d]
-                elif (d + "Max") in kwargs:
-                    query = query + "&" + d + "%3C=" + kwargs[d + "Max"]
-                else:
-                    alias = getVariableAliases(d)
-                    for al in alias:
-                        if al in kwargs:
-                            query = query + "&" + d + "%3C=" + kwargs[al]
-                        elif (al + "Max") in kwargs:
-                            query = query + "&" + d + "%3C=" + kwargs[al + "Max"]
+            if "time" in d.lower() or d in ["latitude", "longitude"]:
+                query += "&" + d + "%3E=" + get_dim_value(d, kwargs, "Min")
+                query += "&" + d + "%3C=" + get_dim_value(d, kwargs, "Max")
 
     result = url + query
-    if result.find("None") != -1:
-        result = result.replace("None","0")
-    
-    print("final result =", result)
+    if "None" in result:
+        result = result.replace("None", "0")
+
+    logger.debug(f"Final query URL: {result}")
     return result
 
 

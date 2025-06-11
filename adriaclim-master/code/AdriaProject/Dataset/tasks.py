@@ -1,6 +1,5 @@
 import time
 import json
-import logging
 import numpy as np
 import pandas as pd
 
@@ -14,6 +13,8 @@ from myFunctions.indicator_manager import url_is_indicator
 from myFunctions.time_processing import convertToTime
 from myFunctions.database_operations import is_database_almost_full
 
+from AdriaProject.logger_config import setup_logger
+
 from Dataset.models import Node, Polygon
 from Dataset.geospatial_processing import getDataPolygonNew
 
@@ -22,7 +23,8 @@ import shapely.speedups
 
 from celery import shared_task
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
+
 
 @shared_task(bind=True)
 def task_get_data_polygon(self,request_data):

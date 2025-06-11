@@ -1,20 +1,20 @@
 import re
 import time
 import asyncio
-import logging
 import requests
 import numpy as np
 import pandas as pd
 
 from django.db import transaction
 from django.core.cache import cache
+from AdriaProject.logger_config import setup_logger
 from Dataset.models import Node, Indicator
 from AdriaProject.settings import ERDDAP_URL
 from typing import List, Dict, Any, Optional
 from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.database_operations import is_database_almost_full, delete_all
 
-logger = logging.getLogger(__name__)  
+logger = setup_logger(__name__)  
 
 DATASET_COLUMNS = [
     "griddap", "subset", "tabledap", "MakeAGraph", "wms", "files", "Title",
@@ -371,7 +371,6 @@ def getAllDatasets():
                     else:
                         adriaclim_timeperiod = "UNKNOWN"
 
-
 def getMetadataTime1(dataset_id: str) -> List[Any]:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"
     df = pd.read_csv(
@@ -383,57 +382,69 @@ def getMetadataTime1(dataset_id: str) -> List[Any]:
     ).replace(np.nan, "", regex=True)
 
     for _, row in df.iterrows():
-        if row["DatasetID"] == dataset_id:
-            metadata = pd.read_csv(
-                download_with_cache_as_csv(row["Info"]),
-                header=None,
-                sep=",",
-                names=["Row Type", "Variable Name", "Attribute Name", "Data Type", "Value"],
-            ).fillna("nan")
+        if row["DatasetID"] != dataset_id:
+            continue
 
-            variable_meta = title_meta = layer_name = values_time = attribution_layer = ""
-            values_others = average_spacing_others = positive_negative = ""
-            latitude_range = longitude_range = ""
-            dimensions = "time, latitude, longitude"
-            lat_min = lat_max = long_min = long_max = ""
+        metadata = pd.read_csv(
+            download_with_cache_as_csv(row["Info"]),
+            header=None,
+            sep=",",
+            names=["Row Type", "Variable Name", "Attribute Name", "Data Type", "Value"],
+        ).fillna("nan")
 
-            for _, row1 in metadata.iterrows():
-                if row1["Row Type"] == "variable":
-                    variable_meta = row1["Value"]
-                    layer_name = row1["Variable Name"]
-                if row1["Row Type"] == "attribute" and row1["Attribute Name"] == "title":
-                    title_meta = row1["Value"]
-                if row1["Row Type"] == "attribute" and row1["Variable Name"] in ["time", "Times"] and row1["Attribute Name"] == "actual_range":
-                    values_time = row1["Value"]
-                if row1["Row Type"] == "attribute" and row1["Attribute Name"] == "institution":
-                    attribution_layer = row1["Value"]
-                if row1["Row Type"] == "attribute" and row1["Variable Name"] not in ["time", "Times", "latitude", "longitude"] and row1["Attribute Name"] == "actual_range":
-                    values_others = row1["Value"]
-                if row1["Row Type"] == "dimension" and row1["Variable Name"] not in ["time", "Times", "latitude", "longitude"]:
-                    dimensions += ", " + row1["Variable Name"]
-                    try:
-                        average_spacing_others = row1["Value"].split(",")[2]
-                    except Exception:
-                        pass
-                if row1["Row Type"] == "attribute" and row1["Attribute Name"] == "positive":
-                    positive_negative = row1["Value"]
-                if row1["Row Type"] == "attribute" and row1["Variable Name"] == "latitude" and row1["Attribute Name"] == "actual_range":
-                    latitude_range = row1["Value"]
-                if row1["Row Type"] == "attribute" and row1["Variable Name"] == "longitude" and row1["Attribute Name"] == "actual_range":
-                    longitude_range = row1["Value"]
+        # Inizializzazione variabili
+        variable_meta = title_meta = layer_name = values_time = attribution_layer = ""
+        values_others = average_spacing_others = positive_negative = ""
+        latitude_range = longitude_range = ""
+        lat_min = lat_max = long_min = long_max = ""
+        dimensions = "time, latitude, longitude"
 
-            if variable_meta != "nan":
-                return [
-                    values_others, variable_meta, values_time, title_meta,
-                    layer_name, average_spacing_others, attribution_layer,
-                    positive_negative, latitude_range, longitude_range
-                ]
-            else:
-                return [
-                    values_others, dimensions, values_time, title_meta,
-                    layer_name, average_spacing_others, attribution_layer,
-                    positive_negative, latitude_range, longitude_range, True
-                ]
+        for _, row1 in metadata.iterrows():
+            row_type = row1["Row Type"]
+            var_name = row1["Variable Name"]
+            attr_name = row1["Attribute Name"]
+            value = row1["Value"]
+
+            if row_type == "variable":
+                variable_meta = value
+                layer_name = var_name
+
+            elif row_type == "attribute":
+                if attr_name == "title":
+                    title_meta = value
+                elif var_name in ["time", "Times"] and attr_name == "actual_range":
+                    values_time = value
+                elif attr_name == "institution":
+                    attribution_layer = value
+                elif var_name not in ["time", "Times", "latitude", "longitude"] and attr_name == "actual_range":
+                    values_others = value
+                elif attr_name == "positive":
+                    positive_negative = value
+                elif var_name == "latitude" and attr_name == "actual_range":
+                    latitude_range = value
+                elif var_name == "longitude" and attr_name == "actual_range":
+                    longitude_range = value
+
+            elif row_type == "dimension" and var_name not in ["time", "Times", "latitude", "longitude"]:
+                dimensions += f", {var_name}"
+                try:
+                    average_spacing_others = value.split(",")[2]
+                except Exception:
+                    pass
+
+        if variable_meta != "nan":
+            return [
+                values_others, variable_meta, values_time, title_meta,
+                layer_name, average_spacing_others, attribution_layer,
+                positive_negative, latitude_range, longitude_range
+            ]
+        else:
+            return [
+                values_others, dimensions, values_time, title_meta,
+                layer_name, average_spacing_others, attribution_layer,
+                positive_negative, latitude_range, longitude_range, True
+            ]
+
     return []
 
 def getMetadata(dataset_id: str) -> List[Any]:
