@@ -55,7 +55,7 @@ def getMetadataNew(request):
     idMeta = request.data.get("idMeta")
     try:
         metadata = getMetadata(idMeta)
-        return JsonResponse(metadata, safe=False)
+        return JsonResponse({'metadata': metadata})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 

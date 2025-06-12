@@ -2,16 +2,19 @@ import time
 import json
 import numpy as np
 import pandas as pd
+import shapely.speedups
+
+from celery import shared_task
 
 from django.db.models import Q
 from django.core.cache import cache
-from django.contrib.gis.geos import Point, Polygon as GeosPolygon
 from django.forms import model_to_dict
+from django.contrib.gis.geos import Point, Polygon as GeosPolygon
 
-from myFunctions.data_analysis import operation_before_after_cache, calculate_trend
-from myFunctions.indicator_manager import url_is_indicator
 from myFunctions.time_processing import convertToTime
+from myFunctions.indicator_manager import url_is_indicator
 from myFunctions.database_operations import is_database_almost_full
+from myFunctions.data_analysis import operation_before_after_cache, calculate_trend
 
 from AdriaProject.logger_config import setup_logger
 
@@ -19,9 +22,9 @@ from Dataset.models import Node, Polygon
 from Dataset.geospatial_processing import getDataPolygonNew
 
 from shapely.geometry import Point as ShapelyPoint, Polygon as ShapelyPolygon
-import shapely.speedups
 
-from celery import shared_task
+
+
 
 logger = setup_logger(__name__)
 

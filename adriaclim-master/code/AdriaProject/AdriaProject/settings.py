@@ -10,13 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
-from pathlib import Path
+import json
+
 from kombu import Queue
+from pathlib import Path
+from datetime import datetime
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
-from datetime import datetime
+
 # import AdriaProject 
-import json
 
 USE_TZ = True
 TIME_ZONE = "Europe/Rome"

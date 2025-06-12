@@ -1,7 +1,7 @@
-from django.apps import AppConfig
-from django.db.utils import OperationalError, ProgrammingError
 import urllib.request
 
+from django.apps import AppConfig
+from django.db.utils import OperationalError, ProgrammingError
 
 class DatasetConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'

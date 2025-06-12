@@ -1,7 +1,8 @@
-import json
 import os
-from django.shortcuts import render
+import json
 from django.conf import settings
+from django.shortcuts import render
+
 
 def welcome_page(request):
     json_path = os.path.join(settings.BASE_DIR, 'static/assets/configuration/welcomePage.json')

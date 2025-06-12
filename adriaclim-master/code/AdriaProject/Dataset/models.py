@@ -1,7 +1,9 @@
 import json
+
+from postgres_copy import CopyManager
 from unittest.util import _MAX_LENGTH
 from django.contrib.gis.db import models
-from postgres_copy import CopyManager
+
 
 class Node(models.Model):
     

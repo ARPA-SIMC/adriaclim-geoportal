@@ -480,3 +480,11 @@ def getMetadataOfASpecificDataset(dataset_id: str) -> Optional[Dict[str, Any]]:
             return r.json()
         except Indicator.DoesNotExist:
             return None
+
+def download_big_data(request):
+    try:
+        download_big_data()
+        return "Ho aggiustato tutto!!!!"
+    except Exception as e:
+        print("Ho rotto tutto!!!!! Final Version",e)
+        return str(e)

@@ -917,7 +917,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
 
     if (this.statCalc.values.length > 0) {
-      this.httpService.post('myFunctions/updateStatistics/', data).subscribe({
+      this.httpService.post('dataset/updateStatistics/', data).subscribe({
         next: (res: any) => {
           let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
           this.expoFormat(mean_median_stdev);
