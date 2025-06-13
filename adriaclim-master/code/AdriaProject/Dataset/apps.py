@@ -1,8 +1,10 @@
+import logging
 import urllib.request
 
 from django.apps import AppConfig
 from django.db.utils import OperationalError, ProgrammingError
 
+logger = logging.getLogger(__name__)
 class DatasetConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Dataset'
@@ -17,13 +19,13 @@ class DatasetConfig(AppConfig):
             try:
                 urllib.request.urlopen(erddap_url, timeout=5)
             except Exception as net_error:
-                print(f"⚠️ ERDDAP non raggiungibile ({net_error}), skip importazione iniziale.")
+                logger.warning(f"ERDDAP non raggiungibile ({net_error}), skip importazione iniziale.")
                 return
 
             if Node.objects.count() == 0:
-                print("📥 Nessun dataset trovato, avvio importazione iniziale...")
+                logger.info("Nessun dataset trovato, avvio importazione iniziale...")
                 getAllDatasets()
 
         except (OperationalError, ProgrammingError):
-            print("⚠️ Database non pronto. Skip inizializzazione automatica.")
+            logger.warning("Database non pronto. Skip inizializzazione automatica.")
 

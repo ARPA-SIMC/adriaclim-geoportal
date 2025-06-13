@@ -259,7 +259,6 @@ def compareDatasets(request):
         
         return JsonResponse({"compareResult": allData})
     except Exception as e:
-        print("Eccezione",e)
         return HttpResponse("Errore",status=400)
     
 @api_view(['GET','POST'])
@@ -270,7 +269,6 @@ def getDataPolygonNew(request):
         task = task_get_data_polygon.apply_async(args=[request_data],queue="my_queue")
         return JsonResponse({'task_id':task.id})
     except Exception as e:
-        print("eccezione",e)
         return str(e)
 
 

@@ -28,11 +28,9 @@ def getDataFunctionsTable(
             format="json",
             variable=str(layer_name),
         )
-        print("URL SUPER FUNZIONE =", url)
         r = requests.get(url=url)
         data = r.json()
         return data
 
     except Exception as e:
-        print("EXEPTION =", e)
         return "fuoriWms"

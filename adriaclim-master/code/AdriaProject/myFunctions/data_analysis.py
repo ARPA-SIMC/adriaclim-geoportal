@@ -260,10 +260,7 @@ def getDataVectorial(
             num_param=num_param,
             range_value=range_value,
         )
-        print("LAYER NAME =", layer_name)
-        print("URL =", url)
         df = pd.read_csv(url, dtype="unicode")
-        print("DATAFRAME =", df)
         allData = []
         values = []
         lat_coordinates = []

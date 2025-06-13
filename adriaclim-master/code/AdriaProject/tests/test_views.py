@@ -65,8 +65,6 @@ def test_get_metadata_new(self):
             "idMeta": node.id
         })
 
-        print("DEBUG RESPONSE:", response.content)
-
         self.assertEqual(response.status_code, 200)
         json_data = response.json()
         self.assertIn("metadata", json_data)
@@ -93,9 +91,6 @@ class TestOverlays(TestCase):
                 "version": "1.3.0"
             }
         )
-
-        print(f"⏱️ overlaysNew mocked response time OK")
-        print("📦 Mocked content:", response.content)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("overlay", response.json())

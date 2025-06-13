@@ -41,10 +41,6 @@ class TestPerformance(TestCase):
             start_time = time.time()
             response = self.client.post(reverse('getMetadataNew'), {"idMeta": self.node.id})
             duration = time.time() - start_time
-
-            print(f"⏱️ MetadataNew response time: {duration:.3f} seconds")
-            print("🔴 Response content:", response.content)
-
             self.assertEqual(response.status_code, 200)
             self.assertLess(duration, 1.0, "⚠️ API too slow (> 1s)")
 

@@ -63,11 +63,14 @@ def save_node_to_db(node_id: str, defaults: Dict[str, Any]) -> None:
         with transaction.atomic():
             Node.objects.update_or_create(id=node_id, defaults=defaults)
 
+
 def process_dataset_row(row: Dict[str, Any]) -> None:
+    # Estrae i metadati associati al dataset
     metadata = process_metadata(row["Info"])
     if not metadata:
         return
 
+    # Inizializzazione delle variabili di supporto
     adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = None
     institution = "UNKNOWN"
     time_start = time_end = ""
@@ -78,21 +81,25 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
     node_id = row["DatasetID"]
     griddap_url = row["griddap"]
 
+    # Ciclo su ciascun riga dei metadati
     for meta_row in metadata:
         row_type = meta_row["RowType"]
         var_name = meta_row["VariableName"]
         attr_name = meta_row["AttributeName"]
         attr_value = meta_row["Value"]
 
+        # Conteggio delle dimensioni e costruzione stringa nomi dimensioni
         if row_type == "dimension":
             dimensions += 1
             dimension_names += f"{var_name} "
 
+        # Conteggio variabili e tipologie
         if row_type == "variable":
             variables += 1
             variable_names += f"{var_name} "
             variable_types += f"{meta_row['DataType']} "
 
+        # Estrazione metadati personalizzati AdriaClim e metadati globali
         if attr_name == "adriaclim_dataset":
             adriaclim_dataset = attr_value
         elif attr_name == "adriaclim_model":
@@ -118,6 +125,7 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
         elif attr_name == "geospatial_lon_max":
             lng_max = attr_value
 
+        # Estrazione range e passo parametri da griddap
         if griddap_url:
             if attr_name == "actual_range" and var_name not in ["time", "latitude", "longitude"]:
                 try:
@@ -125,15 +133,16 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
                     param_min = float(parts[0])
                     param_max = float(parts[1].strip())
                 except Exception:
-                    pass
+                    pass  # Range non valido o malformato
             elif row_type == "dimension" and var_name not in ["time", "Times", "latitude", "longitude"]:
                 try:
                     spacing = attr_value
                     average_spacing_others = spacing.split(",")[2]
                     param_step = abs(float(average_spacing_others.split("=")[1]))
                 except Exception:
-                    pass
+                    pass  # Nessuno spacing calcolabile
 
+    # Se presenti time_start e time_end, si salva il dataset nel DB
     if time_start and time_end:
         defaults = {
             "adriaclim_dataset": adriaclim_dataset,
@@ -162,13 +171,117 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
             "griddap_url": griddap_url,
             "wms_url": row["wms"],
         }
+
+        # Salvataggio nodo nel database
         save_node_to_db(node_id, defaults)
+# def process_dataset_row(row: Dict[str, Any]) -> None:
+#     metadata = process_metadata(row["Info"])
+#     if not metadata:
+#         return
+
+#     adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = None
+#     institution = "UNKNOWN"
+#     time_start = time_end = ""
+#     lat_min = lat_max = lng_min = lng_max = None
+#     variables = dimensions = 0
+#     variable_names = variable_types = dimension_names = ""
+#     param_min = param_max = param_step = 0
+#     node_id = row["DatasetID"]
+#     griddap_url = row["griddap"]
+
+#     for meta_row in metadata:
+#         row_type = meta_row["RowType"]
+#         var_name = meta_row["VariableName"]
+#         attr_name = meta_row["AttributeName"]
+#         attr_value = meta_row["Value"]
+
+#         if row_type == "dimension":
+#             dimensions += 1
+#             dimension_names += f"{var_name} "
+
+#         if row_type == "variable":
+#             variables += 1
+#             variable_names += f"{var_name} "
+#             variable_types += f"{meta_row['DataType']} "
+
+#         if attr_name == "adriaclim_dataset":
+#             adriaclim_dataset = attr_value
+#         elif attr_name == "adriaclim_model":
+#             adriaclim_model = attr_value
+#         elif attr_name == "adriaclim_scale":
+#             adriaclim_scale = attr_value
+#         elif attr_name == "adriaclim_timeperiod":
+#             adriaclim_timeperiod = attr_value
+#         elif attr_name == "adriaclim_type":
+#             adriaclim_type = attr_value
+#         elif attr_name == "institution":
+#             institution = attr_value
+#         elif attr_name == "time_coverage_start":
+#             time_start = attr_value
+#         elif attr_name == "time_coverage_end":
+#             time_end = attr_value
+#         elif attr_name == "geospatial_lat_min":
+#             lat_min = attr_value
+#         elif attr_name == "geospatial_lat_max":
+#             lat_max = attr_value
+#         elif attr_name == "geospatial_lon_min":
+#             lng_min = attr_value
+#         elif attr_name == "geospatial_lon_max":
+#             lng_max = attr_value
+
+#         if griddap_url:
+#             if attr_name == "actual_range" and var_name not in ["time", "latitude", "longitude"]:
+#                 try:
+#                     parts = attr_value.split(",")
+#                     param_min = float(parts[0])
+#                     param_max = float(parts[1].strip())
+#                 except Exception:
+#                     pass
+#             elif row_type == "dimension" and var_name not in ["time", "Times", "latitude", "longitude"]:
+#                 try:
+#                     spacing = attr_value
+#                     average_spacing_others = spacing.split(",")[2]
+#                     param_step = abs(float(average_spacing_others.split("=")[1]))
+#                 except Exception:
+#                     pass
+
+#     if time_start and time_end:
+#         defaults = {
+#             "adriaclim_dataset": adriaclim_dataset,
+#             "adriaclim_model": adriaclim_model,
+#             "adriaclim_timeperiod": adriaclim_timeperiod,
+#             "adriaclim_scale": adriaclim_scale,
+#             "adriaclim_type": adriaclim_type,
+#             "title": row["Title"],
+#             "metadata_url": row["Info"],
+#             "institution": institution,
+#             "lat_min": lat_min,
+#             "lat_max": lat_max,
+#             "lng_min": lng_min,
+#             "lng_max": lng_max,
+#             "time_start": time_start,
+#             "time_end": time_end,
+#             "param_min": param_min,
+#             "param_max": param_max,
+#             "param_step": param_step,
+#             "tabledap_url": row["tabledap"],
+#             "dimensions": dimensions,
+#             "dimension_names": dimension_names.strip(),
+#             "variables": variables,
+#             "variable_names": variable_names.strip(),
+#             "variable_types": variable_types.strip(),
+#             "griddap_url": griddap_url,
+#             "wms_url": row["wms"],
+#         }
+#         save_node_to_db(node_id, defaults)
 
 def getAllDatasets():
     start_time = time.time()
-    print("Started getAllDatasets()")
-    url_datasets = ERDDAP_URL + "/info/index.csv?page=1&itemsPerPage=100000"
-    asyncio.run(delete_all("Node"))  
+    logger.info("Started getAllDatasets()")
+
+    url_datasets = "https://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv?page=1&itemsPerPage=100000"
+    asyncio.run(delete_all("Node"))
+
     try:
         df = pd.read_table(
             download_with_cache_as_csv(url_datasets),
@@ -176,70 +289,50 @@ def getAllDatasets():
             sep=",",
             engine="c",
             names=[
-                "griddap",
-                "subset",
-                "tabledap",
-                "MakeAGraph",
-                "wms",
-                "files",
-                "Title",
-                "Summary",
-                "FGDC",
-                "ISO 19115",
-                "Info",
-                "BackgroundInfo",
-                "RSS",
-                "Email",
-                "Institution",
-                "DatasetID",
+                "griddap", "subset", "tabledap", "MakeAGraph", "wms", "files", "Title", "Summary",
+                "FGDC", "ISO 19115", "Info", "BackgroundInfo", "RSS", "Email", "Institution", "DatasetID"
             ],
-            na_values="Value not available",
+            na_values="Value not available"
         )
-
         df = df.fillna("")
         df.drop(index=df.index[0], axis=0, inplace=True)
     except Exception as e:
-        print("Error", e)
+        logger.error(f"Errore durante il download o parsing dei dataset: {e}")
         return str(e)
+
     for row in df.to_dict(orient="records"):
         info = row["Info"]
-        adriaclim_scale = None
-        adriaclim_dataset = None
-        adriaclim_timeperiod = None
-        adriaclim_model = None
-        adriaclim_type = None
+        adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = None
         institution = "UNKNOWN"
-        time_start = ""
-        time_end = ""
-        lat_min = None
-        lat_max = None
-        lng_min = None
-        lng_max = None
-
-        variables = 0
-        variable_names = ""
-        variable_types = ""
-        dimensions = 0
-        dimension_names = ""
-        param_min = 0
-        param_max = 0
-        param_step = 0
+        time_start = time_end = ""
+        lat_min = lat_max = lng_min = lng_max = None
+        variables = dimensions = 0
+        variable_names = variable_types = dimension_names = ""
+        param_min = param_max = param_step = 0
         node_id = row["DatasetID"]
         metadata_url = row["Info"]
         tabledap_url = row["tabledap"]
         griddap_url = row["griddap"]
         wms_url = row["wms"]
-        get_info = pd.read_table(
-            download_with_cache_as_csv(info),
-            header=None,
-            sep=",",
-            engine="c",
-            names=["RowType", "VariableName", "AttributeName", "DataType", "Value"],
-        ).fillna("nan")
-        get_info.drop(index=get_info.index[0], axis=0, inplace=True)
+
+        try:
+            get_info = pd.read_table(
+                download_with_cache_as_csv(info),
+                header=None,
+                sep=",",
+                engine="c",
+                names=["RowType", "VariableName", "AttributeName", "DataType", "Value"]
+            ).fillna("nan")
+            get_info.drop(index=get_info.index[0], axis=0, inplace=True)
+        except Exception as e:
+            logger.warning(f"Errore durante il parsing dei metadata per {node_id}: {e}")
+            continue
+
         get_info = get_info.to_dict(orient="records")
+
         for row1 in get_info:
-            if row1 == get_info[-1] and time_start != "" and time_end != "":
+            # salvataggio nel DB alla fine dell’iterazione
+            if row1 == get_info[-1] and time_start and time_end:
                 defaults = {
                     "adriaclim_dataset": adriaclim_dataset,
                     "adriaclim_model": adriaclim_model,
@@ -272,104 +365,92 @@ def getAllDatasets():
             else:
                 if row1["RowType"] == "dimension":
                     if dimensions > 0:
-                        dimension_names = dimension_names + " "
-
-                    dimensions = dimensions + 1
-                    dimension_names = dimension_names + row1["VariableName"]
+                        dimension_names += " "
+                    dimensions += 1
+                    dimension_names += row1["VariableName"]
 
                 if row1["RowType"] == "variable":
                     if variables > 0:
-                        variable_names = variable_names + " "
-                        variable_types = variable_types + " "
-
-                    variables = variables + 1
-                    variable_names = variable_names + row1["VariableName"]
-                    variable_types = variable_types + row1["DataType"]
+                        variable_names += " "
+                        variable_types += " "
+                    variables += 1
+                    variable_names += row1["VariableName"]
+                    variable_types += row1["DataType"]
 
                 if row1["AttributeName"] == "adriaclim_dataset":
                     adriaclim_dataset = row1["Value"]
-                if row1["AttributeName"] == "adriaclim_model":
+                elif row1["AttributeName"] == "adriaclim_model":
                     adriaclim_model = row1["Value"]
-                if row1["AttributeName"] == "adriaclim_scale":
+                elif row1["AttributeName"] == "adriaclim_scale":
                     adriaclim_scale = row1["Value"]
-                if row1["AttributeName"] == "adriaclim_timeperiod":
+                elif row1["AttributeName"] == "adriaclim_timeperiod":
                     adriaclim_timeperiod = row1["Value"]
-                if row1["AttributeName"] == "adriaclim_type":
+                elif row1["AttributeName"] == "adriaclim_type":
                     adriaclim_type = row1["Value"]
-                if row1["AttributeName"] == "title":
-                    title = row1["Value"]
-                if row1["AttributeName"] == "institution":
+                elif row1["AttributeName"] == "institution":
                     institution = row1["Value"]
-                if row1["AttributeName"] == "time_coverage_start":
+                elif row1["AttributeName"] == "time_coverage_start":
                     time_start = row1["Value"]
-                if row1["AttributeName"] == "time_coverage_end":
+                elif row1["AttributeName"] == "time_coverage_end":
                     time_end = row1["Value"]
-                if row1["AttributeName"] == "geospatial_lat_min":
+                elif row1["AttributeName"] == "geospatial_lat_min":
                     lat_min = row1["Value"]
-                if row1["AttributeName"] == "geospatial_lat_max":
+                elif row1["AttributeName"] == "geospatial_lat_max":
                     lat_max = row1["Value"]
-                if row1["AttributeName"] == "geospatial_lon_min":
+                elif row1["AttributeName"] == "geospatial_lon_min":
                     lng_min = row1["Value"]
-                if row1["AttributeName"] == "geospatial_lon_max":
+                elif row1["AttributeName"] == "geospatial_lon_max":
                     lng_max = row1["Value"]
-                if griddap_url != "":
+
+                if griddap_url:
                     if (
                         row1["AttributeName"] == "actual_range"
-                        and row1["VariableName"] != "time"
-                        and row1["VariableName"] != "latitude"
-                        and row1["VariableName"] != "longitude"
+                        and row1["VariableName"] not in ["time", "latitude", "longitude"]
                     ):
-                        param_agg = row1["Value"].split(",")
-                        param_min = float(param_agg[0])
-                        param_max = float(param_agg[1].replace(" ", ""))
+                        try:
+                            param_agg = row1["Value"].split(",")
+                            param_min = float(param_agg[0])
+                            param_max = float(param_agg[1].strip())
+                        except Exception:
+                            pass
                     elif (
                         row1["RowType"] == "dimension"
-                        and row1["VariableName"] != "time"
-                        and row1["VariableName"] != "Times"
-                        and row1["VariableName"] != "latitude"
-                        and row1["VariableName"] != "longitude"
+                        and row1["VariableName"] not in ["time", "Times", "latitude", "longitude"]
                     ):
                         try:
                             spacing = row1["Value"]
                             average_spacing_others = spacing.split(",")[2]
                             param_step = abs(float(average_spacing_others.split("=")[1]))
-                        except Exception as e:
+                        except Exception:
                             pass
-                    
-                # is_indicator it is used to check if it the dataset is an indicator! in futuro la cambiamo checkando solo adriaclim_dataset!!!!!
-                is_indicator = re.search("indicator", row["Title"], re.IGNORECASE)
 
+                # inferenze su tipo e tempo se mancanti
+                is_indicator = re.search("indicator", row["Title"], re.IGNORECASE)
                 if is_indicator and adriaclim_scale is None:
                     adriaclim_scale = "large"
-
                 if adriaclim_timeperiod == "day":
                     adriaclim_timeperiod = "daily"
-
                 if adriaclim_scale is None and not is_indicator:
                     adriaclim_scale = "UNKNOWN"
-
                 if adriaclim_model is None:
                     adriaclim_model = "UNKNOWN"
-
                 if adriaclim_type is None:
                     adriaclim_type = "UNKNOWN"
-
                 if adriaclim_dataset is None:
                     adriaclim_dataset = "no"
-
                 if adriaclim_timeperiod is None:
                     if "yearly" in row["Title"].lower():
                         adriaclim_timeperiod = "yearly"
-                    if "monthly" in row["Title"].lower():
+                    elif "monthly" in row["Title"].lower():
                         adriaclim_timeperiod = "monthly"
-                    if "seasonal" in row["Title"].lower():
+                    elif "seasonal" in row["Title"].lower():
                         adriaclim_timeperiod = "seasonal"
-
-                if adriaclim_timeperiod is None:
-                    if is_indicator:
+                    elif is_indicator:
                         adriaclim_timeperiod = "yearly"
                     else:
                         adriaclim_timeperiod = "UNKNOWN"
+
+    logger.info("Completata getAllDatasets() in %.2f secondi", time.time() - start_time)
 
 def getMetadataTime1(dataset_id: str) -> List[Any]:
     url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=1000000000"
@@ -447,13 +528,18 @@ def getMetadataTime1(dataset_id: str) -> List[Any]:
 
     return []
 
+
 def getMetadata(dataset_id: str) -> List[Any]:
+    """
+    Estrae e struttura i metadati associati a un dataset specifico.
+    """
     all_metadata = getMetadataTime1(dataset_id)
     min_max_value = []
     average_spacing_others = []
     final_list = []
 
     if len(all_metadata) < 2:
+        logger.warning(f"Metadati insufficienti per dataset {dataset_id}")
         return []
 
     for item in all_metadata[1].split(","):
@@ -466,19 +552,25 @@ def getMetadata(dataset_id: str) -> List[Any]:
 
     return [all_metadata, min_max_value, average_spacing_others]
 
+
 def getMetadataOfASpecificDataset(dataset_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Recupera i metadati in formato JSON per un dataset o indicatore specifico.
+    """
     try:
         x = Node.objects.get(id=dataset_id)
         url = x.metadata_url.replace(".csv", ".json")
         r = requests.get(url=url)
         return r.json()
     except Node.DoesNotExist:
+        logger.warning(f"Dataset non trovato in Node: {dataset_id}")
         try:
             indicator = Indicator.objects.get(pk=dataset_id)
             url = indicator.metadata_url.replace(".csv", ".json")
             r = requests.get(url=url)
             return r.json()
         except Indicator.DoesNotExist:
+            logger.error(f"Dataset non trovato nemmeno in Indicator: {dataset_id}")
             return None
 
 def download_big_data(request):
@@ -486,5 +578,4 @@ def download_big_data(request):
         download_big_data()
         return "Ho aggiustato tutto!!!!"
     except Exception as e:
-        print("Ho rotto tutto!!!!! Final Version",e)
         return str(e)

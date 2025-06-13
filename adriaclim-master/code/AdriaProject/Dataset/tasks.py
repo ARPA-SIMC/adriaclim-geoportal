@@ -85,7 +85,6 @@ def task_get_data_polygon(self,request_data):
         try:
             geos_polygon = GeosPolygon.from_ewkt(shapely_polygon_inverse.wkt)
         except Exception as e:
-            print("exc",e)
             return str(e)
     
         shapely.speedups.enable()
@@ -122,13 +121,12 @@ def task_get_data_polygon(self,request_data):
             return pol_from_cache
 
         else:
-            print("Check if it is in db!")
+
             polygons = Polygon.objects.filter(
                 Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
             if polygons.exists():
                  # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
                 try:
-                    print("CACHE MISS AND DB HIT!")
                     current = 80
                     self.update_state(state='PROGRESS',
                                 meta={'current': current, 'total': total})
@@ -174,7 +172,6 @@ def task_get_data_polygon(self,request_data):
                         pol_from_db_values = df_polygon_model["value_0"].tolist()
                         trend_value_mean = df_polygon_model.groupby("date_value")["value_0"].mean().tolist()
                         if len(pol_from_db_values) == 1:
-                            # print("LEN DB =", pol_from_db_values)
                             mean = pol_from_db_values[0]
                             median = pol_from_db_values[0]
                             std_dev = pol_from_db_values[0]
@@ -224,7 +221,6 @@ def task_get_data_polygon(self,request_data):
                     if len(circle_coords) > 0:
                         #si tratta del caso senza wms!
                         for coord in circle_coords:
-                            # print("Cooord",coord)
                             point = ShapelyPoint(coord["lat"], coord["lng"])
                             if point.within(shapely_polygon):
                                 points_inside_polygon.append((coord["lat"], coord["lng"]))
@@ -236,14 +232,12 @@ def task_get_data_polygon(self,request_data):
                                 if point.within(shapely_polygon):
                                     points_inside_polygon.append((x * step, y * step))
                 except Exception as coord:
-                    print("Eccezione", coord)
                     return str(coord)
 
                 # Visualizza le coordinate dei punti all'interno del poligono
                 current = 20
                 self.update_state(state='PROGRESS',
                             meta={'current': current, 'total': total})
-                print("PUNTI INTERNI AL POLIGONO LENGHT =", len(points_inside_polygon))
                 df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
                 points_len = len(points_inside_polygon)
                 eight_length = points_len // 8 #25 0.125 40 silvio
@@ -454,7 +448,6 @@ def task_get_data_polygon(self,request_data):
                                                                             )
                                             i += 1
                     except Exception as e:
-                        print("EXCEPTION 3", e)
                         return str(e)
                 
                 current = 100

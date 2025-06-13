@@ -19,8 +19,9 @@ from AdriaProject.logger_config import setup_logger
 from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.time_processing import convertToTime, get_season
 from myFunctions.database_operations import is_database_almost_full
-from myFunctions.data_analysis import calculate_trend, operation_before_after_cache, processOperation, packageGraphData
 from myFunctions.indicator_manager import getIndicatorQueryUrl, url_is_indicator
+from myFunctions.data_analysis import calculate_trend, operation_before_after_cache, processOperation, packageGraphData
+
 
 from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
 
@@ -419,7 +420,6 @@ def getDataGraphicGeneric(
             long_start = longitude
         if long_end == "no":
             long_end = longitude
-        print("ARRIVO QUI")
         url = getIndicatorQueryUrl(
             dataset_id,
             False,
@@ -437,12 +437,10 @@ def getDataGraphicGeneric(
             timeMax=time_finish,
         )
 
-        print("PRIMA URL=====")
         if cache == 1:
             url = download_with_cache_as_csv(url)
         if url == "fuoriWms":
             return url
-        # print("ARRIVO QUO")
         try:
             df = pd.read_csv(url, dtype="unicode")
         except Exception as e:
@@ -453,7 +451,6 @@ def getDataGraphicGeneric(
             unit = layer_name
         unit = ""
         df = df.iloc[1:, :]
-        print("DF Test",df.head())
         n_values = len(df)
         allData = []
         values = []
@@ -462,7 +459,6 @@ def getDataGraphicGeneric(
         lats = []
         longs = []
         i = 0
-        # print("ARRIVO QUA")
         if n_values <= x:  # all the data
             for index, row in df.iterrows():
                 if onlyone == 1 and onlylat is None:
@@ -516,11 +512,8 @@ def getDataGraphicGeneric(
                     adriaclim_timeperiod=adriaclim_timeperiod,
                 )
             except Exception as e:
-                print("Exception in packageGraphData or processOperation===" + e)
                 return str(e)
     except Exception as e:
-        print("ARRIVO QUO")
-        print("ECCEZIONE NO WMS ==", e)
         return str(e)
 
 
@@ -529,7 +522,6 @@ def check_dates_format_trend(dates):
     if type(dates[0]) is str:
         if dates[0].startswith("0000"):
                 #annual month by month point
-            # print("month by month point",dates[0])
             try:
                 dates = [dt.datetime.strptime(d.replace("0000","2000"), "%Y-%m-%dT%H:%M:%SZ") for d in dates]
             except Exception as e: 

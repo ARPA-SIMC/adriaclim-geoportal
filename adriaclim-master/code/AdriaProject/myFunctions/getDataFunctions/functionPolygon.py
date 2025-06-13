@@ -69,7 +69,6 @@ def getDataPolygonNew(
     cache_result = cache.get(key=key_cached)
     
     if cache_result is not None:
-        print("CACHE HIT!")
         #siamo nella cache
         #prendere tutti i dati memorizzati nella cache ed elaborarli e passarli al frontend
         pol_from_cache = json.loads(cache_result)
@@ -109,7 +108,6 @@ def getDataPolygonNew(
             
             # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
             try:
-                print("CACHE MISS AND DB HIT!")
                 allData = {}
                 data_table_list = []
                 for pol in polygons:
@@ -178,7 +176,6 @@ def getDataPolygonNew(
                 )
                 return allData
             except Exception as e:
-                print("Errore", e)
                 return str(e)
 
         else:
@@ -346,7 +343,6 @@ def getDataPolygonNew(
                                                                     )
                                 i += 1
                 except Exception as e:
-                    print("EXCEPTION 3", e)
                     return str(e)
 
             try:

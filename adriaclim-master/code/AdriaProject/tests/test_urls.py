@@ -6,7 +6,6 @@ class TestUrls(SimpleTestCase):
     
     def test_all_nodes(self):
         url = reverse('getAllNodes')
-        # print("url resolve====",resolve(url))
         #in func is present the Dataset.views.getAllNodes that is the one that is called with the name get_all_nodes
         # we can try to see if it is really this one, testing in this way:
         self.assertEquals(resolve(url).func,getAllNodes)  

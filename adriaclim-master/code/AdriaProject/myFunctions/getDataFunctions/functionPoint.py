@@ -150,5 +150,4 @@ def getDataGraphicGeneric(
                 adriaclim_timeperiod=adriaclim_timeperiod,
             )
     except Exception as e:
-        print("ECCEZIONE NO WMS ==", e)
         return str(e)
