@@ -4,7 +4,6 @@ from myFunctions.utils import download_with_cache_as_csv
 from myFunctions.indicator_manager import getIndicatorQueryUrl
 from myFunctions.data_analysis import packageGraphData, processOperation
 
-# x = 500000
 x = 400000
 
 def getDataGraphicGeneric(

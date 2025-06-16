@@ -13,9 +13,19 @@ logger = setup_logger(__name__)
 
 
 def aggregateGraphicValues(vals, operation):
+    """
+    Aggrega una lista di valori numerici in base all'operazione richiesta.
+    Operazioni supportate: mediana, percentile_10, percentile_90, max, min, avg.
+    
+    :param vals: Lista di valori numerici
+    :param operation: Operazione di aggregazione
+    :return: Valore aggregato o None
+    """
     if not vals:
         return None
-    vals_sorted = sorted(vals)
+
+    vals_sorted = sorted(vals)  # Ordinamento necessario per percentili e mediana
+
     if operation == "mediana":
         return np.median(vals_sorted)
     elif operation == "percentile_10":
@@ -28,21 +38,48 @@ def aggregateGraphicValues(vals, operation):
         return min(vals_sorted)
     elif operation == "avg":
         return sum(vals_sorted) / len(vals_sorted)
+
+    logger.warning(f"Operazione non riconosciuta: {operation}")
     return None
 
+
 def percentileFunction(array, perc):
-    array_sorted = sorted(array)
+    """
+    Calcola un percentile personalizzato su un array numerico ordinato manualmente.
+    
+    :param array: Lista di valori numerici
+    :param perc: Percentile da calcolare (0-100)
+    :return: Valore del percentile
+    """
+    array_sorted = sorted(array)  # Ordinamento necessario
     k = (len(array_sorted) - 1) * perc / 100
     f = int(k)
     c = min(f + 1, len(array_sorted) - 1)
+
     if f == c:
         return array_sorted[int(k)]
+
+    # Interpolazione lineare tra i due punti vicini
     d0 = array_sorted[f] * (c - k)
     d1 = array_sorted[c] * (k - f)
     return d0 + d1
 
+
 def subtract_mean_trend(dates, values, timeperiod):
-    df = pd.DataFrame({"date": pd.to_datetime(dates), "value": values})
+    """
+    Sottrae la media del periodo temporale (mensile, giornaliero o stagionale)
+    dai valori forniti. Usata per rimuovere la stagionalità nei dati.
+
+    :param dates: Lista di date (stringhe o datetime)
+    :param values: Lista di valori numerici
+    :param timeperiod: Tipo di periodo da usare per la media ('monthly', 'daily', 'seasonal')
+    :return: Array numpy dei valori detrended
+    """
+    df = pd.DataFrame({
+        "date": pd.to_datetime(dates),
+        "value": values
+    })
+
     if timeperiod == "monthly":
         groupby_col = df["date"].dt.month
     elif timeperiod == "daily":
@@ -54,22 +91,40 @@ def subtract_mean_trend(dates, values, timeperiod):
     else:
         raise ValueError(f"Invalid timeperiod: {timeperiod}")
 
+    # Calcolo della media per periodo e sottrazione
     df["mean_timeperiod"] = df.groupby(groupby_col)["value"].transform("mean")
     df["value"] -= df["mean_timeperiod"]
 
     return df["value"].values
 
+
 def calculate_trend(dates, values, **kwargs):
+    """
+    Calcola la pendenza della retta di regressione temporale (trend lineare).
+    Se viene passato 'timeperiod' in kwargs (es. monthly), sottrae la stagionalità.
+
+    :param dates: Lista di date
+    :param values: Lista di valori numerici
+    :param kwargs: timeperiod (facoltativo)
+    :return: Coefficiente di tendenza lineare (per anno) o stringa d'errore
+    """
     try:
         y = np.array(values)
+
+        # Rimozione trend stagionale, se specificato
         if kwargs.get("timeperiod") and kwargs["timeperiod"] != "yearly":
             y = subtract_mean_trend(dates, y, kwargs["timeperiod"])
 
+        # Conversione date a timestamp
         dates = check_dates_format_trend(dates)
         days = np.array([d.timestamp() for d in dates])
 
+        # Regressione lineare tra giorni e valori
         slope, _, _, _, _ = stats.linregress(days, y)
+
+        # Ritorna la variazione per anno (slope giornaliera * secondi in un anno)
         return slope * 86400 * 365.25
+
     except Exception as e:
         logger.error(f"Errore in calculate_trend: {e}")
         return str(e)
@@ -102,49 +157,82 @@ def updateStatisticsNew(new_dates,new_values,timeperiod,polygon):
             return allData
 
 def packageGraphData(allData, **kwargs):
+    """
+    Prepara i dati per output grafico o CSV. Calcola statistiche base se richiesto.
+
+    :param allData: Lista [values, dates, unit, layerName, lats, longs]
+    :param kwargs: Argomenti opzionali come 'operation', 'output', 'adriaclim_timeperiod'
+    :return: Dict per grafico oppure stringa CSV
+    """
     try:
         values, dates, unit, layerName, lats, longs = allData
         data = {"unit": unit, "entries": []}
 
         if kwargs.get("operation") == "default":
             try:
+                # Calcolo statistiche solo se richiesto
                 data.update({
                     "mean": mean(values),
                     "median": median(values),
                     "stdev": stdev(values),
-                    "trend_yr": calculate_trend(dates, values, timeperiod=kwargs.get("adriaclim_timeperiod")),
+                    "trend_yr": calculate_trend(
+                        dates, values, timeperiod=kwargs.get("adriaclim_timeperiod")
+                    ),
                 })
             except Exception as e:
                 if str(e) == "variance requires at least two data points":
+                    logger.warning("Solo un dato disponibile, statistiche semplificate.")
                     data.update({key: values for key in ["mean", "stdev", "median", "trend_yr"]})
+                else:
+                    logger.error(f"Errore nel calcolo delle statistiche: {e}")
 
+        # Output CSV se richiesto
         if kwargs.get("output") == "csv":
             csv_output = "Date,Dataset,Latitude,Longitude,Value\n"
             csv_output += "\n".join(
-                f"{dates[n]},{layerName[n]},{lats[n]},{longs[n]},{values[n]}" for n in range(len(values))
+                f"{dates[n]},{layerName[n]},{lats[n]},{longs[n]},{values[n]}"
+                for n in range(len(values))
             )
             return csv_output
+
+        # Output JSON per visualizzazione grafica
         for n in range(len(values)):
             entry = {"x": dates[n], "y": values[n]}
             data.setdefault(layerName[n], []).append(entry)
             data["entries"].append(layerName[n])
+
         return data
+
     except Exception as e:
         logger.error(f"Exception in packageGraphData: {e}")
         return str(e)
 
+
 def processOperation(operation, values, dates, unit, layerName, lats, longs):
+    """
+    Applica operazioni predefinite sui dati (es. media mensile annuale).
+    
+    :param operation: Stringa (es. "default", "annualMonth")
+    :return: Lista con valori trasformati secondo l'operazione
+    """
     import re
+
     if operation == "default":
         return [values, dates, unit, layerName, lats, longs]
 
     values2, dates2, layerName2, lats2, longs2 = [], [], [], [], []
+
     if operation == "annualMonth":
         pattern = re.compile(r"\d{4}-(\d{2})-\S*")
         months = [f"{i:02}" for i in range(1, 13)]
         for mon in months:
+            # Crea una data fittizia per l'output
             dat = f"0000-{mon}-01T00:00:00Z"
-            vals = [v for n, v in enumerate(values) if pattern.match(dates[n]).group(1) == mon]
+            # Estrae i valori del mese corrente
+            vals = [
+                v for n, v in enumerate(values)
+                if pattern.match(dates[n]) and pattern.match(dates[n]).group(1) == mon
+            ]
             if vals:
                 dates2.append(dat)
                 lats2.append(0)
@@ -154,8 +242,18 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
 
     return [values2, dates2, unit, layerName2, lats2, longs2]
 
+
 def operation_before_after_cache(df_polygon, statistic, time_op):
+    """
+    Applica operazioni statistiche su un DataFrame in base al tipo di aggregazione temporale.
+
+    :param df_polygon: DataFrame con colonna 'date_value' e 'value_0'
+    :param statistic: Tipo di statistica da applicare
+    :param time_op: Tipo di raggruppamento temporale (default, annualMonth, annualSeason, annualDay)
+    :return: Lista di dizionari pronti per la visualizzazione
+    """
     try:
+        # Mappa delle statistiche supportate
         ops = {
             "avg": "mean",
             "min": "min",
@@ -167,6 +265,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
             "min_mean_max": "min_mean_max",
             "min_10thPerc_median_90thPerc_max": "min_10thPerc_median_90thPerc_max",
         }
+
         if time_op == "annualSeason":
             df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
             df_polygon["season"] = df_polygon["date_value"].apply(get_season)
@@ -179,8 +278,9 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
             groupby_col = df_polygon["season"]
         else:
             df_polygon["day_month"] = df_polygon["date_value"].dt.strftime('%m-%d')
-            groupby_col = df_polygon["date_month"]
+            groupby_col = df_polygon["date_month"]  # ← attenzione: 'date_month' deve esistere già
 
+        # Determina le funzioni di aggregazione
         if ops[statistic] == "min_mean_max":
             agg_func = ["min", "mean", "max"]
         elif ops[statistic] == "min_10thPerc_median_90thPerc_max":
@@ -191,6 +291,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         res_values = df_polygon.groupby(groupby_col)["value_0"].agg(agg_func)
         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
 
+        # Prepara lista di etichette temporali
         if time_op == "default":
             list_time = list(res_values.index.strftime('%Y-%m-%dT%H:%M:%SZ'))
         elif time_op == "annualMonth":
@@ -200,8 +301,8 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         elif time_op == "annualSeason":
             list_time = [seasons[index] for index in res_values.index.tolist()]
 
+        # Costruzione della lista finale di dati
         data_pol_list = []
-
         if ops[statistic] == "min_mean_max":
             for i in range(len(list_time)):
                 data_pol_list.append({
@@ -228,6 +329,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
                 })
 
         return data_pol_list
+
     except Exception as e:
         logger.error(f"Exception in operation_before_after_cache: {e}")
         return str(e)
