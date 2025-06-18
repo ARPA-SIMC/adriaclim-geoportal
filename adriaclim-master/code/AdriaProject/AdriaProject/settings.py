@@ -65,13 +65,13 @@ INSTALLED_APPS = [
     'myFunctions',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
-    "http://localhost:8080",
-    "http://127.0.0.1:9000",
-    "http://localhost:8000",
-    "https://geoportale-adriaclim.datamb.it"
- ]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:4200",
+#     "http://localhost:8080",
+#     "http://127.0.0.1:9000",
+#     "http://localhost:8000",
+#     "https://geoportale-adriaclim.datamb.it"
+#  ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -135,15 +135,14 @@ REST_FRAMEWORK = {
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-
 ]
 
 ROOT_URLCONF = 'AdriaProject.urls'
