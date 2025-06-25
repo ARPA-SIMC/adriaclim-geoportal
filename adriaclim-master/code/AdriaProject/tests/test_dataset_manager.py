@@ -3,103 +3,41 @@ from unittest.mock import patch, MagicMock
 import pandas as pd
 from Dataset.dataset_manager import getAllDatasets, process_dataset_row, process_metadata, getMetadataOfASpecificDataset, fetch_datasets
 from Dataset.models import Node, Indicator
-import time
 from io import StringIO
 
 class TestDatasetManager(TestCase):
 
     def test_get_all_datasets_runs_successfully(self):
-        # Contiamo i Node prima dell'esecuzione
         initial_count = Node.objects.count()
-
-        # Eseguiamo la funzione
         getAllDatasets()
-
-        # Dopo l'esecuzione, ci aspettiamo che ci siano più Node (se il dataset non è vuoto)
         final_count = Node.objects.count()
-
-        # Se i dati sono stati caricati correttamente, il numero dovrebbe aumentare
         self.assertGreaterEqual(final_count, initial_count)
-    
-    def test_process_dataset_row_minimal_valid_input(self):
-        # Finto metadata associato
+
+    @patch("Dataset.dataset_manager.process_metadata")
+    def test_process_dataset_row_minimal_valid_input(self, mock_process_metadata):
+        mock_process_metadata.return_value = [
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "adriaclim_dataset", "Value": "test_ds", "DataType": "float"},
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "adriaclim_model", "Value": "model_1", "DataType": "float"},
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "adriaclim_timeperiod", "Value": "2020-2030", "DataType": "float"},
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "adriaclim_scale", "Value": "regional", "DataType": "float"},
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "adriaclim_type", "Value": "projection", "DataType": "float"},
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "time_coverage_start", "Value": "2020-01-01", "DataType": "float"},
+            {"RowType": "variable", "VariableName": "temperature", "AttributeName": "time_coverage_end", "Value": "2020-12-31", "DataType": "float"},
+        ]
+
         row = {
-            "DatasetID": "test_id",
+            "DatasetID": "test_id_123",
             "Title": "Test Dataset",
-            "Info": "https://example.com/info",  # URL simulato
+            "Info": "https://example.com/info",
             "tabledap": "https://example.com/tabledap",
             "griddap": "https://example.com/griddap",
             "wms": "https://example.com/wms",
         }
 
-        # Simula il comportamento della funzione process_metadata
-        from Dataset.dataset_manager import process_metadata
+        self.assertFalse(Node.objects.filter(id="test_id_123").exists())
+        process_dataset_row(row)
+        self.assertTrue(Node.objects.filter(id="test_id_123").exists())
 
-        def fake_metadata(url):
-            return [
-                 {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "adriaclim_dataset",
-            "Value": "temp_ds",
-            "DataType": "float"
-        },
-        {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "adriaclim_model",
-            "Value": "model_1",
-            "DataType": "float"
-        },
-        {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "adriaclim_timeperiod",
-            "Value": "2020-2030",
-            "DataType": "float"
-        },
-        {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "adriaclim_scale",
-            "Value": "regional",
-            "DataType": "float"
-        },
-        {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "adriaclim_type",
-            "Value": "projection",
-            "DataType": "float"
-        },
-        {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "time_coverage_start",
-            "Value": "2020-01-01",
-            "DataType": "float"
-        },
-        {
-            "RowType": "variable",
-            "VariableName": "temperature",
-            "AttributeName": "time_coverage_end",
-            "Value": "2020-12-31",
-            "DataType": "float"
-        },
-            ]
-
-        # Sostituiamo process_metadata con una versione finta
-        original_process_metadata = process_metadata
-        import Dataset.dataset_manager as manager
-        manager.process_metadata = fake_metadata
-
-        try:
-            process_dataset_row(row)
-            self.assertTrue(Node.objects.filter(id="test_id").exists() or True)  # verifica base
-        finally:
-            # Ripristina la funzione originale
-            manager.process_metadata = original_process_metadata
-            
 INFO_COLUMNS = ["col1", "col2", "col3"]
 
 class ProcessMetadataTests(TestCase):
@@ -125,16 +63,16 @@ class ProcessMetadataTests(TestCase):
         mock_download.side_effect = Exception("Fake error")
         result = process_metadata("http://fake-url.com/fail.csv")
         self.assertEqual(result, [])
-        
+
 class GetMetadataOfASpecificDatasetTests(TestCase):
 
     @patch("Dataset.dataset_manager.requests.get")
     def test_node_found_returns_json(self, mock_get):
         node = Node.objects.create(
-        id="node1",
-        title="Test Node",
-        metadata_url="http://example.com/data.csv"
-)
+            id="node1",
+            title="Test Node",
+            metadata_url="http://example.com/data.csv"
+        )
 
         mock_response = MagicMock()
         mock_response.json.return_value = {"mock": "data"}
@@ -161,7 +99,7 @@ class GetMetadataOfASpecificDatasetTests(TestCase):
     def test_no_node_or_indicator_returns_none(self):
         result = getMetadataOfASpecificDataset("nonexistent_id")
         self.assertIsNone(result)
-        
+
 DATASET_COLUMNS = ["col1", "col2", "col3"]
 
 class FetchDatasetsTests(TestCase):

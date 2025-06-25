@@ -10,15 +10,15 @@ Questa guida descrive i passaggi necessari per installare e avviare il Geoportal
 # Procedura di deploy
     1. Clonare il repository
         git clone https://<URL-del-repository>/adria-project.git
-        cd adria-project
+        cd adriaclim-master
     2. Creare i file `.env`
         I file `.env` contengono variabili d’ambiente sensibili. Non sono inclusi nel repository e devono essere creati manualmente.
-            File 1 — code/.env (vuoto o per il frontend):
+            File 1 — adriaclim-master/.env:
                 POSTGRES_NAME=
                 POSTGRES_USER=
                 POSTGRES_PASSWORD=
             File 2 — code/AdriaProject/.env con contenuto:
-                SECRET_KEY='inserire-una-secret-key-django-qui'
+                SECRET_KEY='inserire-la-secret-key-django-qui'
     3. Avviare il progetto con Docker
         docker compose up --build
 
@@ -39,7 +39,7 @@ Per correggere:
 # Manutenzione base
     Per aggiornare il codice e riavviare:
         git pull
-        docker compose up -d --build
+        docker compose up --build
     Per arrestare tutto:
         docker compose down
     Gestione sicura dei `.env`

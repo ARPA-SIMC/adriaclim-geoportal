@@ -78,19 +78,28 @@ class TestOverlays(TestCase):
         self.client = Client()
         self.dataset_id = "atm_regional_eaf9_c559_9752"  # anche se non ha WMS
 
-    @patch('Dataset.external_wms.fetch_wms_response')  # <-- mock qui
-    def test_get_overlays(self, mock_fetch):
-        # Definiamo la risposta finta del WMS
-        mock_fetch.return_value = JsonResponse({"overlay": "mocked response"})
+@patch('Dataset.external_wms.fetch_wms_response')
+def test_get_overlays(self, mock_fetch):
+    # Risposta finta del WMS
+    mock_fetch.return_value = JsonResponse({"overlay": "mocked response"})
 
-        response = self.client.get(
-            reverse('get_overlays_new', args=[self.dataset_id]),
-            {
-                "service": "WMS",
-                "request": "GetCapabilities",
-                "version": "1.3.0"
-            }
-        )
+    response = self.client.get(
+        reverse('get_overlays_new', args=[self.dataset_id]),
+        {
+            "service": "WMS",
+            "request": "GetMap",
+            "version": "1.3.0",
+            "layers": "layer1",
+            "styles": "",
+            "format": "image/png",
+            "transparent": "true",
+            "width": "256",
+            "height": "256",
+            "srs": "EPSG:4326",
+            "bbox": "0,0,10,10",
+            "bgcolor": "0xFFFFFF"
+        }
+    )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("overlay", response.json())
+    self.assertEqual(response.status_code, 200)
+    self.assertIn("overlay", response.json())
