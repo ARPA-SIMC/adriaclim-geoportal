@@ -17,12 +17,12 @@ media/
 static_root/
 
 # Celery
-code/AdriaProject/celerybeat-schedule
-adriaclim-master/code/AdriaProject/celerybeat-schedule
+code/adria_project_backend/celerybeat-schedule
+adriaclim-master/code/adria_project_backend/celerybeat-schedule
 
 # Node.js
 node_modules/
-angular-front/node_modules/
+adria_project_frontend/node_modules/
 
 # VSCode / editor / OS
 .vscode/
