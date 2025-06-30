@@ -1,0 +1,233 @@
+.overlay-buttons-top-map {
+  max-height: 162px;
+  max-width: 420px;
+  position: absolute;
+  top: 80px;
+  right: 40px;
+  bottom: 0;
+  z-index: 500;
+}
+
+.overlay-tools {
+  max-height: 48px;
+  max-width: 80px;
+  position: absolute;
+  top: 150px;
+  left: 20px;
+  bottom: 0;
+  z-index: 500;
+}
+
+.overlay-polygon {
+  max-height: 48px;
+  max-width: 80px;
+  position: absolute;
+  top: 200px;
+  left: 20px;
+  bottom: 0;
+  z-index: 500;
+}
+
+::ng-deep .menu-tools {
+  width: fit-content !important;
+  min-width: fit-content !important;
+}
+
+::ng-deep .polygon-tools {
+  width: fit-content !important;
+  min-width: fit-content !important;
+}
+
+.dataset-panel {
+  height: fit-content;
+  width: 420px;
+  font-size: 16px;
+}
+
+.overlay-image {
+  position: absolute;
+  left: 20px;
+  bottom: 35px;
+  z-index: 500;
+}
+
+.panel-image {
+  height: 20vh;
+  width: 320px;
+}
+
+.text-menu {
+  font-size: 1.0em;
+  font-weight: bold;
+  color: #fff;
+}
+
+.list-indicators {
+  max-height: 100%;
+  overflow: auto;
+}
+
+.bolder-title {
+  font-weight: 500;
+}
+
+/**
+* START CSS FOR MAP
+*/
+.map-container {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  margin: 0px 10px 10px 10px;
+  height: 90%;
+}
+.map-frame {
+  border: 2px solid black;
+  border-top: none;
+  height: 100%;
+}
+#map {
+  width: 100%;
+  height: 100%;
+}
+/**
+* END CSS FOR MAP
+*/
+
+/**
+* CSS FOR MAT TREE
+*/
+::ng-deep .menu {
+  max-width: 35vw !important;
+  min-width: 20vw !important;
+  width: fit-content !important;
+  overflow: auto !important;
+}
+/**
+* END CSS FOR MAT TREE
+*/
+
+
+/**
+* REMOVE ICONS FROM LIST
+*/
+::ng-deep .mdc-list-item.mdc-list-item--with-one-line .mdc-list-item__end {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+::ng-deep .mdc-list-item__primary-text {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+::ng-deep .mdc-list-item__content {
+  word-wrap: break-word !important;
+}
+
+.example-tree-invisible {
+  display: none;
+}
+
+::ng-deep .mat-mdc-card-header {
+  display: flex;
+  padding: 5px 5px 5px 5px !important;
+}
+
+::ng-deep .mat-mdc-card-content:last-child {
+  padding-bottom: 5px !important;
+}
+
+
+::ng-deep .form-datepicker .mat-mdc-form-field-subscript-wrapper {
+  width: 0 !important;
+}
+
+::ng-deep .menu-full-list {
+  max-width: 35vw !important;
+  min-width: 20vw !important;
+  width: fit-content !important;
+  overflow: auto !important;
+}
+
+::ng-deep .menu-var .mat-mdc-form-field-bottom-align::before {
+  display: none !important;
+}
+
+::ng-deep .menu-var .mdc-text-field {
+  border-bottom-right-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+::ng-deep .select-overlay-pane {
+  width: fit-content !important;
+  max-width: 300px !important;
+  word-break: break-all !important;
+}
+
+::ng-deep .toolbar-buttons .mat-mdc-raised-button {
+  height: 100% !important;
+  font-size: medium !important;
+}
+
+.font-weight-bold {
+  font-weight: bold !important;
+}
+
+.font-bad-script {
+  font-size: medium;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
+}
+
+::ng-deep .mat-card-active {
+  max-width: 100% !important;
+}
+
+::ng-deep .mdc-snackbar {
+  margin-top: 75px !important;
+}
+
+// mdc-snackbar mat-mdc-snack-bar-container mdc-snackbar--open
+
+/**
+* DISPLAY FLEX + CUSTOM
+*/
+
+::ng-deep .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+  top: 28px;
+}
+
+
+/**
+* CURSOR FOR MAP
+*/
+.no-pointer-cursor {
+  cursor: default !important;
+}
+
+.dropdown-menu {
+  background-color: #0ba7d7ce;
+  // background-color: rgb(0, 221, 221);
+}
+
+.dropdown-menu:before {
+  background-color: transparent;
+}
+
+.edit-radio-button-circle {
+  border: 0px;
+  width: 1em;
+  height: 1em;
+}
+
+// .modal-background {
+//   opacity: 0.8;
+// }

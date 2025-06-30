@@ -1,0 +1,84 @@
+:focus:not(.focus--mouse), .form-check [type=checkbox]:focus+label, .form-check [type=radio]:focus+label, .toggles label input[type=checkbox]:focus+.lever {
+  border: #995c00 !important;
+  box-shadow: 0 0 0 0px #995c00 !important;
+  outline: none !important;
+}
+
+.overlay-spinner {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  z-index: 2500 !important;
+  background-color: rgba(180, 180, 180, 0.507) !important;
+}
+
+// Spinner loader custom
+.div-loader {
+  z-index: 2500 !important;
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(167, 167, 167, 0.521) !important;
+
+  .loader-outside {
+    border-top: 16px solid darkturquoise;
+    border-bottom: 16px solid transparent;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    // aggiungere colori per bordi
+    border-radius: 50%;
+    width: 155px;
+    height: 155px;
+    animation: spin 2s backwards infinite;
+    .loader {
+      // border: 16px solid #f3f3f3;
+      border-top: 16px solid transparent;
+      border-bottom: 16px solid transparent;
+      border-left: 16px solid transparent;
+      border-right: 16px solid turquoise;
+      // aggiungere colori per bordi
+      border-radius: 50%;
+      // width: 120px;
+      // height: 120px;
+      width: 100%;
+      height: 100%;
+      animation: spin 2s backwards infinite;
+      .loader-inside {
+        // border: 16px solid #f3f3f3;
+        border-top: 16px solid transparent;
+        border-bottom: 16px solid rgb(0, 245, 245);
+        border-left: 16px solid transparent;
+        border-right: 16px solid transparent;
+        // aggiungere colori per bordi
+        border-radius: 50%;
+        // width: 90px;
+        // height: 90px;
+        width: 100%;
+        height: 100%;
+        animation: spin 2s backwards infinite;
+        .loader-small-inside {
+          // border: 16px solid #f3f3f3;
+          border-top: 16px solid transparent;
+          border-bottom: 16px solid transparent;
+          border-left: 16px solid aquamarine;
+          border-right: 16px solid transparent;
+          // aggiungere colori per bordi
+          border-radius: 50%;
+          // width: 60px;
+          // height: 60px;
+          width: 100%;
+          height: 100%;
+          animation: spin 2s backwards infinite;
+        }
+      }
+    }
+  }
+
+
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+}
