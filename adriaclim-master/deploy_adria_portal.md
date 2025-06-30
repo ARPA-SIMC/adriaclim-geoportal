@@ -17,7 +17,7 @@ Questa guida descrive i passaggi necessari per installare e avviare il Geoportal
                 POSTGRES_NAME=
                 POSTGRES_USER=
                 POSTGRES_PASSWORD=
-            File 2 — code/AdriaProject/.env con contenuto:
+            File 2 — code/adria_project_backend/.env con contenuto:
                 SECRET_KEY='inserire-la-secret-key-django-qui'
     3. Avviare il progetto con Docker
         docker compose up --build
@@ -45,6 +45,6 @@ Per correggere:
     Gestione sicura dei `.env`
         I file `.env` non devono essere inclusi nel repository. Vanno copiati manualmente sul server via SCP o SSH prima dell’avvio dei container.
 Esempio:
-    scp code/AdriaProject/.env utente@server:/percorso/progetto/code/AdriaProject/.env
+    scp code/adria_project_backend/.env utente@server:/percorso/progetto/code/adria_project_backend/.env
 Supporto:
     Per problemi o dubbi, contattare il team tecnico o aprire un issue nel repository.

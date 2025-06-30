@@ -11,7 +11,7 @@ services:
       - ./code:/code
       - /static:/static
     entrypoint: /entrypoint.sh
-    command: sh -c "cd AdriaProject && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "cd adria_project_backend && python manage.py runserver 0.0.0.0:8000"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -20,6 +20,7 @@ services:
     depends_on:
       - db
       - redis
+
   nginx:
     build: ./nginx
     container_name: adriapp_nginx
@@ -31,8 +32,9 @@ services:
     depends_on:
       - django
       - angular
+  
   angular:
-    build: ./code/angular-front/adria-project-front
+    build: ./code/adria_project_frontend
     container_name: adriapp_angular
     ports:
       - "4200:4200"
@@ -42,20 +44,12 @@ services:
       - WDS_SOCKET_PORT=0
 
   redis:
-   image: redis:alpine
-   container_name: adriapp_redis
-   ports:
-     - "6379:6379"
-  # memcached:
-  #  image: memcached
-  #  container_name: adriapp_memcached
-  #  ports:
-  #    - "11211:11211"
-  #  entrypoint:
-  #   - memcached
-  #   - -m 64
+    image: redis:alpine
+    container_name: adriapp_redis
+    ports:
+      - "6379:6379"
+
   db:
-    # image: postgis/postgis
     image: postgis/postgis:13-3.3
     container_name: adriapp_postgres
     ports:
@@ -67,15 +61,14 @@ services:
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - PGDATA=/var/lib/postgresql/data
     volumes:
-    - postgres-volume:/var/lib/postgresql/data:rw
-  
-    # Celery
+      - postgres-volume:/var/lib/postgresql/data:rw
+
   celery:
     restart: always
     build:
       context: .
     command: >
-      sh -c "cd AdriaProject && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25 && celery -A AdriaProject inspect scheduled"
+      sh -c "cd adria_project_backend && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25 && celery -A AdriaProject inspect scheduled"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -88,12 +81,13 @@ services:
     depends_on:
       - db
       - redis
+
   celery-beat:
     restart: always
     build:
       context: .
     command: >
-      sh -c "cd AdriaProject && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
+      sh -c "cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
@@ -109,6 +103,3 @@ services:
 
 volumes:
   postgres-volume:
-
-
-# sh -c "python AdriaProject/manage.py collectstatic --no-input && python AdriaProject/manage.py makemigrations  && python AdriaProject/manage.py migrate Dataset && python AdriaProject/manage.py test AdriaProject  && cd AdriaProject && MAX_WORKERS_MEMORY=1g hypercorn --bind '0.0.0.0:8000' --workers 1 AdriaProject.asgi:application --reload && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"

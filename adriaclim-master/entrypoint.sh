@@ -8,22 +8,22 @@ echo "$(timestamp) 💡 [ENTRYPOINT] Starting Django initialization..."
 
 # Colleziona file statici
 echo "$(timestamp) 🧹 Collecting static files..."
-python AdriaProject/manage.py collectstatic --no-input
+python adria_project_backend/manage.py collectstatic --no-input
 echo "$(timestamp) ✅ Static files collected."
 
 # Eseguo makemigrations
 echo "$(timestamp) 📦 Running makemigrations..."
-python AdriaProject/manage.py makemigrations
+python adria_project_backend/manage.py makemigrations
 echo "$(timestamp) ✅ Makemigrations complete."
 
 # Eseguo migrate
 echo "$(timestamp) 📦 Applying migrations..."
-python AdriaProject/manage.py migrate
+python adria_project_backend/manage.py migrate
 echo "$(timestamp) ✅ Migrations applied successfully."
 
 # Importazione dataset iniziali
 echo "$(timestamp) 🌱 Attempting initial dataset import (if needed)..."
-python AdriaProject/manage.py initdatasets && \
+python adria_project_backend/manage.py initdatasets && \
   echo "$(timestamp) ✅ Dataset import completed." || \
   echo "$(timestamp) ⚠️ Dataset import skipped or failed."
 

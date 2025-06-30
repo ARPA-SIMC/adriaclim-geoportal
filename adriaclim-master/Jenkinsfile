@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    PROJECT_DIR = 'code/AdriaProject'  // Percorso backend Django
-    ANGULAR_DIR = 'code/angular-front/adria-project-front'  // Percorso frontend Angular
+    PROJECT_DIR = 'code/adria_project_backend'  // Percorso backend Django
+    ANGULAR_DIR = 'code/adria_project_frontend'  // Percorso frontend Angular
   }
 
   stages {
