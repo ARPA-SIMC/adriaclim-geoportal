@@ -3,11 +3,12 @@ import json
 import numpy as np
 import pandas as pd
 import datetime as dt
-import shapely.speedups
+import shapely.speedups # type: ignore
 
 from django.db.models import Q
 from django.core.cache import cache
 from django.forms import model_to_dict
+from django.contrib.gis.geos import Point as GEOSPoint
 from django.contrib.gis.geos import Polygon as GeosPolygon
 
 from Dataset.models import Node, Polygon
@@ -23,7 +24,7 @@ from myFunctions.indicator_manager import getIndicatorQueryUrl, url_is_indicator
 from myFunctions.data_analysis import calculate_trend, operation_before_after_cache, processOperation, packageGraphData
 
 
-from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint
+from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint # type: ignore
 
 logger = setup_logger(__name__) 
 
@@ -221,7 +222,7 @@ def getDataPolygonNew(
     dataTable = []
     i = 0
 
-    for point in points_inside_polygon:
+    for latlng in points_inside_polygon:
         try:
             url = url_is_indicator(
                 is_indicator,
@@ -231,14 +232,14 @@ def getDataPolygonNew(
                 layer_name=layer_name,
                 time_start=date_start,
                 time_finish=date_end,
-                latitude=str(point[0]),
-                longitude=str(point[1]),
+                latitude=str(latlng[0]),
+                longitude=str(latlng[1]),
                 num_parameters=num_param,
                 range_value=range_value,
             )
             df = pd.read_csv(url, dtype="unicode")
         except Exception as e:
-            logger.error("Error downloading data at point %s: %s", point, e)
+            logger.error("Error downloading data at point %s: %s", latlng, e)
             continue
 
         try:
@@ -276,13 +277,99 @@ def getDataPolygonNew(
                             date_value=convertToTime(row["time"]),
                             latitude=float(row["latitude"]),
                             longitude=float(row["longitude"]),
-                            coordinate=point(float(row["longitude"]), float(row["latitude"])),
+                            coordinate=GEOSPoint(float(row["longitude"]), float(row["latitude"])),
                             defaults=defaults,
                         )
                     except Exception as e:
-                        logger.warning("DB save skipped for point %s: %s", point, e)
+                        logger.warning("DB save skipped for point %s: %s", latlng, e)
+        except Exception as e:
+            logger.error("Error parsing data at point %s: %s", latlng, e)
+            i += 1
 
-                i += 1
+    # points_inside_polygon = []
+    # try:
+    #     if circle_coords:
+    #         for coord in circle_coords:
+    #             point = ShapelyPoint(coord["lat"], coord["lng"])
+    #             if point.within(shapely_polygon):
+    #                 points_inside_polygon.append((coord["lat"], coord["lng"]))
+    #     else:
+    #         for x in range(int(xmin / step), int(xmax / step)):
+    #             for y in range(int(ymin / step), int(ymax / step)):
+    #                 point = ShapelyPoint(x * step, y * step)
+    #                 if point.within(shapely_polygon):
+    #                     points_inside_polygon.append((x * step, y * step))
+    # except Exception as e:
+    #     logger.error("Polygon generation error: %s", e)
+    #     return str(e)
+
+    # logger.debug("POINTS INSIDE POLYGON: %d", len(points_inside_polygon))
+    # df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
+    # dataTable = []
+    # i = 0
+
+    # for point in points_inside_polygon:
+    #     try:
+    #         url = url_is_indicator(
+    #             is_indicator,
+    #             True,
+    #             is_indicator != "false",
+    #             dataset_id=dataset_id,
+    #             layer_name=layer_name,
+    #             time_start=date_start,
+    #             time_finish=date_end,
+    #             latitude=str(point[0]),
+    #             longitude=str(point[1]),
+    #             num_parameters=num_param,
+    #             range_value=range_value,
+    #         )
+    #         df = pd.read_csv(url, dtype="unicode")
+    #     except Exception as e:
+    #         logger.error("Error downloading data at point %s: %s", point, e)
+    #         continue
+
+    #     try:
+    #         for index, row in enumerate(df.to_dict(orient="records")):
+    #             dat_tab = {
+    #                 "time": convertToTime(row["time"]) if index > 0 else row["time"],
+    #                 "latitude": row["latitude"],
+    #                 "longitude": row["longitude"],
+    #                 layer_name: row[layer_name] if not pd.isna(row[layer_name]) else "Value not defined"
+    #             }
+
+    #             if parametro_agg != "None":
+    #                 dat_tab[parametro_agg] = row[parametro_agg] if not pd.isna(row[parametro_agg]) else "Value not defined"
+
+    #             dataTable.append(dat_tab)
+
+    #             df_polygon.loc[i] = [
+    #                 row["time"],
+    #                 f"({row['latitude']},{row['longitude']})",
+    #                 row[layer_name],
+    #             ]
+
+    #             defaults = {
+    #                 "value_0": float(row[layer_name]),
+    #                 "pol_vertices_str": pol_vertices_str
+    #             }
+
+    #             if parametro_agg != "None":
+    #                 defaults["parametro_agg"] = row[parametro_agg]
+
+    #             if not is_database_almost_full():
+    #                 try:
+    #                     Polygon.objects.update_or_create(
+    #                         dataset_id=Node.objects.get(id=dataset_id),
+    #                         date_value=convertToTime(row["time"]),
+    #                         latitude=float(row["latitude"]),
+    #                         longitude=float(row["longitude"]),
+    #                         coordinate=point(float(row["longitude"]), float(row["latitude"])),
+    #                         defaults=defaults,
+    #                     )
+    #                 except Exception as e:
+    #                     logger.warning("DB save skipped for point %s: %s", point, e)
+
+                
         except Exception as e:
             logger.error("Data processing exception: %s", e)
             return str(e)
