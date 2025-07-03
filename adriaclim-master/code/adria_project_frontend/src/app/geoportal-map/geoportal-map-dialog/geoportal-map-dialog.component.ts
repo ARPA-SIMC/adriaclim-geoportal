@@ -449,7 +449,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   ngOnInit() {
-
+  
     if (!this.openGraph) {
       this.getMetadataTable();
       // this.setDataSourceAttributes();

@@ -235,6 +235,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log("CAMBIO")
     // this.spinnerLoading.emit(true);
 
     if (this.polygon) {
@@ -253,6 +254,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnInit() {
+    console.log("INZIO CANVAS GRAPH")
     this.isLoading = true;
 
     // EChartsOption, graphic
@@ -393,6 +395,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                   dataVect: res.dataVect.result,
                 };
                 this.getDataGraphPolygon(task_result);
+                this.spinnerLoadingChild.emit(false);
+
 
                 //execute the function to create the graph
               }
@@ -401,6 +405,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 clearInterval(checkTaskStatus);
                 let task_error = response.dataVect.error;
                 console.error('Task error:', task_error);
+                this.spinnerLoadingChild.emit(false);
+
               }
               else if(task_status === "PROGRESS"){
                 let progressBarValue = res.dataVect.progressBar;
