@@ -2208,8 +2208,6 @@ export class GeoportalMapNewMenuComponent {
         else {
 
           this.allDataVectorial = res['dataVect'];
-          console.log("allDataVectorial", this.allDataVectorial);
-
           let allLatCoordinates = this.allDataVectorial[1];
           let allLongCoordinates = this.allDataVectorial[2];
           let allValues = this.allDataVectorial[0];
@@ -2817,7 +2815,6 @@ export class GeoportalMapNewMenuComponent {
         this.rettangoliLayer.clearLayers();
         this.removeAllLegends();
       }
-      console.log("result legenda color", result);
       if (result !== '' && result !== "restoreDefault") {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title)
@@ -2873,13 +2870,8 @@ export class GeoportalMapNewMenuComponent {
           for (let i = 0; i < allLatCoordinates.length; i++) {
             if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
 
-              console.log("COORDINATE = ", allLatCoordinates[i], allLongCoordinates[i]);
-              console.log("INDEX COORDINATE = ", i);
-
               bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
               const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
-
-              console.log("BOUNDS = ", bounds);
 
               const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
               this.rettangoliLayer.addLayer(rectangle);
