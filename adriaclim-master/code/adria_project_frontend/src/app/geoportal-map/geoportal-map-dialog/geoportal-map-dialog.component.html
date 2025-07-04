@@ -79,16 +79,17 @@
       <ng-template #graph>
         <div #graphDiv *ngIf="!description">
           <!-- <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner> -->
-           {{spinnerLoading | json}}
-          <!-- <div class="col-12 d-flex flex-row justify-content-center align-items-center mt-5" *ngIf="spinnerLoading">
+           SPINNER: {{spinnerLoading | json}}
+           PROGRESS: {{progressBarAtStart | json}}
+          <div class="col-12 d-flex flex-row justify-content-center align-items-center mt-5" *ngIf="progressBarAtStart">
             <h3>Loading...</h3>
 
           </div>
-          <div class="progress mt-2" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" *ngIf="spinnerLoading" style="height: 40px;">
+          <div class="progress mt-2" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" *ngIf="progressBarAtStart" style="height: 40px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary h-100" [ngStyle]="{'width': progressWidth}">
               {{progressWidth}}
             </div>
-          </div> -->
+          </div>
 
           <!-- <ng-container *ngIf="!spinnerLoading"> -->
           <!-- <mat-tab-group *ngIf="!spinnerLoading" class="tab-group"> -->
@@ -214,14 +215,9 @@
                 </ng-container>
 
               </div>
-              <div
-                class="col-12 d-flex flex-row justify-content-center align-items-center mt-5"
-                *ngIf="spinnerLoading">
-                <h3>Loading...</h3>
-
-              </div>
               <ng-container *ngIf="compareObj; else noConfronto">
                 <app-canvas-graph-compare [compareObj]="compareObj"
+                  [progressBarAtStart]="progressBarAtStart"
                   (dataTimeExport)="addDataTimeExport($event)"
                   (compareStats)="compareStats($event)"
                   (dataTablePolygon)="dataTablePolygon($event)"
@@ -242,12 +238,14 @@
               </ng-container>
               <ng-template #noConfronto>
                 <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"
+                  [progressBarAtStart]="progressBarAtStart"
                   (meanMedianStdev)="meanMedianStdev($event)"
                   (description)="descriptionError($event)"
                   (dataTablePolygon)="dataTablePolygon($event)"
                   (spinnerLoadingChild)="spinnerLoadingChild($event)"
                   (statisticCalc)="statisticCalc($event)"
                   (progressBar)="progressBar($event)"
+                  (progressBarCanvas)="progressBarCanvas($event)"
                   class="canvas-graph" [dataset]="dataset"
                   [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                   [range]="range" [isIndicator]="isIndicator"

@@ -29,10 +29,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() enableArea: any;
   @Input() circleCoords: any;
   @Input() dimUnit: string = "";
+  @Input() progressBarAtStart: any;
   @Output() meanMedianStdev = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
   @Output() spinnerLoadingChild = new EventEmitter<any>();
+  @Output() progressBarCanvas = new EventEmitter<any>();
   @Output() statisticCalc = new EventEmitter<any>();
   @Output() description = new EventEmitter<any>();
   @Output() progressBar = new EventEmitter<any>();
@@ -237,16 +239,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     console.log("CAMBIO")
     // this.spinnerLoading.emit(true);
-
+    // this.spinnerService.spinnerShow = true;
     if (this.polygon) {
       //se c'è il poligono chiamare altra funzione
-      this.spinnerLoadingChild.emit(true);
-
+      this.firstSpinner();
       this.getDataGraphPolygonInterval();
 
     } else {
       //se non c'è il poligono chiama this.getDataGraph() classica
-      this.spinnerLoadingChild.emit(true);
+      this.firstSpinner();
 
       this.getDataGraph();
     }
@@ -280,19 +281,19 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   // zoomGraphOn(startValue: any, endValue: any) {
-    //change the value of the graph
-    // console.log("zoom start =", startValue);
-    // console.log("zoom end =", endValue);
+  //change the value of the graph
+  // console.log("zoom start =", startValue);
+  // console.log("zoom end =", endValue);
 
   // }
 
   // zoomGraph(startValue: any, endValue: any) {
-    //change the value of the graph
-    // setTimeout(() => {
-    // console.log("zoom start =", startValue);
-    // console.log("zoom end =", endValue);
+  //change the value of the graph
+  // setTimeout(() => {
+  // console.log("zoom start =", startValue);
+  // console.log("zoom end =", endValue);
 
-    // }, 1000);
+  // }, 1000);
   // }
 
   /**
@@ -346,11 +347,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.polygon && this.polygon.length >= 3) {
       const first = this.polygon[0];
       const last = this.polygon[this.polygon.length - 1];
-    if (first.lat !== last.lat || first.lng !== last.lng) {
-      this.polygon.push({ lat: first.lat, lng: first.lng });
+      if (first.lat !== last.lat || first.lng !== last.lng) {
+        this.polygon.push({ lat: first.lat, lng: first.lng });
       }
     }
-    
+
     let data = {
       dataset: this.dataset,
       selVar: this.variable,
@@ -370,7 +371,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     // send HTTP POST request to Django view function
     if (this.statistic !== "boxPlot") {
-      this.spinnerService.spinnerShow = true;
+      this.firstSpinner();
+      // this.spinnerService.spinnerShow = true;
       this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
         console.log("PRIMA RESPONSE", response);
 
@@ -395,7 +397,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                   dataVect: res.dataVect.result,
                 };
                 this.getDataGraphPolygon(task_result);
-                this.spinnerLoadingChild.emit(false);
+                // this.spinnerLoadingChild.emit(false);
 
 
                 //execute the function to create the graph
@@ -405,10 +407,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 clearInterval(checkTaskStatus);
                 let task_error = response.dataVect.error;
                 console.error('Task error:', task_error);
-                this.spinnerLoadingChild.emit(false);
+                // this.spinnerLoadingChild.emit(false);
 
               }
-              else if(task_status === "PROGRESS"){
+              else if (task_status === "PROGRESS") {
                 let progressBarValue = res.dataVect.progressBar;
                 this.progressBar.emit(progressBarValue);
               }
@@ -421,15 +423,16 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           });
         }, 2000);
 
-        this.spinnerService.spinnerShow = false;
+        // this.spinnerService.spinnerShow = false;
       });
     } //if statistic !== boxPlot
     else {
-      this.spinnerLoadingChild.emit(true);
+      // this.spinnerLoadingChild.emit(true);
+      this.firstSpinner();
 
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
-      this.spinnerService.spinnerShow = true;
+      // this.spinnerService.spinnerShow = true;
       this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
 
         // extract task ID from response
@@ -552,21 +555,25 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 ]
               };
 
-              this.spinnerLoadingChild.emit(false);
 
-              this.spinnerService.spinnerShow = false;
 
               let task_status = res.dataVect.status;
 
               if (task_status === 'SUCCESS') {
                 // task completed successfully, extract and display result
                 clearInterval(checkTaskStatus);
+                // this.spinnerLoadingChild.emit(false);
+
+                // this.spinnerService.spinnerShow = false;
 
               } else if (task_status === 'FAILURE') {
                 // task failed, display error message
                 clearInterval(checkTaskStatus);
                 let task_error = response.dataVect.error;
                 console.error('Task error:', task_error);
+                // this.spinnerLoadingChild.emit(false);
+
+                // this.spinnerService.spinnerShow = false;
 
               }
             },
@@ -616,7 +623,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (typeof response == 'string') {
       response = JSON.parse(response);
     }
-    if(this.dimUnit === "No") {
+    if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
 
@@ -895,6 +902,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     this.dataTimeExport.emit(this.allDataPolygon.dataPol);
     this.spinnerLoadingChild.emit(false);
+    this.spinnerService.spinnerShow = false;
+    this.progressBarCanvas.emit(false);
 
   }
 
@@ -935,15 +944,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   getDataGraph() {
     // Controllo che imposta a stringa vuota se l'unità di misura è "No", questo si presenta sopratutto per gli indicatori
     // che prendono in considerazione il contatore dei giorni
-    if(this.dimUnit === "No") {
+    if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
 
-    if(this.dataset.time_start.includes("T")) {
+    if (this.dataset.time_start.includes("T")) {
       const dateStart = new Date(this.dataset.time_start);
       this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}-${dateStart.getDate().toString().padStart(2, '0')}`;
     }
-    if(this.dataset.time_end.includes("T")) {
+    if (this.dataset.time_end.includes("T")) {
       const dateEnd = new Date(this.dataset.time_end);
       this.dataset.time_end = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}-${dateEnd.getDate().toString().padStart(2, '0')}`;
     }
@@ -972,11 +981,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     this.timeforProgressBar();
     // this.httpService.post('dataset/getDataGraphicNewCanvas/', data, { responseType: 'text' }).subscribe(response => {
-      this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe((response: any) => {
-    // {
-    //   reportProgress: true,
-    //   observe: 'events'
-    // }
+    this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe((response: any) => {
+      // {
+      //   reportProgress: true,
+      //   observe: 'events'
+      // }
       // console.log("RESPONSE CON PROGRESS??? =", response);
 
       // if (response.type === HttpEventType.UploadProgress) {
@@ -1002,7 +1011,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         if (this.operation === "annualMonth") {
           this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
         }
-        if(this.dataRes.allData[name]) {
+        if (this.dataRes.allData[name]) {
 
           this.dataRes.allData[name].forEach((element: any) => {
             element.date = element.x;
@@ -1042,26 +1051,26 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
           let value = this.dataRes.allData[name].map((element: any) => element.y);
           // let minMaxValue = {
-            //   min: Math.min(...value).toFixed(0),
-            //   max: Math.max(...value).toFixed(0),
-            // }
-            this.chartOption = {
+          //   min: Math.min(...value).toFixed(0),
+          //   max: Math.max(...value).toFixed(0),
+          // }
+          this.chartOption = {
 
-              xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                // data: this.dataRes.allData[name].map((element: any) => element.x)
-                data: this.dataRes.allData[name].map((element: any) => {
+            xAxis: {
+              type: 'category',
+              boundaryGap: false,
+              // data: this.dataRes.allData[name].map((element: any) => element.x)
+              data: this.dataRes.allData[name].map((element: any) => {
 
-                  let elDate = new Date(element.x).toLocaleDateString();
-                  // console.log("elDate", elDate);
-                  if (elDate !== "Invalid Date") {
-                    return elDate;
-                  }
-                  else {
+                let elDate = new Date(element.x).toLocaleDateString();
+                // console.log("elDate", elDate);
+                if (elDate !== "Invalid Date") {
+                  return elDate;
+                }
+                else {
 
-                    return element.x;
-                  }
+                  return element.x;
+                }
 
               })
             },
@@ -1162,7 +1171,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     let arrayOfValue: any;
     let min: any;
 
-    if(this.dataRes) {
+    if (this.dataRes) {
       arrayOfValue = this.dataRes.allData[this.variable].map((element: any) => element.y);
 
       min = Math.min(...arrayOfValue);
@@ -1173,16 +1182,27 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       min = Math.min(...arrayOfValue);
     }
 
-    if(min > 50) {
+    if (min > 50) {
       return "dataMin";
     }
-    else if(min < -50) {
+    else if (min < -50) {
       return "dataMin";
     }
     else {
       return undefined;
     }
 
+  }
+
+  firstSpinner() {
+    if(this.progressBarAtStart) {
+      this.spinnerLoadingChild.emit(false);
+      this.spinnerService.spinnerShow = false;
+    }
+    else {
+      this.spinnerLoadingChild.emit(true);
+      this.spinnerService.spinnerShow = true;
+    }
   }
 
 }

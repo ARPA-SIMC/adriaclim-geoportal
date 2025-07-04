@@ -33,7 +33,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
-  spinnerLoading: any = true;
+  spinnerLoading: any = false;
+
+  progressBarAtStart: boolean = true;
 
   // @ViewChild(MatPaginator) paginator!: MatPaginator;
   private paginator!: MatPaginator;
@@ -449,7 +451,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   ngOnInit() {
-  
+
     if (!this.openGraph) {
       this.getMetadataTable();
       // this.setDataSourceAttributes();
@@ -516,6 +518,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
       }
       // this.myDiv.nativeElement.innerHTML = response;
+      console.log("METADATA?");
       this.spinnerService.spinnerShow = false;
       // this.spinnerLoading = false;
     });
@@ -853,6 +856,10 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.progressWidth = this.progress + "%"
   }
 
+  progressBarCanvas(event: any) {
+    this.progressBarAtStart = event;
+  }
+
   /**
    * Funzione che prende in input i valori delle statistiche permette di formattare i valori con x10^ quando i numeri sono troppo grandi o troppo piccoli
    */
@@ -901,6 +908,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * Funzione che assegna l'operazione e la statistica selezionata dall'utente
    */
   sendSelGraphPoly() {
+    this.progressBarAtStart = false;
+    this.spinnerService.spinnerShow = true;
     this.operation = this.form.get('operationSel')?.value;
     this.statistic = this.form.get('statisticSel')?.value;
   }

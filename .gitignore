@@ -32,3 +32,5 @@ adria_project_frontend/node_modules/
 .DS_Store
 Thumbs.db
 *.swp
+/adriaclim-master/code/adria_project_frontend/.angular/cache/15.2.8/angular-webpack
+/adriaclim-master/code/adria_project_frontend/.angular/cache/15.2.8/babel-webpack
