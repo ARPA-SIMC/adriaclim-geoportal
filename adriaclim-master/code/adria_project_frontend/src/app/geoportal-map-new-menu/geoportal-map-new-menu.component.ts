@@ -2208,6 +2208,8 @@ export class GeoportalMapNewMenuComponent {
         else {
 
           this.allDataVectorial = res['dataVect'];
+          console.log("allDataVectorial", this.allDataVectorial);
+
           let allLatCoordinates = this.allDataVectorial[1];
           let allLongCoordinates = this.allDataVectorial[2];
           let allValues = this.allDataVectorial[0];
@@ -2792,9 +2794,6 @@ export class GeoportalMapNewMenuComponent {
    */
   changeLegendColors = (title?: string) => {
 
-    this.rettangoliLayer.clearLayers();
-    this.removeAllLegends();
-
     const dialogConfig = new MatDialogConfig();
 
     dialogConfig.disableClose = true;
@@ -2812,9 +2811,13 @@ export class GeoportalMapNewMenuComponent {
       sameColor: this.sameColor,
     };
 
-
     const dialogRef = this.dialog.open(GeoportalColorDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(async result => {
+      if(result !== "") {
+        this.rettangoliLayer.clearLayers();
+        this.removeAllLegends();
+      }
+      console.log("result legenda color", result);
       if (result !== '' && result !== "restoreDefault") {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title)
@@ -2840,10 +2843,13 @@ export class GeoportalMapNewMenuComponent {
           const value_max = this.allDataVectorial[4];
           //aggiungere quelli nuovi
           for (let i = 0; i < allLatCoordinates.length; i++) {
-            const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
-            this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
-            this.circleMarkerArray.push(this.markerToAdd);
-            this.markersLayer.addLayer(this.markerToAdd);
+            if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+              const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
+              this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
+              this.circleMarkerArray.push(this.markerToAdd);
+              this.markersLayer.addLayer(this.markerToAdd);
+            }
           }
 
           if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
@@ -2865,15 +2871,24 @@ export class GeoportalMapNewMenuComponent {
           let bounds: any;
           //aggiungere quelli nuovi
           for (let i = 0; i < allLatCoordinates.length; i++) {
-            bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
+            if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
 
-            const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-            this.rettangoliLayer.addLayer(rectangle);
-            this.map.addLayer(this.rettangoliLayer);
+              console.log("COORDINATE = ", allLatCoordinates[i], allLongCoordinates[i]);
+              console.log("INDEX COORDINATE = ", i);
+
+              bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
+              const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
+
+              console.log("BOUNDS = ", bounds);
+
+              const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
+              this.rettangoliLayer.addLayer(rectangle);
+              this.map.addLayer(this.rettangoliLayer);
+            }
           }
 
         }
+        this.spinnerLoader.spinnerShow = false;
 
       }
       else if (result === "restoreDefault") {
@@ -2920,14 +2935,18 @@ export class GeoportalMapNewMenuComponent {
           let bounds: any;
           //aggiungere quelli nuovi
           for (let i = 0; i < allLatCoordinates.length; i++) {
-            bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-            const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
+            if(!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
 
-            const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-            this.rettangoliLayer.addLayer(rectangle);
-            this.map.addLayer(this.rettangoliLayer);
+              bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
+              const varColor = this.getColor(allValues[i], value_min, value_max, this.valueMinColor, this.valueMidColor, this.valueMaxColor);
+
+              const rectangle = L.rectangle(bounds, { fillOpacity: .4, opacity: .4, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+              this.rettangoliLayer.addLayer(rectangle);
+              this.map.addLayer(this.rettangoliLayer);
+            }
           }
         }
+        this.spinnerLoader.spinnerShow = false;
       }
     });
 

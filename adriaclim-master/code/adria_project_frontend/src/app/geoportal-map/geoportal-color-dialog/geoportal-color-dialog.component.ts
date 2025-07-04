@@ -10,6 +10,7 @@ import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import { last } from 'lodash';
+import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
 
 @Component({
   selector: 'app-geoportal-color-dialog',
@@ -39,6 +40,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
     private httpClient: HttpClient,
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<GeoportalColorDialogComponent>,
+    private spinnerLoader: SpinnerLoaderService,
     @Inject(MAT_DIALOG_DATA) data: any){
       this.description = data.description;
       this.success = data.success;
@@ -76,6 +78,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
    * FUNZIONE CHE RIPRISTINA I COLORI DI DEFAULT DELLA LEGENDA
    */
   restoreDefault(){
+    this.spinnerLoader.spinnerShow = true;
     this.dialogRef.close("restoreDefault");
   }
 
@@ -83,6 +86,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
    * FUNZIONE CHE AGGIORNA I COLORI DELLA LEGENDA SULLA BASE DELLA SELEZIONE DELL'UTENTE
    */
   updateColors(){
+    this.spinnerLoader.spinnerShow = true;
 
     this.valueMinColor =  this.form.get('minColor')?.value;
     this.valueMaxColor = this.form.get('maxColor')?.value;
