@@ -2,7 +2,9 @@ from django.test import TestCase
 from Dataset.models import Node
 
 class TestNodeModel(TestCase):
+
     def test_node_creation(self):
+        # Crea un'istanza del modello Node con tutti i campi principali compilati.
         node = Node.objects.create(
             id="node123",
             adriaclim_dataset="climate_ds",
@@ -18,6 +20,9 @@ class TestNodeModel(TestCase):
             tabledap_url="https://example.com/tabledap"
         )
 
+        # Verifica che il Node sia stato salvato correttamente nel database.
         self.assertEqual(Node.objects.count(), 1)
+        # Controlla che i dati principali siano stati assegnati correttamente.
         self.assertEqual(node.title, "Test Climate Node")
         self.assertEqual(node.adriaclim_model, "model_abc")
+

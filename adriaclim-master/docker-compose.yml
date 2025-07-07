@@ -31,17 +31,17 @@ services:
       # - "80:80"
     depends_on:
       - django
-  #     - angular
+      - angular
   
-  # angular:
-  #   build: ./code/adria_project_frontend
-  #   container_name: adriapp_angular
-  #   ports:
-  #     - "4200:4200"
-  #   depends_on:
-  #     - django
-  #   environment:
-  #     - WDS_SOCKET_PORT=0
+  angular:
+    build: ./code/adria_project_frontend
+    container_name: adriapp_angular
+    ports:
+      - "4200:4200"
+    depends_on:
+      - django
+    environment:
+      - WDS_SOCKET_PORT=0
 
   redis:
     image: redis:alpine

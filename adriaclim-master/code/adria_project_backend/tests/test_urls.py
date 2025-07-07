@@ -6,16 +6,12 @@ class TestUrls(SimpleTestCase):
     
     def test_all_nodes(self):
         url = reverse('getAllNodes')
-        #in func is present the Dataset.views.getAllNodes that is the one that is called with the name get_all_nodes
-        # we can try to see if it is really this one, testing in this way:
-        self.assertEquals(resolve(url).func,getAllNodes)  
+        # Verifica che la URL 'getAllNodes' punti correttamente alla funzione getAllNodes.
+        self.assertEquals(resolve(url).func, getAllNodes)
 
     def test_get_metadata_table(self):
         url = reverse('get_metadata_table')
-        self.assertEquals(resolve(url).func,get_metadata_table)
-    
-    # def test_get_overlays(self):
-    #     url = reverse('get_overlays_new',args=["atm_regional_eaf9_c559_9752"]) #if you need to pass arguments to the function, you need to pass args=[argument1,argument2,...]
-    #     self.assertEquals(resolve(url).func,overlaysNew)
+        # Verifica che la URL 'get_metadata_table' punti correttamente alla funzione get_metadata_table.
+        self.assertEquals(resolve(url).func, get_metadata_table)
 
 
