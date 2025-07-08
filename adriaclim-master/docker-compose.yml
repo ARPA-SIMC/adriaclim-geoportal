@@ -1,25 +1,76 @@
 version: "3.9"
 
 services:
-  django:
+  migrator:
     build:
       context: .
-    container_name: adriapp_django
-    expose:
-      - "8000"
+    container_name: adriapp_migrator
     volumes:
       - ./code:/code
       - /static:/static
     entrypoint: /entrypoint.sh
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  django:
+    build:
+      context: .
+    container_name: adriapp_django
     command: sh -c "cd adria_project_backend && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./code:/code
+      - /static:/static
     environment:
       - DB_HOST=db
       - DB_NAME=$POSTGRES_NAME
       - DB_USER=$POSTGRES_USER
       - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
-      - db
-      - redis
+      migrator:
+        condition: service_completed_successfully
+
+  celery:
+    build:
+      context: .
+    container_name: adriapp_celery
+    command: >
+      sh -c "cd adria_project_backend && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
+    volumes:
+      - ./code:/code
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+
+  celery-beat:
+    build:
+      context: .
+    container_name: adriapp_celery_beat
+    command: >
+      sh -c "cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
+    volumes:
+      - ./code:/code
+    environment:
+      - DB_HOST=db
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
 
   nginx:
     build: ./nginx
@@ -28,20 +79,19 @@ services:
       - /static:/static
     ports:
       - "8000:8000"
-      # - "80:80"
     depends_on:
       - django
       - angular
-  
+
   angular:
     build: ./code/adria_project_frontend
     container_name: adriapp_angular
     ports:
       - "4200:4200"
-    depends_on:
-      - django
     environment:
       - WDS_SOCKET_PORT=0
+    depends_on:
+      - django
 
   redis:
     image: redis:alpine
@@ -63,43 +113,6 @@ services:
     volumes:
       - postgres-volume:/var/lib/postgresql/data:rw
 
-  celery:
-    restart: always
-    build:
-      context: .
-    command: >
-      sh -c "cd adria_project_backend && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25 && celery -A AdriaProject inspect scheduled"
-    environment:
-      - DB_HOST=db
-      - DB_NAME=$POSTGRES_NAME
-      - DB_USER=$POSTGRES_USER
-      - DB_PASS=$POSTGRES_PASSWORD
-      - REDIS_URL=redis://redis:6379/0
-    volumes:
-      - ./code:/code
-    container_name: adriapp_celery
-    depends_on:
-      - db
-      - redis
-
-  celery-beat:
-    restart: always
-    build:
-      context: .
-    command: >
-      sh -c "cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
-    environment:
-      - DB_HOST=db
-      - DB_NAME=$POSTGRES_NAME
-      - DB_USER=$POSTGRES_USER
-      - DB_PASS=$POSTGRES_PASSWORD
-      - REDIS_URL=redis://redis:6379/0
-    volumes:
-      - ./code:/code
-    container_name: adriapp_celery_beat
-    depends_on:
-      - db
-      - redis
-
 volumes:
   postgres-volume:
+
