@@ -590,14 +590,14 @@
         // //GET ALL NODES
         //  $.ajax({
         //     type:"GET",
-        //     url:"myFunctions/getAllDatasets",
+        //     url:"Processing/getAllDatasets",
         //     contentType:"application/json"
         //   })
 
          //GET ALL TITLES!
           // $.ajax({
           //         type:'GET',
-          //         url:'myFunctions/getTitle',
+          //         url:'Processing/getTitle',
           //         contentType:"application/json"
                   
           //     });
@@ -607,21 +607,21 @@
           // //GET ALL INDICATORS
           // $.ajax({
           //   type:"GET",
-          //   url:"myFunctions/getIndicators",
+          //   url:"Processing/getIndicators",
           //   contentType:"application/json"
           // })
 
              //GET ROMPO TUTTO
           // $.ajax({
           //         type:'GET',
-          //         url:'myFunctions/rottoTutto',
+          //         url:'Processing/rottoTutto',
           //         contentType:"application/json"
                   
           //     });
             //              //GET ROMPO TUTTO final
             // $.ajax({
             //       type:'GET',
-            //       url:'myFunctions/downloadBigData',
+            //       url:'Processing/downloadBigData',
             //       contentType:"application/json"
                   
             //   });
@@ -4396,7 +4396,7 @@
               }
               $.ajax({
                     type:'GET',
-                    url:'myFunctions/getMetadata/'+dataset_id,
+                    url:'Processing/getMetadata/'+dataset_id,
                     contentType:"application/json",
                     success:function(data){
                         var is_indicator = false

@@ -1,11 +1,9 @@
-import json, traceback
+import json
 import pandas as pd
-import traceback  
 
 from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import render
-from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.decorators import api_view
@@ -15,14 +13,14 @@ from celery.result import AsyncResult
 from operator import itemgetter
 
 from Metadata.metadata_manager import getMetadata, getMetadataOfASpecificDataset
-from .geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
+from .geospatial_processing import getDataGraphicGeneric
 from .tasks import task_get_data_polygon
 
-from Dataset.models import Node, Polygon, Indicator
+from Dataset.models import Node
 
-from myFunctions.data_analysis import updateStatisticsNew, getDataVectorial
-from myFunctions import compareStatistics
-from myFunctions.functionTable import getDataFunctionsTable
+from Processing.data_analysis import updateStatisticsNew, getDataVectorial
+from Processing import compareStatistics
+from Processing.functionTable import getDataFunctionsTable
 
 
 

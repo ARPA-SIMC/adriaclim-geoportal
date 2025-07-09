@@ -11,10 +11,10 @@ from django.core.cache import cache
 from django.forms import model_to_dict
 from django.contrib.gis.geos import Point, Polygon as GeosPolygon
 
-from myFunctions.time_processing import convertToTime
-from myFunctions.indicator_manager import url_is_indicator
-from myFunctions.database_operations import is_database_almost_full
-from myFunctions.data_analysis import operation_before_after_cache, calculate_trend
+from Processing.time_processing import convertToTime
+from Processing.indicator_manager import url_is_indicator
+from Processing.database_operations import is_database_almost_full
+from Processing.data_analysis import operation_before_after_cache, calculate_trend
 
 from AdriaProject.logger_config import setup_logger
 

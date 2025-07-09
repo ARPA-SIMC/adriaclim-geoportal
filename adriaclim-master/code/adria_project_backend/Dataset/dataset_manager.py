@@ -12,8 +12,8 @@ from Dataset.models import Node, Indicator
 from Metadata.metadata_manager import process_metadata
 from AdriaProject.settings import ERDDAP_URL
 from typing import List, Dict, Any, Optional
-from myFunctions.utils import download_with_cache_as_csv
-from myFunctions.database_operations import is_database_almost_full, delete_all
+from Processing.utils import download_with_cache_as_csv
+from Processing.database_operations import is_database_almost_full, delete_all
 
 logger = setup_logger(__name__)  
 

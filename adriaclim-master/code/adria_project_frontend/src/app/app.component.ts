@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
    * Funzione da richiamare nell'ngoninit solo per aggiornare i dati lato sviluppo quando serve poi commentare
    */
   getAllData() {
-    this.httpService.post('myFunctions/getAllDatasets', {
+    this.httpService.post('Processing/getAllDatasets', {
     }).subscribe({
       next(position: any) {
         console.log("ALL DATA OK");
@@ -63,7 +63,7 @@ export class AppComponent implements OnInit {
   }
 
   getMBIndicator(timeperiod: string) {
-    this.httpService.post('myFunctions/discover_mb', {
+    this.httpService.post('Processing/discover_mb', {
       timeperiod: timeperiod
     }).subscribe({
       next(position: any) {

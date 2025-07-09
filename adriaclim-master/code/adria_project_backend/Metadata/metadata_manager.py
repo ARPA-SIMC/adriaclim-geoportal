@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from Dataset.models import Node, Indicator
 from AdriaProject.logger_config import setup_logger
 from AdriaProject.settings import ERDDAP_URL
-from myFunctions.utils import download_with_cache_as_csv
+from Processing.utils import download_with_cache_as_csv
 
 logger = setup_logger(__name__)
 

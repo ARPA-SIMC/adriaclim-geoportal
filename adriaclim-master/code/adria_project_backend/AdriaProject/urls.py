@@ -11,7 +11,7 @@ urlpatterns = [
     path('dataset/', include('Dataset.urls')),
     path('metadata/', include('Metadata.urls')),
     path('utente/', include('Utente.urls')),
-    path('myFunctions/', include('myFunctions.urls')),
+    path('Processing/', include('Processing.urls')),
     path("", welcome_page, name="welcome"),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

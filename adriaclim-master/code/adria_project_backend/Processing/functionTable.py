@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime
-from myFunctions.indicator_manager import getIndicatorQueryUrl
+from Processing.indicator_manager import getIndicatorQueryUrl
 
 def correct_start_time_if_needed(start_time_str):
     try:
