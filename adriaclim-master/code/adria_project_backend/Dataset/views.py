@@ -14,15 +14,15 @@ from rest_framework import status
 from celery.result import AsyncResult
 from operator import itemgetter
 
-from .dataset_manager import getMetadata, getMetadataOfASpecificDataset, getAllDatasets
+from Metadata.metadata_manager import getMetadata, getMetadataOfASpecificDataset
 from .geospatial_processing import getDataGraphicGeneric, getDataPolygonNew
 from .tasks import task_get_data_polygon
 
 from Dataset.models import Node, Polygon, Indicator
 
 from myFunctions.data_analysis import updateStatisticsNew, getDataVectorial
-from myFunctions.getDataFunctions import functionPoint, functionTable
 from myFunctions import compareStatistics
+from myFunctions.functionTable import getDataFunctionsTable
 
 
 
@@ -75,7 +75,7 @@ def getDataTableNew(request):
     layer_name = request.data.get("variable")
     num_parameters = request.data.get("dimensions")
     range_value = request.data.get("range")
-    data = functionTable.getDataFunctionsTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
+    data = getDataFunctionsTable(dataset_id,layer_name,time_start,time_finish,latitude,longitude,num_parameters,range_value)
     return JsonResponse({"data":data})
 
 @api_view(['GET','POST'])
@@ -97,7 +97,7 @@ def getDataGraphicNewCanvas(request):
         lng_max =str(request.data.get("lng_max"))
         operation = request.data.get("operation") #default or type of operation
         context = request.data.get("context") #one or poylgon
-        allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
+        allData = getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
         else:
@@ -178,7 +178,7 @@ def compareDatasets(request):
         first_dataset_time_start = first_dataset["time_start"]
         first_dataset_time_end = first_dataset["time_end"]
         first_dataset_param = str(compare_obj.get('firstValue'))
-        first_result = functionPoint.getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
+        first_result = getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         first_list = first_result[first_dataset_layer_name]
         all_values_first =  list(map(float, map(itemgetter('y'), first_list))) #prendo tutti i valori del primo dataset
         second_dataset = compare_obj.get('secondDataset')["name"]
@@ -188,7 +188,7 @@ def compareDatasets(request):
         second_dataset_time_start = second_dataset["time_start"]
         second_dataset_time_end = second_dataset["time_end"]
         second_dataset_param = str(compare_obj.get('secondValue'))
-        second_result = functionPoint.getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
+        second_result = getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         second_list = second_result[second_dataset_layer_name]
         all_values_second =  list(map(float, map(itemgetter('y'), second_list))) #prendo tutti i valori del secondo dataset
         mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
