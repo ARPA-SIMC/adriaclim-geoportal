@@ -79,8 +79,6 @@
       <ng-template #graph>
         <div #graphDiv *ngIf="!description">
           <!-- <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner> -->
-           SPINNER: {{spinnerLoading | json}}
-           PROGRESS: {{progressBarAtStart | json}}
           <div class="col-12 d-flex flex-row justify-content-center align-items-center mt-5" *ngIf="progressBarAtStart">
             <h3>Loading...</h3>
 

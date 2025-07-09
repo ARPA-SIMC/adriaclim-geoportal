@@ -1152,11 +1152,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
           this.dataTimeExport.emit(this.dataRes.allData[name]);
           this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+          this.progressBarCanvas.emit(false);
           this.timeoutProgressBar.unsubscribe();
 
         }
         else {
           this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+          this.progressBarCanvas.emit(false);
           this.description.emit("Please select point inside the layer");
           this.timeoutProgressBar.unsubscribe();
 
