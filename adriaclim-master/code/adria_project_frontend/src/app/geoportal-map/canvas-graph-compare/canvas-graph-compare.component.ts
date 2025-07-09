@@ -5,6 +5,7 @@ import * as echarts from 'echarts';
 import { ElementRef } from '@angular/core';
 import { HttpService } from 'src/app/services/http.service';
 import * as _ from 'lodash';
+import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
 
 @Component({
   selector: 'app-canvas-graph-compare',
@@ -36,6 +37,8 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @Output() spinnerLoadingChild = new EventEmitter<any>();
   @Output() statisticCalc = new EventEmitter<any>();
   @Output() description = new EventEmitter<any>();
+  @Output() progressBar = new EventEmitter<any>();
+  @Output() progressBarCanvas = new EventEmitter<any>();
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
 
   @Input() compareObj: any;
@@ -73,7 +76,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
   colors = ['#5470C6', '#EE6666'];
 
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService, private spinnerService: SpinnerLoaderService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
 
@@ -437,10 +440,14 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
 
         // this.dataTimeExport.emit(this.dataRes.allData[name]);
         this.spinnerLoadingChild.emit(false);
-
+        this.spinnerService.spinnerShow = false;
+        this.progressBarCanvas.emit(false);
       },
       error: (msg: any) => {
         console.log('COMPARE ERROR: ', msg);
+        this.spinnerLoadingChild.emit(false);
+        this.spinnerService.spinnerShow = false;
+        this.progressBarCanvas.emit(false);
         if(msg.error === "Errore") {
           this.description.emit("The selected point is outside of the available area for one of dataset");
 
