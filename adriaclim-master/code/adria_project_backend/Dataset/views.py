@@ -105,61 +105,6 @@ def getDataGraphicNewCanvas(request):
     except Exception as e:
         return "fuoriWms"
 
-@api_view(['GET','POST'])
-def getDataGraphicNewCanvas(request):
-    try:
-        dataset_id = request.data.get("idMeta")
-        dataset = request.data.get('dataset')
-        adriaclim_timeperiod = dataset.get('adriaclim_timeperiod')
-        latitude = str(request.data.get("lat"))
-        longitude = str(request.data.get("lng"))
-        time_start = str(request.data.get("dateStart"))
-        time_finish = str(request.data.get("dateEnd"))
-        layer_name = request.data.get("variable")
-        num_parameters = request.data.get("dimensions")
-        range_value = str(request.data.get("range"))
-        lat_min = str(request.data.get("lat_min"))
-        lat_max =str(request.data.get("lat_max"))
-        lng_min = str(request.data.get("lng_min"))
-        lng_max =str(request.data.get("lng_max"))
-        operation = request.data.get("operation")
-        context = request.data.get("context")
-        allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
-        if allData == "fuoriWms":
-            return JsonResponse({"allData":allData})
-        else:
-            return JsonResponse({'allData':allData})
-    except Exception as e:
-        return "fuoriWms"
-
-@api_view(['GET','POST'])
-def getDataGraphicNewCanvas(request):
-    try:
-        dataset_id = request.data.get("idMeta")
-        dataset = request.data.get('dataset')
-        adriaclim_timeperiod = dataset.get('adriaclim_timeperiod')
-        latitude = str(request.data.get("lat"))
-        longitude = str(request.data.get("lng"))
-        time_start = str(request.data.get("dateStart"))
-        time_finish = str(request.data.get("dateEnd"))
-        layer_name = request.data.get("variable")
-        num_parameters = request.data.get("dimensions")
-        range_value = str(request.data.get("range"))
-        lat_min = str(request.data.get("lat_min"))
-        lat_max =str(request.data.get("lat_max"))
-        lng_min = str(request.data.get("lng_min"))
-        lng_max =str(request.data.get("lng_max"))
-        operation = request.data.get("operation") 
-        context = request.data.get("context") 
-        allData = functionPoint.getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
-        if allData == "fuoriWms":
-            return JsonResponse({"allData":allData})
-        else:
-            return JsonResponse({'allData':allData})
-    except Exception as e:
-        return "fuoriWms"
-
-
 
 @api_view(['GET','POST'])
 def getDataVectorialNew(request):
