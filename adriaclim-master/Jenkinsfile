@@ -8,7 +8,7 @@ pipeline {
 
   stages {
 
-    stage('Check repo') {
+    stage('Start pipeline') {
       steps {
         echo "Repository checked out. Jenkins is ready."
       }
