@@ -1,8 +1,20 @@
+import re
 import sys
 import logging
 
+class IgnoreNoisyErrors(logging.Filter):
+    def filter(self, record):
+        ignore_patterns = [
+            r"could not convert string to float",
+            r"time data 'UTC' does not match format",
+            r"Unknown string format: UTC",
+        ]
+        message = record.getMessage()
+        return not any(re.search(p, message) for p in ignore_patterns)
 
-def setup_logger(name: str, level=logging.DEBUG) -> logging.Logger:
+logging.getLogger().addFilter(IgnoreNoisyErrors())    
+
+def setup_logger(name: str = "", level=logging.DEBUG) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

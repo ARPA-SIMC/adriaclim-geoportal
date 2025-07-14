@@ -26,7 +26,9 @@ from Processing.data_analysis import calculate_trend, operation_before_after_cac
 
 from shapely.geometry import Polygon as ShapelyPolygon, Point as ShapelyPoint # type: ignore
 
-logger = setup_logger(__name__) 
+# logger = setup_logger(__name__) 
+logger = setup_logger("")
+
 
 
 CACHE_TIMEOUT = 43200  # 12 hours
