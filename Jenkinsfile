@@ -31,11 +31,12 @@ pipeline {
 
   post {
     always {
-      echo 'Stopping Docker containers...'
-      dir('adriaclim-master') {
-        bat 'docker compose down || exit 0'
-      }
-      echo 'Pipeline completed.'
+        echo 'Stopping Docker containers...'
+        dir('adriaclim-master') {
+            // Se docker compose down fallisce, non bloccare la pipeline
+            bat 'docker compose down || exit 0'
+        }
+        echo 'Pipeline completed.'
     }
-  }
 }
+
