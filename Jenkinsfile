@@ -3,7 +3,6 @@ pipeline {
 
   environment {
     PROJECT_ROOT = 'adriaclim-master'
-    ENV_FILE = '../.env.jenkins'   // relativo alla root Jenkins
   }
 
   stages {
@@ -16,13 +15,20 @@ pipeline {
     stage('Run Tests') {
       steps {
         dir("${PROJECT_ROOT}") {
-          bat '''
-            echo === Starting containers with pre-existing .env.jenkins ===
-            docker compose --env-file %ENV_FILE% up -d --build
+          withCredentials([
+            string(credentialsId: 'SECRET_KEY', variable: 'SECRET_KEY'),
+            string(credentialsId: 'POSTGRES_NAME', variable: 'POSTGRES_NAME'),
+            string(credentialsId: 'POSTGRES_USER', variable: 'POSTGRES_USER'),
+            string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD')
+          ]) {
+            bat '''
+              echo === Starting containers with Jenkins secrets ===
+              docker compose --env-file ../.env.jenkins up -d
 
-            echo === Running Django tests inside a fresh container ===
-            docker compose run --rm --env-file %ENV_FILE% django python adria_project_backend/manage.py test tests
-          '''
+              echo === Running Django tests ===
+              docker compose exec django python adria_project_backend/manage.py test tests
+            '''
+          }
         }
       }
     }
@@ -33,7 +39,7 @@ pipeline {
       echo 'Stopping Docker containers...'
       dir('adriaclim-master') {
         bat '''
-          docker compose --env-file %ENV_FILE% down || echo "Ignoring docker down errors"
+          docker compose --env-file ../.env.jenkins down || echo "Ignoring docker down errors"
         '''
       }
       echo 'Pipeline completed.'
