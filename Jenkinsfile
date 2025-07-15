@@ -2,54 +2,44 @@ pipeline {
   agent any
 
   environment {
-    PROJECT_DIR = 'adriaclim-master'
-    DOCKER_ENV_FILE = 'code/adria_project_backend/.env'
+    PROJECT_DIR = 'code/adria_project_backend'
   }
 
   stages {
+
     stage('Start pipeline') {
       steps {
         echo "Repository checked out. Jenkins is ready."
       }
     }
 
-    stage('Run Django Tests') {
+    stage('Run Django Tests in Docker') {
       steps {
-        dir("${PROJECT_DIR}") {
-          bat """
-            docker compose --env-file ${DOCKER_ENV_FILE} up -d
-            docker compose --env-file ${DOCKER_ENV_FILE} exec django python adria_project_backend/manage.py test tests
-          """
+        withCredentials([
+          string(credentialsId: 'POSTGRES_NAME', variable: 'POSTGRES_NAME'),
+          string(credentialsId: 'POSTGRES_USER', variable: 'POSTGRES_USER'),
+          string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
+          string(credentialsId: 'DJANGO_SECRET_KEY', variable: 'SECRET_KEY')
+        ]) {
+          dir('adriaclim-master') {
+            bat '''
+              docker compose up -d
+              docker compose exec django python adria_project_backend/manage.py test tests || exit 1
+            '''
+          }
         }
       }
     }
 
-    stage('Optional Lint Checks') {
-      when {
-        expression { return false }
-      }
-      steps {
-        echo "Lint checks skipped for now."
-      }
-    }
-
-    stage('Optional Build Angular') {
-      when {
-        expression { return false }
-      }
-      steps {
-        echo "Angular build skipped for now."
-      }
-    }
   }
 
   post {
     always {
       echo 'Stopping Docker containers...'
       dir('adriaclim-master') {
-        bat 'docker compose --env-file code/adria_project_backend/.env down || echo "Ignorato errore nel docker down"'
+        bat 'docker compose down || echo "Ignoro errore nel docker down"'
       }
-      echo 'Pipeline completed without blocking on cleanup.'
+      echo 'Pipeline completed.'
     }
   }
 }
