@@ -23,13 +23,12 @@ pipeline {
             string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD')
           ]) {
             bat '''
-              echo === Exporting environment for Docker Compose ===
+              echo === Starting containers with injected credentials ===
               set SECRET_KEY=%SECRET_KEY%
               set POSTGRES_NAME=%POSTGRES_NAME%
               set POSTGRES_USER=%POSTGRES_USER%
               set POSTGRES_PASSWORD=%POSTGRES_PASSWORD%
 
-              echo === Starting containers with Jenkins credentials ===
               docker compose up -d
 
               echo === Running Django tests ===
