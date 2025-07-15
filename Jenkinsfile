@@ -3,7 +3,6 @@ pipeline {
 
   environment {
     PROJECT_DIR = 'code/adria_project_backend'
-    ANGULAR_DIR = 'code/adria_project_frontend'
   }
 
   stages {
@@ -14,12 +13,17 @@ pipeline {
       }
     }
 
-    stage('Run Django Tests') {
+    stage('Start Docker containers') {
       steps {
-        dir("${PROJECT_DIR}") {
-          // Usa il launcher py invece di python
-          bat 'py manage.py test'
-        }
+        echo "Starting Docker containers..."
+        bat 'docker compose up -d'
+      }
+    }
+
+    stage('Run Django Tests in Docker') {
+      steps {
+        echo "Running Django tests inside Docker container..."
+        bat 'docker compose exec django python adria_project_backend/manage.py test tests'
       }
     }
 
@@ -32,30 +36,12 @@ pipeline {
       }
     }
 
-    stage('Optional Build Angular') {
-      when {
-        expression { return false }
-      }
-      steps {
-        dir("${ANGULAR_DIR}") {
-          bat 'npm install'
-          bat 'ng build --configuration production'
-        }
-      }
-    }
-
-    stage('Optional Run Docker') {
-      when {
-        expression { return false }
-      }
-      steps {
-        bat 'docker compose up -d'
-      }
-    }
   }
 
   post {
     always {
+      echo 'Stopping Docker containers...'
+      bat 'docker compose down'
       echo 'Pipeline completed.'
     }
   }
