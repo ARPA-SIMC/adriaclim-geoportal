@@ -6,7 +6,6 @@ pipeline {
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         echo "Repository checked out. Jenkins is ready."
@@ -24,15 +23,16 @@ pipeline {
           ]) {
             bat '''
               echo === Starting containers with injected credentials ===
-              set SECRET_KEY=%SECRET_KEY%
-              set POSTGRES_NAME=%POSTGRES_NAME%
-              set POSTGRES_USER=%POSTGRES_USER%
-              set POSTGRES_PASSWORD=%POSTGRES_PASSWORD%
 
-              docker compose up -d
+              docker compose \
+                -e SECRET_KEY=%SECRET_KEY% \
+                -e POSTGRES_NAME=%POSTGRES_NAME% \
+                -e POSTGRES_USER=%POSTGRES_USER% \
+                -e POSTGRES_PASSWORD=%POSTGRES_PASSWORD% \
+                up -d
 
               echo === Running Django tests ===
-              docker compose exec django python adria_project_backend/manage.py test tests
+              docker compose exec -e SECRET_KEY=%SECRET_KEY% django python adria_project_backend/manage.py test tests
             '''
           }
         }
