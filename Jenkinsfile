@@ -2,62 +2,43 @@ pipeline {
   agent any
 
   environment {
-    // Percorsi di progetto
     PROJECT_DIR = 'adriaclim-master'
-    BACKEND_DIR = 'adriaclim-master/code/adria_project_backend'
-    ANGULAR_DIR = 'adriaclim-master/code/adria_project_frontend'
+    DOCKER_ENV_FILE = 'code/adria_project_backend/.env'
   }
 
   stages {
-
     stage('Start pipeline') {
       steps {
-        echo 'Repository checked out. Jenkins is ready.'
+        echo "Repository checked out. Jenkins is ready."
       }
     }
 
     stage('Run Django Tests') {
       steps {
         dir("${PROJECT_DIR}") {
-          echo 'Starting Django tests inside Docker containers...'
-          bat 'docker compose up -d'
-          bat 'docker compose exec django python adria_project_backend/manage.py test tests'
+          bat """
+            docker compose --env-file ${DOCKER_ENV_FILE} up -d
+            docker compose --env-file ${DOCKER_ENV_FILE} exec django python adria_project_backend/manage.py test tests
+          """
         }
       }
     }
 
     stage('Optional Lint Checks') {
       when {
-        expression { return false }  // Disattivato per ora
+        expression { return false }
       }
       steps {
-        echo 'Running lint checks (flake8)...'
-        // bat 'flake8 .'
+        echo "Lint checks skipped for now."
       }
     }
 
     stage('Optional Build Angular') {
       when {
-        expression { return false }  // Disattivato per ora
+        expression { return false }
       }
       steps {
-        dir("${ANGULAR_DIR}") {
-          echo '🛠 Building Angular frontend...'
-          bat 'npm install'
-          bat 'ng build --configuration production'
-        }
-      }
-    }
-
-    stage('Optional Run Docker') {
-      when {
-        expression { return false }  // Disattivato per ora
-      }
-      steps {
-        dir("${PROJECT_DIR}") {
-          echo 'Running full Docker environment...'
-          bat 'docker compose up -d'
-        }
+        echo "Angular build skipped for now."
       }
     }
   }
@@ -65,11 +46,8 @@ pipeline {
   post {
     always {
       echo 'Stopping Docker containers...'
-      dir("${PROJECT_DIR}") {
-        bat '''
-          docker compose down || echo "⚠️ Docker down returned non-zero but ignored."
-          exit 0
-        '''
+      dir('adriaclim-master') {
+        bat 'docker compose --env-file code/adria_project_backend/.env down || echo "Ignorato errore nel docker down"'
       }
       echo 'Pipeline completed without blocking on cleanup.'
     }

@@ -10,6 +10,7 @@ services:
       - /static:/static
     entrypoint: /entrypoint.sh
     environment:
+      - SECRET_KEY=${SECRET_KEY:-changeme-in-jenkins}
       - DB_HOST=db
       - DB_NAME=${POSTGRES_NAME:-adria_db}
       - DB_USER=${POSTGRES_USER:-adria_user}
@@ -28,6 +29,7 @@ services:
       - ./code:/code
       - /static:/static
     environment:
+      - SECRET_KEY=${SECRET_KEY:-changeme-in-jenkins}
       - DB_HOST=db
       - DB_NAME=${POSTGRES_NAME:-adria_db}
       - DB_USER=${POSTGRES_USER:-adria_user}
@@ -45,6 +47,7 @@ services:
     volumes:
       - ./code:/code
     environment:
+      - SECRET_KEY=${SECRET_KEY:-changeme-in-jenkins}
       - DB_HOST=db
       - DB_NAME=${POSTGRES_NAME:-adria_db}
       - DB_USER=${POSTGRES_USER:-adria_user}
@@ -63,6 +66,7 @@ services:
     volumes:
       - ./code:/code
     environment:
+      - SECRET_KEY=${SECRET_KEY:-changeme-in-jenkins}
       - DB_HOST=db
       - DB_NAME=${POSTGRES_NAME:-adria_db}
       - DB_USER=${POSTGRES_USER:-adria_user}
@@ -106,6 +110,7 @@ services:
       - "5433:5433"
       - "5532:5432"
     environment:
+      - SECRET_KEY=${SECRET_KEY:-changeme-in-jenkins}
       - POSTGRES_DB=${POSTGRES_NAME:-adria_db}
       - POSTGRES_USER=${POSTGRES_USER:-adria_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-adria_pass}
