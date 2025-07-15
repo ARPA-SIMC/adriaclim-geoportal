@@ -6,29 +6,31 @@ pipeline {
   }
 
   stages {
+
     stage('Checkout') {
       steps {
         echo "Repository checked out. Jenkins is ready."
       }
     }
 
-    stage('Run Tests') {
+    stage('Build & Run Containers') {
       steps {
         dir("${PROJECT_ROOT}") {
-          withCredentials([
-            string(credentialsId: 'SECRET_KEY', variable: 'SECRET_KEY'),
-            string(credentialsId: 'POSTGRES_NAME', variable: 'POSTGRES_NAME'),
-            string(credentialsId: 'POSTGRES_USER', variable: 'POSTGRES_USER'),
-            string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD')
-          ]) {
-            bat '''
-              echo === Starting containers with Jenkins secrets ===
-              docker compose --env-file ../.env.jenkins up -d
+          bat '''
+            echo === Building and starting containers ===
+            docker compose up -d --build
+          '''
+        }
+      }
+    }
 
-              echo === Running Django tests ===
-              docker compose exec django python adria_project_backend/manage.py test tests
-            '''
-          }
+    stage('Run Django Tests') {
+      steps {
+        dir("${PROJECT_ROOT}") {
+          bat '''
+            echo === Running Django tests ===
+            docker compose exec django python adria_project_backend/manage.py test tests
+          '''
         }
       }
     }
@@ -38,9 +40,7 @@ pipeline {
     always {
       echo 'Stopping Docker containers...'
       dir('adriaclim-master') {
-        bat '''
-          docker compose --env-file ../.env.jenkins down || echo "Ignoring docker down errors"
-        '''
+        bat 'docker compose down || echo "Ignoring docker down errors"'
       }
       echo 'Pipeline completed.'
     }

@@ -11,9 +11,9 @@ services:
     entrypoint: /entrypoint.sh
     environment:
       - DB_HOST=db
-      - DB_NAME=${POSTGRES_NAME:-adria_db}
-      - DB_USER=${POSTGRES_USER:-adria_user}
-      - DB_PASS=${POSTGRES_PASSWORD:-adria_pass}
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
@@ -29,10 +29,9 @@ services:
       - /static:/static
     environment:
       - DB_HOST=db
-      - DB_NAME=${POSTGRES_NAME:-adria_db}
-      - DB_USER=${POSTGRES_USER:-adria_user}
-      - DB_PASS=${POSTGRES_PASSWORD:-adria_pass}
-      # SECRET_KEY non obbligatoria in locale
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       migrator:
         condition: service_completed_successfully
@@ -47,9 +46,9 @@ services:
       - ./code:/code
     environment:
       - DB_HOST=db
-      - DB_NAME=${POSTGRES_NAME:-adria_db}
-      - DB_USER=${POSTGRES_USER:-adria_user}
-      - DB_PASS=${POSTGRES_PASSWORD:-adria_pass}
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       migrator:
@@ -65,9 +64,9 @@ services:
       - ./code:/code
     environment:
       - DB_HOST=db
-      - DB_NAME=${POSTGRES_NAME:-adria_db}
-      - DB_USER=${POSTGRES_USER:-adria_user}
-      - DB_PASS=${POSTGRES_PASSWORD:-adria_pass}
+      - DB_NAME=$POSTGRES_NAME
+      - DB_USER=$POSTGRES_USER
+      - DB_PASS=$POSTGRES_PASSWORD
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       migrator:
@@ -83,7 +82,6 @@ services:
     depends_on:
       - django
       - angular
-
   angular:
     build: ./code/adria_project_frontend
     container_name: adriapp_angular
@@ -107,9 +105,9 @@ services:
       - "5433:5433"
       - "5532:5432"
     environment:
-      - POSTGRES_DB=${POSTGRES_NAME:-adria_db}
-      - POSTGRES_USER=${POSTGRES_USER:-adria_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-adria_pass}
+      - POSTGRES_DB=$POSTGRES_NAME
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - PGDATA=/var/lib/postgresql/data
     volumes:
       - postgres-volume:/var/lib/postgresql/data:rw
