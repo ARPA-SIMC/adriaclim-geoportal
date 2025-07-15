@@ -1,7 +1,8 @@
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
 import pandas as pd
-from Dataset.dataset_manager import getAllDatasets, process_dataset_row, process_metadata, getMetadataOfASpecificDataset, fetch_datasets
+from Dataset.dataset_manager import getAllDatasets, process_dataset_row, process_metadata, fetch_datasets
+from Metadata.metadata_manager import getMetadataOfASpecificDataset
 from Dataset.models import Node, Indicator
 from io import StringIO
 
@@ -76,7 +77,7 @@ class ProcessMetadataTests(TestCase):
 
 class GetMetadataOfASpecificDatasetTests(TestCase):
 
-    @patch("Dataset.dataset_manager.requests.get")
+    @patch("Metadata.metadata_manager.requests.get")
     def test_node_found_returns_json(self, mock_get):
         # Crea un Node finto nel database e simula una risposta JSON.
         node = Node.objects.create(
@@ -92,7 +93,7 @@ class GetMetadataOfASpecificDatasetTests(TestCase):
         result = getMetadataOfASpecificDataset("node1")
         self.assertEqual(result, {"mock": "data"})
 
-    @patch("Dataset.dataset_manager.requests.get")
+    @patch("Metadata.metadata_manager.requests.get")
     def test_indicator_found_returns_json(self, mock_get):
         # Stesso test del precedente, ma con un oggetto Indicator.
         indicator = Indicator.objects.create(

@@ -1,10 +1,6 @@
 pipeline {
   agent any
 
-  environment {
-    PROJECT_DIR = 'code/adria_project_backend'
-  }
-
   stages {
 
     stage('Start pipeline') {
@@ -16,23 +12,18 @@ pipeline {
     stage('Start Docker containers') {
       steps {
         echo "Starting Docker containers..."
-        bat 'docker compose up -d'
+        dir('adriaclim-master') {
+          bat 'docker compose up -d'
+        }
       }
     }
 
     stage('Run Django Tests in Docker') {
       steps {
         echo "Running Django tests inside Docker container..."
-        bat 'docker compose exec django python adria_project_backend/manage.py test tests'
-      }
-    }
-
-    stage('Optional Lint Checks') {
-      when {
-        expression { return false }
-      }
-      steps {
-        echo "Linting checks (e.g., flake8)..."
+        dir('adriaclim-master') {
+          bat 'docker compose exec django python adria_project_backend/manage.py test tests'
+        }
       }
     }
 
@@ -41,7 +32,9 @@ pipeline {
   post {
     always {
       echo 'Stopping Docker containers...'
-      bat 'docker compose down'
+      dir('adriaclim-master') {
+        bat 'docker compose down || exit 0'
+      }
       echo 'Pipeline completed.'
     }
   }
