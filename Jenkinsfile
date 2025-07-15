@@ -2,27 +2,25 @@ pipeline {
   agent any
 
   environment {
-    PROJECT_DIR = 'adriaclim-master'          // directory principale del progetto
-    DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+    // Percorsi di progetto
+    PROJECT_DIR = 'adriaclim-master'
+    BACKEND_DIR = 'adriaclim-master/code/adria_project_backend'
+    ANGULAR_DIR = 'adriaclim-master/code/adria_project_frontend'
   }
 
   stages {
 
     stage('Start pipeline') {
       steps {
-        echo "Repository checked out. Jenkins is ready."
+        echo 'Repository checked out. Jenkins is ready.'
       }
     }
 
     stage('Run Django Tests') {
       steps {
         dir("${PROJECT_DIR}") {
-          echo "🚀 Avvio dei container Docker..."
-          // Avvio container necessari
+          echo 'Starting Django tests inside Docker containers...'
           bat 'docker compose up -d'
-
-          echo "🧪 Esecuzione test Django all’interno del container..."
-          // Esegue i test Django dentro il container `django`
           bat 'docker compose exec django python adria_project_backend/manage.py test tests'
         }
       }
@@ -30,10 +28,11 @@ pipeline {
 
     stage('Optional Lint Checks') {
       when {
-        expression { return false }  // Potrai attivarli in futuro
+        expression { return false }  // Disattivato per ora
       }
       steps {
-        echo "🔍 Linting checks (flake8, ecc.)..."
+        echo 'Running lint checks (flake8)...'
+        // bat 'flake8 .'
       }
     }
 
@@ -42,9 +41,22 @@ pipeline {
         expression { return false }  // Disattivato per ora
       }
       steps {
-        dir("${PROJECT_DIR}/code/adria_project_frontend") {
+        dir("${ANGULAR_DIR}") {
+          echo '🛠 Building Angular frontend...'
           bat 'npm install'
           bat 'ng build --configuration production'
+        }
+      }
+    }
+
+    stage('Optional Run Docker') {
+      when {
+        expression { return false }  // Disattivato per ora
+      }
+      steps {
+        dir("${PROJECT_DIR}") {
+          echo 'Running full Docker environment...'
+          bat 'docker compose up -d'
         }
       }
     }
@@ -54,10 +66,12 @@ pipeline {
     always {
       echo 'Stopping Docker containers...'
       dir("${PROJECT_DIR}") {
-        // Chiude i container senza far fallire la pipeline in caso di warning
-        bat 'docker compose down || exit 0'
+        bat '''
+          docker compose down || echo "⚠️ Docker down returned non-zero but ignored."
+          exit 0
+        '''
       }
-      echo 'Pipeline completed.'
+      echo 'Pipeline completed without blocking on cleanup.'
     }
   }
 }
