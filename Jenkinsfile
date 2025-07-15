@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    PROJECT_DIR = 'code/adria_project_backend'   // Percorso backend Django
-    ANGULAR_DIR = 'code/adria_project_frontend'  // Percorso frontend Angular
+    PROJECT_DIR = 'code/adria_project_backend'
+    ANGULAR_DIR = 'code/adria_project_frontend'
   }
 
   stages {
@@ -17,25 +17,24 @@ pipeline {
     stage('Run Django Tests') {
       steps {
         dir("${PROJECT_DIR}") {
-          // Su Windows usiamo bat invece di sh
-          bat 'python manage.py test'
+          // Usa il launcher py invece di python
+          bat 'py manage.py test'
         }
       }
     }
 
     stage('Optional Lint Checks') {
       when {
-        expression { return false }  // Può essere attivato in futuro
+        expression { return false }
       }
       steps {
         echo "Linting checks (e.g., flake8)..."
-        // bat 'flake8 .'
       }
     }
 
     stage('Optional Build Angular') {
       when {
-        expression { return false }  // Disattivato per ora
+        expression { return false }
       }
       steps {
         dir("${ANGULAR_DIR}") {
@@ -47,7 +46,7 @@ pipeline {
 
     stage('Optional Run Docker') {
       when {
-        expression { return false }  // Disattivato per ora
+        expression { return false }
       }
       steps {
         bat 'docker compose up -d'
@@ -58,8 +57,6 @@ pipeline {
   post {
     always {
       echo 'Pipeline completed.'
-      // Su Windows evitiamo docker stop se non serve
-      // bat 'docker compose down || true'
     }
   }
 }
