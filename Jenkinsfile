@@ -2,42 +2,45 @@ pipeline {
   agent any
 
   environment {
-    PROJECT_DIR = 'code/adria_project_backend'
+    PROJECT_ROOT = 'adriaclim-master'
   }
 
   stages {
 
-    stage('Start pipeline') {
+    stage('Checkout') {
       steps {
         echo "Repository checked out. Jenkins is ready."
       }
     }
 
-    stage('Run Django Tests in Docker') {
+    stage('Run Tests') {
       steps {
-        withCredentials([
-          string(credentialsId: 'POSTGRES_NAME', variable: 'POSTGRES_NAME'),
-          string(credentialsId: 'POSTGRES_USER', variable: 'POSTGRES_USER'),
-          string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
-          string(credentialsId: 'DJANGO_SECRET_KEY', variable: 'SECRET_KEY')
-        ]) {
-          dir('adriaclim-master') {
+        dir("${PROJECT_ROOT}") {
+          withCredentials([
+            string(credentialsId: 'SECRET_KEY', variable: 'SECRET_KEY'),
+            string(credentialsId: 'POSTGRES_NAME', variable: 'POSTGRES_NAME'),
+            string(credentialsId: 'POSTGRES_USER', variable: 'POSTGRES_USER'),
+            string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD')
+          ]) {
             bat '''
+              echo === Starting containers with injected credentials ===
               docker compose up -d
-              docker compose exec django python adria_project_backend/manage.py test tests || exit 1
+              echo === Running Django tests ===
+              docker compose exec django python adria_project_backend/manage.py test tests
             '''
           }
         }
       }
     }
-
   }
 
   post {
     always {
       echo 'Stopping Docker containers...'
       dir('adriaclim-master') {
-        bat 'docker compose down || echo "Ignoro errore nel docker down"'
+        bat '''
+          docker compose down || echo "Ignoring docker down errors"
+        '''
       }
       echo 'Pipeline completed.'
     }
