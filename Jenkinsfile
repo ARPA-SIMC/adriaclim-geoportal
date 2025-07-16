@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'WAIT_MINUTES', defaultValue: '20', description: 'Wait time after build (in minutes)')
         string(name: 'MAIL_RECIPIENTS', defaultValue: 'you@example.com', description: 'Email recipients (if configured)')
         booleanParam(name: 'DOCKER_PRUNE', defaultValue: false, description: 'Run docker system prune -af before build?')
     }
@@ -17,7 +16,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "Checking out the repository..."
-                // If this pipeline is linked to SCM:
                 checkout scm
             }
         }
@@ -49,7 +47,7 @@ pipeline {
                         echo "Running docker system prune -af"
                         bat 'docker system prune -af || echo "Nothing to clean"'
                     } else {
-                        echo "⏭Skipping docker system prune"
+                        echo "Skipping docker system prune"
                     }
                 }
             }
@@ -66,11 +64,33 @@ pipeline {
             }
         }
 
-        stage('Wait for Containers to Initialize') {
+        stage('Wait for Django to Start') {
             steps {
-                script {
-                    echo "Waiting ${params.WAIT_MINUTES} minutes for containers to initialize..."
-                    sleep(time: params.WAIT_MINUTES.toInteger(), unit: 'MINUTES')
+                dir("${PROJECT_ROOT}") {
+                    script {
+                        def maxRetries = 60 // 60 attempts x 30s = max 30 minutes
+                        def started = false
+                        
+                        for (int i = 1; i <= maxRetries; i++) {
+                            def ps = bat(returnStdout: true, script: 'docker compose ps').trim()
+                            
+                            echo "Checking containers (attempt ${i}/${maxRetries})..."
+                            echo ps
+                            
+                            if (ps.contains('adriapp_django') && ps.contains('Up')) {
+                                echo "Django container is UP and running!"
+                                started = true
+                                break
+                            }
+                            
+                            echo "Django is not running yet, waiting 30 seconds..."
+                            sleep(time: 30, unit: 'SECONDS')
+                        }
+                        
+                        if (!started) {
+                            error("Django did not start within 30 minutes.")
+                        }
+                    }
                 }
             }
         }
