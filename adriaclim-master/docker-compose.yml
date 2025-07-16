@@ -1,3 +1,4 @@
+# 
 version: "3.9"
 
 services:
@@ -5,16 +6,11 @@ services:
     build:
       context: .
     container_name: adriapp_migrator
+    env_file:
+      - .env   # <-- AGGIUNTO
     volumes:
       - ./code:/code
       - /static:/static
-    entrypoint: /entrypoint.sh
-    environment:
-      - DB_HOST=db
-      - DB_NAME=$POSTGRES_NAME
-      - DB_USER=$POSTGRES_USER
-      - DB_PASS=$POSTGRES_PASSWORD
-      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
       - redis
@@ -23,15 +19,12 @@ services:
     build:
       context: .
     container_name: adriapp_django
+    env_file:
+      - .env   # <-- AGGIUNTO
     command: sh -c "cd adria_project_backend && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./code:/code
       - /static:/static
-    environment:
-      - DB_HOST=db
-      - DB_NAME=$POSTGRES_NAME
-      - DB_USER=$POSTGRES_USER
-      - DB_PASS=$POSTGRES_PASSWORD
     depends_on:
       migrator:
         condition: service_completed_successfully
@@ -40,16 +33,12 @@ services:
     build:
       context: .
     container_name: adriapp_celery
+    env_file:
+      - .env   # <-- AGGIUNTO
     command: >
       sh -c "cd adria_project_backend && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
     volumes:
       - ./code:/code
-    environment:
-      - DB_HOST=db
-      - DB_NAME=$POSTGRES_NAME
-      - DB_USER=$POSTGRES_USER
-      - DB_PASS=$POSTGRES_PASSWORD
-      - REDIS_URL=redis://redis:6379/0
     depends_on:
       migrator:
         condition: service_completed_successfully
@@ -58,16 +47,12 @@ services:
     build:
       context: .
     container_name: adriapp_celery_beat
+    env_file:
+      - .env   # <-- AGGIUNTO
     command: >
       sh -c "cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
     volumes:
       - ./code:/code
-    environment:
-      - DB_HOST=db
-      - DB_NAME=$POSTGRES_NAME
-      - DB_USER=$POSTGRES_USER
-      - DB_PASS=$POSTGRES_PASSWORD
-      - REDIS_URL=redis://redis:6379/0
     depends_on:
       migrator:
         condition: service_completed_successfully
@@ -82,6 +67,7 @@ services:
     depends_on:
       - django
       - angular
+
   angular:
     build: ./code/adria_project_frontend
     container_name: adriapp_angular
@@ -104,10 +90,9 @@ services:
     ports:
       - "5433:5433"
       - "5532:5432"
+    env_file:
+      - .env   # <-- AGGIUNTO
     environment:
-      - POSTGRES_DB=$POSTGRES_NAME
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - PGDATA=/var/lib/postgresql/data
     volumes:
       - postgres-volume:/var/lib/postgresql/data:rw
