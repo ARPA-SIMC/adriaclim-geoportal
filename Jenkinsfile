@@ -39,7 +39,7 @@ pipeline {
             steps {
                 dir("${PROJECT_ROOT}") {
                     bat '''
-                        echo === Cleaning up containers, volumes and orphans ===
+                        echo 🧹 Cleaning up containers, volumes and orphans
                         docker compose down -v --remove-orphans || echo "No containers to stop"
                     '''
                 }
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 dir("${PROJECT_ROOT}") {
                     bat '''
-                        echo === Building and starting all containers ===
+                        echo Building and starting all containers
                         docker compose up -d --build
                     '''
                 }
@@ -73,20 +73,27 @@ pipeline {
 
                     for (int i = 1; i <= maxRetries; i++) {
                         echo "Healthcheck attempt ${i}/${maxRetries}..."
-                        def result = bat(returnStatus: true, script: "curl -s -o NUL -w \"%{http_code}\" ${HEALTHCHECK_URL}")
-                        
-                        if (result == 0) {
-                            echo "Django responded successfully!"
+
+                        def httpCode = bat(
+                            returnStdout: true,
+                            script: "curl -s -o NUL -w %%{http_code} ${HEALTHCHECK_URL}"
+                        ).trim()
+
+                        if (httpCode == "200") {
+                            echo "Django is healthy!"
                             started = true
                             break
+                        } else {
+                            echo "Django not ready yet (HTTP ${httpCode}), waiting 10 seconds..."
+                            sleep(time: 10, unit: 'SECONDS')
                         }
-
-                        echo "Django not ready yet, waiting 10 seconds..."
-                        sleep(time: 10, unit: 'SECONDS')
                     }
 
                     if (!started) {
                         error("Django did NOT become healthy within 5 minutes.")
+                    } else {
+                        echo "Django responded, waiting extra 15 seconds to ensure migrator is done..."
+                        sleep(time: 15, unit: 'SECONDS') // extra wait for migrator to finish
                     }
                 }
             }
@@ -105,8 +112,8 @@ pipeline {
             steps {
                 dir("${PROJECT_ROOT}") {
                     bat '''
-                        echo === Running Django test suite ===
-                        docker compose exec django python adria_project_backend/manage.py test tests
+                        echo Running Django test suite...
+                        docker compose exec -T django python adria_project_backend/manage.py test tests
                     '''
                 }
             }
@@ -118,7 +125,7 @@ pipeline {
             echo 'Pipeline completed SUCCESSFULLY.'
             emailext (
                 subject: "SUCCESS: Jenkins pipeline completed",
-                body: "All containers are running and Django tests passed successfully.",
+                body: "🎉 All containers are running and Django tests passed successfully.",
                 to: "${params.MAIL_RECIPIENTS}"
             )
         }
