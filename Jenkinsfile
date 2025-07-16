@@ -60,6 +60,8 @@ pipeline {
                     bat '''
                         echo Building and starting all containers
                         docker compose up -d --build
+                        echo Showing running containers...
+                        docker compose ps
                     '''
                 }
             }
@@ -67,9 +69,34 @@ pipeline {
 
         stage('Wait for Migrator') {
             steps {
-                dir("${PROJECT_ROOT}") {
-                    echo "Waiting for migrator container to finish..."
-                    bat 'docker compose wait migrator'
+                script {
+                    echo "Waiting for migrator container (adriapp_migrator) to finish..."
+                    while (true) {
+                        // Controlliamo se il container esiste
+                        def exists = bat(returnStatus: true, script: "docker inspect adriapp_migrator >NUL 2>&1")
+                        if (exists != 0) {
+                            echo "Migrator container not found yet, waiting 5s..."
+                            sleep(time: 5, unit: 'SECONDS')
+                            continue
+                        }
+
+                        // Se esiste, controlliamo se sta ancora girando
+                        def running = bat(returnStdout: true, script: "docker inspect -f \"{{.State.Running}}\" adriapp_migrator").trim()
+
+                        if (running == "false") {
+                            // Ha finito, controlliamo exit code
+                            def exitCode = bat(returnStdout: true, script: "docker inspect -f \"{{.State.ExitCode}}\" adriapp_migrator").trim()
+                            if (exitCode == "0") {
+                                echo "Migrator finished successfully."
+                                break
+                            } else {
+                                error("Migrator container exited with error code ${exitCode}")
+                            }
+                        } else {
+                            echo "Migrator still running, waiting 10s..."
+                            sleep(time: 10, unit: 'SECONDS')
+                        }
+                    }
                 }
             }
         }
