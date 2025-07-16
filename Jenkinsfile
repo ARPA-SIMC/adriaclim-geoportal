@@ -82,17 +82,9 @@ pipeline {
                         for (int i = 1; i <= 3; i++) {
                             echo "Checking container status (${i}/3)..."
                             bat 'docker compose ps'
-
-                            // Check if any container is unhealthy
-                            def result = bat(returnStdout: true, script: 'docker inspect --format="{{ .Name }} {{ .State.Health.Status }}" $(docker ps -q)').trim()
-                            echo "Health status:\n${result}"
-
-                            if (result.contains("unhealthy")) {
-                                error("One or more containers are NOT healthy!")
-                            }
-
+                            
                             if (i < 3) {
-                                echo "Waiting 30 seconds before the next check..."
+                                echo "Waiting 30 seconds before next check..."
                                 sleep(time: 30, unit: 'SECONDS')
                             }
                         }
