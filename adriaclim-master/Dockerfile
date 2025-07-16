@@ -23,9 +23,13 @@ RUN echo "deb http://deb.debian.org/debian trixie main contrib non-free" >> /etc
 # Copia codice sorgente
 COPY . /code
 
-# Rende eseguibile lo script entrypoint
+# # Rende eseguibile lo script entrypoint
+# COPY entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
+
+# Rende eseguibili gli script necessari
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chmod +x /code/wait-for-db.sh
 
 # Installa dipendenze Python
 RUN pip install --no-cache-dir -r requirements.txt
