@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'MAIL_RECIPIENTS', defaultValue: 'you@example.com', description: 'Email recipients (if configured)')
+        string(name: 'MAIL_RECIPIENTS', defaultValue: 'you@example.com', description: 'Email recipients for notifications')
         booleanParam(name: 'DOCKER_PRUNE', defaultValue: false, description: 'Run docker system prune -af before build?')
     }
 
     environment {
         PROJECT_ROOT = 'adriaclim-master'
         BACKEND_SERVICE = 'django'
+        HEALTHCHECK_URL = 'http://localhost:8000'
     }
 
     stages {
@@ -25,7 +26,7 @@ pipeline {
                 dir("${PROJECT_ROOT}") {
                     withCredentials([file(credentialsId: 'adria-env', variable: 'ENV_FILE')]) {
                         bat '''
-                            echo Copying .env file from Jenkins secret
+                            echo Copying .env file from Jenkins credentials
                             copy %ENV_FILE% .env
                             echo .env is ready
                         '''
@@ -57,39 +58,35 @@ pipeline {
             steps {
                 dir("${PROJECT_ROOT}") {
                     bat '''
-                        echo === Building and starting containers ===
+                        echo === Building and starting all containers ===
                         docker compose up -d --build
                     '''
                 }
             }
         }
 
-        stage('Wait for Django to Start') {
+        stage('Wait for Django Healthcheck') {
             steps {
-                dir("${PROJECT_ROOT}") {
-                    script {
-                        def maxRetries = 60 // 60 attempts x 30s = max 30 minutes
-                        def started = false
+                script {
+                    def maxRetries = 30 // 30 attempts x 10s = 5 minutes max wait
+                    def started = false
+
+                    for (int i = 1; i <= maxRetries; i++) {
+                        echo "Healthcheck attempt ${i}/${maxRetries}..."
+                        def result = bat(returnStatus: true, script: "curl -s -o NUL -w \"%{http_code}\" ${HEALTHCHECK_URL}")
                         
-                        for (int i = 1; i <= maxRetries; i++) {
-                            def ps = bat(returnStdout: true, script: 'docker compose ps').trim()
-                            
-                            echo "Checking containers (attempt ${i}/${maxRetries})..."
-                            echo ps
-                            
-                            if (ps.contains('adriapp_django') && ps.contains('Up')) {
-                                echo "Django container is UP and running!"
-                                started = true
-                                break
-                            }
-                            
-                            echo "Django is not running yet, waiting 30 seconds..."
-                            sleep(time: 30, unit: 'SECONDS')
+                        if (result == 0) {
+                            echo "Django responded successfully!"
+                            started = true
+                            break
                         }
-                        
-                        if (!started) {
-                            error("Django did not start within 30 minutes.")
-                        }
+
+                        echo "Django not ready yet, waiting 10 seconds..."
+                        sleep(time: 10, unit: 'SECONDS')
+                    }
+
+                    if (!started) {
+                        error("Django did NOT become healthy within 5 minutes.")
                     }
                 }
             }
@@ -98,17 +95,8 @@ pipeline {
         stage('Verify Containers Status') {
             steps {
                 dir("${PROJECT_ROOT}") {
-                    script {
-                        for (int i = 1; i <= 3; i++) {
-                            echo "Checking container status (${i}/3)..."
-                            bat 'docker compose ps'
-                            
-                            if (i < 3) {
-                                echo "Waiting 30 seconds before next check..."
-                                sleep(time: 30, unit: 'SECONDS')
-                            }
-                        }
-                    }
+                    echo "Checking container status..."
+                    bat 'docker compose ps'
                 }
             }
         }
