@@ -1,4 +1,104 @@
-# 
+# # 
+# version: "3.9"
+
+# services:
+#   migrator:
+#     build:
+#       context: .
+#     container_name: adriapp_migrator
+#     env_file:
+#       - .env   # <-- AGGIUNTO
+#     volumes:
+#       - ./code:/code
+#       - /static:/static
+#     depends_on:
+#       - db
+#       - redis
+
+#   django:
+#     build:
+#       context: .
+#     container_name: adriapp_django
+#     env_file:
+#       - .env   # <-- AGGIUNTO
+#     command: sh -c "cd adria_project_backend && python manage.py runserver 0.0.0.0:8000"
+#     volumes:
+#       - ./code:/code
+#       - /static:/static
+#     depends_on:
+#       migrator:
+#         condition: service_completed_successfully
+
+#   celery:
+#     build:
+#       context: .
+#     container_name: adriapp_celery
+#     env_file:
+#       - .env   # <-- AGGIUNTO
+#     command: >
+#       sh -c "cd adria_project_backend && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
+#     volumes:
+#       - ./code:/code
+#     depends_on:
+#       migrator:
+#         condition: service_completed_successfully
+
+#   celery-beat:
+#     build:
+#       context: .
+#     container_name: adriapp_celery_beat
+#     env_file:
+#       - .env   # <-- AGGIUNTO
+#     command: >
+#       sh -c "cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
+#     volumes:
+#       - ./code:/code
+#     depends_on:
+#       migrator:
+#         condition: service_completed_successfully
+
+#   nginx:
+#     build: ./nginx
+#     container_name: adriapp_nginx
+#     volumes:
+#       - /static:/static
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       - django
+#       - angular
+
+#   angular:
+#     build: ./code/adria_project_frontend
+#     container_name: adriapp_angular
+#     ports:
+#       - "4200:4200"
+#     environment:
+#       - WDS_SOCKET_PORT=0
+#     depends_on:
+#       - django
+
+#   redis:
+#     image: redis:alpine
+#     container_name: adriapp_redis
+#     ports:
+#       - "6379:6379"
+
+#   db:
+#     image: postgis/postgis:13-3.3
+#     container_name: adriapp_postgres
+#     ports:
+#       - "5433:5433"
+#       - "5532:5432"
+#     env_file:
+#       - .env   # <-- AGGIUNTO
+#     environment:
+#       - PGDATA=/var/lib/postgresql/data
+#     volumes:
+#       - postgres-volume:/var/lib/postgresql/data:rw
+
+# volumes:
+#   postgres-volume:
 version: "3.9"
 
 services:
@@ -7,21 +107,23 @@ services:
       context: .
     container_name: adriapp_migrator
     env_file:
-      - .env   # <-- AGGIUNTO
+      - .env
     volumes:
       - ./code:/code
       - /static:/static
     depends_on:
       - db
       - redis
+    # ✅ Aspetta il DB prima di fare le migrations
+    command: sh -c "./wait-for-db.sh db:5432 -- python manage.py migrate"
 
   django:
     build:
       context: .
     container_name: adriapp_django
     env_file:
-      - .env   # <-- AGGIUNTO
-    command: sh -c "cd adria_project_backend && python manage.py runserver 0.0.0.0:8000"
+      - .env
+    command: sh -c "./wait-for-db.sh db:5432 -- python adria_project_backend/manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./code:/code
       - /static:/static
@@ -34,9 +136,8 @@ services:
       context: .
     container_name: adriapp_celery
     env_file:
-      - .env   # <-- AGGIUNTO
-    command: >
-      sh -c "cd adria_project_backend && celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
+      - .env
+    command: sh -c "./wait-for-db.sh db:5432 -- celery -A AdriaProject worker --loglevel=info -Q my_queue -c 25"
     volumes:
       - ./code:/code
     depends_on:
@@ -48,9 +149,8 @@ services:
       context: .
     container_name: adriapp_celery_beat
     env_file:
-      - .env   # <-- AGGIUNTO
-    command: >
-      sh -c "cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info"
+      - .env
+    command: sh -c "./wait-for-db.sh db:5432 -- sh -c 'cd adria_project_backend && rm -f celerybeat-schedule && celery -A AdriaProject beat -l info'"
     volumes:
       - ./code:/code
     depends_on:
@@ -91,7 +191,7 @@ services:
       - "5433:5433"
       - "5532:5432"
     env_file:
-      - .env   # <-- AGGIUNTO
+      - .env
     environment:
       - PGDATA=/var/lib/postgresql/data
     volumes:
