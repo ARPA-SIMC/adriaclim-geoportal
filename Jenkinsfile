@@ -39,7 +39,7 @@ pipeline {
             steps {
                 dir("${PROJECT_ROOT}") {
                     bat '''
-                        echo 🧹 Cleaning up containers, volumes and orphans
+                        echo Cleaning up containers, volumes and orphans
                         docker compose down -v --remove-orphans || echo "No containers to stop"
                     '''
                 }
@@ -65,10 +65,19 @@ pipeline {
             }
         }
 
+        stage('Wait for Migrator') {
+            steps {
+                dir("${PROJECT_ROOT}") {
+                    echo "Waiting for migrator container to finish..."
+                    bat 'docker compose wait migrator'
+                }
+            }
+        }
+
         stage('Wait for Django Healthcheck') {
             steps {
                 script {
-                    def maxRetries = 30 // 30 attempts x 10s = 5 minutes max wait
+                    def maxRetries = 30
                     def started = false
 
                     for (int i = 1; i <= maxRetries; i++) {
@@ -91,9 +100,6 @@ pipeline {
 
                     if (!started) {
                         error("Django did NOT become healthy within 5 minutes.")
-                    } else {
-                        echo "Django responded, waiting extra 15 seconds to ensure migrator is done..."
-                        sleep(time: 15, unit: 'SECONDS') // extra wait for migrator to finish
                     }
                 }
             }
@@ -122,15 +128,15 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed SUCCESSFULLY.'
+            echo 'Pipeline completed successfully.'
             emailext (
                 subject: "SUCCESS: Jenkins pipeline completed",
-                body: "🎉 All containers are running and Django tests passed successfully.",
+                body: "All containers are running and Django tests passed successfully.",
                 to: "${params.MAIL_RECIPIENTS}"
             )
         }
         failure {
-            echo 'Pipeline FAILED.'
+            echo 'Pipeline failed.'
             emailext (
                 subject: "FAILURE: Jenkins pipeline failed",
                 body: "One or more stages failed. Please check Jenkins logs for details.",
