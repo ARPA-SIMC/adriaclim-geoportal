@@ -1,10 +1,11 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'MAIL_RECIPIENTS', defaultValue: 'you@example.com', description: 'Email recipients for notifications')
-        booleanParam(name: 'DOCKER_PRUNE', defaultValue: false, description: 'Run docker system prune -af before build?')
-    }
+    // parameters {
+    
+    //     string(name: 'MAIL_RECIPIENTS', defaultValue: 'you@example.com', description: 'Email recipients for notifications')
+    //     booleanParam(name: 'DOCKER_PRUNE', defaultValue: false, description: 'Run docker system prune -af before build?')
+    // }
 
     environment {
         PROJECT_ROOT = 'adriaclim-master'
