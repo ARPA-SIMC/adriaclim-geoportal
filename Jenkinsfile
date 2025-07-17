@@ -34,25 +34,39 @@ pipeline {
                         }
                     }
                 }
-                
+
         stage('Cleanup Environment') {
-                    steps {
-                        dir("${PROJECT_ROOT}") {
-                            bat '''
-                                echo Cleaning up containers, volumes and orphans
-                                docker compose down -v --remove-orphans || echo "No containers to stop"
-                            '''
-                        }
-                        script {
-                            if (params.DOCKER_PRUNE) {
-                                echo "Running docker system prune -af"
-                                bat 'docker system prune -af || echo "Nothing to clean"'
-                            } else {
-                                echo "Skipping docker system prune"
-                            }
-                        }
+                print "sono passata da qui"
+                steps {
+                    dir("${PROJECT_ROOT}") {
+                        bat '''
+                            echo Cleaning up containers, volumes and orphans
+                            docker compose down -v --remove-orphans || echo "No containers to stop"
+                        '''
+                        echo "Running docker system prune -af"
+                        bat 'docker system prune -af || echo "Nothing to clean"'
                     }
                 }
+            }
+                
+        // stage('Cleanup Environment') {
+        //             steps {
+        //                 dir("${PROJECT_ROOT}") {
+        //                     bat '''
+        //                         echo Cleaning up containers, volumes and orphans
+        //                         docker compose down -v --remove-orphans || echo "No containers to stop"
+        //                     '''
+        //                 }
+        //                 script {
+        //                     if (params.DOCKER_PRUNE) {
+        //                         echo "Running docker system prune -af"
+        //                         bat 'docker system prune -af || echo "Nothing to clean"'
+        //                     } else {
+        //                         echo "Skipping docker system prune"
+        //                     }
+        //                 }
+        //             }
+        //         }
 
        
 
