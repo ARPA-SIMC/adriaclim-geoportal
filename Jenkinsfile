@@ -17,6 +17,7 @@ pipeline {
 
         // stage('Checkout') {
         //     steps {
+
         //         echo "Checking out the repository..."
         //         checkout scm
         //     }
@@ -35,7 +36,7 @@ pipeline {
                     }
                 }
 
-        stage('Cleanup Environment - test') {
+        stage('Cleanup Environment - test 2') {
                 steps {
                     dir("${PROJECT_ROOT}") {
                         bat '''
