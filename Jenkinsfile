@@ -35,8 +35,7 @@ pipeline {
                     }
                 }
 
-        stage('Cleanup Environment') {
-                print "sono passata da qui"
+        stage('Cleanup Environment - test') {
                 steps {
                     dir("${PROJECT_ROOT}") {
                         bat '''
