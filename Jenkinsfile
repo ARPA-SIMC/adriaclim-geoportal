@@ -21,7 +21,20 @@ pipeline {
         //         checkout scm
         //     }
         // }
-
+        stage('Inject Secrets') {
+                    steps {
+                        dir("${PROJECT_ROOT}") {
+                            withCredentials([file(credentialsId: 'adria-env', variable: 'ENV_FILE')]) {
+                                bat '''
+                                    echo Copying .env file from Jenkins credentials
+                                    copy %ENV_FILE% .env
+                                    echo .env is ready
+                                '''
+                            }
+                        }
+                    }
+                }
+                
         stage('Cleanup Environment') {
                     steps {
                         dir("${PROJECT_ROOT}") {
@@ -41,19 +54,7 @@ pipeline {
                     }
                 }
 
-        stage('Inject Secrets') {
-            steps {
-                dir("${PROJECT_ROOT}") {
-                    withCredentials([file(credentialsId: 'adria-env', variable: 'ENV_FILE')]) {
-                        bat '''
-                            echo Copying .env file from Jenkins credentials
-                            copy %ENV_FILE% .env
-                            echo .env is ready
-                        '''
-                    }
-                }
-            }
-        }
+       
 
         stage('Build & Start Containers') {
             steps {
