@@ -4,7 +4,6 @@ pipeline {
     environment {
         PROJECT_ROOT = 'adriaclim-master'
         BACKEND_SERVICE = 'django'
-        HEALTHCHECK_URL = 'http://localhost:8000'
     }
 
     stages {
@@ -23,7 +22,7 @@ pipeline {
                     }
                 }
 
-        stage('Cleanup Environment - test 3') {
+        stage('Cleanup Environment') {
                 steps {
                     dir("${PROJECT_ROOT}") {
                         bat '''
@@ -70,28 +69,4 @@ pipeline {
         }
     }
 
-        post {
-            success {
-                echo 'Pipeline completed successfully.'
-                emailext (
-                    subject: "SUCCESS: Jenkins pipeline completed",
-                    body: "All containers are running and Django tests passed successfully.",
-                    to: "${params.MAIL_RECIPIENTS}"
-                )
-            }
-            failure {
-                echo 'Pipeline failed.'
-                emailext (
-                    subject: "FAILURE: Jenkins pipeline failed",
-                    body: "One or more stages failed. Please check Jenkins logs for details.",
-                    to: "${params.MAIL_RECIPIENTS}"
-                )
-            }
-            always {
-                echo 'Final cleanup: stopping containers...'
-                dir("${PROJECT_ROOT}") {
-                    bat 'docker compose down || echo "Ignoring errors in final docker down"'
-                }
-            }
-        }
-    }
+}
