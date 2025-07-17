@@ -36,7 +36,7 @@ pipeline {
                     }
                 }
 
-        stage('Cleanup Environment - test 2') {
+        stage('Cleanup Environment - test 3') {
                 steps {
                     dir("${PROJECT_ROOT}") {
                         bat '''
@@ -157,17 +157,17 @@ pipeline {
 //             }
 //         }
 
-//         stage('Run Django Tests') {
-//             steps {
-//                 dir("${PROJECT_ROOT}") {
-//                     bat '''
-//                         echo Running Django test suite...
-//                         docker compose exec -T django python adria_project_backend/manage.py test tests
-//                     '''
-//                 }
-//             }
-//         }
-//     }
+        stage('Run Django Tests') {
+            steps {
+                dir("${PROJECT_ROOT}") {
+                    bat '''
+                        echo Running Django test suite...
+                        docker compose exec -T django python adria_project_backend/manage.py test tests
+                    '''
+                }
+            }
+        }
+    }
 
 //     post {
 //         success {
