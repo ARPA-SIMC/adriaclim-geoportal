@@ -77,9 +77,9 @@ pipeline {
                 dir("${PROJECT_ROOT}") {
                     withCredentials([file(credentialsId: 'adria-env', variable: 'ENV_FILE')]) {
                         sh '''
-                            // echo "Copying .env file from Jenkins credentials"
-                            // cp "$ENV_FILE" .env
-                            // echo ".env is ready"
+                            # echo "Copying .env file from Jenkins credentials" 
+                            # cp "$ENV_FILE" .env
+                            # echo ".env is ready"
                             echo "--- DEBUG: Sto per eseguire ls -l \$ENV_FILE e ls -l . ---"
                             ls -l $ENV_FILE
                             ls -l .
