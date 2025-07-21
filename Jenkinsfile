@@ -153,20 +153,20 @@ pipeline {
             }
         }
 
-        stage('Verify Containers Status') {
-            steps {
-                dir("${PROJECT_ROOT}") {
-                    script {
-                        echo "Checking container status..."
-                        if (isUnix()) {
-                            sh 'docker compose ps'
-                        } else {
-                            bat 'docker compose ps'
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Verify Containers Status') {
+        //     steps {
+        //         dir("${PROJECT_ROOT}") {
+        //             script {
+        //                 echo "Checking container status..."
+        //                 if (isUnix()) {
+        //                     sh 'docker compose ps'
+        //                 } else {
+        //                     bat 'docker compose ps'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Run Django Tests') {
             steps {
