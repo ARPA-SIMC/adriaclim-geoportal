@@ -1,3 +1,5 @@
+## 1
+
 # Obiettivo
 Questa guida descrive i passaggi necessari per installare e avviare il Geoportale AdriaClim su un server virtuale, a partire dal repository Git. Le istruzioni sono pensate per essere eseguite da tecnici Arpae in ambiente Linux, utilizzando Docker e Docker Compose.
 
@@ -17,8 +19,7 @@ Questa guida descrive i passaggi necessari per installare e avviare il Geoportal
                 POSTGRES_NAME=
                 POSTGRES_USER=
                 POSTGRES_PASSWORD=
-            File 2 — code/adria_project_backend/.env con contenuto:
-                SECRET_KEY='inserire-la-secret-key-django-qui'
+                SECRET_KEY='inserire-la-secret-key-django-qui'              
     3. Avviare il progetto con Docker
         docker compose up --build
 
@@ -48,3 +49,5 @@ Esempio:
     scp code/adria_project_backend/.env utente@server:/percorso/progetto/code/adria_project_backend/.env
 Supporto:
     Per problemi o dubbi, contattare il team tecnico o aprire un issue nel repository.
+
+## 2
