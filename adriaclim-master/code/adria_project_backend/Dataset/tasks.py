@@ -13,6 +13,8 @@ from django.contrib.gis.geos import Point, Polygon as GeosPolygon
 
 from Processing.time_processing import convertToTime
 from Processing.indicator_manager import url_is_indicator
+from Processing.utils import read_erddap_data
+
 from Processing.database_operations import is_database_almost_full
 from Processing.data_analysis import operation_before_after_cache, calculate_trend
 
@@ -327,7 +329,8 @@ def task_get_data_polygon(self,request_data):
                                 num_parameters=num_param,
                                 range_value=range_value,
                             )
-                            df = pd.read_csv(url, dtype="unicode")
+                            df = read_erddap_data(url)
+
                         else:
                                 url = url_is_indicator(
                                     is_indicator,
@@ -342,7 +345,8 @@ def task_get_data_polygon(self,request_data):
                                     num_parameters=num_param,
                                     range_value=range_value,
                                 )
-                                df = pd.read_csv(url, dtype="unicode")
+                                df = read_erddap_data(url)
+
 
                     except Exception as e:
                         continue

@@ -10,6 +10,8 @@ from django.core.cache import cache
 from django.forms import model_to_dict
 from django.contrib.gis.geos import Point as GEOSPoint
 from django.contrib.gis.geos import Polygon as GeosPolygon
+from Processing.utils import read_erddap_data
+
 
 from Dataset.models import Node, Polygon
 
@@ -239,7 +241,8 @@ def getDataPolygonNew(
                 num_parameters=num_param,
                 range_value=range_value,
             )
-            df = pd.read_csv(url, dtype="unicode")
+            df = read_erddap_data(url)
+
         except Exception as e:
             logger.error("Error downloading data at point %s: %s", latlng, e)
             continue
@@ -447,7 +450,8 @@ def getDataGraphicGeneric(
         if url == "fuoriWms":
             return url
         try:
-            df = pd.read_csv(url, dtype="unicode")
+            df = read_erddap_data(url)
+
         except Exception as e:
             return "fuoriWms"
         if df[layer_name] is not None:

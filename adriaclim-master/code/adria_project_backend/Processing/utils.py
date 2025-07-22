@@ -1,9 +1,32 @@
 import io
 import urllib
 import numpy as np
+import xarray as xr
 import pandas as pd
 
 from django.core.cache import cache
+
+
+def read_erddap_data(url):
+    """
+    Scarica i dati da un URL ERDDAP in formato CSV o NetCDF,
+    scegliendo il formato in automatico: NetCDF per griddap, CSV per tutto il resto.
+    Restituisce sempre un DataFrame pandas.
+    """
+    # Decidi il formato in base al tipo di URL
+    if "/griddap/" in url:
+        # Prova prima con NetCDF, se fallisce passa a CSV
+        url_nc = url.replace('.csv?', '.nc?')
+        try:
+            ds = xr.open_dataset(url_nc)
+            return ds.to_dataframe().reset_index()
+        except Exception:
+            # fallback a CSV
+            return pd.read_csv(url, dtype="unicode")
+    else:
+        # Per tabledap e altri sempre CSV
+        return pd.read_csv(url, dtype="unicode")
+
 
 def percentile_new(n):
     def percentile_(x):

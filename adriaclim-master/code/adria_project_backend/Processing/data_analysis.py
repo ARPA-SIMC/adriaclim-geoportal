@@ -6,6 +6,8 @@ from .utils import percentile_new
 from statistics import mean, median, stdev
 from .indicator_manager import url_is_indicator
 from AdriaProject.logger_config import setup_logger
+from .utils import read_erddap_data
+
 from .time_processing import get_season, seasons, check_dates_format_trend
 
 
@@ -362,7 +364,8 @@ def getDataVectorial(
             num_param=num_param,
             range_value=range_value,
         )
-        df = pd.read_csv(url, dtype="unicode")
+        df = read_erddap_data(url)
+
         allData = []
         values = []
         lat_coordinates = []
