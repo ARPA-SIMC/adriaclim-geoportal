@@ -1,0 +1,69 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  min-width: 100vw;
+  margin: 0;
+  padding: 0;
+  background-image: url('/assets/img/background-landing.png');
+  background-size: 100% 100%;      /* L'immagine si adatta ESATTAMENTE a larghezza e altezza */
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #1c1c1c;       /* Sfondo di fallback */
+  overflow: hidden;
+}
+
+.bottom-left-btn, .bottom-right-btn {
+  position: fixed;
+  bottom: 30px;
+  padding: 14px 32px;
+  font-size: 1.2rem;
+  background-color: #007fff;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px #0005;
+  font-weight: bold;
+  z-index: 10;
+  opacity: 0.93;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.bottom-left-btn {
+  left: 40px;
+}
+
+.bottom-right-btn {
+  right: 40px;
+}
+
+.bottom-left-btn:hover, .bottom-right-btn:hover {
+  background-color: #005bb5;
+  box-shadow: 0 4px 16px #0007;
+  opacity: 1;
+}
+
+.bottom-center-btn {
+  position: fixed;
+  left: 50%;
+  bottom: 110px; /* Più alto degli altri (che stanno a 30px) */
+  transform: translateX(-50%);
+  padding: 14px 32px;
+  font-size: 1.2rem;
+  background-color: #007fff;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px #0005;
+  font-weight: bold;
+  z-index: 10;
+  opacity: 0.93;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.bottom-center-btn:hover {
+  background-color: #005bb5;
+  box-shadow: 0 4px 16px #0007;
+  opacity: 1;
+}
