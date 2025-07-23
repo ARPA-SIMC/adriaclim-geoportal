@@ -77,9 +77,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    'http://localhost:4200',
-]
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     'http://localhost:4200',
+# ]
 
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -112,7 +112,12 @@ CORS_ALLOW_HEADERS = (
 
 CSRF_COOKIE_SECURE = False  # not DEBUG
 CSRF_COOKIE_SAMESITE = None
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:4200',
+    'http://172.19.99.37:4200',
+    'http://172.19.99.37:8000',
+    'https://geoportale-adriaclim.datamb.it',
+]
 CSRF_USE_SESSIONS = True
 
 
