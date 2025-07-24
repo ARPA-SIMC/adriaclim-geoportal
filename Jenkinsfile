@@ -149,7 +149,7 @@ pipeline {
     environment {
         TEST_HOST = '172.19.99.37'
         SSH_USER  = 'fos'
-        REMOTE_PROJECT_PATH = '/home/fos/adriaclimplus-test'
+        REMOTE_PROJECT_PATH = '/home/fos/adriaclimplus-test/adriaclim-master'
     }
 
     stages {
@@ -191,7 +191,6 @@ pipeline {
         stage('Deploy (Restart/Update) su VM di Test') {
             when {
                 expression {
-                    // Questo fa sì che lo stage venga eseguito SOLO se lo stage "Test su VM di Test" è andato bene
                     currentBuild.resultIsBetterOrEqualTo('SUCCESS')
                 }
             }
