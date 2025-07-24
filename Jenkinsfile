@@ -159,10 +159,10 @@ pipeline {
                     file(credentialsId: 'adria-env', variable: 'ENV_FILE'),
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
-                    sh '''
+                    sh """
                         echo "Invio il file .env alla VM di test"
-                        scp -i $SSH_KEY -o StrictHostKeyChecking=no $ENV_FILE $SSH_USER@$TEST_HOST:$REMOTE_PROJECT_PATH/.env
-                    '''
+                        scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${env.SSH_USER}@${env.TEST_HOST}:${env.REMOTE_PROJECT_PATH}/.env
+                    """
                 }
             }
         }
@@ -172,10 +172,10 @@ pipeline {
                 withCredentials([
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
-                    sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$TEST_HOST '
+                    sh """
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
                             set -e
-                            cd $REMOTE_PROJECT_PATH &&
+                            cd ${env.REMOTE_PROJECT_PATH} &&
                             echo "[1] Pulizia ambiente..." &&
                             docker compose down -v --remove-orphans || echo "Niente da pulire" &&
                             docker system prune -af || echo "Niente da pulire" &&
@@ -184,7 +184,7 @@ pipeline {
                             echo "[3] Build & start dei container..." &&
                             docker compose up -d --build
                         '
-                    '''
+                    """
                 }
             }
         }
@@ -194,14 +194,14 @@ pipeline {
                 withCredentials([
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
-                    sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$TEST_HOST '
+                    sh """
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
                             set -e
-                            cd $REMOTE_PROJECT_PATH &&
+                            cd ${REMOTE_PROJECT_PATH} &&
                             echo "[4] Eseguo i test Django..." &&
                             docker compose exec -T django python adria_project_backend/manage.py test tests
                         '
-                    '''
+                    """
                 }
             }
         }
@@ -216,19 +216,20 @@ pipeline {
                 withCredentials([
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
-                    sh '''
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$TEST_HOST '
+                    sh """
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
                             set -e
-                            cd $REMOTE_PROJECT_PATH &&
+                            cd ${REMOTE_PROJECT_PATH} &&
                             echo "[5] Restart finale dei container (deploy concluso)..." &&
                             docker compose down -v --remove-orphans &&
                             docker compose up -d --build
                         '
-                    '''
+                    """
                 }
             }
         }
     }
 }
+
 
 
