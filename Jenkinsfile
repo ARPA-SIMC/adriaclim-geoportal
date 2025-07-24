@@ -153,9 +153,25 @@ pipeline {
     }
 
     stages {
+        stage('Inject Secrets su VM di Test') {
+            steps {
+                withCredentials([
+                    file(credentialsId: 'adria-env', variable: 'ENV_FILE'),
+                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+                ]) {
+                    sh """
+                        echo "Invio il file .env alla VM di test"
+                        scp -i ${SSH_KEY} -o StrictHostKeyChecking=no $ENV_FILE ${env.SSH_USER}@${env.TEST_HOST}:${env.REMOTE_PROJECT_PATH}/.env
+                    """
+                }
+            }
+        }
+
         stage('Pulizia e Build su VM di Test') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+                ]) {
                     sh """
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
                             set -e
@@ -175,7 +191,9 @@ pipeline {
 
         stage('Test su VM di Test') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+                ]) {
                     sh """
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
                             set -e
@@ -196,7 +214,9 @@ pipeline {
             }
             steps {
                 input message: "Vuoi completare il deploy (riavvio finale dei servizi) sulla VM di test?", ok: "Deploy"
-                withCredentials([sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+                ]) {
                     sh """
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
                             set -e
@@ -211,3 +231,4 @@ pipeline {
         }
     }
 }
+
