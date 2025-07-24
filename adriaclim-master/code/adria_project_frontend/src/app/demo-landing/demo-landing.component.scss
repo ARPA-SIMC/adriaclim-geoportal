@@ -5,7 +5,7 @@
   margin: 0;
   padding: 0;
   background-image: url('/assets/img/background-landing.png');
-  background-size: 100% 100%;      /* L'immagine si adatta ESATTAMENTE a larghezza e altezza */
+  background-size: 100% 100%;    
   background-position: center center;
   background-repeat: no-repeat;
   background-color: #1c1c1c;       /* Sfondo di fallback */
@@ -46,7 +46,7 @@
 .bottom-center-btn {
   position: fixed;
   left: 50%;
-  bottom: 110px; /* Più alto degli altri (che stanno a 30px) */
+  bottom: 110px; 
   transform: translateX(-50%);
   padding: 14px 32px;
   font-size: 1.2rem;
