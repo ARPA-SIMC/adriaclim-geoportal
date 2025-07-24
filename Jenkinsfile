@@ -124,21 +124,21 @@ pipeline {
             }
         }
 
-        // stage('Deploy su VM di Test (manuale)') {
-        //     steps {
-        //         input message: "Vuoi eseguire il deploy sulla VM di test?", ok: "Deploy"
-        //         withCredentials([sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-        //             sh """
-        //                 echo "Connessione a ${env.TEST_HOST} come ${env.SSH_USER}..."
-        //                 ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
-        //                     cd /percorso/progetto &&
-        //                     git pull &&
-        //                     docker compose down -v --remove-orphans &&
-        //                     docker compose up -d --build
-        //                 '
-        //             """
-        //         }
-        //     }
-        // }
+        stage('Deploy su VM di Test (manuale)') {
+            steps {
+                input message: "Vuoi eseguire il deploy sulla VM di test?", ok: "Deploy"
+                withCredentials([sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    sh """
+                        echo "Connessione a ${env.TEST_HOST} come ${env.SSH_USER}..."
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
+                            cd /percorso/progetto &&
+                            git pull &&
+                            docker compose down -v --remove-orphans &&
+                            docker compose up -d --build
+                        '
+                    """
+                }
+            }
+        }
     }
 }
