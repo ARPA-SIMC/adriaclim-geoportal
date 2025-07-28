@@ -92,6 +92,7 @@ pipeline {
                     sh '''
                         ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TEST_HOST" '
                             set -e
+                            export REMOTE_PROJECT_PATH="$REMOTE_PROJECT_PATH"
                             cd "$REMOTE_PROJECT_PATH" &&
                             echo "[1] Pulizia ambiente..." &&
                             docker compose down -v --remove-orphans || echo "Niente da pulire" &&
@@ -114,6 +115,7 @@ pipeline {
                     sh '''
                         ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TEST_HOST" '
                             set -e
+                            export REMOTE_PROJECT_PATH="$REMOTE_PROJECT_PATH"
                             cd "$REMOTE_PROJECT_PATH" &&
                             echo "[4] Eseguo i test Django..." &&
                             docker compose exec -T django python adria_project_backend/manage.py test tests
@@ -136,6 +138,7 @@ pipeline {
                     sh '''
                         ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TEST_HOST" '
                             set -e
+                            export REMOTE_PROJECT_PATH="$REMOTE_PROJECT_PATH"
                             cd "$REMOTE_PROJECT_PATH" &&
                             echo "[5] Restart finale dei container (deploy concluso)..." &&
                             docker compose down -v --remove-orphans &&
@@ -147,6 +150,7 @@ pipeline {
         }
     }
 }
+
 // pipeline {
 //     agent any
 
