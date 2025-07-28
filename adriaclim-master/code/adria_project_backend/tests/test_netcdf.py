@@ -34,7 +34,7 @@ start = time.time()
 response_nc = requests.get(url_nc)
 with open("temp_test.nc", "wb") as f:
     f.write(response_nc.content)
-ds_nc = xr.open_dataset("temp_test.nc")
+ds_nc = xr.open_dataset("temp_test.nc", engine="netcdf4")
 df_nc = ds_nc.to_dataframe().reset_index()
 tempo_nc = time.time() - start
 print(f"Lettura e parsing NetCDF completati in {tempo_nc:.2f} secondi")
