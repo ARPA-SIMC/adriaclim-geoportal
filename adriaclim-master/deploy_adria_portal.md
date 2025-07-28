@@ -1,201 +1,167 @@
-## 1
-
-# Obiettivo
-Questa guida descrive i passaggi necessari per installare e avviare il Geoportale AdriaClim su un server virtuale, a partire dal repository Git. Le istruzioni sono pensate per essere eseguite da tecnici Arpae in ambiente Linux, utilizzando Docker e Docker Compose.
-
-# Requisiti
-    - Sistema operativo Linux
-    - Accesso SSH al server virtuale
-    - Docker e Docker Compose installati
-    - Accesso al repository Git del progetto
-
-# Procedura di deploy
-    1. Clonare il repository
-        git clone https://<URL-del-repository>/adria-project.git
-        cd adriaclim-master
-    2. Creare i file `.env`
-        I file `.env` contengono variabili d’ambiente sensibili. Non sono inclusi nel repository e devono essere creati manualmente.
-            File 1 — adriaclim-master/.env:
-                POSTGRES_NAME=
-                POSTGRES_USER=
-                POSTGRES_PASSWORD=
-                SECRET_KEY='inserire-la-secret-key-django-qui'              
-    3. Avviare il progetto con Docker
-        docker compose up --build
-
-# Note importanti
-Line Ending (CRLF vs LF)
-Assicurarsi che tutti gli script (.sh, inclusi entrypoint.sh) abbiano fine riga in formato UNIX (LF). Se sono in formato Windows (CRLF), Docker potrebbe restituire l’errore:
-    exec /entrypoint.sh: exec format error
-Per correggere:
-    • Con editor come VS Code: impostare LF in basso a destra
-    • Oppure da terminale:
-        dos2unix entrypoint.sh
-
-# Verifica finale
-    • Visitare il portale all’indirizzo http://<IP-del-server>:8000/
-    • Controllare che non ci siano errori nei log:
-            docker compose logs -f
-
-# Manutenzione base
-    Per aggiornare il codice e riavviare:
-        git pull
-        docker compose up --build
-    Per arrestare tutto:
-        docker compose down
-    Gestione sicura dei `.env`
-        I file `.env` non devono essere inclusi nel repository. Vanno copiati manualmente sul server via SCP o SSH prima dell’avvio dei container.
-Esempio:
-    scp code/adria_project_backend/.env utente@server:/percorso/progetto/code/adria_project_backend/.env
-Supporto:
-    Per problemi o dubbi, contattare il team tecnico o aprire un issue nel repository.
-
-## 2
-
-# Deploy del Geoportale AdriaClim tramite Jenkins
+# 🌍 Deploy del Geoportale AdriaClim tramite Jenkins
 
 Questa guida illustra in dettaglio la procedura per installare, configurare e mettere online il Geoportale AdriaClim tramite Jenkins su un server Rocky Linux (o compatibile), partendo dal repository Git.  
-Tutti i passaggi sono pensati per essere ripetibili dai tecnici Arpae, garantendo sicurezza, tracciabilità e automazione del processo di deploy.
+È pensata per essere **ripetibile** e **manutenibile** dal team tecnico ARPAE, garantendo **automazione, sicurezza e tracciabilità**.
 
 ---
 
-## Requisiti
+## Requisiti minimi
 
-- **Server** Rocky Linux 8.x (o CentOS/RHEL 8.x compatibile)
-- **Accesso SSH** al server con permessi sudo/root
-- **Docker** e **Docker Compose** installati e funzionanti (`docker --version`, `docker compose version`)
-- **Jenkins** installato e raggiungibile (es: http://<IP-SERVER>:8080)
-- **Account utente Jenkins** per l’accesso alla dashboard
-- **Credenziali di servizio già configurate** su Jenkins (PAT GitHub, file segreto .env)
-- **Accesso al repository GitHub** del progetto
-
----
-
-## 1. Installazione prerequisiti (da eseguire una sola volta)
-
-Se la VM non è già pronta, installare:
-
-- **Docker**
-- **Java** (per Jenkins)
-- **Jenkins**
-- **Permessi utente Jenkins**
-    - L’utente Jenkins deve essere nel gruppo `docker` e avere la shell `/bin/bash`.
-- *(Opzionale)* **Aprire porte firewall** per Jenkins (8080) e il portale (8000).
+- Server **Rocky Linux 8.x** (o CentOS/RHEL compatibile)
+- **Accesso SSH** con permessi `sudo`
+- **Docker** e **Docker Compose** installati (`docker --version`)
+- **Jenkins** installato e raggiungibile (`http://<IP>:8080`)
+- Accesso al **repository GitHub** del progetto
+- Account Jenkins con accesso alla dashboard
+- Credenziali Jenkins già configurate:
+  - PAT GitHub
+  - File `.env` come “file segreto”
+  - Chiave SSH (se richiesta)
 
 ---
 
-## 2. Accesso e configurazione Jenkins
+# 1. Setup iniziale (da fare solo una volta)
 
-- Collegarsi via browser a:  
-  `http://<IP-DEL-SERVER>:8080`
-- Completare la configurazione iniziale  
-  *(la password iniziale si trova con: `sudo cat /var/lib/jenkins/secrets/initialAdminPassword`)*
-- Installare i plugin suggeriti
-- Creare gli utenti amministrativi necessari
+### 1.1 Installare i prerequisiti (se mancanti)
+```bash
+sudo dnf install -y docker docker-compose java-11-openjdk
+```
 
-> **Nota:** Questi passaggi vanno fatti una sola volta dopo l’installazione
+### 1.2 Aggiungere Jenkins al gruppo `docker`
+```bash
+sudo usermod -aG docker jenkins
+sudo chsh -s /bin/bash jenkins
+sudo systemctl restart jenkins
+```
 
----
+### 1.3 (Opzionale) Aprire le porte nel firewall
+```bash
+sudo firewall-cmd --permanent --add-port=8080/tcp  # Jenkins
+sudo firewall-cmd --permanent --add-port=8000/tcp  # Geoportale
+sudo firewall-cmd --reload
+```
 
-## 3. Configurazione delle credenziali Jenkins
+### 1.4 Configurazione iniziale Jenkins (via browser)
 
-- **PAT GitHub:**  
-  Inserire tra le credenziali Jenkins  
-  (`Gestione credenziali > System > Aggiungi credenziale > Username/Password`)
-- **File segreto .env:**  
-  Caricare il file `.env` necessario come “File segreto”, annotando il nome usato nella pipeline
-
----
-
-## 4. Creazione pipeline multibranch
-
-- Dal menu Jenkins:  
-  `Nuovo Item` > `Pipeline multibranch`
-- Inserire il nome del progetto (es: `AdriaClimPlus`)
-- Selezionare come “source” il repository GitHub
-- Scegliere la credenziale GitHub appena configurata
-- Salvare e lasciare che Jenkins effettui la scansione dei branch  
-  *(verificare che venga rilevato il Jenkinsfile)*
+- Accedi via browser: `http://<IP-DEL-SERVER>:8080`
+- Inserisci la password iniziale:
+  ```bash
+  sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+  ```
+- Installa i plugin suggeriti
+- Crea gli utenti amministratori Jenkins
 
 ---
 
-## 5. Pipeline automatica: flusso di deploy
+# 2. Configurazione delle credenziali Jenkins
 
-La pipeline esegue **automaticamente** i seguenti step per ogni branch che contiene un Jenkinsfile valido:
+- Vai su: `Gestione Jenkins > Gestione credenziali > System`
+- Aggiungi le seguenti:
+  - **PAT GitHub**: tipo “Username/Password”, con username GitHub e PAT come password
+  - **File .env**: tipo “File segreto”, carica il file `.env` del progetto
+  - **(Opzionale)** chiave SSH se il repo GitHub richiede autenticazione via SSH
 
-1. **Checkout** del repository (clone del branch)
-2. **Iniezione** del file `.env` tramite credenziale segreta Jenkins
-3. **Pulizia ambiente e container**  
-   (`docker compose down` e `docker system prune`)
+---
+
+# 3. Creazione della pipeline multibranch
+
+- Vai su: `Nuovo Item > Pipeline multibranch`
+- Inserisci un nome (es. `AdriaClimPlus`)
+- Come sorgente, scegli GitHub e inserisci l’URL del repository
+- Seleziona la credenziale GitHub configurata
+- Salva: Jenkins effettuerà la scansione automatica dei branch
+- Verifica che venga rilevato il `Jenkinsfile` nel branch corretto
+
+---
+
+# 4. Flusso automatico della pipeline
+
+Ogni volta che viene eseguita (manualmente o da push su GitHub), la pipeline esegue in ordine:
+
+1. **Checkout del repository**
+2. **Iniezione del file `.env`** tramite credenziale segreta
+3. **Pulizia ambiente**  
+   ```bash
+   docker compose down && docker system prune -f
+   ```
 4. **Build e avvio dei container**  
-   `docker compose up -d --build`
+   ```bash
+   docker compose up -d --build
+   ```
 5. **Verifica stato container**  
-   `docker compose ps`
-6. **Esecuzione test automatici** (se previsti nel Jenkinsfile)
-7. **Log risultati e stato deploy**
+   ```bash
+   docker compose ps
+   ```
+6. **Esecuzione test automatici** (se previsti nel `Jenkinsfile`)
+7. **Log finale e stato del deploy**
 
 ---
 
-## 6. Verifica manuale post-deploy
+# 👁️5. Verifica post-deploy
 
-- Visitare il portale su:  
-  `http://<IP-DEL-SERVER>:8000/`
-- Controllare eventuali errori nei log:  
-  `docker compose logs -f`
-
----
-
-## 7. Aggiornamento codice e ripetizione deploy
-
-- Ogni **push su GitHub** (su branch monitorati) scatena in automatico una nuova build della pipeline
-- In alternativa, la pipeline può essere avviata **manualmente** dalla dashboard Jenkins
+- Apri il portale su: `http://<IP-DEL-SERVER>:8000/`
+- Verifica che sia online
+- Controlla i log in tempo reale con:
+  ```bash
+  docker compose logs -f
+  ```
 
 ---
 
-## 8. Gestione credenziali e manutenzione
+# 6. Aggiornamento del codice e rilancio deploy
 
-- I tecnici devono solo accedere a Jenkins con il proprio account  
-  *(le credenziali di servizio sono già impostate e non vanno ricreate)*
-- Per **aggiornare la credenziale GitHub** (es: nuovo PAT):
-    1. Vai su “Gestione credenziali”, aggiungi il nuovo PAT
-    2. Sostituiscilo nelle pipeline come “source”
-    3. Elimina la vecchia credenziale se non serve più
+- Ogni **push su GitHub** (su branch monitorati) scatena **automaticamente** una nuova build
+- In alternativa, puoi avviare la pipeline **manualmente** dalla dashboard Jenkins
 
 ---
 
-## 9. Troubleshooting
+# 7. Manutenzione e aggiornamento credenziali
+
+- Per aggiornare un PAT GitHub:
+  1. Vai su “Gestione credenziali”
+  2. Aggiungi il nuovo PAT
+  3. Aggiorna la pipeline per usare la nuova credenziale
+  4. Elimina la vecchia (se non più usata)
+
+---
+
+# 8. Troubleshooting comuni
 
 - **Permessi Docker negati:**  
-  Assicurarsi che l’utente Jenkins sia nel gruppo `docker` e che la shell sia `/bin/bash`
-- **Copia file .env fallita:**  
-  Verificare permessi del workspace e corretta configurazione della credenziale “file segreto”
+  Assicurati che l’utente Jenkins sia nel gruppo `docker` e abbia la shell `/bin/bash`
+
+- **Errore file .env:**  
+  Verifica che sia stato caricato correttamente come “file segreto”
+
 - **Pipeline non trova Jenkinsfile:**  
-  Verificare posizione/nome branch e che il file sia presente nel repository
+  Verifica il branch e che il file `Jenkinsfile` sia nella root del repository
+
 - **Il sito non si apre:**  
-  Controllare che la porta sia esposta, container siano “Up”, firewall non blocchi
+  Controlla che:
+  - i container siano “Up”
+  - la porta 8000 sia esposta
+  - il firewall non blocchi il traffico
 
 ---
 
-## 10. Note di sicurezza
+# 9. Sicurezza
 
-- Utilizzare solo account GitHub tecnici o aziendali dedicati
-- Ruotare periodicamente PAT/token di accesso
-- Mantenere Jenkins, Docker e plugin aggiornati
-- Proteggere l’accesso alla VM e a Jenkins con password robuste
-
----
-
-## 11. Accesso dei tecnici ARPAE
-
-- Le pipeline, credenziali e segreti sono già configurati dal responsabile del setup.
-- I tecnici devono richiedere solo:
-    - Utente VM (per SSH/terminali, se serve)
-    - Utente Jenkins (per dashboard web e pipeline)
-- Tutto il resto (PAT, file .env, setup pipeline) è già predisposto, salvo cambio policy.
+- Usa solo account GitHub tecnici/aziendali
+- Ruota periodicamente i token di accesso (PAT)
+- Mantieni Jenkins e i plugin sempre aggiornati
+- Proteggi la VM e Jenkins con credenziali sicure e backup regolari
 
 ---
 
-## Supporto
+# 10. Accesso per i tecnici ARPAE
 
-Per problemi o dubbi, contattare il team tecnico o aprire una issue nel repository.
+- Tutte le credenziali di servizio sono preconfigurate
+- I tecnici devono solo:
+  - Ricevere un utente Jenkins (web)
+  - (Opzionale) Ricevere accesso SSH alla VM, se richiesto
 
+---
+
+# 11. Supporto
+
+Per problemi o dubbi, contattare il team tecnico o aprire una issue nel repository GitHub.
