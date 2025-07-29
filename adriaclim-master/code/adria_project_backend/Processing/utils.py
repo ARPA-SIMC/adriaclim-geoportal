@@ -25,7 +25,7 @@ def read_erddap_data(url):
             return pd.read_csv(url, dtype="unicode")
     else:
         # Per tabledap e altri sempre CSV
-        return pd.read_csv(url, dtype="unicode", skiprows=2)
+        return pd.read_csv(url, dtype="unicode")
 
 
 def percentile_new(n):

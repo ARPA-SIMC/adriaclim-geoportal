@@ -49,6 +49,9 @@ def check_dates_format_trend(dates):
 
 def convertToTime(date_str):
     """Convert ISO datetime string to 'YYYY-MM-DD' format."""
+    if date_str == "UTC":
+        return None  
+    
     try:
         return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
     except ValueError as e:

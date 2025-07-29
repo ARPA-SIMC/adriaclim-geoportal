@@ -226,8 +226,14 @@ def getDataPolygonNew(
     dataTable = []
     i = 0
 
+    total_elapsed_time = 0
+
     for latlng in points_inside_polygon:
         try:
+            logger.info("Inizio download per punto: %s", latlng)
+
+            start_time = time.time()  # tempo iniziale
+
             url = url_is_indicator(
                 is_indicator,
                 True,
@@ -243,9 +249,17 @@ def getDataPolygonNew(
             )
             df = read_erddap_data(url)
 
+            end_time = time.time()  # tempo finale
+            elapsed_time = end_time - start_time
+            total_elapsed_time += elapsed_time
+
+            logger.info("Completato per %s in %.2f secondi", latlng, elapsed_time)
+
         except Exception as e:
             logger.error("Error downloading data at point %s: %s", latlng, e)
             continue
+
+        logger.info("⏱️ Tempo totale per tutti i punti: %.2f secondi", total_elapsed_time)
 
         try:
             for index, row in enumerate(df.to_dict(orient="records")):
