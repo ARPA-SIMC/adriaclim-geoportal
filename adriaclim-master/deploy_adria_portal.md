@@ -97,7 +97,7 @@ Ogni volta che viene eseguita (manualmente o da push su GitHub), la pipeline ese
 
 ---
 
-# 👁️5. Verifica post-deploy
+# 5. Verifica post-deploy
 
 - Apri il portale su: `http://<IP-DEL-SERVER>:8000/`
 - Verifica che sia online
