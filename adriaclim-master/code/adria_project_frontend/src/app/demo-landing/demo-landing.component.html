@@ -1,9 +1,31 @@
-<button class="bottom-left-btn" (click)="goToWebProject()">
-  Web project
-</button>
-<button class="bottom-center-btn" (click)="goToMap()">
-  Geoportal map
-</button>
-<button class="bottom-right-btn" (click)="goToToolkit()">
-  Toolkit
-</button>
+<div class="scene-wrapper">
+
+  <!-- Nuvola che entra al centro esatto -->
+  <img *ngIf="showCloud"
+     src="/assets/img/cloud.png"
+     [ngClass]="{
+       'cloud': true,
+       'enter': !hideCloudAndLightning,
+       'fade-out': hideCloudAndLightning
+     }" />
+
+
+  <!-- Fulmine che appare esattamente sotto la nuvola -->
+  <img *ngIf="showLightning"
+     src="/assets/img/lightning.png"
+     class="lightning"
+     [ngClass]="{'fade-out': hideCloudAndLightning}" />
+
+
+  <!-- Bottone originale, posizione fissa in basso -->
+  <button class="bottom-center-btn"
+          *ngIf="showButton"
+          (click)="goToMap()">
+    Geoportal map
+  </button>
+
+  <!-- Bottoni laterali -->
+  <button class="bottom-left-btn" (click)="goToWebProject()">Web project</button>
+  <button class="bottom-right-btn" (click)="goToToolkit()">Toolkit</button>
+
+</div>

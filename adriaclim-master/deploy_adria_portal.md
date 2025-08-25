@@ -1,4 +1,4 @@
-# 🌍 Deploy del Geoportale AdriaClim tramite Jenkins
+# Deploy del Geoportale AdriaClim tramite Jenkins
 
 Questa guida illustra in dettaglio la procedura per installare, configurare e mettere online il Geoportale AdriaClim tramite Jenkins su un server Rocky Linux (o compatibile), partendo dal repository Git.  
 È pensata per essere **ripetibile** e **manutenibile** dal team tecnico ARPAE, garantendo **automazione, sicurezza e tracciabilità**.

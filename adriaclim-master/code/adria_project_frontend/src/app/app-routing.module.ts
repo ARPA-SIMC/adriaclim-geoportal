@@ -13,6 +13,7 @@ const routes: Routes = [
   //Scommentare per usare nuovo menu
   { path: "mapNewMenu", component: GeoportalMapNewMenuComponent },
   { path: "info", component: InfoPageComponent },
+  
 ];
 
 @NgModule({

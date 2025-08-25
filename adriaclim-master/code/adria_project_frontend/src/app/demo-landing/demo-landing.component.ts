@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import * as welcomeJson from '../../assets/configuration/welcomePage.json'
+import * as welcomeJson from '../../assets/configuration/welcomePage.json';
+import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
 
 interface WelcomeJson {
   title: string;
@@ -15,47 +16,48 @@ interface WelcomeJson {
   styleUrls: ['./demo-landing.component.scss']
 })
 export class DemoLandingComponent implements OnInit {
-
-  // title = welcomeJson["title"];
-  // textContent = welcomeJson["text"];
   welJson: WelcomeJson = welcomeJson;
-  constructor(private router: Router) {
 
-  }
+  showCloud = false;
+  showLightning = false;
+  showButton = false;
+  hideCloudAndLightning = false;
+
+  constructor(private router: Router) {}
+
   ngOnInit(): void {
-    console.log("WELCOME JSON = ", welcomeJson);
+    this.showCloud = true;
 
-    this.welJson = welcomeJson;
+    setTimeout(() => {
+      this.showLightning = true;
+
+      setTimeout(() => {
+        this.showButton = true;
+
+        // Avvia animazione di scomparsa
+        this.hideCloudAndLightning = true;
+
+        // Rimuove elementi dal DOM dopo il fade-out
+        setTimeout(() => {
+          this.showCloud = false;
+          this.showLightning = false;
+        }, 500); // poco più dei 0.4s di animazione
+      }, 600);
+
+    }, 1500);
   }
 
-  /**
-   * Funzione che reindirizza alla mappa e ricarica la pagina per mostrare i poligoni
-   */
   goToMap() {
-    // Scommentare per usare vecchio menu
-    // this.router.navigate(['/map']).then(() => {
-    //   window.location.reload();
-    // });
-
-    // Scommentare per usare nuovo menu
     this.router.navigate(['/mapNewMenu']).then(() => {
       window.location.reload();
     });
   }
 
-  /**
-   * Funzione che reindirizza al link esterno del web project
-   */
   goToWebProject() {
     window.location.href = this.welJson.webProject;
-
   }
 
-  /**
-   * Funzione che reinderizza al link esterno del toolkit
-   */
   goToToolkit() {
     window.location.href = this.welJson.toolkit;
   }
-
 }

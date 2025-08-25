@@ -1,52 +1,89 @@
 :host {
   display: block;
-  min-height: 100vh;
-  min-width: 100vw;
+  height: 100vh;
+  width: 100vw;
   margin: 0;
   padding: 0;
   background-image: url('/assets/img/background-landing.png');
-  background-size: 100% 100%;    
-  background-position: center center;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
-  background-color: #1c1c1c;       /* Sfondo di fallback */
+  background-color: #1c1c1c;
   overflow: hidden;
+  animation: fadeInPageHost 1s ease-out;
 }
 
-.bottom-left-btn, .bottom-right-btn {
-  position: fixed;
-  bottom: 30px;
-  padding: 14px 32px;
-  font-size: 1.2rem;
-  background-color: #007fff;
-  color: #fff;
-  border: none;
-  border-radius: 24px;
-  box-shadow: 0 2px 12px #0005;
-  font-weight: bold;
-  z-index: 10;
-  opacity: 0.93;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
+@keyframes fadeInPageHost {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-.bottom-left-btn {
-  left: 40px;
+.scene-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-.bottom-right-btn {
-  right: 40px;
+/* Nuvola al centro esatto, entra da sinistra */
+.cloud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: auto;
+  z-index: 5;
 }
 
-.bottom-left-btn:hover, .bottom-right-btn:hover {
-  background-color: #005bb5;
-  box-shadow: 0 4px 16px #0007;
-  opacity: 1;
+.cloud.enter {
+  animation: cloudEnter 1s ease-out forwards;
 }
 
+.cloud.fade-out {
+  animation: fadeOut 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes cloudEnter {
+  0% {
+    transform: translate(-200%, -50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+@keyframes moveToCenter {
+  to {
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Fulmine sotto la nuvola */
+.lightning {
+  position: absolute;
+  width: 400px;
+  height: auto;
+  top: calc(50% + 100px); /* sotto la nuvola */
+  left: calc(45% - 30px);
+  transform: translateX(-50%);
+  animation: flash 0.4s ease-in;
+  z-index: 9;
+}
+
+@keyframes flash {
+  0% { opacity: 0; transform: translateY(-10px); }
+  50% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(10px); }
+}
+
+/* Bottone centrale in basso */
 .bottom-center-btn {
   position: fixed;
   left: 50%;
-  bottom: 110px; 
+  bottom: 50px;
   transform: translateX(-50%);
   padding: 14px 32px;
   font-size: 1.2rem;
@@ -57,13 +94,70 @@
   box-shadow: 0 2px 12px #0005;
   font-weight: bold;
   z-index: 10;
+  opacity: 0;
+  animation: fadeInBtn 0.8s ease-out forwards;
+}
+
+@keyframes fadeInBtn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Bottoni laterali */
+.bottom-left-btn,
+.bottom-right-btn {
+  position: fixed;
+  bottom: 130px;
+  padding: 14px 32px;
+  font-size: 1.2rem;
+  background-color: #007fff;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px #0005;
+  font-weight: bold;
+  z-index: 10;
   opacity: 0.93;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
 }
 
+.bottom-left-btn { left: 40px; }
+.bottom-right-btn { right: 40px; }
+
+.bottom-left-btn:hover,
+.bottom-right-btn:hover,
 .bottom-center-btn:hover {
   background-color: #005bb5;
   box-shadow: 0 4px 16px #0007;
   opacity: 1;
 }
+
+/* Sparizione di nuvola e fulmine */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.cloud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.cloud.fade-out {
+  animation: fadeOut 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
