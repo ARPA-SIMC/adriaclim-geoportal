@@ -11,6 +11,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from celery.result import AsyncResult
 from operator import itemgetter
+from django.http import JsonResponse
+import logging
+import logging, math
 
 from Metadata.metadata_manager import getMetadata, getMetadataOfASpecificDataset
 from .geospatial_processing import getDataGraphicGeneric
@@ -137,20 +140,78 @@ def getDataPolygonNew_view(request):
     except Exception as e:
         return str(e)
 
-@api_view(['GET','POST'])
-def check_task_status(request):
-    try:
-        task = AsyncResult(request.data.get('task_id'))
-        response = {'status': task.status}
-        if task.status == 'SUCCESS':
-            response['result'] = task.result
-        if task.state == "PROGRESS":
-            response["progressBar"] = task.info.get('current')
-        return JsonResponse({"dataVect":response})
-    except Exception as e:
-        response["error"] = str(e)
-        return JsonResponse({"dataVect":response})
+# @api_view(['GET','POST'])
+# def check_task_status(request):
+#     try:
+#         task = AsyncResult(request.data.get('task_id'))
+#         response = {'status': task.status}
+#         if task.status == 'SUCCESS':
+#             response['result'] = task.result
+#         if task.state == "PROGRESS":
+#             response["progressBar"] = task.info.get('current')
+#         return JsonResponse({"dataVect":response})
+#     except Exception as e:
+#         response["error"] = str(e)
+#         return JsonResponse({"dataVect":response})
 
+
+logger = logging.getLogger(__name__)
+
+def _json_sanitize(obj):
+    if isinstance(obj, dict):
+        return {k: _json_sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_sanitize(v) for v in obj]
+    if isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    return obj
+
+@api_view(['GET', 'POST'])
+def check_task_status(request):
+    task_id = None
+    try:
+        task_id = getattr(request, "data", {}).get('task_id') or request.GET.get('task_id')
+        task = AsyncResult(task_id)
+        status = task.status
+
+        # Base response
+        response = {'status': status, 'task_id': task_id}
+
+        if status == 'SUCCESS':
+            result = _json_sanitize(task.result)
+
+            # 1) mantieni la chiave "result" come prima
+            response['result'] = result
+
+            # 2) FLATTEN: copia le chiavi del risultato direttamente in dataVect
+            #    così il frontend può leggere dataVect.dataPol / dataVect.dataTable / ecc.
+            if isinstance(result, dict):
+                response.update(result)
+
+            logger.info("check_task_status(%s) -> SUCCESS (keys: %s)", task_id, list(result.keys()) if isinstance(result, dict) else type(result).__name__)
+            return JsonResponse({"dataVect": response}, json_dumps_params={'allow_nan': False})
+
+        elif status == 'PROGRESS' and isinstance(task.info, dict):
+            response["progressBar"] = task.info.get('current')
+
+        elif status in ('FAILURE', 'REVOKED'):
+            try:
+                response['error'] = str(task.result)
+            except Exception:
+                response['error'] = 'Task failed (no result)'
+            tb = getattr(task, 'traceback', None)
+            if tb:
+                response['traceback'] = tb[-800:]
+
+        logger.info("check_task_status(%s) -> %s", task_id, status)
+        return JsonResponse({"dataVect": response}, json_dumps_params={'allow_nan': False})
+
+    except Exception as e:
+        logger.exception("check_task_status error (task_id=%s)", task_id)
+        return JsonResponse({"dataVect": {'status': 'ERROR', 'error': str(e), 'task_id': task_id}}, json_dumps_params={'allow_nan': False})
+    
 @api_view(['GET','POST'])
 def updateStatistics(request):
     new_dates = request.data.get("dates")

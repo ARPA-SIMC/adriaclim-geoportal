@@ -3,7 +3,12 @@ import json
 import numpy as np
 import pandas as pd
 import datetime as dt
+import geopandas as gpd
+from shapely.prepared import prep
+from shapely import Point
 import shapely.speedups # type: ignore
+import urllib.request
+import re
 
 from django.db.models import Q
 from django.core.cache import cache
@@ -11,11 +16,12 @@ from django.forms import model_to_dict
 from django.contrib.gis.geos import Point as GEOSPoint
 from django.contrib.gis.geos import Polygon as GeosPolygon
 from Processing.utils import read_erddap_data
+from AdriaProject.settings import ERDDAP_URL
 
 
 from Dataset.models import Node, Polygon
 
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Tuple, Union
 
 from AdriaProject.logger_config import setup_logger
 
@@ -196,7 +202,216 @@ def getDataPolygonNew(
             logger.error("DB processing error: %s", e)
             return str(e)
 
+
+    # --- DB AND CACHE MISS -> TENTATIVO BULK (single call) ---
     logger.debug("DB AND CACHE MISS")
+
+    try:
+        # import locali per il blocco BULK
+      
+        import urllib.request, re, math
+        import numpy as np
+        from shapely.prepared import prep
+
+        # 1) bounds da shapely (nel tuo poligono x=lat, y=lon)
+        xmin, ymin, xmax, ymax = shapely_polygon.bounds
+        lat_min_f = float(xmin); lat_max_f = float(xmax)
+        lon_min_f = float(ymin); lon_max_f = float(ymax)
+        if lat_min_f > lat_max_f:
+            lat_min_f, lat_max_f = lat_max_f, lat_min_f
+        if lon_min_f > lon_max_f:
+            lon_min_f, lon_max_f = lon_max_f, lon_min_f
+        logger.debug("BBOX shapely (float) -> lat[%.6f, %.6f] lon[%.6f, %.6f]", lat_min_f, lat_max_f, lon_min_f, lon_max_f)
+
+        # 2) clamp SOLO per griddap (indicator == "false") via .das
+        def _get_axis_bounds_from_das(erddap_url: str, ds_id: str):
+            try:
+                with urllib.request.urlopen(f"{erddap_url}/griddap/{ds_id}.das", timeout=8) as resp:
+                    text = resp.read().decode("utf-8", errors="ignore")
+            except Exception:
+                return (None, None)
+            def _bounds(varname: str):
+                m = re.search(rf"{varname}\s*\{{[^}}]*?actual_range\s*([-\d\.Ee+]+)\s*,\s*([-\d\.Ee+]+)", text, re.S)
+                if not m:
+                    return None
+                a = float(m.group(1)); b = float(m.group(2))
+                lo, hi = (a, b) if a <= b else (b, a)
+                return lo, hi
+            return _bounds("latitude"), _bounds("longitude")
+
+        if is_indicator == "false":
+            lat_bounds, lon_bounds = _get_axis_bounds_from_das(ERDDAP_URL, dataset_id)
+            if lat_bounds:
+                lat_lo, lat_hi = lat_bounds
+                lat_min_f = max(lat_min_f, lat_lo)
+                lat_max_f = min(lat_max_f, lat_hi)
+            if lon_bounds:
+                lon_lo, lon_hi = lon_bounds
+                lon_min_f = max(lon_min_f, lon_lo)
+                lon_max_f = min(lon_max_f, lon_hi)
+            logger.debug("BBOX clampato (float) -> lat[%.6f, %.6f] lon[%.6f, %.6f]", lat_min_f, lat_max_f, lon_min_f, lon_max_f)
+
+        # 3) validazione area > 0 e conversione stringhe
+        if lat_min_f >= lat_max_f or lon_min_f >= lon_max_f:
+            raise ValueError("BBOX fuori dall'estensione del dataset dopo clamp")
+
+        latMin  = f"{lat_min_f:.4f}"
+        latMax  = f"{lat_max_f:.4f}"
+        longMin = f"{lon_min_f:.4f}"
+        longMax = f"{lon_max_f:.4f}"
+        logger.debug("BBOX finale -> lat[%s,%s] lon[%s,%s]", latMin, latMax, longMin, longMax)
+
+        # 4) costruzione URL (stride solo per griddap)
+        if is_indicator == "true":
+            bulk_url = url_is_indicator(
+                "true",
+                True,   # is_graph
+                False,  # is_annual
+                dataset_id=dataset_id,
+                layer_name=layer_name,
+                time_start=date_start,
+                time_finish=date_end,
+                latMin=latMin, latMax=latMax,
+                longMin=longMin, longMax=longMax,
+            )
+        else:
+            TIME_STRIDE = 1
+            LAT_STRIDE  = 8
+            LON_STRIDE  = 8
+            bulk_url = url_is_indicator(
+                "false",
+                False,  # is_graph
+                False,  # is_annual
+                dataset_id=dataset_id,
+                layer_name=layer_name,
+                time_start=date_start,
+                time_finish=date_end,
+                latitude_start=latMin, latitude_end=latMax,
+                longitude_start=longMin, longitude_end=longMax,
+                num_param=num_param, range_value=range_value,
+                time_stride=TIME_STRIDE, lat_stride=LAT_STRIDE, lon_stride=LON_STRIDE,
+            )
+            logger.info("BULK strides -> time:%s lat:%s lon:%s", TIME_STRIDE, LAT_STRIDE, LON_STRIDE)
+
+        logger.info("Provo BULK URL (bbox): %s", bulk_url)
+        df_bulk = read_erddap_data(bulk_url)
+
+        # diagnostica shape
+        try:
+            logger.info("BULK pre-filter shape: %s", tuple(df_bulk.shape))
+        except Exception:
+            logger.info("BULK pre-filter shape: (unknown)")
+
+        # schema richiesto
+        required_cols = {"time", "latitude", "longitude", layer_name}
+        if df_bulk is None or df_bulk.empty or not required_cols.issubset(set(df_bulk.columns)):
+            raise ValueError("Bulk ERDDAP empty/invalid schema")
+
+        # 5) filtro poligono VELOCE (no apply)
+        poly_prep = prep(shapely_polygon)
+        lat_arr = pd.to_numeric(df_bulk["latitude"], errors="coerce").to_numpy()
+        lon_arr = pd.to_numeric(df_bulk["longitude"], errors="coerce").to_numpy()
+        points = [ShapelyPoint(lat, lon) for lat, lon in zip(lat_arr, lon_arr)]
+        mask = np.fromiter((poly_prep.contains(pt) or poly_prep.covers(pt) for pt in points), dtype=bool, count=len(points))
+        df_bulk = df_bulk[mask]
+        if df_bulk.empty:
+            raise ValueError("Bulk ERDDAP dentro poligono = 0 righe")
+
+        logger.info(
+            "BULK post-filter rows: %d | unique dates: %s | unique points: %s",
+            len(df_bulk),
+            df_bulk["time"].nunique() if "time" in df_bulk else "n/a",
+            df_bulk[["latitude", "longitude"]].drop_duplicates().shape[0]
+            if {"latitude", "longitude"}.issubset(df_bulk.columns) else "n/a"
+        )
+        logger.info("BULK OK: %d righe prima di parsing", len(df_bulk))
+
+        # ===== BULK VETTORIALE (no loop, no DB, sanitize) =====
+        def _json_sanitize(obj):
+            if isinstance(obj, dict):
+                return {k: _json_sanitize(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [_json_sanitize(v) for v in obj]
+            if isinstance(obj, float):
+                if math.isnan(obj) or math.isinf(obj):
+                    return None
+                return obj
+            return obj
+
+        # 1) df lavoro
+        cols_base = ["time", "latitude", "longitude", layer_name]
+        df_work = df_bulk[cols_base].copy()
+        has_param_agg = (parametro_agg != "None") and (parametro_agg in df_bulk.columns)
+        if has_param_agg:
+            df_work[parametro_agg] = df_bulk[parametro_agg]
+
+        # 2) df_polygon (dataBeforeOp / dataPol)
+        df_polygon = pd.DataFrame({
+            "date_value": df_work["time"],
+            "lat_lng": "(" + df_work["latitude"].astype(str) + "," + df_work["longitude"].astype(str) + ")",
+            "value_0": pd.to_numeric(df_work[layer_name], errors="coerce"),
+        })
+        df_polygon = df_polygon.drop_duplicates(
+            subset=["date_value", "lat_lng", "value_0"], keep="first"
+        ).dropna(how="all", axis=1)
+
+        allData = {}
+        allData["dataBeforeOp"] = df_polygon.to_dict(orient="records")
+
+        # 3) stats
+        if time_op == "default":
+            df_tmp = df_polygon.copy()
+            df_tmp["date_value"] = pd.to_datetime(df_tmp["date_value"], errors="coerce")
+            df_tmp = df_tmp.dropna(subset=["date_value"])
+            s_vals = df_tmp["value_0"]
+            mean    = float(s_vals.mean(skipna=True)) if not s_vals.empty else None
+            median  = float(s_vals.median(skipna=True)) if not s_vals.empty else None
+            std_dev = float(s_vals.std(skipna=True)) if not s_vals.empty else None
+            g = df_tmp.groupby("date_value")["value_0"].mean()
+            if g.size <= 1:
+                trend_value = float(g.iloc[0]) if g.size == 1 else None
+            else:
+                trend_value = calculate_trend(g.index.tolist(), g.values.tolist(), timeperiod=adriaclim_timeperiod)
+            allData.update({
+                "mean": mean,
+                "median": median,
+                "stdev": std_dev,
+                "trend_yr": trend_value,
+            })
+
+        # 4) dataTable (limita solo tabella per JSON pesanti)
+        df_table = df_work[["time", "latitude", "longitude", layer_name]].copy()
+        df_table[layer_name] = df_table[layer_name].where(pd.notnull(df_table[layer_name]), "Value not defined")
+        if has_param_agg:
+            df_table[parametro_agg] = df_work[parametro_agg].where(pd.notnull(df_work[parametro_agg]), "Value not defined")
+
+        DATA_TABLE_MAX_ROWS = 8000
+        total_rows = len(df_table)
+        if total_rows > DATA_TABLE_MAX_ROWS:
+            df_table = df_table.iloc[:DATA_TABLE_MAX_ROWS]
+            allData["dataTable_truncated"] = True
+            allData["dataTable_total_rows"] = int(total_rows)
+
+        allData["dataTable"] = df_table.to_dict(orient="records")
+
+     # 5) dataPol + cache (con normalizzazione datetime prima dell'operazione)
+        df_for_op = df_polygon.copy()
+        df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
+
+        allData["dataPol"] = operation_before_after_cache(df_for_op, statistic, time_op)
+
+        allData_sanit = _json_sanitize(allData)
+        cache.set(key=key_cached, value=json.dumps(allData_sanit), timeout=43200)
+
+        logger.debug("Completed getDataPolygonNew (BULK/VECT) in %.2f seconds", time.time() - start_time)
+        return allData_sanit
+
+
+    except Exception as e_bulk:
+        logger.warning("BULK fallito: %s — procedo con fallback per-punto", e_bulk)
+
+    # ===== FALLBACK per-punto (codice originale) =====
+
 
     xmin, ymin, xmax, ymax = shapely_polygon.bounds
     circ = shapely_polygon.length
@@ -228,6 +443,24 @@ def getDataPolygonNew(
 
     total_elapsed_time = 0
 
+    # print("is indicator: ", is_indicator)
+
+    # test = coordsInsidePolygon(
+    #     is_indicator,
+    #     True,
+    #     True,
+    #     dataset_id=dataset_id,
+    #     layer_name=layer_name,
+    #     time_start=date_start,
+    #     time_finish=date_end,
+    #     polygon=shapely_polygon,
+    #     num_parameters=num_param,
+    #     range_value=range_value,
+    #     boolNostraFunzione=True
+    # )
+
+    # print("TEST COORDS INSIDE POLYGON", test)
+
     for latlng in points_inside_polygon:
         try:
             logger.info("Inizio download per punto: %s", latlng)
@@ -238,6 +471,7 @@ def getDataPolygonNew(
                 is_indicator,
                 True,
                 is_indicator != "false",
+                boolNostraFunzione = False,
                 dataset_id=dataset_id,
                 layer_name=layer_name,
                 time_start=date_start,
@@ -361,9 +595,9 @@ def getDataPolygonNew(
         allData["dataTable"] = data_table_list
         cache.set(key=key_cached, value=json.dumps(allData), timeout=43200)
 
-        allData["dataPol"] = operation_before_after_cache(
-            df_polygon, statistic, time_op
-        )
+        df_for_op = df_polygon.copy()
+        df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
+        allData["dataPol"] = operation_before_after_cache(df_for_op, statistic, time_op)
 
         logger.debug("Completed getDataPolygonNew in %.2f seconds", time.time() - start_time)
         return allData
@@ -371,8 +605,102 @@ def getDataPolygonNew(
     except Exception as e:
         logger.error("Final aggregation error: %s", e)
         return str(e)
+
+# def coordsInsidePolygon(
+#         is_indicator,
+#         boolIsGraph,
+#         boolIsAnnual,
+#         dataset_id,
+#         layer_name,
+#         time_start,
+#         time_finish,
+#         polygon,
+#         num_parameters,
+#         range_value,
+#         boolNostraFunzione
+#     ):
+
+#     min_long, min_lat, max_long, max_lat = polygon.bounds
+#     url = url_is_indicator(
+#                 is_indicator,
+#                 boolIsGraph,
+#                 boolIsAnnual,
+#                 dataset_id=dataset_id,
+#                 layer_name=layer_name,
+#                 time_start=time_start,
+#                 time_finish=time_finish,
+#                 latMin=min_lat,
+#                 latMax=max_lat,
+#                 longMin=min_long,
+#                 longMax=max_long,
+#                 num_parameters=num_parameters,
+#                 range_value=range_value,
+#                 boolNostraFunzione=boolNostraFunzione
+#             )
     
-    
+#     print("URL NOSTRA FUNZIONE: " + url)
+#     print("URL NOSTRA FUNZIONE: ", url)
+#     df = read_erddap_data(url)
+#     print("DF NOSTRA FUNZIONE", df)
+
+#     if not isinstance(df, pd.DataFrame):
+#         df = pd.DataFrame(df)
+
+#     if df.empty:
+#         return df, [], {"valori_variabili": {}, "valori_unica_variabile": []}
+
+#     # 4) Normalizza nomi colonne possibili (CSV: latitude/longitude, NetCDF: lat/lon)
+#     rename_map = {}
+#     if "lat" in df.columns and "latitude" not in df.columns:
+#         rename_map["lat"] = "latitude"
+#     if "lon" in df.columns and "longitude" not in df.columns:
+#         rename_map["lon"] = "longitude"
+#     if rename_map:
+#         df = df.rename(columns=rename_map)
+
+#     # 5) Verifiche colonne coordinate
+#     for col in ("latitude", "longitude"):
+#         if col not in df.columns:
+#             raise ValueError(f"Manca la colonna '{col}' nel DataFrame ERDDAP (presenti: {list(df.columns)})")
+
+#     # 6) Cast a numerico (i CSV arrivano come stringhe)
+#     df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
+#     df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
+#     df = df.dropna(subset=["latitude", "longitude"])
+#     if df.empty:
+#         return df, [], {"valori_variabili": {}, "valori_unica_variabile": []}
+
+#     # 7) Filtro geometrico: include anche il bordo (covers)
+#     poly_prep = prep(polygon)  # accelera molte chiamate ripetute
+#     mask_inside = [
+#         poly_prep.covers(Point(lon, lat))  # ATTENZIONE ordine Point(lon, lat)
+#         for lat, lon in zip(df["latitude"].values, df["longitude"].values)
+#     ]
+
+#     df_inside = df[mask_inside].copy()
+#     if df_inside.empty:
+#         return df_inside, [], {"valori_variabili": {}, "valori_unica_variabile": []}
+
+#     # 8) Estrai solo i dati “della riga” che ti servono (tutte le variabili diverse da time/lat/lon)
+#     exclude_cols = {"time", "latitude", "longitude"}
+#     variabili = [c for c in df_inside.columns if c not in exclude_cols]
+
+#     # records come lista di dict (comoda per JSON)
+#     records_inside = df_inside.to_dict(orient="records")
+
+#     # valori per ciascuna variabile (solo righe dentro)
+#     valori_variabili = {var: df_inside[var].tolist() for var in variabili}
+
+#     # shortcut se c'è una sola variabile
+#     valori_unica_variabile = []
+#     if len(variabili) == 1:
+#         valori_unica_variabile = df_inside[variabili[0]].tolist()
+
+#     return df_inside, records_inside, {
+#         "valori_variabili": valori_variabili,
+#         "valori_unica_variabile": valori_unica_variabile,
+#     }
+
 x = 500000
 months = {
     1: "Jan",

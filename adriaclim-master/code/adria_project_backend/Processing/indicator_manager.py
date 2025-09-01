@@ -176,6 +176,35 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                 )
             except Exception as e1:
                 return str(e1)
+            
+        # elif is_indicator == "true" and is_graph and is_annual and kwargs["boolNostraFunzione"]:
+        #     try:
+                # https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/ARPAE_f903_2ae5_11cb.htmlTable?
+                # longitude,latitude,a_95_BO_9_m&time%3E=2022-11-25&time%3C=2022-12-02&longitude%3E=11.877&longitude%3C=12.877&latitude%3E=43.62&latitude%3C=44.62&.draw=markers&.marker=5%7C5&.color=0x000000&.colorBar=%7C%7C%7C%7C%7C&.bgColor=0xffccccff
+                # url = (
+                #     ERDDAP_URL
+                #     + "/tabledap/"
+                #     + kwargs["dataset_id"]
+                #     + ".csv?"
+                #     + "logitude,latitude,"
+                #     + kwargs["layer_name"]
+                #     + "&time%3E="
+                #     + kwargs["time_start"]
+                #     + "&time%3C="
+                #     + kwargs["time_finish"]
+                #     + "&longitude%3E="
+                #     + kwargs["longMin"]
+                #     + "&longitude%3C="
+                #     + kwargs["longMax"]
+                #     + "&latitude%3E="
+                #     + kwargs["latMin"]
+                #     + "&latitude%3C="
+                #     + kwargs["latMax"]
+                # )
+            #     url = "ok"
+            # except Exception as e1:
+            #     # return str(e1)
+            #     return "ok errore"
         elif is_indicator == "true" and is_graph and not is_annual:
             url = (
                 ERDDAP_URL
@@ -199,7 +228,11 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
             )
 
         elif is_indicator == "false" and is_graph == False and is_annual == False:
-            if kwargs["num_param"] > 3:
+            time_stride = str(kwargs.get("time_stride", 1))
+            lat_stride  = str(kwargs.get("lat_stride", 1))
+            lon_stride  = str(kwargs.get("lon_stride", 1))
+
+            if kwargs.get("num_param", 0) > 3:
                 url = (
                     ERDDAP_URL
                     + "/griddap/"
@@ -208,7 +241,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                     + kwargs["layer_name"]
                     + "%5B("
                     + kwargs["time_start"]
-                    + "):1:("
+                    + "):" + time_stride + ":("
                     + kwargs["time_finish"]
                     + ")%5D%5B("
                     + str(kwargs["range_value"])
@@ -216,11 +249,11 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                     + str(kwargs["range_value"])
                     + ")%5D%5B("
                     + kwargs["latitude_start"]
-                    + "):1:("
+                    + "):" + lat_stride + ":("
                     + kwargs["latitude_end"]
                     + ")%5D%5B("
                     + kwargs["longitude_start"]
-                    + "):1:("
+                    + "):" + lon_stride + ":("
                     + kwargs["longitude_end"]
                     + ")%5D"
                 )
@@ -233,18 +266,65 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                     + kwargs["layer_name"]
                     + "%5B("
                     + kwargs["time_start"]
-                    + "):1:("
+                    + "):" + time_stride + ":("
                     + kwargs["time_finish"]
                     + ")%5D%5B("
                     + kwargs["latitude_start"]
-                    + "):1:("
+                    + "):" + lat_stride + ":("
                     + kwargs["latitude_end"]
                     + ")%5D%5B("
                     + kwargs["longitude_start"]
-                    + "):1:("
+                    + "):" + lon_stride + ":("
                     + kwargs["longitude_end"]
                     + ")%5D"
                 )
+        # elif is_indicator == "false" and is_graph == False and is_annual == False:
+        #     if kwargs["num_param"] > 3:
+        #         url = (
+        #             ERDDAP_URL
+        #             + "/griddap/"
+        #             + kwargs["dataset_id"]
+        #             + ".csv?"
+        #             + kwargs["layer_name"]
+        #             + "%5B("
+        #             + kwargs["time_start"]
+        #             + "):1:("
+        #             + kwargs["time_finish"]
+        #             + ")%5D%5B("
+        #             + str(kwargs["range_value"])
+        #             + "):1:("
+        #             + str(kwargs["range_value"])
+        #             + ")%5D%5B("
+        #             + kwargs["latitude_start"]
+        #             + "):1:("
+        #             + kwargs["latitude_end"]
+        #             + ")%5D%5B("
+        #             + kwargs["longitude_start"]
+        #             + "):1:("
+        #             + kwargs["longitude_end"]
+        #             + ")%5D"
+        #         )
+        #     else:
+        #         url = (
+        #             ERDDAP_URL
+        #             + "/griddap/"
+        #             + kwargs["dataset_id"]
+        #             + ".csv?"
+        #             + kwargs["layer_name"]
+        #             + "%5B("
+        #             + kwargs["time_start"]
+        #             + "):1:("
+        #             + kwargs["time_finish"]
+        #             + ")%5D%5B("
+        #             + kwargs["latitude_start"]
+        #             + "):1:("
+        #             + kwargs["latitude_end"]
+        #             + ")%5D%5B("
+        #             + kwargs["longitude_start"]
+        #             + "):1:("
+        #             + kwargs["longitude_end"]
+        #             + ")%5D"
+        #         )
 
         elif is_indicator == "false" and is_graph and is_annual == False:
             if kwargs["num_parameters"] > 3:
