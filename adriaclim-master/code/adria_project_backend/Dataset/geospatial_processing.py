@@ -213,7 +213,7 @@ def getDataPolygonNew(
         import numpy as np
         from shapely.prepared import prep
 
-        # 1) bounds da shapely (nel tuo poligono x=lat, y=lon)
+        # 1) bounds da shapely
         xmin, ymin, xmax, ymax = shapely_polygon.bounds
         lat_min_f = float(xmin); lat_max_f = float(xmax)
         lon_min_f = float(ymin); lon_max_f = float(ymax)
