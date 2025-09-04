@@ -65,7 +65,7 @@ pipeline {
     agent any
 
     environment {
-        TEST_HOST = '72.14.201.21'
+        TEST_HOST = '151.16.91.155'
         SSH_USER  = 'fos'
         REMOTE_PROJECT_PATH = '/home/fos/adriaclimplus-test/adriaclim-master'
     }
