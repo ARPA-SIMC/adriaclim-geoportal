@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.forms.models import model_to_dict
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from Metadata import metadata_manager
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -276,4 +277,8 @@ def getDataPolygonNew(request):
         return str(e)
 
 
-
+@api_view(['GET','POST'])
+def get_metadata_table(request):
+    dataset_id = request.data.get("idMeta")
+    metadata=metadata_manager.getMetadataOfASpecificDataset(dataset_id)
+    return JsonResponse({"metadata":metadata})
