@@ -4,6 +4,7 @@ from AdriaProject.settings import ERDDAP_URL
 from django.http import HttpResponse, JsonResponse
 
 
+
 def build_wms_url(base_url, dataset_id, params):
     """Costruisce URL WMS evitando i parametri None"""
     clean_params = {k: v for k, v in params.items() if v is not None}
@@ -96,6 +97,8 @@ def overlaysNew(request,dataset_id):
         )
         
     return django_response
+
+
 
 
 
