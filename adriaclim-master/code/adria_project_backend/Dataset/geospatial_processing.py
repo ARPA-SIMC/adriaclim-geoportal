@@ -362,11 +362,6 @@ def getDataPolygonNew(
         logger.info("BULK pre-filter shape: %s", df_polygon.shape)
         logger.warning("[DEBUG FILTER] OK — uso dati BULK filtrati")
 
-
-
-
-
-
         # diagnostica shape
         try:
             logger.info("BULK pre-filter shape: %s", tuple(df_bulk.shape))
@@ -388,7 +383,6 @@ def getDataPolygonNew(
         required_cols = {"time", "latitude", "longitude", layer_name}
         if df_bulk is None or df_bulk.empty or not required_cols.issubset(set(df_bulk.columns)):
             raise ValueError("Bulk ERDDAP empty/invalid schema")
-
 
         # schema richiesto
         required_cols = {"time", "latitude", "longitude", layer_name}
@@ -423,10 +417,10 @@ def getDataPolygonNew(
         # Scegli quello con più match nel poligono
         if mask_lonlat.sum() >= mask_latlon.sum():
             mask = mask_lonlat
-            logger.warning("⚠️  Usato ordine (lon, lat) per filtro geometrico (%d punti dentro)", mask.sum())
+            logger.warning("Usato ordine (lon, lat) per filtro geometrico (%d punti dentro)", mask.sum())
         else:
             mask = mask_latlon
-            logger.warning("⚠️  Usato ordine (lat, lon) per filtro geometrico (%d punti dentro)", mask.sum())
+            logger.warning("Usato ordine (lat, lon) per filtro geometrico (%d punti dentro)", mask.sum())
 
         df_bulk = df_bulk[mask]
         if df_bulk.empty:
@@ -439,7 +433,6 @@ def getDataPolygonNew(
                 "dataPol": [],
                 "dataTable": []
             }
-
 
         logger.info(
             "BULK post-filter rows: %d | unique dates: %s | unique points: %s",
@@ -518,7 +511,7 @@ def getDataPolygonNew(
 
         allData["dataTable"] = df_table.to_dict(orient="records")
 
-     # 5) dataPol + cache (con normalizzazione datetime prima dell'operazione)
+        # 5) dataPol + cache (con normalizzazione datetime prima dell'operazione)
         df_for_op = df_polygon.copy()
         df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
 
@@ -535,7 +528,6 @@ def getDataPolygonNew(
         logger.warning("BULK fallito: %s — procedo con fallback per-punto", e_bulk)
 
     # ===== FALLBACK per-punto (codice originale) =====
-
 
     xmin, ymin, xmax, ymax = shapely_polygon.bounds
     circ = shapely_polygon.length
@@ -599,7 +591,7 @@ def getDataPolygonNew(
             logger.error("Error downloading data at point %s: %s", latlng, e)
             continue
 
-        logger.info("⏱️ Tempo totale per tutti i punti: %.2f secondi", total_elapsed_time)
+        logger.info("Tempo totale per tutti i punti: %.2f secondi", total_elapsed_time)
 
         try:
             for index, row in enumerate(df.to_dict(orient="records")):
