@@ -9,23 +9,40 @@ from django.core.cache import cache
 
 def read_erddap_data(url):
     """
-    Scarica i dati da un URL ERDDAP in formato CSV o NetCDF,
-    scegliendo il formato in automatico: NetCDF per griddap, CSV per tutto il resto.
-    Restituisce sempre un DataFrame pandas.
+    Scarica i dati da un URL ERDDAP in formato CSV o NetCDF.
+    NetCDF viene provato prima per griddap, poi fallback a CSV.
+    Per tabledap viene usato solo CSV.
+    Ritorna sempre un DataFrame pandas.
     """
-    # Decidi il formato in base al tipo di URL
+    import pandas as pd
+    import xarray as xr
+    import io
+    import urllib.request
+
     if "/griddap/" in url:
-        # Prova prima con NetCDF, se fallisce passa a CSV
-        url_nc = url.replace('.csv?', '.nc?')
+        url_nc = url.replace(".csv?", ".nc?")
         try:
             ds = xr.open_dataset(url_nc)
-            return ds.to_dataframe().reset_index()
+            df = ds.to_dataframe().reset_index()
+            if df.empty:
+                raise ValueError("NetCDF vuoto")
+            return df
         except Exception:
-            # fallback a CSV
-            return pd.read_csv(url, dtype="unicode")
-    else:
-        # Per tabledap e altri sempre CSV
-        return pd.read_csv(url, dtype="unicode")
+            pass  # tenta fallback
+
+    # Fallback CSV (sia per griddap che tabledap)
+    try:
+        with urllib.request.urlopen(url, timeout=60) as response:
+            text = response.read().decode("utf-8", errors="ignore")
+    except Exception as e:
+        raise e  # errore reale
+
+    if "nRows = 0" in text or "no matching results" in text:
+        print(f"[ERDDAP] Nessun dato restituito da ERDDAP: {url}")
+        return pd.DataFrame()
+
+    return pd.read_csv(io.StringIO(text), dtype="unicode")
+
 
 
 def percentile_new(n):
