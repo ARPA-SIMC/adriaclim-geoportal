@@ -343,7 +343,30 @@ def getAllDatasets():
         if adriaclim_timeperiod and adriaclim_timeperiod.lower() in PERIODI_DA_ESCLUDERE:
             logger.info(f"Dataset {node_id} ({row['Title']}) escluso perché timeperiod={adriaclim_timeperiod}")
             continue
-            
+
+        # INDICATORI CHE NON HANNO TIME_START E TIME_END---------------------
+
+        # # Gestione speciale per indicatori (es. txx, txn, tg, rx5day, rx1day)
+        # indicator_vars = ["txx", "txn", "tg", "rx5day", "rx1day"]
+
+        # if adriaclim_dataset == "indicator":
+        #     # Se mancano time_start/time_end → assegna valori fittizi sicuri
+        #     if not time_start:
+        #         time_start = "INDICATOR"
+        #     if not time_end:
+        #         time_end = "INDICATOR"
+
+        #     logger.info(f"Indicator {node_id} ({row['Title']}) salvato con marker speciale per gestione Times")
+
+        #     # Logga che è stato applicato un default
+        #     if row.get("Title"):
+        #         for var in indicator_vars:
+        #             if var in row["Title"].lower():
+        #                 logger.info(f"Indicator {node_id} ({row['Title']}) salvato con time range fittizio")
+        #                 break
+
+        # FINE TEST INDICATORI---------------------------
+        
         if time_start and time_end:
             defaults = {
                 "adriaclim_dataset": adriaclim_dataset,
