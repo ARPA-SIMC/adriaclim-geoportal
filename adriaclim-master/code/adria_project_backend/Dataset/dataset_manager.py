@@ -336,7 +336,14 @@ def getAllDatasets():
                 adriaclim_timeperiod = "yearly"
             else:
                 adriaclim_timeperiod = "UNKNOWN"
+        
+        # Escludi SOLO dataset selezionati
+        PERIODI_DA_ESCLUDERE = ["6h", "3h", "1min", "hourly"]
 
+        if adriaclim_timeperiod and adriaclim_timeperiod.lower() in PERIODI_DA_ESCLUDERE:
+            logger.info(f"Dataset {node_id} ({row['Title']}) escluso perché timeperiod={adriaclim_timeperiod}")
+            continue
+            
         if time_start and time_end:
             defaults = {
                 "adriaclim_dataset": adriaclim_dataset,
@@ -368,7 +375,6 @@ def getAllDatasets():
             safe_insert_node(node_id, defaults)
 
     logger.info("Completata getAllDatasets() in %.2f secondi", time.time() - start_time)
-
 
 def download_big_data(request):
     try:
