@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import * as welcomeJson from '../../assets/configuration/welcomePage.json';
-import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+// import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+import { environment } from 'src/environments/environment';
 
 interface WelcomeJson {
   title: string;
