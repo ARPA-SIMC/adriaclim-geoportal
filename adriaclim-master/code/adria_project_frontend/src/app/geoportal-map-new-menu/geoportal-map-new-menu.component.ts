@@ -752,17 +752,6 @@ export class GeoportalMapNewMenuComponent {
     menuTrigger.closeMenu();
   }
 
-  getPluto() {
-    this.httpService.post('dataset/pluto', {
-    }).subscribe({
-      next(position: any) {
-
-      },
-      error(msg: any) {
-      }
-    });
-  }
-
   /**
    * Funzione che rihciama tutti i nuovi dataset di erddap attraverso i servizi api collegati ai nodi del database
    */

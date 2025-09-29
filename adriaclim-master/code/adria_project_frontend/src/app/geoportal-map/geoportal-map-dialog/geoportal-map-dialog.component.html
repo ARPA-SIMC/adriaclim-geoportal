@@ -78,7 +78,7 @@
 
       <ng-template #graph>
         <div #graphDiv *ngIf="!description">
-          <!-- <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner> -->
+          <!-- <mat-spinner style="margin: auto !important;" *ngIf="spinnerLoading"></mat-spinner> nel grafico dopo il caricamento della barra -->
           <div class="col-12 d-flex flex-row justify-content-center align-items-center mt-5" *ngIf="progressBarAtStart">
             <h3>Loading...</h3>
 
@@ -224,6 +224,10 @@
                   (progressBarCanvas)="progressBarCanvas($event)"
                   (statisticCalc)="statisticCalc($event)"
                   (description)="descriptionError($event)"
+                  (fakeProgressStart)="startFakeProgress()"
+                  (fakeProgressStop)="stopFakeProgress()"
+                  [isUpdate]="isUpdate"
+                  (meanMedianStdev)="meanMedianStdev($event)"
                   class="canvas-graph" [dataset]="dataset"
                   [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                   [range]="range" [isIndicator]="isIndicator"
@@ -246,6 +250,10 @@
                   (statisticCalc)="statisticCalc($event)"
                   (progressBar)="progressBar($event)"
                   (progressBarCanvas)="progressBarCanvas($event)"
+                  (fakeProgressStart)="startFakeProgress()"
+                  (fakeProgressStop)="stopFakeProgress()"
+                  [isUpdate]="isUpdate"
+                  (meanMedianStdev)="meanMedianStdev($event)"
                   class="canvas-graph" [dataset]="dataset"
                   [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
                   [range]="range" [isIndicator]="isIndicator"

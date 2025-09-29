@@ -29,6 +29,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @Input() enableArea: any;
   @Input() circleCoords: any;
   @Input() progressBarAtStart: any;
+  @Input() isUpdate: boolean = false;
   // @Output() meanMedianStdev = new EventEmitter<any>();
 
   @Output() compareStats = new EventEmitter<any>();

@@ -14,7 +14,11 @@ import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
   styleUrls: ['./canvas-graph.component.scss']
 })
 export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
-  isLoading!: boolean;
+  private isLoading = false;
+  private suppressProgress = false; // disattiva barra/spinner per l’update corrente
+
+  // isLoading!: boolean;
+  @Input() isUpdate: boolean = false;
   @Input() idMeta: any;
   @Input() dataset: any;
   @Input() latlng: any;
@@ -38,6 +42,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() statisticCalc = new EventEmitter<any>();
   @Output() description = new EventEmitter<any>();
   @Output() progressBar = new EventEmitter<any>();
+  
+  @Output() fakeProgressStart = new EventEmitter<void>();
+  @Output() fakeProgressStop = new EventEmitter<void>();
+
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
   dateGraphZoom: any[] = [];
@@ -231,28 +239,37 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   ];
   yMax = 500;
   dataShadow = [];
+  chartAlreadyLoaded: boolean | undefined;
 
   constructor(private httpClient: HttpClient, private httpService: HttpService, private spinnerService: SpinnerLoaderService) {
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("CAMBIO")
-    // this.spinnerLoading.emit(true);
-    // this.spinnerService.spinnerShow = true;
-    if (this.polygon) {
-      //se c'è il poligono chiamare altra funzione
-      this.firstSpinner();
-      this.getDataGraphPolygonInterval();
+    console.log("CAMBIO", changes);
 
-    } else {
-      //se non c'è il poligono chiama this.getDataGraph() classica
-      this.firstSpinner();
-
-      this.getDataGraph();
+    // UPDATE: niente barra/spinner, solo refresh grafico
+    if (changes['isUpdate']?.currentValue === true) {
+      this.suppressProgress = true;   //blocca barra per questo giro
+      if (this.polygon) {
+        this.getDataGraphPolygonInterval();
+      } else {
+        this.getDataGraph();
+      }
+      return; // NON azzerare qui isUpdate nel figlio
     }
 
+    // CARICAMENTO NORMALE: consentiamo barra/spinner
+    this.suppressProgress = false;
+    if (this.polygon) {
+      this.firstSpinner();
+      this.getDataGraphPolygonInterval();
+    } else {
+      this.firstSpinner();
+      this.getDataGraph();
+    }
   }
+
+
 
   ngOnInit() {
     console.log("INZIO CANVAS GRAPH")
@@ -362,88 +379,105 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       operation: this.operation,
       statistic: this.statistic,
       circleCoords: this.circleCoords,
-
-    }
+    };
 
     console.log("DATA IF POLYGON =", data);
-
-    // console.log("data =", data);
-
-    // send HTTP POST request to Django view function
     if (this.statistic !== "boxPlot") {
-      this.firstSpinner();
-      // this.spinnerService.spinnerShow = true;
+      if (this.isLoading) {
+        console.log("⏳ Caricamento già in corso, ignoro nuova richiesta");
+        return;
+      }
+      this.isLoading = true;
+
+      // mostra spinner/barra SOLO se NON è update
+      if (!this.isUpdate) {
+        this.firstSpinner();
+        if (this.context === "one") {
+          console.log("[FIGLIO] emetto fakeProgressStart");
+          this.fakeProgressStart.emit();
+          this.chartAlreadyLoaded = true;
+        }
+      }
+
       this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
         console.log("PRIMA RESPONSE", response);
 
-        // extract task ID from response
-        let data = {
-          task_id: response.task_id,
-        }
-        // console.log("task_id =", data)
+        let data = { task_id: response.task_id };
 
-        // periodically check task status
         let checkTaskStatus = setInterval(() => {
           this.httpService.post('dataset/check_task_status/', data).subscribe({
             next: (res: any) => {
               console.log("SECONDA RESPONSE", res);
-
               let task_status = res.dataVect.status;
 
               if (task_status === 'SUCCESS') {
                 clearInterval(checkTaskStatus);
-                // task completed successfully, extract and display result
-                let task_result = {
-                  dataVect: res.dataVect.result,
-                };
+
+                if (!this.isUpdate) {
+                  console.log("[FIGLIO] emetto fakeProgressStop");
+                  this.fakeProgressStop.emit();
+                }
+
+                let task_result = { dataVect: res.dataVect.result };
                 this.getDataGraphPolygon(task_result);
-                // this.spinnerLoadingChild.emit(false);
 
-
-                //execute the function to create the graph
+                this.isLoading = false;
               }
               else if (task_status === 'FAILURE') {
-                // task failed, display error message
                 clearInterval(checkTaskStatus);
-                let task_error = response.dataVect.error;
-                console.error('Task error:', task_error);
-                // this.spinnerLoadingChild.emit(false);
 
+                if (!this.isUpdate) {
+                  console.log("[FIGLIO] emetto fakeProgressStop");
+                  this.fakeProgressStop.emit();
+                }
+
+                console.error('Task error:', response.dataVect.error);
+
+                this.isLoading = false;
               }
               else if (task_status === "PROGRESS") {
-                let progressBarValue = res.dataVect.progressBar;
-                this.progressBar.emit(progressBarValue);
+                if (!this.isUpdate) {
+                  let progressBarValue = res.dataVect.progressBar;
+                  this.progressBar.emit(progressBarValue);
+                }
               }
             },
-
             error: (err: any) => {
               clearInterval(checkTaskStatus);
+
+              if (!this.isUpdate) {
+                console.log("[FIGLIO] emetto fakeProgressStop");
+                this.fakeProgressStop.emit();
+              }
+
               console.log("ERROR =", err);
+              this.isLoading = false;
             }
           });
         }, 2000);
-
-        // this.spinnerService.spinnerShow = false;
       });
-    } //if statistic !== boxPlot
-    else {
-      // this.spinnerLoadingChild.emit(true);
-      this.firstSpinner();
+    }else {
+      if (this.isLoading) {
+        console.log("⏳ Caricamento già in corso, ignoro nuova richiesta");
+        return;
+      }
+      this.isLoading = true;
+
+      if (!this.isUpdate) {
+        this.firstSpinner();
+        console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
+        this.fakeProgressStart.emit();
+      }
 
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
-      // this.spinnerService.spinnerShow = true;
       this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
+        let data = { task_id: response.task_id };
 
-        // extract task ID from response
-        let data = {
-          task_id: response.task_id,
-        }
-
-        // periodically check task status
         let checkTaskStatus = setInterval(() => {
           this.httpService.post('dataset/check_task_status/', data).subscribe({
             next: (res: any) => {
+              console.log("SECONDA RESPONSE (boxPlot)", res);
 
               this.data1 = res.dataVect.result.dataPol.map((el: any) => {
                 return [
@@ -452,24 +486,16 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                   el["Median"],
                   el["90th Percentile"],
                   el["Maximum"],
-
-                ]
+                ];
               });
 
-              let showName = res.dataVect.result.dataPol.map((el: any) => {
-                return [
-                  el['x']
-                ]
-              });
+              let showName = res.dataVect.result.dataPol.map((el: any) => [el['x']]);
 
               let i = 0;
               this.quantityBoxPlot = new Set();
               showName.forEach((element: any) => {
-                // this.quantityBoxPlot.add("Box" + " " + i);
                 this.quantityBoxPlot.add(element[0]);
-                // this.quantityBoxPlot = [...new Set(this.quantityBoxPlot)];
                 i++;
-
               });
 
               this.optionBoxPlot = {
@@ -480,59 +506,33 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     top: '20px'
                   },
                 ],
-
                 dataset: [
+                  { source: this.data1 },
                   {
-                    // prettier-ignore dataset index 0
-                    source: this.data1
-                  },
-                  {
-                    //datasetIndex 1
                     transform: {
                       type: 'boxplot',
                       config: {
                         itemNameFormatter: function (params: any) {
-
                           return params.value;
                         }
                       },
                     }
                   },
-                  //datasetindex 2
-                  {
-                    fromDatasetIndex: 1,
-                    fromTransformResult: 1
-                  },
-
+                  { fromDatasetIndex: 1, fromTransformResult: 1 },
                 ],
-                tooltip: {
-                  trigger: 'item',
-                  axisPointer: {
-                    type: 'shadow'
-                  }
-                },
-                grid: {
-                  left: '10%',
-                  right: '10%',
-                  bottom: '15%'
-                },
-                xAxis: {
-                  type: 'category',
-                  data: [...this.quantityBoxPlot]
-                },
-                yAxis: {
-                  type: 'value',
-                  name: 'Values',
-                },
+                tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
+                grid: { left: '10%', right: '10%', bottom: '15%' },
+                xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
+                yAxis: { type: 'value', name: 'Values' },
                 series: [
                   {
                     name: 'Box plot',
                     type: 'boxplot',
                     datasetIndex: 1,
-
                     tooltip: {
                       formatter: function (param: any) {
-                        const param_smaller = "<span style='display:inline-block;margin-bottom:3px; margin-left:18px; border-radius:5px;width:5px;height:5px;background-color:#c23531;'></span>"
+                        const param_smaller =
+                          "<span style='display:inline-block;margin-bottom:3px; margin-left:18px; border-radius:5px;width:5px;height:5px;background-color:#c23531;'></span>";
                         return [
                           param.marker + " " + param.name.charAt(0).toUpperCase() + param.name.slice(1) + ": ",
                           param_smaller + " " + "Max: " + param.data[5],
@@ -543,51 +543,49 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                         ].join("<br/>");
                       }
                     },
-
                   },
-                  {
-                    name: 'Outlier',
-                    type: 'scatter',
-                    datasetIndex: 2,
-
-                  },
-
+                  { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
                 ]
               };
-
-
 
               let task_status = res.dataVect.status;
 
               if (task_status === 'SUCCESS') {
-                // task completed successfully, extract and display result
                 clearInterval(checkTaskStatus);
-                // this.spinnerLoadingChild.emit(false);
 
-                // this.spinnerService.spinnerShow = false;
+                if (!this.isUpdate) {
+                  console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
+                  this.fakeProgressStop.emit();
+                }
 
+                this.isLoading = false;
               } else if (task_status === 'FAILURE') {
-                // task failed, display error message
                 clearInterval(checkTaskStatus);
-                let task_error = response.dataVect.error;
-                console.error('Task error:', task_error);
-                // this.spinnerLoadingChild.emit(false);
 
-                // this.spinnerService.spinnerShow = false;
+                if (!this.isUpdate) {
+                  console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
+                  this.fakeProgressStop.emit();
+                }
 
+                console.error('Task error:', response.dataVect.error);
+
+                this.isLoading = false;
               }
             },
-
             error: (err: any) => {
+              clearInterval(checkTaskStatus);
+
+              if (!this.isUpdate) {
+                console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
+                this.fakeProgressStop.emit();
+              }
+
               console.log("ERROR =", err);
+              this.isLoading = false;
             }
           });
         }, 2000);
-
-        // this.spinnerService.spinnerShow = false;
       });
-
-      // this.spinnerLoadingChild.emit(false);
     }
   }
 

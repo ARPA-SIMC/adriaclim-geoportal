@@ -25,6 +25,8 @@ import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
 })
 export class GeoportalMapDialogComponent implements AfterContentChecked {
 
+  isUpdate = false;
+
   dimUnit: any;
 
   stats: any = {};
@@ -109,6 +111,12 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   progress = 0
   progressWidth = this.progress + "%"
+
+  fakeProgressInterval: any;   // timer per il finto avanzamento
+  isFakeActive = false;
+  fakeProgressStartedAt = 0;
+  readonly MIN_VISIBLE_MS = 600; // garantisce visibilità minima della barra
+  
 
   typeOfExport: TypeOfExport[] = [
     {
@@ -216,9 +224,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   ];
 
-  /**
-   * Funzione che controlla se mostrare o no le statistiche sopra il grafico della modale
-   */
   showStat() {
     if (this.operation === "default") {
 
@@ -545,73 +550,67 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * Funzione che permette di popolare la tabella con i metadati
    */
   getGraphTable() {
-    this.dimUnit = "";
-    if (this.dataset) {
-      // this.spinnerLoading = true;
-      //converting date to UTC
+  this.dimUnit = "";
+  if (this.dataset) {
+    this.spinnerLoading = true;   //mostra lo spinner
 
-      let data = {
-        idMeta: this.datasetId,
-        dimensions: this.dataset.dimensions,
-        lat: this.latlng.lat,
-        lng: this.latlng.lng,
-        dateStart: this.formatDateNew(this.dateStart),
-        dateEnd: this.formatDateNew(this.dateEnd),
-        variable: this.variable,
-        range: this.range ? Math.abs(this.range) : null
-      }
+    let data = {
+      idMeta: this.datasetId,
+      dimensions: this.dataset.dimensions,
+      lat: this.latlng.lat,
+      lng: this.latlng.lng,
+      dateStart: this.formatDateNew(this.dateStart),
+      dateEnd: this.formatDateNew(this.dateEnd),
+      variable: this.variable,
+      range: this.range ? Math.abs(this.range) : null
+    };
 
-      // this.httpClient.post('http://localhost:8000/dataset/getDataTableNew/', data, { responseType: 'text' }).subscribe(response => {
-      this.httpService.post('dataset/getDataTableNew/', data).subscribe((response: any) => {
+    this.httpService.post('dataset/getDataTableNew/', data).subscribe({
+      next: (response: any) => {
         if (response.data !== "fuoriWms") {
-          // this.spinnerLoading = false;
           if (typeof response === 'string') {
             response = JSON.parse(response);
           }
-          this.dataTable = response;
-          // console.log("datatable graph =======", this.dataTable);
 
+          this.dataTable = response;
           this.displayedColumns = this.dataTable.data.table.columnNames;
           this.dimUnit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
 
           if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
-            this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
-          }
-          else {
+            this.displayedColumns[this.displayedColumns.length - 1] =
+              this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
+          } else {
             this.dimUnit = "";
           }
-          // this.dataTable.data.table.forEach((el: any) => {
-          let objArr: any = {};
-          let arr1: any = [];
-          // console.log("K = ", k);
 
+          let arr1: any[] = [];
           this.dataTable.data.table.rows.forEach((arr: any) => {
-            objArr = {};
-
+            let objArr: any = {};
             this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
               objArr[key] = arr[i];
-
-            })
+            });
             arr1.push(objArr);
-
           });
           this.dataTable.data.table.rows = [...arr1];
 
           if (this.dataTable.data.table.rows.length > 0) {
             this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
-            // bypass ngIf for paginator
             this.setDataSourceAttributes();
-
           }
-
-        }
-        else {
+        } else {
           this.description = "The selected point is outside the WMS coverage";
         }
 
-      });
-    }
+        this.spinnerLoading = false;   //sempre a fine next
+      },
+      error: (err: any) => {
+        console.error("Errore in getGraphTable:", err);
+        this.spinnerLoading = false;   //spegne anche in caso di errore
+      }
+    });
   }
+}
+
 
   createErddapUrl() {
     let prova: any[] = [];
@@ -851,14 +850,85 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   /**
    * Funzione che permette di ricevere dal componente figlio i valori che controllano la progressione della progress bar di caricamento
    */
+  // riceve aggiornamenti reali (PROGRESS) dal figlio
   progressBar(event: any) {
-    this.progress = event;
-    this.progressWidth = this.progress + "%"
+    // se sta girando il fake, lo disattivo e passo a progress reale
+    if (this.isFakeActive) {
+      if (this.fakeProgressInterval) {
+        clearInterval(this.fakeProgressInterval);
+        this.fakeProgressInterval = null;
+      }
+      this.isFakeActive = false;
+    }
+
+    this.progress = Number(event) || 0;
+    this.progressWidth = this.progress + "%";
+    // assicuro la visibilità della barra mentre ricevo progress reali
+    this.progressBarAtStart = true;
   }
 
+  // il figlio può chiedere di mostrare/nascondere la barra, ma
+  // durante il fake lo IGNORO per evitare che sparisca subito
   progressBarCanvas(event: any) {
-    this.progressBarAtStart = event;
+    if (this.isFakeActive) return; // ignora richieste di spegnimento mentre fake è attivo
+    this.progressBarAtStart = !!event;
   }
+
+  startFakeProgress() {
+    console.log("[PADRE] startFakeProgress eseguito");
+    this.isFakeActive = true;
+    this.fakeProgressStartedAt = Date.now();
+
+    // mostra barra e resetta
+    this.progressBarAtStart = true;
+    this.progress = 0;
+    this.progressWidth = "0%";
+
+    // stop di eventuale timer precedente
+    if (this.fakeProgressInterval) {
+      clearInterval(this.fakeProgressInterval);
+    }
+
+    // incremento finto rapido fino al 90%
+    this.fakeProgressInterval = setInterval(() => {
+      if (!this.isFakeActive) return; // se nel frattempo è passato a reale, non avanzare finto
+      if (this.progress < 90) {
+        this.progress += 5;
+        this.progressWidth = this.progress + "%";
+      }
+    }, 150);
+  }
+
+  stopFakeProgress() {
+  if (this.fakeProgressInterval) {
+    clearInterval(this.fakeProgressInterval);
+    this.fakeProgressInterval = null;
+  }
+
+  // se la barra era ferma bassa, portala almeno al 95
+  if (this.progress < 95) {
+    this.progress = 95;
+    this.progressWidth = "95%";
+  }
+
+  // anima lentamente l’ultimo tratto fino al 100%
+  const step = setInterval(() => {
+    if (this.progress < 100) {
+      this.progress += 1;
+      this.progressWidth = this.progress + "%";
+    } else {
+      clearInterval(step);
+      setTimeout(() => {
+        this.progressBarAtStart = false;
+        this.progress = 0;
+        this.progressWidth = "0%";
+        this.isFakeActive = false;
+      }, 500); // resta visibile mezzo secondo
+    }
+  }, 10); // incremento veloce (0.01s)
+}
+
+
 
   /**
    * Funzione che prende in input i valori delle statistiche permette di formattare i valori con x10^ quando i numeri sono troppo grandi o troppo piccoli
@@ -908,11 +978,20 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * Funzione che assegna l'operazione e la statistica selezionata dall'utente
    */
   sendSelGraphPoly() {
+    // niente barra per l’update
     this.progressBarAtStart = false;
-    this.spinnerService.spinnerShow = true;
+
+    //non accendere lo spinner globale durante update
+    this.spinnerService.spinnerShow = false;
+
     this.operation = this.form.get('operationSel')?.value;
-    this.statistic = this.form.get('statisticSel')?.value;
+    this.statistic  = this.form.get('statisticSel')?.value;
+
+    // invia un "impulso" di update al figlio
+    this.isUpdate = true;
+    setTimeout(() => { this.isUpdate = false; }, 0); // reset immediato, serve solo come trigger
   }
+
 
   statisticCalc(event: any) {
     this.statCalc = event;;

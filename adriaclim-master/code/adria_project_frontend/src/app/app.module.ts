@@ -103,7 +103,8 @@ registerLocaleData(localeIt);
     NgxSliderModule,
 
     PagesModule,
-    AngularMatModule
+    AngularMatModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     MatMenuTrigger,
