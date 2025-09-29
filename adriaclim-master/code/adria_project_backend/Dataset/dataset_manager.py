@@ -7,10 +7,10 @@ import pandas as pd
 from django.db import connection
 from django.db import transaction
 from django.core.cache import cache
+from django.conf import settings
 from AdriaProject.logger_config import setup_logger
 from Dataset.models import Node, Indicator
 from Metadata.metadata_manager import process_metadata
-from AdriaProject.settings import ERDDAP_URL
 from typing import List, Dict, Any, Optional
 from Processing.utils import download_with_cache_as_csv
 from Processing.database_operations import is_database_almost_full, delete_all
@@ -192,7 +192,7 @@ def getAllDatasets():
     start_time = time.time()
     logger.info("Started getAllDatasets()")
 
-    url_datasets = "https://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv?page=1&itemsPerPage=100000"
+    url_datasets = f"{settings.ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=100000"
     asyncio.run(delete_all("Node"))
 
     try:

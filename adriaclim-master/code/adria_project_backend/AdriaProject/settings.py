@@ -238,7 +238,8 @@ STATICFILES_DIRS=[
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap" 
+# ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap" 
+ERDDAP_URL = os.environ.get("ERDDAP_URL", "https://erddap-adriaclim.cmcc-opa.eu/erddap")
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"

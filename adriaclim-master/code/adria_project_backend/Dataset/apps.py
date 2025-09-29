@@ -1,5 +1,7 @@
 import logging
 import urllib.request
+from django.conf import settings
+
 
 from django.apps import AppConfig
 from django.db.utils import OperationalError, ProgrammingError
@@ -14,7 +16,7 @@ class DatasetConfig(AppConfig):
             from .dataset_manager import getAllDatasets
             from .models import Node
 
-            erddap_url = "https://erddap-adriaclim.cmcc-opa.eu/erddap/info/index.csv"
+            erddap_url = f"{settings.ERDDAP_URL}/info/index.csv"
 
             try:
                 urllib.request.urlopen(erddap_url, timeout=5)
