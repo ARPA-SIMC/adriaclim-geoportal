@@ -4,9 +4,9 @@ import asyncio
 import requests
 import numpy as np
 import pandas as pd
-from django.db import connection
-from django.db import transaction
-from django.core.cache import cache
+from django.db import connection # type: ignore
+from django.db import transaction # type: ignore
+from django.core.cache import cache # type: ignore
 from AdriaProject.logger_config import setup_logger
 from Dataset.models import Node, Indicator
 from Metadata.metadata_manager import process_metadata
