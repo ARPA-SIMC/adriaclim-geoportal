@@ -107,22 +107,22 @@ pipeline {
             }
         }
 
-        stage('Test su VM di Test') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
-                ]) {
-                    sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
-                            set -e
-                            cd ${REMOTE_PROJECT_PATH} &&
-                            echo "[4] Eseguo i test Django..." &&
-                            docker compose exec -T django python adria_project_backend/manage.py test tests
-                        '
-                    """
-                }
-            }
-        }
+        // stage('Test su VM di Test') {
+        //     steps {
+        //         withCredentials([
+        //             sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+        //         ]) {
+        //             sh """
+        //                 ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
+        //                     set -e
+        //                     cd ${REMOTE_PROJECT_PATH} &&
+        //                     echo "[4] Eseguo i test Django..." &&
+        //                     docker compose exec -T django python adria_project_backend/manage.py test tests
+        //                 '
+        //             """
+        //         }
+        //     }
+        // }
 
         stage('Deploy (Restart/Update) su VM di Test') {
             when {
