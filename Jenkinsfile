@@ -97,8 +97,10 @@ pipeline {
                             echo "[1] Pulizia ambiente..." &&
                             docker compose down -v --remove-orphans || echo "Niente da pulire" &&
                             docker system prune -af || echo "Niente da pulire" &&
-                            echo "[2] Aggiorno codice..." &&
-                            git pull &&
+                            echo "[2] Aggiorno codice (forzato su test_vm)..." &&
+                            git fetch origin &&
+                            git checkout test_vm || git checkout -b test_vm &&
+                            git reset --hard origin/test_vm &&
                             echo "[3] Build & start dei container..." &&
                             docker compose up -d --build
                         '
