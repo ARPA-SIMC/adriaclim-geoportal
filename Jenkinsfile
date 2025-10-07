@@ -234,7 +234,7 @@ pipeline {
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
                     sh """
-                        echo "🚀 Invio .env a ${env.TARGET_HOST}"
+                        echo "Invio .env a ${env.TARGET_HOST}"
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} "mkdir -p ${REMOTE_PROJECT_PATH}"
                         scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${SSH_USER}@${TARGET_HOST}:${REMOTE_PROJECT_PATH}/.env
                     """
@@ -245,31 +245,33 @@ pipeline {
         // 3 Pulizia totale + build da zero
         stage('Pulizia e Build su VM') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} '
-                            set -Eeuo pipefail
-                            echo "[0] Rimozione completa vecchia directory..."
-                            rm -rf ${REMOTE_PROJECT_PATH}
-                            mkdir -p ${REMOTE_PROJECT_PATH}
-                            cd ${REMOTE_PROJECT_PATH}
+                script {
+                    sshagent(credentials: ['test-ssh-key']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} '
+                                set -Eeuo pipefail
+                                echo "[0] Rimozione completa vecchia directory..."
+                                rm -rf ${REMOTE_PROJECT_PATH}
+                                mkdir -p ${REMOTE_PROJECT_PATH}
+                                cd ${REMOTE_PROJECT_PATH}
 
-                            echo "[1] 🧹 Pulizia ambiente Docker..."
-                            docker compose down -v --remove-orphans || true
-                            docker system prune -af || true
+                                echo "[1] 🧹 Pulizia ambiente Docker..."
+                                docker compose down -v --remove-orphans || true
+                                docker system prune -af || true
 
-                            echo "[2] Clono e aggiorno il codice..."
-                            git clone --origin origin git@github.com:TUO_ORG/TUO_REPO.git .
-                            git fetch origin
-                            git checkout ${params.BRANCH_TO_BUILD} || git checkout -b ${params.BRANCH_TO_BUILD}
-                            git reset --hard origin/${params.BRANCH_TO_BUILD}
-                            git clean -fdx
+                                echo "[2] Clono e aggiorno il codice..."
+                                git clone --origin origin git@github.com:TUO_ORG/TUO_REPO.git .
+                                git fetch origin
+                                git checkout ${params.BRANCH_TO_BUILD} || git checkout -b ${params.BRANCH_TO_BUILD}
+                                git reset --hard origin/${params.BRANCH_TO_BUILD}
+                                git clean -fdx
 
-                            echo "[3] Build & start dei container..."
-                            COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 \\
-                            docker compose up -d --build
-                        '
-                    """
+                                echo "[3] Build & start dei container..."
+                                COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 \\
+                                docker compose up -d --build
+                            '
+                        """
+                    }
                 }
             }
         }
