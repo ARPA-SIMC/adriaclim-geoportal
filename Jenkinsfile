@@ -235,7 +235,7 @@ pipeline {
                 ]) {
                     sh """
                         echo "Invio .env a ${env.TARGET_HOST}"
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} "mkdir -p ${REMOTE_PROJECT_PATH}"
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} "sudo mkdir -p ${REMOTE_PROJECT_PATH} && sudo chown -R ${SSH_USER}:${SSH_USER} ${REMOTE_PROJECT_PATH}"
                         scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${SSH_USER}@${TARGET_HOST}:${REMOTE_PROJECT_PATH}/.env
                     """
                 }
