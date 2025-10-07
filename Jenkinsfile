@@ -233,16 +233,16 @@ pipeline {
                     file(credentialsId: 'adria-env', variable: 'ENV_FILE'),
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
-                    sh """
-                        echo "Invio .env a ${env.TARGET_HOST}"
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} "mkdir -p ${REMOTE_PROJECT_PATH} && chown -R ${SSH_USER}:${SSH_USER} ${REMOTE_PROJECT_PATH}"
-                        scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${SSH_USER}@${TARGET_HOST}:/tmp/.env
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${TARGET_HOST} "sudo mv /tmp/.env ${REMOTE_PROJECT_PATH}/.env && sudo chown ${SSH_USER}:${SSH_USER} ${REMOTE_PROJECT_PATH}/.env"
-
-                    """
+                    sh(label: "Invio file .env", script: '''
+                        echo "Invio .env"
+                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "mkdir -p $REMOTE_PROJECT_PATH && chown -R $SSH_USER:$SSH_USER $REMOTE_PROJECT_PATH"
+                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$ENV_FILE" "$SSH_USER@$TARGET_HOST:/tmp/.env"
+                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "sudo mv /tmp/.env $REMOTE_PROJECT_PATH/.env && sudo chown $SSH_USER:$SSH_USER $REMOTE_PROJECT_PATH/.env"
+                    ''')
                 }
             }
         }
+
 
         // 3 Pulizia totale + build da zero
         stage('Pulizia e Build su VM') {
