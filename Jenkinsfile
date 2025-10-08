@@ -97,7 +97,7 @@ pipeline {
             steps {
                 script {
                     // Legge il file env-hosts.yml da Jenkins Config File Management
-                    configFileProvider([configFile(fileId: 'env-hosts', variable: 'CONFIG_FILE')]) {
+                    configFileProvider([configFile(fileId: 'env-hosts.yml', variable: 'CONFIG_FILE')]) {
                         def envYaml = readYaml file: "$CONFIG_FILE"
                         def hosts = []
 
