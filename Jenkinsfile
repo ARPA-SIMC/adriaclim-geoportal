@@ -185,90 +185,84 @@ pipeline {
     agent any
 
     environment {
-        SSH_USER  = 'fos'
+        SSH_USER = 'fos'
         REMOTE_PROJECT_PATH = '/home/fos/adriaclimplus-test/adriaclim-master'
     }
 
-    parameters {
-        string(name: 'BRANCH_TO_BUILD', defaultValue: 'test', description: 'Branch da buildare (test o prod)')
-    }
-
     stages {
-
         stage('Selezione host') {
             steps {
                 script {
-                    if (params.BRANCH_TO_BUILD == 'prod') {
-                        env.TARGET_HOST = '172.19.99.34'
+                    // Definisce su quale server andare in base al branch
+                    if (env.GIT_BRANCH.contains('prod')) {
+                        env.DEPLOY_HOST = '172.19.99.34'
                     } else {
-                        env.TARGET_HOST = '172.19.99.37'
+                        env.DEPLOY_HOST = '172.19.99.37'
                     }
-                    echo "Branch: ${params.BRANCH_TO_BUILD}"
-                    echo "Host selezionato: ${env.TARGET_HOST}"
+
+                    echo "→ Deploy su ${DEPLOY_HOST}"
                 }
             }
         }
 
-        stage('Pulizia e Build su VM') {
+        stage('Pulizia e aggiornamento codice') {
             steps {
                 withCredentials([
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
                     sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${env.TARGET_HOST} '
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
                             set -e
+                            echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
+                            mkdir -p ${REMOTE_PROJECT_PATH} &&
                             cd ${REMOTE_PROJECT_PATH} &&
-                            echo "[1] Pulizia ambiente..." &&
-                            docker compose down -v --remove-orphans || echo "Niente da pulire" &&
-                            docker system prune -af || echo "Niente da pulire" &&
-                            echo "[2] Aggiorno codice (${params.BRANCH_TO_BUILD})..." &&
+                            docker compose down -v --remove-orphans || true &&
+                            docker system prune -af || true &&
+                            echo "[2] Aggiorno codice..." &&
                             git fetch origin &&
-                            git checkout ${params.BRANCH_TO_BUILD} || git checkout -b ${params.BRANCH_TO_BUILD} &&
-                            git reset --hard origin/${params.BRANCH_TO_BUILD} &&
-                            git clean -fdx &&
-                            echo "[3] Build & start dei container..." &&
-                            docker compose up -d --build
+                            if git rev-parse --verify test >/dev/null 2>&1; then
+                                git checkout test
+                            else
+                                git checkout -b test
+                            fi &&
+                            git reset --hard origin/test
                         '
                     """
                 }
             }
         }
 
-        stage('Inject Secrets su VM') {
+        stage('Inject Secrets (.env)') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'adria-env', variable: 'ENV_PATH'),
+                    file(credentialsId: 'adria-env', variable: 'ENV_FILE'),
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
-                    sh '''
-                        echo "Invio .env a ${TARGET_HOST}"
-                        echo "File locale Jenkins: $ENV_PATH"
-                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "mkdir -p $REMOTE_PROJECT_PATH && chown -R $SSH_USER:$SSH_USER $REMOTE_PROJECT_PATH"
-                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$ENV_PATH" "$SSH_USER@$TARGET_HOST:$REMOTE_PROJECT_PATH/.env"
-                    '''
+                    sh """
+                        echo "[3] Invio .env a ${DEPLOY_HOST}"
+                        scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${SSH_USER}@${DEPLOY_HOST}:/tmp/.env
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
+                            sudo mv /tmp/.env ${REMOTE_PROJECT_PATH}/.env &&
+                            sudo chown fos:fos ${REMOTE_PROJECT_PATH}/.env &&
+                            chmod 600 ${REMOTE_PROJECT_PATH}/.env
+                        '
+                    """
                 }
             }
         }
 
-        stage('Deploy (Restart/Update) su VM') {
-            when {
-                expression {
-                    currentBuild.resultIsBetterOrEqualTo('SUCCESS')
-                }
-            }
+        stage('Deploy e build container') {
             steps {
                 withCredentials([
                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
                 ]) {
                     sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${env.TARGET_HOST} '
+                        echo "[4] Deploy su ${DEPLOY_HOST}"
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
                             set -e
                             cd ${REMOTE_PROJECT_PATH} &&
-                            echo "[4] Restart finale dei container (deploy concluso)..." &&
-                            git fetch origin &&
-                            git reset --hard origin/${params.BRANCH_TO_BUILD} &&
-                            git clean -fdx &&
-                            docker compose down -v --remove-orphans &&
+                            echo "[Docker Compose] Build & start..." &&
+                            docker compose down -v --remove-orphans || true &&
                             docker compose up -d --build
                         '
                     """
@@ -277,4 +271,5 @@ pipeline {
         }
     }
 }
+
 
