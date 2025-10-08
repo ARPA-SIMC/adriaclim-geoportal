@@ -209,23 +209,6 @@ pipeline {
             }
         }
 
-        stage('Inject Secrets su VM') {
-            steps {
-                withCredentials([
-                    file(credentialsId: 'adria-env', variable: 'ENV_PATH'),
-                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
-                ]) {
-                    sh '''
-                        echo "Invio .env a ${TARGET_HOST}"
-                        echo "File locale Jenkins: $ENV_PATH"
-                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "mkdir -p $REMOTE_PROJECT_PATH && chown -R $SSH_USER:$SSH_USER $REMOTE_PROJECT_PATH"
-                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$ENV_PATH" "$SSH_USER@$TARGET_HOST:$REMOTE_PROJECT_PATH/.env"
-                    '''
-                }
-            }
-        }
-
-
         stage('Pulizia e Build su VM') {
             steps {
                 withCredentials([
@@ -247,6 +230,22 @@ pipeline {
                             docker compose up -d --build
                         '
                     """
+                }
+            }
+        }
+
+        stage('Inject Secrets su VM') {
+            steps {
+                withCredentials([
+                    file(credentialsId: 'adria-env', variable: 'ENV_PATH'),
+                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+                ]) {
+                    sh '''
+                        echo "Invio .env a ${TARGET_HOST}"
+                        echo "File locale Jenkins: $ENV_PATH"
+                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER@$TARGET_HOST" "mkdir -p $REMOTE_PROJECT_PATH && chown -R $SSH_USER:$SSH_USER $REMOTE_PROJECT_PATH"
+                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$ENV_PATH" "$SSH_USER@$TARGET_HOST:$REMOTE_PROJECT_PATH/.env"
+                    '''
                 }
             }
         }
