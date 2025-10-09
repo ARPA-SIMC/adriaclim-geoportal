@@ -136,10 +136,10 @@ pipeline {
                             set -e
                             echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
                             
-                            if [ ! -d "${REMOTE_PROJECT_PATH}" ]; then
+                            if [ ! -d \\"${REMOTE_PROJECT_PATH}\\" ]; then
                                 echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..." &&
-                                cd $(dirname ${REMOTE_PROJECT_PATH}) &&
-                                git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git $(basename ${REMOTE_PROJECT_PATH}) &&
+                                cd \$(dirname ${REMOTE_PROJECT_PATH}) &&
+                                git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git \$(basename ${REMOTE_PROJECT_PATH}) &&
                                 cd ${REMOTE_PROJECT_PATH} &&
                                 echo "[OK] Clone completato con successo."
                             else
