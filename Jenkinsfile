@@ -136,17 +136,18 @@ pipeline {
                             set -e
                             echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
                             
-                            if [ ! -d \\"${REMOTE_PROJECT_PATH}\\" ]; then
+                            if [ ! -d "${REMOTE_PROJECT_PATH}" ]; then
                                 echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..." &&
                                 cd \$(dirname ${REMOTE_PROJECT_PATH}) &&
                                 git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git \$(basename ${REMOTE_PROJECT_PATH}) &&
                                 cd ${REMOTE_PROJECT_PATH} &&
                                 echo "[OK] Clone completato con successo."
                             fi
+
                             echo "[✓] Procedo con aggiornamento..." &&
                             cd ${REMOTE_PROJECT_PATH} &&
-                            docker-compose down -v --remove-orphans || true &&
-                            docker system prune -af || true &&
+                            sudo docker-compose down -v --remove-orphans || true &&
+                            sudo docker system prune -af || true &&
                             echo "[2] Aggiorno codice..." &&
                             git fetch origin &&
                             git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
@@ -187,7 +188,8 @@ pipeline {
                             set -e
                             cd ${REMOTE_PROJECT_PATH} &&
                             echo "[docker-compose] Build & start..." &&
-                            docker-compose --env-file .env up -d --build
+                            sudo docker-compose --env-file .env up -d --build &&
+                            echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
                         '
                     """
                 }
@@ -195,6 +197,7 @@ pipeline {
         }
     }
 }
+
 
 
 
