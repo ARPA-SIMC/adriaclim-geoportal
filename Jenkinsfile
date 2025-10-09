@@ -146,9 +146,15 @@ pipeline {
 
                             echo "[✓] Procedo con aggiornamento..." &&
                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
+
+                            echo "[🧹 Stop e rimozione container precedenti...]" &&
+                            sudo docker ps -aq | xargs -r sudo docker stop || true &&
+                            sudo docker ps -aq | xargs -r sudo docker rm -f || true &&
                             sudo docker-compose down -v --remove-orphans || true &&
                             sudo docker system prune -af || true &&
-                            echo "[2] Aggiorno codice..." &&
+
+                            echo "[2] Aggiorno codice da Git..." &&
+                            cd ${REMOTE_PROJECT_PATH} &&
                             git fetch origin &&
                             git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
                             git reset --hard origin/${DEPLOY_BRANCH}
