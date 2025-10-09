@@ -130,7 +130,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   compliantErrorErddap = "";
   showAlert = false;

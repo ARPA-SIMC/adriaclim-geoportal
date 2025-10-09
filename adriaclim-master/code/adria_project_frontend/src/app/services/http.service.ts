@@ -7,7 +7,7 @@ import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/
 })
 export class HttpService {
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   headers = new HttpHeaders({
     "Content-type": "application/json",

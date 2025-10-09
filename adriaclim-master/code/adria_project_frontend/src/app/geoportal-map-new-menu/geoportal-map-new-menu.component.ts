@@ -87,7 +87,7 @@ export class GeoportalMapNewMenuComponent {
   markersLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  apiUrl = environmentProd;
 
   compliantErrorErddap = "";
   showAlert = false;
