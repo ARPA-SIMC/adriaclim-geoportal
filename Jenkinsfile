@@ -145,7 +145,7 @@ pipeline {
                             fi
 
                             echo "[✓] Procedo con aggiornamento..." &&
-                            cd ${REMOTE_PROJECT_PATH} &&
+                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
                             sudo docker-compose down -v --remove-orphans || true &&
                             sudo docker system prune -af || true &&
                             echo "[2] Aggiorno codice..." &&
