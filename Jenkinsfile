@@ -186,17 +186,16 @@ pipeline {
                         echo "[4] Avvio build e container su ${DEPLOY_HOST}"
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
                             set -e
-                            cd ${REMOTE_PROJECT_PATH} &&
+                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
                             echo "[docker-compose] Build & start..." &&
-                            sudo docker-compose --env-file .env up -d --build &&
+                            sudo docker-compose --env-file ../.env up -d --build &&
                             echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
                         '
                     """
                 }
             }
         }
-    }
-}
+
 
 
 
