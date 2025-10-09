@@ -39,7 +39,7 @@
 //                             echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
 //                             mkdir -p ${REMOTE_PROJECT_PATH} &&
 //                             cd ${REMOTE_PROJECT_PATH} &&
-//                             docker compose down -v --remove-orphans || true &&
+//                             docker-compose down -v --remove-orphans || true &&
 //                             docker system prune -af || true &&
 //                             echo "[2] Aggiorno codice..." &&
 //                             git fetch origin &&
@@ -80,8 +80,8 @@
 //                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
 //                             set -e
 //                             cd ${REMOTE_PROJECT_PATH} &&
-//                             echo "[Docker Compose] Build & start..." &&
-//                             docker compose --env-file .env up -d --build
+//                             echo "[docker-compose] Build & start..." &&
+//                             docker-compose --env-file .env up -d --build
 //                         '
 //                     """
 //                 }
@@ -137,7 +137,7 @@ pipeline {
                             echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
                             mkdir -p ${REMOTE_PROJECT_PATH} &&
                             cd ${REMOTE_PROJECT_PATH} &&
-                            docker compose down -v --remove-orphans || true &&
+                            docker-compose down -v --remove-orphans || true &&
                             docker system prune -af || true &&
                             echo "[2] Aggiorno codice..." &&
                             git fetch origin &&
@@ -178,8 +178,8 @@ pipeline {
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
                             set -e
                             cd ${REMOTE_PROJECT_PATH} &&
-                            echo "[Docker Compose] Build & start..." &&
-                            docker compose --env-file .env up -d --build
+                            echo "[docker-compose] Build & start..." &&
+                            docker-compose --env-file .env up -d --build
                         '
                     """
                 }
