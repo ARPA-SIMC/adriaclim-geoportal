@@ -142,16 +142,15 @@ pipeline {
                                 git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git \$(basename ${REMOTE_PROJECT_PATH}) &&
                                 cd ${REMOTE_PROJECT_PATH} &&
                                 echo "[OK] Clone completato con successo."
-                            else
-                                echo "[✓] Directory ${REMOTE_PROJECT_PATH} trovata. Procedo con aggiornamento..." &&
-                                cd ${REMOTE_PROJECT_PATH} &&
-                                docker-compose down -v --remove-orphans || true &&
-                                docker system prune -af || true &&
-                                echo "[2] Aggiorno codice..." &&
-                                git fetch origin &&
-                                git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
-                                git reset --hard origin/${DEPLOY_BRANCH}
                             fi
+                            echo "[✓] Procedo con aggiornamento..." &&
+                            cd ${REMOTE_PROJECT_PATH} &&
+                            docker-compose down -v --remove-orphans || true &&
+                            docker system prune -af || true &&
+                            echo "[2] Aggiorno codice..." &&
+                            git fetch origin &&
+                            git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
+                            git reset --hard origin/${DEPLOY_BRANCH}
                         '
                     """
                 }
