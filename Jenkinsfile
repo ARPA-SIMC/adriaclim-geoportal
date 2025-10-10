@@ -161,28 +161,29 @@ pipeline {
                     sh """
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
                             set -e
-                            echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
-                            
+                            echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..."
+
+                            # Se la cartella non esiste, la creo e clono il repository
                             if [ ! -d "${REMOTE_PROJECT_PATH}" ]; then
-                                echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..." &&
-                                mkdir -p \$(dirname ${REMOTE_PROJECT_PATH}) &&
-                                git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git ${REMOTE_PROJECT_PATH} &&
+                                echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..."
+                                mkdir -p \$(dirname ${REMOTE_PROJECT_PATH})
+                                cd \$(dirname ${REMOTE_PROJECT_PATH})
+                                git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git $(basename ${REMOTE_PROJECT_PATH})
                                 echo "[OK] Clone completato con successo."
                             fi
 
-                            echo "[✓] Procedo con aggiornamento..." &&
-                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
+                            echo "[✓] Procedo con aggiornamento..."
+                            cd ${REMOTE_PROJECT_PATH}
 
-                            echo "[🧹 Stop e rimozione container precedenti...]" &&
-                            ${DOCKER} ps -aq | xargs -r ${DOCKER} stop || true &&
-                            ${DOCKER} ps -aq | xargs -r ${DOCKER} rm -f || true &&
-                            ${DOCKER_COMPOSE} down -v --remove-orphans || true &&
-                            ${DOCKER} system prune -af || true &&
+                            echo "[🧹 Stop e rimozione container precedenti...]"
+                            sudo docker ps -aq | xargs -r sudo docker stop || true
+                            sudo docker ps -aq | xargs -r sudo docker rm -f || true
+                            sudo docker-compose down -v --remove-orphans || true
+                            sudo docker system prune -af || true
 
-                            echo "[2] Aggiorno codice da Git..." &&
-                            cd ${REMOTE_PROJECT_PATH} &&
-                            git fetch origin &&
-                            git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
+                            echo "[2] Aggiorno codice da Git..."
+                            git fetch origin
+                            git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH}
                             git reset --hard origin/${DEPLOY_BRANCH}
                         '
                     """
