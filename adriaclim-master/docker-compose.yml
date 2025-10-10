@@ -79,7 +79,7 @@ services:
   angular:
     build:
       context: ./code/adria_project_frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.prod
     container_name: adriapp_angular
     ports:
       - "4200:4200"
@@ -95,7 +95,7 @@ services:
       - /static:/static
       # - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf   # per sviluppo
       - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf  # per produzione
-      # - ./code/adria_project_frontend/dist/adria-project-front:/usr/share/nginx/html   # per produzione check se è da togliere
+      - ./code/adria_project_frontend/dist/adria-project-front:/usr/share/nginx/html   # per produzione check se è da togliere
     ports:
       - "8000:8000"
     depends_on:

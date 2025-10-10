@@ -4,16 +4,10 @@ import asyncio
 import requests
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD
-from django.db import connection # type: ignore
-from django.db import transaction # type: ignore
-from django.core.cache import cache # type: ignore
-=======
 from django.db import connection
 from django.db import transaction
 from django.core.cache import cache
 from django.conf import settings
->>>>>>> 4b98a896b0bc7004d0d6e819a83b639c91610ba1
 from AdriaProject.logger_config import setup_logger
 from Dataset.models import Node, Indicator
 from Metadata.metadata_manager import process_metadata
@@ -31,7 +25,7 @@ DATASET_COLUMNS = [
 INFO_COLUMNS = ["RowType", "VariableName", "AttributeName", "DataType", "Value"]
 
 def fetch_datasets() -> pd.DataFrame:
-    url_datasets = f"{ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=100000"
+    url_datasets = f"{settings.ERDDAP_URL}/info/index.csv?page=1&itemsPerPage=100000"
     try:
         df = pd.read_table(
             download_with_cache_as_csv(url_datasets),
