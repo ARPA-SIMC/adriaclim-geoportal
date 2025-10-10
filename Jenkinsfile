@@ -158,23 +158,25 @@ pipeline {
         stage('Pulizia e aggiornamento codice') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
-                    sh '''#!/bin/bash
-                    ssh -i "${SSH_KEY}" -o StrictHostKeyChecking=no "${SSH_USER}@${DEPLOY_HOST}" '
+                    sh """
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} 'bash -s' <<'ENDSSH'
                         set -e
                         REMOTE_PATH="${REMOTE_PROJECT_PATH}"
+
                         echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..."
 
+                        # Se la directory non esiste, la creo e clono il repository
                         if [ ! -d "$REMOTE_PATH" ]; then
                             echo "[!] La directory $REMOTE_PATH non esiste. Eseguo git clone..."
-                            PARENT_DIR=$(dirname "$REMOTE_PATH")
-                            mkdir -p "$PARENT_DIR"
-                            cd "$PARENT_DIR"
-                            git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git "$REMOTE_PATH"
+                            PARENT_DIR=\$(dirname "$REMOTE_PATH")
+                            mkdir -p "\$PARENT_DIR"
+                            cd "\$PARENT_DIR"
+                            git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git "\$REMOTE_PATH"
                             echo "[OK] Clone completato con successo."
                         fi
 
                         echo "[✓] Procedo con aggiornamento..."
-                        cd "$REMOTE_PATH"
+                        cd "\$REMOTE_PATH"
 
                         echo "[🧹 Stop e rimozione container precedenti...]"
                         sudo docker ps -aq | xargs -r sudo docker stop || true
@@ -185,8 +187,9 @@ pipeline {
                         echo "[2] Aggiorno codice da Git..."
                         git fetch origin
                         git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH}
-                        git reset --hard origin/${DEPLOY_BRANCH}"
-                    '''
+                        git reset --hard origin/${DEPLOY_BRANCH}
+                        ENDSSH
+                    """
                 }
             }
         }
