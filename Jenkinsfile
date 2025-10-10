@@ -165,7 +165,7 @@ pipeline {
                             
                             if [ ! -d "${REMOTE_PROJECT_PATH}" ]; then
                                 echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..." &&
-                                mkdir -p $(dirname ${REMOTE_PROJECT_PATH}) &&
+                                mkdir -p \$(dirname ${REMOTE_PROJECT_PATH}) &&
                                 git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git ${REMOTE_PROJECT_PATH} &&
                                 echo "[OK] Clone completato con successo."
                             fi
