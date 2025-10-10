@@ -78,7 +78,7 @@ services:
 
   angular:
     build:
-      context: ./code/adria_project_frontend
+      context: .
       dockerfile: Dockerfile.prod
     container_name: adriapp_angular
     ports:
