@@ -116,6 +116,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4200',
     'http://172.19.99.37:4200',
     'http://172.19.99.37:8000',
+    'http://172.19.99.34:4200',
+    'http://172.19.99.34:8000',
     'https://geoportale-adriaclim.datamb.it',
 ]
 CSRF_USE_SESSIONS = True
