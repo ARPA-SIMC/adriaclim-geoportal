@@ -159,13 +159,12 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} 'bash -s' <<'ENDSSH'
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} << 'ENDSSH'
                         set -e
-                        REMOTE_PATH="${REMOTE_PROJECT_PATH}"
 
                         echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..."
+                        REMOTE_PATH="${REMOTE_PROJECT_PATH}"
 
-                        # Se la directory non esiste, la creo e clono il repository
                         if [ ! -d "$REMOTE_PATH" ]; then
                             echo "[!] La directory $REMOTE_PATH non esiste. Eseguo git clone..."
                             PARENT_DIR=\$(dirname "$REMOTE_PATH")
