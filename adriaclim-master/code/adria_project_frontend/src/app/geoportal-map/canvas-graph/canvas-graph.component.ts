@@ -14,7 +14,11 @@ import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
   styleUrls: ['./canvas-graph.component.scss']
 })
 export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
-  isLoading!: boolean;
+  private isLoading = false;
+  private suppressProgress = false; // disattiva barra/spinner per l’update corrente
+
+  // isLoading!: boolean;
+  @Input() isUpdate: boolean = false;
   @Input() idMeta: any;
   @Input() dataset: any;
   @Input() latlng: any;
@@ -38,6 +42,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() statisticCalc = new EventEmitter<any>();
   @Output() description = new EventEmitter<any>();
   @Output() progressBar = new EventEmitter<any>();
+  
+  @Output() fakeProgressStart = new EventEmitter<void>();
+  @Output() fakeProgressStop = new EventEmitter<void>();
+
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
   dateGraphZoom: any[] = [];
@@ -73,6 +81,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   quantityBoxPlot = new Set();
 
   timeoutProgressBar: any;
+  private taskStatusInterval: any = null;
+
 
   allDataPolygon: any;
 
@@ -231,28 +241,37 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   ];
   yMax = 500;
   dataShadow = [];
+  chartAlreadyLoaded: boolean | undefined;
 
   constructor(private httpClient: HttpClient, private httpService: HttpService, private spinnerService: SpinnerLoaderService) {
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("CAMBIO")
-    // this.spinnerLoading.emit(true);
-    // this.spinnerService.spinnerShow = true;
-    if (this.polygon) {
-      //se c'è il poligono chiamare altra funzione
-      this.firstSpinner();
-      this.getDataGraphPolygonInterval();
+    console.log("CAMBIO", changes);
 
-    } else {
-      //se non c'è il poligono chiama this.getDataGraph() classica
-      this.firstSpinner();
-
-      this.getDataGraph();
+    // UPDATE: niente barra/spinner, solo refresh grafico
+    if (changes['isUpdate']?.currentValue === true) {
+      this.suppressProgress = true;   //blocca barra per questo giro
+      if (this.polygon) {
+        this.getDataGraphPolygonInterval();
+      } else {
+        this.getDataGraph();
+      }
+      return; // NON azzerare qui isUpdate nel figlio
     }
 
+    // CARICAMENTO NORMALE: consentiamo barra/spinner
+    this.suppressProgress = false;
+    if (this.polygon) {
+      this.firstSpinner();
+      this.getDataGraphPolygonInterval();
+    } else {
+      this.firstSpinner();
+      this.getDataGraph();
+    }
   }
+
+
 
   ngOnInit() {
     console.log("INZIO CANVAS GRAPH")
@@ -344,6 +363,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   getDataGraphPolygonInterval() {
+    // chiusura poligono se serve
     if (this.polygon && this.polygon.length >= 3) {
       const first = this.polygon[0];
       const last = this.polygon[this.polygon.length - 1];
@@ -362,255 +382,224 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       operation: this.operation,
       statistic: this.statistic,
       circleCoords: this.circleCoords,
-
-    }
+    };
 
     console.log("DATA IF POLYGON =", data);
 
-    // console.log("data =", data);
-
-    // send HTTP POST request to Django view function
+    // controllo boxPlot
     if (this.statistic !== "boxPlot") {
-      this.firstSpinner();
-      // this.spinnerService.spinnerShow = true;
-      this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
-        console.log("PRIMA RESPONSE", response);
+      if (this.isLoading) {
+        console.log("Caricamento già in corso, ignoro nuova richiesta");
+        return;
+      }
+      this.isLoading = true;
 
-        // extract task ID from response
-        let data = {
-          task_id: response.task_id,
+      // solo se NON è update → mostra spinner + barra
+      if (!this.isUpdate) {
+        this.firstSpinner();
+        if (this.context === "one") {
+          console.log("[FIGLIO] emetto fakeProgressStart");
+          this.fakeProgressStart.emit();
+          this.chartAlreadyLoaded = true;
         }
-        // console.log("task_id =", data)
+      } else {
+        // update → solo spinner
+        this.spinnerLoadingChild.emit(true);
+        this.spinnerService.spinnerShow = true;
+      }
 
-        // periodically check task status
-        let checkTaskStatus = setInterval(() => {
-          this.httpService.post('dataset/check_task_status/', data).subscribe({
-            next: (res: any) => {
-              console.log("SECONDA RESPONSE", res);
+      this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
+        next: (response: any) => {
+          console.log("PRIMA RESPONSE", response);
+          let taskData = { task_id: response.task_id };
 
-              let task_status = res.dataVect.status;
+          this.taskStatusInterval = setInterval(() => {
+            this.httpService.post('dataset/check_task_status/', taskData).subscribe({
+              next: (res: any) => {
+                console.log("SECONDA RESPONSE", res);
+                let task_status = res.dataVect.status;
 
-              if (task_status === 'SUCCESS') {
-                clearInterval(checkTaskStatus);
-                // task completed successfully, extract and display result
-                let task_result = {
-                  dataVect: res.dataVect.result,
-                };
-                this.getDataGraphPolygon(task_result);
-                // this.spinnerLoadingChild.emit(false);
+                if (task_status === 'SUCCESS') {
+                  clearInterval(this.taskStatusInterval);
+                  this.taskStatusInterval = null;
 
+                  if (!this.isUpdate) {
+                    console.log("[FIGLIO] emetto fakeProgressStop");
+                    this.fakeProgressStop.emit();
+                  } else {
+                    // stop spinner update
+                    this.spinnerLoadingChild.emit(false);
+                    this.spinnerService.spinnerShow = false;
+                  }
 
-                //execute the function to create the graph
+                  let task_result = { dataVect: res.dataVect.result };
+                  this.getDataGraphPolygon(task_result);
+                  this.isLoading = false;
+                }
+                else if (task_status === 'FAILURE') {
+                  clearInterval(this.taskStatusInterval);
+                  this.taskStatusInterval = null;
+
+                  if (!this.isUpdate) {
+                    console.log("[FIGLIO] emetto fakeProgressStop");
+                    this.fakeProgressStop.emit();
+                  } else {
+                    this.spinnerLoadingChild.emit(false);
+                    this.spinnerService.spinnerShow = false;
+                  }
+
+                  console.error('Task error:', response.dataVect.error);
+                  this.isLoading = false;
+                }
+                else if (task_status === "PROGRESS" && !this.isUpdate) {
+                  let progressBarValue = res.dataVect.progressBar;
+                  this.progressBar.emit(progressBarValue);
+                }
+              },
+              error: (err: any) => {
+                clearInterval(this.taskStatusInterval);
+                this.taskStatusInterval = null;
+
+                if (!this.isUpdate) {
+                  console.log("[FIGLIO] emetto fakeProgressStop");
+                  this.fakeProgressStop.emit();
+                } else {
+                  this.spinnerLoadingChild.emit(false);
+                  this.spinnerService.spinnerShow = false;
+                }
+
+                console.log("ERROR =", err);
+                this.isLoading = false;
               }
-              else if (task_status === 'FAILURE') {
-                // task failed, display error message
-                clearInterval(checkTaskStatus);
-                let task_error = response.dataVect.error;
-                console.error('Task error:', task_error);
-                // this.spinnerLoadingChild.emit(false);
-
-              }
-              else if (task_status === "PROGRESS") {
-                let progressBarValue = res.dataVect.progressBar;
-                this.progressBar.emit(progressBarValue);
-              }
-            },
-
-            error: (err: any) => {
-              clearInterval(checkTaskStatus);
-              console.log("ERROR =", err);
-            }
-          });
-        }, 2000);
-
-        // this.spinnerService.spinnerShow = false;
+            });
+          }, 2000);
+        },
+        error: (err: any) => {
+          console.error("Errore getDataGraphPolygonInterval:", err);
+          this.isLoading = false;
+        }
       });
-    } //if statistic !== boxPlot
+    }
     else {
-      // this.spinnerLoadingChild.emit(true);
-      this.firstSpinner();
+      // gestione boxPlot invariata, ma anche qui rispetta update/no update
+      if (this.isLoading) {
+        console.log("Caricamento già in corso, ignoro nuova richiesta");
+        return;
+      }
+      this.isLoading = true;
+
+      if (!this.isUpdate) {
+        this.firstSpinner();
+        console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
+        this.fakeProgressStart.emit();
+      } else {
+        this.spinnerLoadingChild.emit(true);
+        this.spinnerService.spinnerShow = true;
+      }
 
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
-      // this.spinnerService.spinnerShow = true;
-      this.httpService.post('dataset/getDataPolygonNew/', data).subscribe((response: any) => {
+      this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
+        next: (response: any) => {
+          let taskData = { task_id: response.task_id };
 
-        // extract task ID from response
-        let data = {
-          task_id: response.task_id,
-        }
+          this.taskStatusInterval = setInterval(() => {
+            this.httpService.post('dataset/check_task_status/', taskData).subscribe({
+              next: (res: any) => {
+                console.log("SECONDA RESPONSE (boxPlot)", res);
 
-        // periodically check task status
-        let checkTaskStatus = setInterval(() => {
-          this.httpService.post('dataset/check_task_status/', data).subscribe({
-            next: (res: any) => {
+                this.data1 = res.dataVect.result.dataPol.map((el: any) => {
+                  return [
+                    el["Minimum"],
+                    el["10th Percentile"],
+                    el["Median"],
+                    el["90th Percentile"],
+                    el["Maximum"],
+                  ];
+                });
 
-              this.data1 = res.dataVect.result.dataPol.map((el: any) => {
-                return [
-                  el["Minimum"],
-                  el["10th Percentile"],
-                  el["Median"],
-                  el["90th Percentile"],
-                  el["Maximum"],
+                let showName = res.dataVect.result.dataPol.map((el: any) => [el['x']]);
 
-                ]
-              });
+                this.quantityBoxPlot = new Set();
+                showName.forEach((element: any) => {
+                  this.quantityBoxPlot.add(element[0]);
+                });
 
-              let showName = res.dataVect.result.dataPol.map((el: any) => {
-                return [
-                  el['x']
-                ]
-              });
+                this.optionBoxPlot = {
+                  title: [{ text: 'Min, 10th Percentile, Median, 90th Percentile, Max', left: 'center', top: '20px' }],
+                  dataset: [
+                    { source: this.data1 },
+                    { transform: { type: 'boxplot', config: { itemNameFormatter: (params: any) => params.value } } },
+                    { fromDatasetIndex: 1, fromTransformResult: 1 },
+                  ],
+                  tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
+                  grid: { left: '10%', right: '10%', bottom: '15%' },
+                  xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
+                  yAxis: { type: 'value', name: 'Values' },
+                  series: [
+                    { name: 'Box plot', type: 'boxplot', datasetIndex: 1 },
+                    { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
+                  ]
+                };
 
-              let i = 0;
-              this.quantityBoxPlot = new Set();
-              showName.forEach((element: any) => {
-                // this.quantityBoxPlot.add("Box" + " " + i);
-                this.quantityBoxPlot.add(element[0]);
-                // this.quantityBoxPlot = [...new Set(this.quantityBoxPlot)];
-                i++;
+                let task_status = res.dataVect.status;
+                if (task_status === 'SUCCESS') {
+                  clearInterval(this.taskStatusInterval);
+                  this.taskStatusInterval = null;
 
-              });
-
-              this.optionBoxPlot = {
-                title: [
-                  {
-                    text: 'Min, 10th Percentile, Median, 90th Percentile, Max',
-                    left: 'center',
-                    top: '20px'
-                  },
-                ],
-
-                dataset: [
-                  {
-                    // prettier-ignore dataset index 0
-                    source: this.data1
-                  },
-                  {
-                    //datasetIndex 1
-                    transform: {
-                      type: 'boxplot',
-                      config: {
-                        itemNameFormatter: function (params: any) {
-
-                          return params.value;
-                        }
-                      },
-                    }
-                  },
-                  //datasetindex 2
-                  {
-                    fromDatasetIndex: 1,
-                    fromTransformResult: 1
-                  },
-
-                ],
-                tooltip: {
-                  trigger: 'item',
-                  axisPointer: {
-                    type: 'shadow'
+                  if (!this.isUpdate) {
+                    console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
+                    this.fakeProgressStop.emit();
+                  } else {
+                    this.spinnerLoadingChild.emit(false);
+                    this.spinnerService.spinnerShow = false;
                   }
-                },
-                grid: {
-                  left: '10%',
-                  right: '10%',
-                  bottom: '15%'
-                },
-                xAxis: {
-                  type: 'category',
-                  data: [...this.quantityBoxPlot]
-                },
-                yAxis: {
-                  type: 'value',
-                  name: 'Values',
-                },
-                series: [
-                  {
-                    name: 'Box plot',
-                    type: 'boxplot',
-                    datasetIndex: 1,
 
-                    tooltip: {
-                      formatter: function (param: any) {
-                        const param_smaller = "<span style='display:inline-block;margin-bottom:3px; margin-left:18px; border-radius:5px;width:5px;height:5px;background-color:#c23531;'></span>"
-                        return [
-                          param.marker + " " + param.name.charAt(0).toUpperCase() + param.name.slice(1) + ": ",
-                          param_smaller + " " + "Max: " + param.data[5],
-                          param_smaller + " " + "90th Percentile: " + param.data[4],
-                          param_smaller + " " + "Median: " + param.data[3],
-                          param_smaller + " " + "10th Percentile: " + param.data[2],
-                          param_smaller + " " + "Min: " + param.data[1]
-                        ].join("<br/>");
-                      }
-                    },
+                  this.isLoading = false;
+                }
+                else if (task_status === 'FAILURE') {
+                  clearInterval(this.taskStatusInterval);
+                  this.taskStatusInterval = null;
 
-                  },
-                  {
-                    name: 'Outlier',
-                    type: 'scatter',
-                    datasetIndex: 2,
+                  if (!this.isUpdate) {
+                    console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
+                    this.fakeProgressStop.emit();
+                  } else {
+                    this.spinnerLoadingChild.emit(false);
+                    this.spinnerService.spinnerShow = false;
+                  }
 
-                  },
+                  console.error('Task error:', response.dataVect.error);
+                  this.isLoading = false;
+                }
+              },
+              error: (err: any) => {
+                clearInterval(this.taskStatusInterval);
+                this.taskStatusInterval = null;
 
-                ]
-              };
+                if (!this.isUpdate) {
+                  console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
+                  this.fakeProgressStop.emit();
+                } else {
+                  this.spinnerLoadingChild.emit(false);
+                  this.spinnerService.spinnerShow = false;
+                }
 
-
-
-              let task_status = res.dataVect.status;
-
-              if (task_status === 'SUCCESS') {
-                // task completed successfully, extract and display result
-                clearInterval(checkTaskStatus);
-                // this.spinnerLoadingChild.emit(false);
-
-                // this.spinnerService.spinnerShow = false;
-
-              } else if (task_status === 'FAILURE') {
-                // task failed, display error message
-                clearInterval(checkTaskStatus);
-                let task_error = response.dataVect.error;
-                console.error('Task error:', task_error);
-                // this.spinnerLoadingChild.emit(false);
-
-                // this.spinnerService.spinnerShow = false;
-
+                console.log("ERROR =", err);
+                this.isLoading = false;
               }
-            },
-
-            error: (err: any) => {
-              console.log("ERROR =", err);
-            }
-          });
-        }, 2000);
-
-        // this.spinnerService.spinnerShow = false;
+            });
+          }, 2000);
+        },
+        error: (err: any) => {
+          console.error("Errore boxPlot:", err);
+          this.isLoading = false;
+        }
       });
-
-      // this.spinnerLoadingChild.emit(false);
     }
   }
 
-  zoomFunctionGraph(allDates: any, dataInGraph: any) {
 
-    // versione nuova
-    let valuesFiltered = dataInGraph.map((element: any, index: any) => {
-      if (element.x && allDates.includes(element.x) && element.y !== undefined) {
-        return element.y;
-      }
-      else {
-        return undefined;
-      }
-    })
-
-    valuesFiltered = valuesFiltered.filter((element: any) => element !== undefined);
-
-    this.statisticCalc.emit({
-      dates: allDates,
-      values: valuesFiltered
-    })
-
-  }
 
   /**
    * Funzione che permette di mostrare il grafico del poligono
@@ -906,6 +895,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     this.progressBarCanvas.emit(false);
 
   }
+  zoomFunctionGraph(arrayDate: any[], dataInGraph: any[]) {
+    throw new Error('Method not implemented.');
+  }
 
   onChartEvent(event: any, nameEvent: any) {
 
@@ -942,19 +934,23 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
    * Funzione che gestisce i dati ricevuti per mostrare il grafico corrispondente
    */
   getDataGraph() {
-    // Controllo che imposta a stringa vuota se l'unità di misura è "No", questo si presenta sopratutto per gli indicatori
-    // che prendono in considerazione il contatore dei giorni
+    // se unità "No", reset
     if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
 
+    // normalizza date
     if (this.dataset.time_start.includes("T")) {
       const dateStart = new Date(this.dataset.time_start);
-      this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}-${dateStart.getDate().toString().padStart(2, '0')}`;
+      this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${dateStart.getDate().toString().padStart(2, '0')}`;
     }
     if (this.dataset.time_end.includes("T")) {
       const dateEnd = new Date(this.dataset.time_end);
-      this.dataset.time_end = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}-${dateEnd.getDate().toString().padStart(2, '0')}`;
+      this.dataset.time_end = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${dateEnd.getDate().toString().padStart(2, '0')}`;
     }
 
     let data = {
@@ -969,202 +965,164 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       dateEnd: this.dataset.time_end,
       lat: this.latlng.lat,
       lng: this.latlng.lng,
-      // lat_max: this.dataset.lat_max,
-      // lat_min: this.dataset.lat_min,
-      // lng_min: this.dataset.lng_min,
-      // lng_max: this.dataset.lng_max
       lat_max: "no",
       lat_min: "no",
       lng_min: "no",
       lng_max: "no"
+    };
+
+    if (this.isLoading) {
+      console.log("Caricamento già in corso, ignoro nuova richiesta");
+      return;
+    }
+    this.isLoading = true;
+
+    // primo caricamento → spinner + barra
+    if (!this.isUpdate) {
+      this.timeforProgressBar();
+    } else {
+      // update → solo spinner
+      this.spinnerLoadingChild.emit(true);
+      this.spinnerService.spinnerShow = true;
     }
 
-    this.timeforProgressBar();
-    // this.httpService.post('dataset/getDataGraphicNewCanvas/', data, { responseType: 'text' }).subscribe(response => {
-    this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe((response: any) => {
-      // {
-      //   reportProgress: true,
-      //   observe: 'events'
-      // }
-      // console.log("RESPONSE CON PROGRESS??? =", response);
+    this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe({
+      next: (response: any) => {
+        if (response.allData !== "fuoriWms") {
+          if (typeof response == 'string') {
+            response = JSON.parse(response);
+          }
+          this.dataRes = response;
 
-      // if (response.type === HttpEventType.UploadProgress) {
-      //   let progress = Math.round(100 * (response.loaded / response.total));
-      //   console.log("PROGRESS BAR =", progress);
+          this.meanMedianStdev.emit(
+            this.dataRes.allData.mean +
+            "_" + this.dataRes.allData.median +
+            "_" + this.dataRes.allData.stdev +
+            "_" + this.dataRes.allData.trend_yr
+          );
 
-      // } else if (response instanceof HttpResponse) {
-      //   // La richiesta è stata completata
-      //   console.log('Caricamento completato', response.body);
+          let name = this.dataRes.allData.entries[0];
 
-      // }
-      if (response.allData !== "fuoriWms") {
-        if (typeof response == 'string') {
-          response = JSON.parse(response);
-        }
-        this.dataRes = response;
-        // console.log("DATA RES =", this.dataRes);
-
-        this.meanMedianStdev.emit(this.dataRes.allData.mean + "_" + this.dataRes.allData.median + "_" + this.dataRes.allData.stdev + "_" + this.dataRes.allData.trend_yr);
-
-        let name = this.dataRes.allData.entries[0];
-
-        if (this.operation === "annualMonth") {
-          this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
-        }
-        if (this.dataRes.allData[name]) {
-
-          this.dataRes.allData[name].forEach((element: any) => {
-            element.date = element.x;
-            if (this.formatDate(element.x) === undefined) {
-              element.x = element.x;
-            } else {
-              element.x = this.formatDate(element.x);
-            }
-            element.y = Number(element.y);
-          });
-
-          let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
-          let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
-          let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
-
-          this.myChart.on('dataZoom', () => {
-            let option = this.myChart.getOption();
-            this.startZoom = option.dataZoom[0].startValue;
-            this.endZoom = option.dataZoom[0].endValue;
-
-            let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
-
-            let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
-              if (element.date && arrayDate.includes(element.date)) {
-                return element.y;
-              }
-            })
-            arrayValueTest = arrayValueTest.filter((element: any) => element !== undefined);
-            // let arrayValue = arrayAllValue.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["y"], this.dataRes.allData[name][this.endZoom]["y"]));
-
-            this.statisticCalc.emit({
-              dates: arrayDate,
-              values: arrayValueTest
-            })
-
-          });
-
-          let value = this.dataRes.allData[name].map((element: any) => element.y);
-          // let minMaxValue = {
-          //   min: Math.min(...value).toFixed(0),
-          //   max: Math.max(...value).toFixed(0),
-          // }
-          this.chartOption = {
-
-            xAxis: {
-              type: 'category',
-              boundaryGap: false,
-              // data: this.dataRes.allData[name].map((element: any) => element.x)
-              data: this.dataRes.allData[name].map((element: any) => {
-
-                let elDate = new Date(element.x).toLocaleDateString();
-                // console.log("elDate", elDate);
-                if (elDate !== "Invalid Date") {
-                  return elDate;
-                }
-                else {
-
-                  return element.x;
-                }
-
-              })
-            },
-            yAxis: {
-              type: 'value',
-              axisLabel: {
-                formatter: `{value} ${this.dimUnit}`
-
-              },
-              boundaryGap: [0, '100%'],
-              // min: 'dataMin',
-              // max: 'dataMax'
-              min: this.checkMinValue(),
-              // min: "dataMin",
-              max: "dataMax"
-            },
-            toolbox: {
-              feature: {
-                dataZoom: {
-                  yAxisIndex: 'none'
-                },
-                restore: {},
-                saveAsImage: {}
-              }
-            },
-            tooltip: {
-              trigger: 'axis',
-              formatter: (paramsFormatter: any) => {
-
-                const tooltipHTML = paramsFormatter.map((param: any) => {
-                  let value: any = Number(param.value);
-                  if (value > 10000 || value < 0.001 && value !== 0) {
-
-                    value = value.toExponential().replace(/e\+?/, ' x 10^');
-                  }
-                  return `${param.marker} ${param.seriesName}: ${value}`;
-                }).join('<br>');
-
-                return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
-
-              },
-              transitionDuration: 0.2,
-              axisPointer: {
-                type: 'cross',
-                label: {
-                  backgroundColor: '#6a7985'
-                }
-              }
-            },
-            legend: {
-              data: [name]
-            },
-            grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '3%',
-              containLabel: true
-            },
-
-            dataZoom: [
-              {
-                show: true,
-                realtime: true,
-                type: 'inside',
-              },
-
-            ],
-            series: [{
-              // data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
-              data: this.dataRes.allData[name].map((element: any) => this.formatNumber(element.y)),
-              name: name,
-              type: 'line',
-              stack: 'counts',
-              areaStyle: this.enableArea ? {} : undefined,
-              smooth: false
-            },
-            ]
+          if (this.operation === "annualMonth") {
+            this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
           }
 
-          this.dataTimeExport.emit(this.dataRes.allData[name]);
+          if (this.dataRes.allData[name]) {
+            this.dataRes.allData[name].forEach((element: any) => {
+              element.date = element.x;
+              element.x = this.formatDate(element.x) ?? element.x;
+              element.y = Number(element.y);
+            });
+
+            let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
+            let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
+
+            this.myChart.on('dataZoom', () => {
+              let option = this.myChart.getOption();
+              this.startZoom = option.dataZoom[0].startValue;
+              this.endZoom = option.dataZoom[0].endValue;
+
+              let arrayDate = arrayAllDate.filter(
+                this.filterElement(
+                  this.dataRes.allData[name][this.startZoom]["date"],
+                  this.dataRes.allData[name][this.endZoom]["date"]
+                )
+              );
+
+              let arrayValueTest = arrayAllDateValue
+                .map((element: any) => arrayDate.includes(element.date) ? element.y : undefined)
+                .filter((el: any) => el !== undefined);
+
+              this.statisticCalc.emit({
+                dates: arrayDate,
+                values: arrayValueTest
+              });
+            });
+
+            this.chartOption = {
+              xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: this.dataRes.allData[name].map((element: any) => {
+                  let elDate = new Date(element.x).toLocaleDateString();
+                  return elDate !== "Invalid Date" ? elDate : element.x;
+                })
+              },
+              yAxis: {
+                type: 'value',
+                axisLabel: { formatter: `{value} ${this.dimUnit}` },
+                boundaryGap: [0, '100%'],
+                min: this.checkMinValue(),
+                max: "dataMax"
+              },
+              toolbox: {
+                feature: {
+                  dataZoom: { yAxisIndex: 'none' },
+                  restore: {},
+                  saveAsImage: {}
+                }
+              },
+              tooltip: {
+                trigger: 'axis',
+                formatter: (paramsFormatter: any) => {
+                  return `${paramsFormatter[0].name}<br>` +
+                    paramsFormatter.map((param: any) => {
+                      let value: any = Number(param.value);
+                      if ((value > 10000 || value < 0.001) && value !== 0) {
+                        value = value.toExponential().replace(/e\+?/, ' x 10^');
+                      }
+                      return `${param.marker} ${param.seriesName}: ${value}`;
+                    }).join('<br>');
+                },
+                transitionDuration: 0.2,
+                axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } }
+              },
+              legend: { data: [name] },
+              grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+              dataZoom: [{ show: true, realtime: true, type: 'inside' }],
+              series: [{
+                data: this.dataRes.allData[name].map((el: any) => this.formatNumber(el.y)),
+                name: name,
+                type: 'line',
+                stack: 'counts',
+                areaStyle: this.enableArea ? {} : undefined,
+                smooth: false
+              }]
+            };
+
+            this.dataTimeExport.emit(this.dataRes.allData[name]);
+
+            if (!this.isUpdate) {
+              this.progressBarCanvas.emit(false);
+              this.timeoutProgressBar.unsubscribe();
+            } else {
+              this.spinnerLoadingChild.emit(false);
+              this.spinnerService.spinnerShow = false;
+            }
+
+            this.isLoading = false;
+          } else {
+            if (!this.isUpdate) {
+              this.progressBarCanvas.emit(false);
+              this.timeoutProgressBar.unsubscribe();
+            } else {
+              this.spinnerLoadingChild.emit(false);
+              this.spinnerService.spinnerShow = false;
+            }
+            this.description.emit("Please select point inside the layer");
+            this.isLoading = false;
+          }
+        }
+      },
+      error: (err: any) => {
+        console.error("Errore getDataGraph:", err);
+        if (!this.isUpdate) {
+          this.progressBarCanvas.emit(false);
+        } else {
           this.spinnerLoadingChild.emit(false);
           this.spinnerService.spinnerShow = false;
-          this.progressBarCanvas.emit(false);
-          this.timeoutProgressBar.unsubscribe();
-
         }
-        else {
-          this.spinnerLoadingChild.emit(false);
-          this.spinnerService.spinnerShow = false;
-          this.progressBarCanvas.emit(false);
-          this.description.emit("Please select point inside the layer");
-          this.timeoutProgressBar.unsubscribe();
-
-        }
+        this.isLoading = false;
       }
     });
   }

@@ -1,13 +1,15 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+// import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpService {
 
-  apiUrl = environmentDev;
+  // apiUrl = environmentDev;
+  apiUrl = environment.backendUrl;
 
   headers = new HttpHeaders({
     "Content-type": "application/json",

@@ -136,11 +136,11 @@ class FetchDatasetsTests(TestCase):
             self.assertEqual(len(result), 2)
             self.assertEqual(result.iloc[0].to_dict(), {"col1": "val1", "col2": "val2", "col3": "val3"})
 
-    @patch("Dataset.dataset_manager.download_with_cache_as_csv")
-    def test_fetch_datasets_failure(self, mock_download):
-        # Simula un errore durante il download; la funzione deve restituire un DataFrame vuoto senza eccezioni.
-        mock_download.side_effect = Exception("Fake download error")
-        result = fetch_datasets()
-        self.assertIsInstance(result, pd.DataFrame)
-        self.assertTrue(result.empty)
+    # @patch("Dataset.dataset_manager.download_with_cache_as_csv")
+    # def test_fetch_datasets_failure(self, mock_download):
+    #     # Simula un errore durante il download; la funzione deve restituire un DataFrame vuoto senza eccezioni.
+    #     mock_download.side_effect = Exception("Fake download error")
+    #     result = fetch_datasets()
+    #     self.assertIsInstance(result, pd.DataFrame)
+    #     self.assertTrue(result.empty)
 

@@ -212,6 +212,7 @@ def getDataPolygonNew(
         import urllib.request, re, math
         import numpy as np
         from shapely.prepared import prep
+        from shapely.geometry import Point, box as shapely_box
 
         # 1) bounds da shapely
         xmin, ymin, xmax, ymax = shapely_polygon.bounds
@@ -296,35 +297,97 @@ def getDataPolygonNew(
         logger.info("Provo BULK URL (bbox): %s", bulk_url)
         df_bulk = read_erddap_data(bulk_url)
 
-        # diagnostica shape
-        try:
-            logger.info("BULK pre-filter shape: %s", tuple(df_bulk.shape))
-        except Exception:
-            logger.info("BULK pre-filter shape: (unknown)")
+        # === BLOCCO BULK CLEAN + FILTRO GEOMETRICO ===
 
-        # schema richiesto
+        from shapely.geometry import Point, box as shapely_box
+        import numpy as np
+
+        # Conversione colonne
+        df_bulk["latitude"] = pd.to_numeric(df_bulk["latitude"], errors="coerce")
+        df_bulk["longitude"] = pd.to_numeric(df_bulk["longitude"], errors="coerce")
+        df_bulk = df_bulk.dropna(subset=["latitude", "longitude"])
+
+        # Controllo colonne richieste (una sola volta qui)
         required_cols = {"time", "latitude", "longitude", layer_name}
         if df_bulk is None or df_bulk.empty or not required_cols.issubset(set(df_bulk.columns)):
             raise ValueError("Bulk ERDDAP empty/invalid schema")
 
-        # 5) filtro poligono VELOCE (no apply)
-        poly_prep = prep(shapely_polygon)
-        lat_arr = pd.to_numeric(df_bulk["latitude"], errors="coerce").to_numpy()
-        lon_arr = pd.to_numeric(df_bulk["longitude"], errors="coerce").to_numpy()
-        points = [ShapelyPoint(lat, lon) for lat, lon in zip(lat_arr, lon_arr)]
-        mask = np.fromiter((poly_prep.contains(pt) or poly_prep.covers(pt) for pt in points), dtype=bool, count=len(points))
-        df_bulk = df_bulk[mask]
-        if df_bulk.empty:
-            raise ValueError("Bulk ERDDAP dentro poligono = 0 righe")
+        # Bounding box del poligono
+        xmin, ymin, xmax, ymax = shapely_polygon.bounds
 
-        logger.info(
-            "BULK post-filter rows: %d | unique dates: %s | unique points: %s",
-            len(df_bulk),
-            df_bulk["time"].nunique() if "time" in df_bulk else "n/a",
-            df_bulk[["latitude", "longitude"]].drop_duplicates().shape[0]
-            if {"latitude", "longitude"}.issubset(df_bulk.columns) else "n/a"
-        )
-        logger.info("BULK OK: %d righe prima di parsing", len(df_bulk))
+        # Punti unici (lat/lon) nel bulk
+        unique_points = df_bulk[["latitude", "longitude"]].drop_duplicates()
+        logger.warning(f"[DEBUG FILTER] → VALORI UNICI LAT/LON: {unique_points.to_dict('records')}")
+
+        # Inferenza passo griglia
+        lat_uni = np.array(sorted(unique_points["latitude"].unique()))
+        lon_uni = np.array(sorted(unique_points["longitude"].unique()))
+
+        def _step(arr: np.ndarray):
+            if arr.size >= 2:
+                diffs = np.diff(arr)
+                diffs = diffs[diffs > 0]
+                if diffs.size:
+                    return float(np.median(diffs))
+            return None
+
+        res_lat = _step(lat_uni) or 1.0
+        res_lon = _step(lon_uni) or 1.0
+
+        # Mezzo passo + margine extra
+        pad_lat = res_lat / 2.0 + 0.25
+        pad_lon = res_lon / 2.0 + 0.25
+
+        logger.warning("[DEBUG FILTER] step_lat=%.3f step_lon=%.3f pad_lat=%.3f pad_lon=%.3f",
+                    res_lat, res_lon, pad_lat, pad_lon)
+
+        if len(unique_points) == 1:
+            # Dataset a singolo centro cella
+            lat = float(unique_points.iloc[0]["latitude"])
+            lon = float(unique_points.iloc[0]["longitude"])
+
+            # Cella stimata con risoluzione + margine
+            cell = shapely_box(lon - pad_lon, lat - pad_lat, lon + pad_lon, lat + pad_lat)
+
+            if cell.intersects(shapely_polygon_inverse):
+                df_bulk_filtered = df_bulk
+                logger.warning("[DEBUG FILTER] Punto unico → cella (%.2fx%.2f + margine) interseca → uso BULK",
+                            res_lat, res_lon)
+            else:
+                # Forzatura: se i dati ci sono comunque → usali lo stesso
+                if not df_bulk.empty:
+                    df_bulk_filtered = df_bulk
+                    logger.warning("[DEBUG FILTER] Punto unico → cella NON interseca, ma dati presenti → forzato uso BULK")
+                else:
+                    logger.warning("[DEBUG FILTER] Punto unico: nessun dato → fallback")
+                    raise ValueError("bulk_filter_empty")
+
+        else:
+            # Dataset grigliato: teniamo solo le celle che intersecano il poligono
+            keep = set()
+            for lat, lon in unique_points.itertuples(index=False):
+                lat = float(lat); lon = float(lon)
+                cell = shapely_box(lon - pad_lon, lat - pad_lat, lon + pad_lon, lat + pad_lat)
+                if cell.intersects(shapely_polygon_inverse):
+                    keep.add((lat, lon))
+            if not keep:
+                logger.warning("[DEBUG FILTER] Nessuna cella interseca il poligono — fallback")
+                raise ValueError("bulk_filter_empty")
+
+
+            # Filtra df ai soli (lat,lon) tenuti
+            df_bulk["lat_lng_key"] = list(zip(df_bulk["latitude"].astype(float), df_bulk["longitude"].astype(float)))
+            df_bulk_filtered = df_bulk[df_bulk["lat_lng_key"].isin(keep)].copy()
+            df_bulk_filtered.drop(columns=["lat_lng_key"], inplace=True)
+
+        logger.warning(f"[DEBUG FILTER] BULK post-filter shape: {df_bulk_filtered.shape}")
+        df_bulk = df_bulk_filtered
+
+
+
+        # === FINE BLOCCO BULK CLEAN + FILTRO GEOMETRICO ===
+
+
 
         # ===== BULK VETTORIALE (no loop, no DB, sanitize) =====
         def _json_sanitize(obj):
@@ -394,7 +457,7 @@ def getDataPolygonNew(
 
         allData["dataTable"] = df_table.to_dict(orient="records")
 
-     # 5) dataPol + cache (con normalizzazione datetime prima dell'operazione)
+        # 5) dataPol + cache (con normalizzazione datetime prima dell'operazione)
         df_for_op = df_polygon.copy()
         df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
 
@@ -411,7 +474,6 @@ def getDataPolygonNew(
         logger.warning("BULK fallito: %s — procedo con fallback per-punto", e_bulk)
 
     # ===== FALLBACK per-punto (codice originale) =====
-
 
     xmin, ymin, xmax, ymax = shapely_polygon.bounds
     circ = shapely_polygon.length
@@ -442,24 +504,6 @@ def getDataPolygonNew(
     i = 0
 
     total_elapsed_time = 0
-
-    # print("is indicator: ", is_indicator)
-
-    # test = coordsInsidePolygon(
-    #     is_indicator,
-    #     True,
-    #     True,
-    #     dataset_id=dataset_id,
-    #     layer_name=layer_name,
-    #     time_start=date_start,
-    #     time_finish=date_end,
-    #     polygon=shapely_polygon,
-    #     num_parameters=num_param,
-    #     range_value=range_value,
-    #     boolNostraFunzione=True
-    # )
-
-    # print("TEST COORDS INSIDE POLYGON", test)
 
     for latlng in points_inside_polygon:
         try:
@@ -493,7 +537,7 @@ def getDataPolygonNew(
             logger.error("Error downloading data at point %s: %s", latlng, e)
             continue
 
-        logger.info("⏱️ Tempo totale per tutti i punti: %.2f secondi", total_elapsed_time)
+        logger.info("Tempo totale per tutti i punti: %.2f secondi", total_elapsed_time)
 
         try:
             for index, row in enumerate(df.to_dict(orient="records")):
@@ -599,6 +643,13 @@ def getDataPolygonNew(
         df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
         allData["dataPol"] = operation_before_after_cache(df_for_op, statistic, time_op)
 
+        # Log finale sul DataFrame
+        try:
+            logger.warning("[DEBUG FINAL] df_bulk finale → shape: %s", df_bulk.shape)
+            logger.warning("[DEBUG FINAL] df_bulk finale → valori:\n%s", df_bulk[[ "time", layer_name, "latitude", "longitude" ]].to_string(index=False))
+        except Exception as e:
+            logger.error("Errore nel log finale df_bulk: %s", e)
+
         logger.debug("Completed getDataPolygonNew in %.2f seconds", time.time() - start_time)
         return allData
 
@@ -606,100 +657,6 @@ def getDataPolygonNew(
         logger.error("Final aggregation error: %s", e)
         return str(e)
 
-# def coordsInsidePolygon(
-#         is_indicator,
-#         boolIsGraph,
-#         boolIsAnnual,
-#         dataset_id,
-#         layer_name,
-#         time_start,
-#         time_finish,
-#         polygon,
-#         num_parameters,
-#         range_value,
-#         boolNostraFunzione
-#     ):
-
-#     min_long, min_lat, max_long, max_lat = polygon.bounds
-#     url = url_is_indicator(
-#                 is_indicator,
-#                 boolIsGraph,
-#                 boolIsAnnual,
-#                 dataset_id=dataset_id,
-#                 layer_name=layer_name,
-#                 time_start=time_start,
-#                 time_finish=time_finish,
-#                 latMin=min_lat,
-#                 latMax=max_lat,
-#                 longMin=min_long,
-#                 longMax=max_long,
-#                 num_parameters=num_parameters,
-#                 range_value=range_value,
-#                 boolNostraFunzione=boolNostraFunzione
-#             )
-    
-#     print("URL NOSTRA FUNZIONE: " + url)
-#     print("URL NOSTRA FUNZIONE: ", url)
-#     df = read_erddap_data(url)
-#     print("DF NOSTRA FUNZIONE", df)
-
-#     if not isinstance(df, pd.DataFrame):
-#         df = pd.DataFrame(df)
-
-#     if df.empty:
-#         return df, [], {"valori_variabili": {}, "valori_unica_variabile": []}
-
-#     # 4) Normalizza nomi colonne possibili (CSV: latitude/longitude, NetCDF: lat/lon)
-#     rename_map = {}
-#     if "lat" in df.columns and "latitude" not in df.columns:
-#         rename_map["lat"] = "latitude"
-#     if "lon" in df.columns and "longitude" not in df.columns:
-#         rename_map["lon"] = "longitude"
-#     if rename_map:
-#         df = df.rename(columns=rename_map)
-
-#     # 5) Verifiche colonne coordinate
-#     for col in ("latitude", "longitude"):
-#         if col not in df.columns:
-#             raise ValueError(f"Manca la colonna '{col}' nel DataFrame ERDDAP (presenti: {list(df.columns)})")
-
-#     # 6) Cast a numerico (i CSV arrivano come stringhe)
-#     df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
-#     df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-#     df = df.dropna(subset=["latitude", "longitude"])
-#     if df.empty:
-#         return df, [], {"valori_variabili": {}, "valori_unica_variabile": []}
-
-#     # 7) Filtro geometrico: include anche il bordo (covers)
-#     poly_prep = prep(polygon)  # accelera molte chiamate ripetute
-#     mask_inside = [
-#         poly_prep.covers(Point(lon, lat))  # ATTENZIONE ordine Point(lon, lat)
-#         for lat, lon in zip(df["latitude"].values, df["longitude"].values)
-#     ]
-
-#     df_inside = df[mask_inside].copy()
-#     if df_inside.empty:
-#         return df_inside, [], {"valori_variabili": {}, "valori_unica_variabile": []}
-
-#     # 8) Estrai solo i dati “della riga” che ti servono (tutte le variabili diverse da time/lat/lon)
-#     exclude_cols = {"time", "latitude", "longitude"}
-#     variabili = [c for c in df_inside.columns if c not in exclude_cols]
-
-#     # records come lista di dict (comoda per JSON)
-#     records_inside = df_inside.to_dict(orient="records")
-
-#     # valori per ciascuna variabile (solo righe dentro)
-#     valori_variabili = {var: df_inside[var].tolist() for var in variabili}
-
-#     # shortcut se c'è una sola variabile
-#     valori_unica_variabile = []
-#     if len(variabili) == 1:
-#         valori_unica_variabile = df_inside[variabili[0]].tolist()
-
-#     return df_inside, records_inside, {
-#         "valori_variabili": valori_variabili,
-#         "valori_unica_variabile": valori_unica_variabile,
-#     }
 
 x = 500000
 months = {

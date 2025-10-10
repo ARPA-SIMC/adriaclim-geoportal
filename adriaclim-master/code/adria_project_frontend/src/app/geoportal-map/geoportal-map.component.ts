@@ -16,7 +16,9 @@ import { debounceTime, distinctUntilChanged, map, startWith, switchMap } from 'r
 import * as poly from '../../assets/geojson/adriaclim_pilot_label.json';
 import { GeoportalMapDialogComponent } from './geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
-import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+// import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+import { environment } from '../../environments/environment';
+
 import { GeoportalColorDialogComponent } from './geoportal-color-dialog/geoportal-color-dialog.component';
 import { GeoportalCompareDialogComponent } from './geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
@@ -80,7 +82,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   // markersLayer: any = L.markerClusterGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  // apiUrl = environmentDev;
+  apiUrl = environment.backendUrl;
 
   compliantErrorErddap = "";
   showAlertGenericError = false;
@@ -162,7 +165,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
   coordOnClick = {};
   filteredData: any;
 
-  ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
+  // ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
+  ERDDAP_URL = environment.erddapUrl;
   legendLayer_src: any;
   datasetLayer: any;
 

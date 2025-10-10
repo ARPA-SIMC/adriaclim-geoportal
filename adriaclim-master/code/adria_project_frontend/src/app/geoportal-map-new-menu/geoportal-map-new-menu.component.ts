@@ -11,7 +11,8 @@ import * as moment from 'moment';
 import * as poly from '../../assets/geojson/adriaclim_pilot_label.json';
 import { GeoportalMapDialogComponent } from '../geoportal-map/geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
-import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+// import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
+import { environment } from 'src/environments/environment';
 import { GeoportalColorDialogComponent } from '../geoportal-map/geoportal-color-dialog/geoportal-color-dialog.component';
 import { GeoportalCompareDialogComponent } from '../geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
@@ -87,7 +88,8 @@ export class GeoportalMapNewMenuComponent {
   markersLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
 
-  apiUrl = environmentDev;
+  // apiUrl = environmentDev;
+  apiUrl = environment.backendUrl;
 
   compliantErrorErddap = "";
   showAlert = false;
@@ -165,7 +167,8 @@ export class GeoportalMapNewMenuComponent {
   coordOnClick = {};
   filteredData: any;
 
-  ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
+  // ERDDAP_URL = "https://erddap-adriaclim.cmcc-opa.eu/erddap";
+  ERDDAP_URL = environment.erddapUrl;
   legendLayer_src: any;
   datasetLayer: any;
 
@@ -750,17 +753,6 @@ export class GeoportalMapNewMenuComponent {
 
   closeMyMenu(menuTrigger: MatMenuTrigger) {
     menuTrigger.closeMenu();
-  }
-
-  getPluto() {
-    this.httpService.post('dataset/pluto', {
-    }).subscribe({
-      next(position: any) {
-
-      },
-      error(msg: any) {
-      }
-    });
   }
 
   /**
