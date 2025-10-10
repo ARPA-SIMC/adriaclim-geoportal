@@ -100,7 +100,7 @@ services:
       - "8000:8000"
     depends_on:
       - django
-      - angular   # in dev serve Angular separato, in prod questa riga va tolta
+      # - angular   # in dev serve Angular separato, in prod questa riga va tolta
 
   redis:
     image: redis:alpine
