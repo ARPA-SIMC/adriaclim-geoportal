@@ -116,7 +116,7 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_PROJECT_PATH_TEST = '/home/arpae/adriaclimplus-test/adriaclim-master'
+        REMOTE_PROJECT_PATH_TEST = '/home/arpae/adriaclimplus-test'
         REMOTE_PROJECT_PATH_PROD = '/home/arpae/adriaclim-geoportal'
     }
 
@@ -159,35 +159,33 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} << 'ENDSSH'
-                        set -e
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
+                            set -e
+                            echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
+                            
+                            if [ ! -d "${REMOTE_PROJECT_PATH}" ]; then
+                                echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..." &&
+                                cd \$(dirname ${REMOTE_PROJECT_PATH}) &&
+                                git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git \$(basename ${REMOTE_PROJECT_PATH}) &&
+                                cd ${REMOTE_PROJECT_PATH} &&
+                                echo "[OK] Clone completato con successo."
+                            fi
 
-                        echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..."
-                        REMOTE_PATH="${REMOTE_PROJECT_PATH}"
+                            echo "[✓] Procedo con aggiornamento..." &&
+                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
 
-                        if [ ! -d "$REMOTE_PATH" ]; then
-                            echo "[!] La directory $REMOTE_PATH non esiste. Eseguo git clone..."
-                            PARENT_DIR=\$(dirname "$REMOTE_PATH")
-                            mkdir -p "\$PARENT_DIR"
-                            cd "\$PARENT_DIR"
-                            git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git "\$REMOTE_PATH"
-                            echo "[OK] Clone completato con successo."
-                        fi
+                            echo "[🧹 Stop e rimozione container precedenti...]" &&
+                            sudo docker ps -aq | xargs -r sudo docker stop || true &&
+                            sudo docker ps -aq | xargs -r sudo docker rm -f || true &&
+                            sudo docker-compose down -v --remove-orphans || true &&
+                            sudo docker system prune -af || true &&
 
-                        echo "[✓] Procedo con aggiornamento..."
-                        cd "\$REMOTE_PATH"
-
-                        echo "[🧹 Stop e rimozione container precedenti...]"
-                        sudo docker ps -aq | xargs -r sudo docker stop || true
-                        sudo docker ps -aq | xargs -r sudo docker rm -f || true
-                        sudo docker-compose down -v --remove-orphans || true
-                        sudo docker system prune -af || true
-
-                        echo "[2] Aggiorno codice da Git..."
-                        git fetch origin
-                        git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH}
-                        git reset --hard origin/${DEPLOY_BRANCH}
-                        ENDSSH
+                            echo "[2] Aggiorno codice da Git..." &&
+                            cd ${REMOTE_PROJECT_PATH} &&
+                            git fetch origin &&
+                            git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
+                            git reset --hard origin/${DEPLOY_BRANCH}
+                        '
                     """
                 }
             }
