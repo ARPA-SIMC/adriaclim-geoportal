@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_PROJECT_PATH_TEST = '/home/fos/adriaclimplus-test/adriaclim-master'
+        REMOTE_PROJECT_PATH_TEST = '/home/arpae/adriaclimplus-test/adriaclim-master'
         REMOTE_PROJECT_PATH_PROD = '/home/arpae/adriaclim-geoportal'
     }
 
@@ -20,13 +20,13 @@ pipeline {
                             env.DEPLOY_BRANCH = 'prod'
                             env.SSH_USER = 'arpae'
                             env.REMOTE_PROJECT_PATH = env.REMOTE_PROJECT_PATH_PROD
-                            env.SSH_CREDENTIAL_ID = 'arpae-ssh-key-prod'
+                            env.SSH_CREDENTIAL_ID = 'arpae-ssh-key'
                         } else {
                             hosts = envYaml.hosts['test']
                             env.DEPLOY_BRANCH = 'test'
-                            env.SSH_USER = 'fos'
+                            env.SSH_USER = 'arpae'
                             env.REMOTE_PROJECT_PATH = env.REMOTE_PROJECT_PATH_TEST
-                            env.SSH_CREDENTIAL_ID = 'test-ssh-key'
+                            env.SSH_CREDENTIAL_ID = 'arpae-ssh-key'
                         }
 
                         env.DEPLOY_HOST = hosts[0]
