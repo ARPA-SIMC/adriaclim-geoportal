@@ -116,7 +116,7 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_PROJECT_PATH_TEST = '/home/arpae/adriaclimplus-test'
+        REMOTE_PROJECT_PATH_TEST = '/home/arpae/adriaclim-geoportal'
         REMOTE_PROJECT_PATH_PROD = '/home/arpae/adriaclim-geoportal'
     }
 
