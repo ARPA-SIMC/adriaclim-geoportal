@@ -78,13 +78,11 @@ services:
 
   angular:
     build:
-      context: .
-      dockerfile: Dockerfile.prod
+      context: .                                 # usa la root come contesto
+      dockerfile: code/adria_project_frontend/Dockerfile.prod   # percorso reale
     container_name: adriapp_angular
     ports:
-      - "4200:4200"
-    environment:
-      - WDS_SOCKET_PORT=0
+      - "4200:80"
     depends_on:
       - django
 
