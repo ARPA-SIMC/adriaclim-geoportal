@@ -709,12 +709,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         yAxis: {
           type: 'value',
           axisLabel: {
-            formatter: `{value} ${this.dimUnit}`
-
+            formatter: (val: any) => {
+              return isNaN(Number(this.dimUnit)) && this.dimUnit
+                ? `${val} ${this.dimUnit}`
+                : `${val}`;
+            }
           },
           boundaryGap: [0, '100%'],
-          // min: 'dataMin',
-          // max: 'dataMax'
           min: this.checkMinValue(),
           max: "dataMax"
         },
@@ -816,15 +817,18 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         yAxis: {
           type: 'value',
           axisLabel: {
-            formatter: `{value} ${this.dimUnit}`
-
+            formatter: (val: any) => {
+              // show unit only if it is not a number
+              return isNaN(Number(this.dimUnit)) && this.dimUnit
+                ? `${val} ${this.dimUnit}`
+                : `${val}`;
+            }
           },
           boundaryGap: [0, '100%'],
-          // min: 'dataMin',
-          // max: 'dataMax'
           min: this.checkMinValue(),
           max: "dataMax"
         },
+
         tooltip: {
           trigger: 'axis',
           formatter: (paramsFormatter: any) => {
@@ -1050,7 +1054,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
               },
               yAxis: {
                 type: 'value',
-                axisLabel: { formatter: `{value} ${this.dimUnit}` },
+                axisLabel: {
+                  formatter: (val: any) => {
+                    return isNaN(Number(this.dimUnit)) && this.dimUnit
+                      ? `${val} ${this.dimUnit}`
+                      : `${val}`;
+                  }
+                },
                 boundaryGap: [0, '100%'],
                 min: this.checkMinValue(),
                 max: "dataMax"
