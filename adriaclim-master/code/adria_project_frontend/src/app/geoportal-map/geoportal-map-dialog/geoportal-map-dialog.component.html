@@ -214,7 +214,8 @@
 
               </div>
               <ng-container *ngIf="compareObj; else noConfronto">
-                <app-canvas-graph-compare [compareObj]="compareObj"
+                <app-canvas-graph-compare
+                  [compareObj]="compareObj"
                   [progressBarAtStart]="progressBarAtStart"
                   (dataTimeExport)="addDataTimeExport($event)"
                   (compareStats)="compareStats($event)"
@@ -226,11 +227,17 @@
                   (description)="descriptionError($event)"
                   (fakeProgressStart)="startFakeProgress()"
                   (fakeProgressStop)="stopFakeProgress()"
+                  (fakeProgressStart)="spinnerService.spinnerShow = true"
+                  (fakeProgressStop)="spinnerService.spinnerShow = false"
                   [isUpdate]="isUpdate"
                   (meanMedianStdev)="meanMedianStdev($event)"
-                  class="canvas-graph" [dataset]="dataset"
-                  [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
-                  [range]="range" [isIndicator]="isIndicator"
+                  class="canvas-graph"
+                  [dataset]="dataset"
+                  [idMeta]="datasetId"
+                  [latlng]="latlng"
+                  [variable]="variable"
+                  [range]="range"
+                  [isIndicator]="isIndicator"
                   [polygon]="polygon"
                   [operation]="polygon ? operation : this.form.get('operationSel')?.value"
                   [statistic]="statistic"
@@ -241,7 +248,8 @@
                 </app-canvas-graph-compare>
               </ng-container>
               <ng-template #noConfronto>
-                <app-canvas-graph (dataTimeExport)="addDataTimeExport($event)"
+                <app-canvas-graph
+                  (dataTimeExport)="addDataTimeExport($event)"
                   [progressBarAtStart]="progressBarAtStart"
                   (meanMedianStdev)="meanMedianStdev($event)"
                   (description)="descriptionError($event)"
@@ -252,11 +260,16 @@
                   (progressBarCanvas)="progressBarCanvas($event)"
                   (fakeProgressStart)="startFakeProgress()"
                   (fakeProgressStop)="stopFakeProgress()"
+                  (fakeProgressStart)="spinnerService.spinnerShow = true"
+                  (fakeProgressStop)="spinnerService.spinnerShow = false"
                   [isUpdate]="isUpdate"
-                  (meanMedianStdev)="meanMedianStdev($event)"
-                  class="canvas-graph" [dataset]="dataset"
-                  [idMeta]="datasetId" [latlng]="latlng" [variable]="variable"
-                  [range]="range" [isIndicator]="isIndicator"
+                  class="canvas-graph"
+                  [dataset]="dataset"
+                  [idMeta]="datasetId"
+                  [latlng]="latlng"
+                  [variable]="variable"
+                  [range]="range"
+                  [isIndicator]="isIndicator"
                   [polygon]="polygon"
                   [operation]="polygon ? operation : this.form.get('operationSel')?.value"
                   [statistic]="statistic"
@@ -266,7 +279,6 @@
                   [dimUnit]="dimUnit"
                   [context]="'one'">
                 </app-canvas-graph>
-
               </ng-template>
 
               <!-- <ng-template matTabContent> -->

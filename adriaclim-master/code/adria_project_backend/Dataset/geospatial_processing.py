@@ -125,21 +125,33 @@ def getDataPolygonNew(
         dataframe = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"]).dropna(how="any")
         dataframe["date_value"] = pd.to_datetime(dataframe["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe, statistic, time_op)
+        # --- FIX: gestisce statistiche multicolonna (boxPlot, min_10thPerc_median_90thPerc_max, ecc.)
+        multi_stats = ("min_mean_max", "min_10thPerc_median_90thPerc_max")
+        if statistic not in multi_stats:
+            df = pd.DataFrame(pol_from_cache["dataPol"])
+            values = df["y"].tolist()
+            if len(values) == 1:
+                mean = median = std_dev = trend_value = values[0]
+            else:
+                trend_value = calculate_trend(df["x"].tolist(), df["y"].tolist())
+                mean, median, std_dev = df["y"].mean(), df["y"].median(), df["y"].std()
 
-        df = pd.DataFrame(pol_from_cache["dataPol"])
-        values = df["y"].tolist()
-        if len(values) == 1:
-            mean = median = std_dev = trend_value = values[0]
+            pol_from_cache.update({
+                "mean": mean,
+                "median": median,
+                "stdev": std_dev,
+                "trend_yr": trend_value,
+            })
         else:
-            trend_value = calculate_trend(df["x"].tolist(), df["y"].tolist())
-            mean, median, std_dev = df["y"].mean(), df["y"].median(), df["y"].std()
+            # per statistiche multicolonna evitiamo il calcolo di y
+            pol_from_cache.update({
+                "mean": None,
+                "median": None,
+                "stdev": None,
+                "trend_yr": None,
+            })
+        # --- END FIX
 
-        pol_from_cache.update({
-            "mean": mean,
-            "median": median,
-            "stdev": std_dev,
-            "trend_yr": trend_value,
-        })
         if parametro_agg != "None":
             if pd.isna(pol_from_cache["dataTable"][0][parametro_agg]):
                 pol_from_cache["dataTable"][0][parametro_agg] = "Value not defined"

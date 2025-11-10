@@ -480,8 +480,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         }
       });
     }
+
+    // --- Ramo BoxPlot aggiornato ---
     else {
-      // gestione boxPlot invariata, ma anche qui rispetta update/no update
       if (this.isLoading) {
         console.log("Caricamento già in corso, ignoro nuova richiesta");
         return;
@@ -489,116 +490,155 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.isLoading = true;
 
       if (!this.isUpdate) {
+      // mostra spinner solo per boxPlot
+      if (this.statistic === 'boxPlot') {
         this.firstSpinner();
         console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
         this.fakeProgressStart.emit();
-      } else {
+      }
+    } else {
+      if (this.statistic === 'boxPlot') {
         this.spinnerLoadingChild.emit(true);
         this.spinnerService.spinnerShow = true;
       }
+    }
 
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
       this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
         next: (response: any) => {
-          let taskData = { task_id: response.task_id };
+          const taskData = { task_id: response.task_id };
 
           this.taskStatusInterval = setInterval(() => {
             this.httpService.post('dataset/check_task_status/', taskData).subscribe({
               next: (res: any) => {
                 console.log("SECONDA RESPONSE (boxPlot)", res);
 
-                this.data1 = res.dataVect.result.dataPol.map((el: any) => {
-                  return [
-                    el["Minimum"],
-                    el["10th Percentile"],
-                    el["Median"],
-                    el["90th Percentile"],
-                    el["Maximum"],
-                  ];
-                });
+                const task_status = res?.dataVect?.status;
+                const result = res?.dataVect?.result;
 
-                let showName = res.dataVect.result.dataPol.map((el: any) => [el['x']]);
-
-                this.quantityBoxPlot = new Set();
-                showName.forEach((element: any) => {
-                  this.quantityBoxPlot.add(element[0]);
-                });
-
-                this.optionBoxPlot = {
-                  title: [{ text: 'Min, 10th Percentile, Median, 90th Percentile, Max', left: 'center', top: '20px' }],
-                  dataset: [
-                    { source: this.data1 },
-                    { transform: { type: 'boxplot', config: { itemNameFormatter: (params: any) => params.value } } },
-                    { fromDatasetIndex: 1, fromTransformResult: 1 },
-                  ],
-                  tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
-                  grid: { left: '10%', right: '10%', bottom: '15%' },
-                  xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
-                  yAxis: { type: 'value', name: 'Values' },
-                  series: [
-                    { name: 'Box plot', type: 'boxplot', datasetIndex: 1 },
-                    { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
-                  ]
-                };
-
-                let task_status = res.dataVect.status;
+                // Stop polling appena finisce
                 if (task_status === 'SUCCESS') {
                   clearInterval(this.taskStatusInterval);
                   this.taskStatusInterval = null;
 
+                  // spegni sempre lo spinner
                   if (!this.isUpdate) {
-                    console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
                     this.fakeProgressStop.emit();
                   } else {
                     this.spinnerLoadingChild.emit(false);
                     this.spinnerService.spinnerShow = false;
                   }
 
+                  const result = res?.dataVect?.result;
+
+                  if (result && typeof result === 'object' && Array.isArray(result.dataPol)) {
+                    this.data1 = result.dataPol.map((el: any) => {
+                      return [
+                        el["Minimum"],
+                        el["10th Percentile"],
+                        el["Median"],
+                        el["90th Percentile"],
+                        el["Maximum"],
+                      ];
+                    });
+
+                    const showName = result.dataPol.map((el: any) => [el['x']]);
+                    this.quantityBoxPlot = new Set();
+                    showName.forEach((element: any) => {
+                      this.quantityBoxPlot.add(element[0]);
+                    });
+
+                    this.optionBoxPlot = {
+                      title: [
+                        {
+                          text: 'Min, 10th Percentile, Median, 90th Percentile, Max',
+                          left: 'center',
+                          top: '20px'
+                        }
+                      ],
+                      dataset: [
+                        { source: this.data1 },
+                        { transform: { type: 'boxplot', config: { itemNameFormatter: (params: any) => params.value } } },
+                        { fromDatasetIndex: 1, fromTransformResult: 1 },
+                      ],
+                      tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
+                      grid: { left: '10%', right: '10%', bottom: '15%' },
+                      xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
+                      yAxis: { type: 'value', name: 'Values' },
+                      series: [
+                        { name: 'Box plot', type: 'boxplot', datasetIndex: 1 },
+                        { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
+                      ]
+                    };
+                  } else {
+                    console.warn("BoxPlot: risultato non strutturato o vuoto:", result);
+                  }
+
                   this.isLoading = false;
+
+                  // --- FIX: forza spegnimento spinner dopo 1s per sicurezza ---
+                  setTimeout(() => {
+                    if (!this.isUpdate) {
+                      this.fakeProgressStop.emit();
+                    } else {
+                      this.spinnerLoadingChild.emit(false);
+                      this.spinnerService.spinnerShow = false;
+                    }
+                    console.log("[FIX] Spinner force-stopped after SUCCESS (boxPlot)");
+                  }, 1000);
+                  // --- END FIX ---
                 }
+
                 else if (task_status === 'FAILURE') {
                   clearInterval(this.taskStatusInterval);
                   this.taskStatusInterval = null;
 
                   if (!this.isUpdate) {
-                    console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
                     this.fakeProgressStop.emit();
                   } else {
                     this.spinnerLoadingChild.emit(false);
                     this.spinnerService.spinnerShow = false;
                   }
 
-                  console.error('Task error:', response.dataVect.error);
+                  console.error('Task error (boxPlot):', res);
                   this.isLoading = false;
                 }
-              },
-              error: (err: any) => {
-                clearInterval(this.taskStatusInterval);
-                this.taskStatusInterval = null;
 
-                if (!this.isUpdate) {
-                  console.log("[FIGLIO] emetto fakeProgressStop (boxPlot)");
-                  this.fakeProgressStop.emit();
-                } else {
-                  this.spinnerLoadingChild.emit(false);
-                  this.spinnerService.spinnerShow = false;
+                // se PROGRESS → continua il polling
+                },
+                error: (err: any) => {
+                  clearInterval(this.taskStatusInterval);
+                  this.taskStatusInterval = null;
+
+                  if (!this.isUpdate) {
+                    this.fakeProgressStop.emit();
+                  } else {
+                    this.spinnerLoadingChild.emit(false);
+                    this.spinnerService.spinnerShow = false;
+                  }
+
+                  console.log("ERROR (boxPlot) =", err);
+                  this.isLoading = false;
                 }
+                });
+                }, 2000);
+                },
+                error: (err: any) => {
+                  console.error("Errore boxPlot:", err);
 
-                console.log("ERROR =", err);
-                this.isLoading = false;
-              }
-            });
-          }, 2000);
-        },
-        error: (err: any) => {
-          console.error("Errore boxPlot:", err);
-          this.isLoading = false;
-        }
-      });
-    }
-  }
-
+                  // spegni comunque lo spinner se fallisce la prima POST
+                  if (!this.isUpdate) {
+                    this.fakeProgressStop.emit();
+                  } else {
+                    this.spinnerLoadingChild.emit(false);
+                    this.spinnerService.spinnerShow = false;
+                  }
+                  this.isLoading = false;
+                }
+              });
+            }
+          }
 
 
   /**
