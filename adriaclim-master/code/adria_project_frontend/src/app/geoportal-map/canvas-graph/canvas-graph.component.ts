@@ -983,21 +983,21 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.dimUnit = "";
     }
 
-    // normalizza date
-    if (this.dataset.time_start.includes("T")) {
+    // normalizza le date del dataset
+    if (this.dataset.time_start && this.dataset.time_start.includes("T")) {
       const dateStart = new Date(this.dataset.time_start);
       this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1)
         .toString()
         .padStart(2, '0')}-${dateStart.getDate().toString().padStart(2, '0')}`;
     }
-    if (this.dataset.time_end.includes("T")) {
+    if (this.dataset.time_end && this.dataset.time_end.includes("T")) {
       const dateEnd = new Date(this.dataset.time_end);
       this.dataset.time_end = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1)
         .toString()
         .padStart(2, '0')}-${dateEnd.getDate().toString().padStart(2, '0')}`;
     }
 
-    let data = {
+    const data = {
       dataset: this.dataset,
       idMeta: this.idMeta,
       variable: this.variable,
@@ -1021,153 +1021,200 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
     this.isLoading = true;
 
-    // primo caricamento → spinner + barra
+    // punto → usavate la progress bar finta
     if (!this.isUpdate) {
       this.timeforProgressBar();
     } else {
-      // update → solo spinner
       this.spinnerLoadingChild.emit(true);
       this.spinnerService.spinnerShow = true;
     }
 
     this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe({
       next: (response: any) => {
-        if (response.allData !== "fuoriWms") {
-          if (typeof response == 'string') {
-            response = JSON.parse(response);
-          }
-          this.dataRes = response;
+        console.log("[GRAPH] RESPONSE getDataGraph =", response);
 
-          this.meanMedianStdev.emit(
-            this.dataRes.allData.mean +
-            "_" + this.dataRes.allData.median +
-            "_" + this.dataRes.allData.stdev +
-            "_" + this.dataRes.allData.trend_yr
-          );
-
-          let name = this.dataRes.allData.entries[0];
-
-          if (this.operation === "annualMonth") {
-            this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
-          }
-
-          if (this.dataRes.allData[name]) {
-            this.dataRes.allData[name].forEach((element: any) => {
-              element.date = element.x;
-              element.x = this.formatDate(element.x) ?? element.x;
-              element.y = Number(element.y);
-            });
-
-            let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
-            let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
-
-            this.myChart.on('dataZoom', () => {
-              let option = this.myChart.getOption();
-              this.startZoom = option.dataZoom[0].startValue;
-              this.endZoom = option.dataZoom[0].endValue;
-
-              let arrayDate = arrayAllDate.filter(
-                this.filterElement(
-                  this.dataRes.allData[name][this.startZoom]["date"],
-                  this.dataRes.allData[name][this.endZoom]["date"]
-                )
-              );
-
-              let arrayValueTest = arrayAllDateValue
-                .map((element: any) => arrayDate.includes(element.date) ? element.y : undefined)
-                .filter((el: any) => el !== undefined);
-
-              this.statisticCalc.emit({
-                dates: arrayDate,
-                values: arrayValueTest
-              });
-            });
-
-            this.chartOption = {
-              xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: this.dataRes.allData[name].map((element: any) => {
-                  let elDate = new Date(element.x).toLocaleDateString();
-                  return elDate !== "Invalid Date" ? elDate : element.x;
-                })
-              },
-              yAxis: {
-                type: 'value',
-                axisLabel: {
-                  formatter: (val: any) => {
-                    return isNaN(Number(this.dimUnit)) && this.dimUnit
-                      ? `${val} ${this.dimUnit}`
-                      : `${val}`;
-                  }
-                },
-                boundaryGap: [0, '100%'],
-                min: this.checkMinValue(),
-                max: "dataMax"
-              },
-              toolbox: {
-                feature: {
-                  dataZoom: { yAxisIndex: 'none' },
-                  restore: {},
-                  saveAsImage: {}
-                }
-              },
-              tooltip: {
-                trigger: 'axis',
-                formatter: (paramsFormatter: any) => {
-                  return `${paramsFormatter[0].name}<br>` +
-                    paramsFormatter.map((param: any) => {
-                      let value: any = Number(param.value);
-                      if ((value > 10000 || value < 0.001) && value !== 0) {
-                        value = value.toExponential().replace(/e\+?/, ' x 10^');
-                      }
-                      return `${param.marker} ${param.seriesName}: ${value}`;
-                    }).join('<br>');
-                },
-                transitionDuration: 0.2,
-                axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } }
-              },
-              legend: { data: [name] },
-              grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-              dataZoom: [{ show: true, realtime: true, type: 'inside' }],
-              series: [{
-                data: this.dataRes.allData[name].map((el: any) => this.formatNumber(el.y)),
-                name: name,
-                type: 'line',
-                stack: 'counts',
-                areaStyle: this.enableArea ? {} : undefined,
-                smooth: false
-              }]
-            };
-
-            this.dataTimeExport.emit(this.dataRes.allData[name]);
-
-            if (!this.isUpdate) {
-              this.progressBarCanvas.emit(false);
+        // caso "fuoriWms"
+        if (response.allData === "fuoriWms") {
+          if (!this.isUpdate) {
+            this.progressBarCanvas.emit(false);
+            if (this.timeoutProgressBar) {
               this.timeoutProgressBar.unsubscribe();
-            } else {
-              this.spinnerLoadingChild.emit(false);
-              this.spinnerService.spinnerShow = false;
             }
-
-            this.isLoading = false;
           } else {
-            if (!this.isUpdate) {
-              this.progressBarCanvas.emit(false);
-              this.timeoutProgressBar.unsubscribe();
-            } else {
-              this.spinnerLoadingChild.emit(false);
-              this.spinnerService.spinnerShow = false;
-            }
-            this.description.emit("Please select point inside the layer");
-            this.isLoading = false;
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
           }
+          this.description.emit("Please select point inside the layer");
+          this.isLoading = false;
+          return;
         }
+
+        // caso errore testuale dal backend
+        if (typeof response === "string") {
+          console.warn("[GRAPH] backend ha risposto con errore testuale:", response);
+          if (!this.isUpdate) {
+            this.progressBarCanvas.emit(false);
+            if (this.timeoutProgressBar) {
+              this.timeoutProgressBar.unsubscribe();
+            }
+          } else {
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
+          }
+          this.isLoading = false;
+          return;
+        }
+
+        this.dataRes = response;
+
+        // statistiche
+        this.meanMedianStdev.emit(
+          this.dataRes.allData.mean +
+          "_" + this.dataRes.allData.median +
+          "_" + this.dataRes.allData.stdev +
+          "_" + this.dataRes.allData.trend_yr
+        );
+
+        const name = this.dataRes.allData.entries[0];
+
+        if (!this.dataRes.allData[name]) {
+          if (!this.isUpdate) {
+            this.progressBarCanvas.emit(false);
+            if (this.timeoutProgressBar) {
+              this.timeoutProgressBar.unsubscribe();
+            }
+          } else {
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
+          }
+          this.description.emit("Please select point inside the layer");
+          this.isLoading = false;
+          return;
+        }
+
+        const seriesData = this.dataRes.allData[name];
+
+        // ordina per data
+        seriesData.sort((a: any, b: any) => {
+          const da = new Date(a.x).getTime();
+          const db = new Date(b.x).getTime();
+          return da - db;
+        });
+
+        // rileva se è annuale
+        const months = new Set<number>();
+        const years = new Set<number>();
+        seriesData.forEach((el: any) => {
+          const d = new Date(el.x);
+          if (!isNaN(d.getTime())) {
+            months.add(d.getMonth());
+            years.add(d.getFullYear());
+          }
+        });
+        const isPureAnnual = years.size > 1 && months.size === 1;
+
+        // normalizza
+        seriesData.forEach((element: any) => {
+          element.date = element.x;
+          element.y = Number(element.y);
+
+          if (isPureAnnual) {
+            const d = new Date(element.x);
+            element.x = !isNaN(d.getTime())
+              ? d.getFullYear().toString()
+              : element.x;
+          } else {
+            element.x = this.formatDate(element.x) ?? element.x;
+          }
+        });
+
+        this.chartOption = {
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: seriesData.map((el: any) => el.x)
+          },
+          yAxis: {
+            type: 'value',
+            axisLabel: {
+              formatter: `{value} ${this.dimUnit}`
+            },
+            boundaryGap: [0, '100%'],
+            min: this.checkMinValue(),
+            max: "dataMax"
+          },
+          toolbox: {
+            feature: {
+              dataZoom: { yAxisIndex: 'none' },
+              restore: {},
+              saveAsImage: {}
+            }
+          },
+          tooltip: {
+            trigger: 'axis',
+            formatter: (paramsFormatter: any) => {
+
+              // --- FIX annual datasets: show only year in tooltip ---
+              if (isPureAnnual && paramsFormatter[0]?.name) {
+                paramsFormatter[0].name = paramsFormatter[0].name.substring(paramsFormatter[0].name.length - 4);
+              }
+              // --- END FIX ---
+
+              const tooltipHTML = paramsFormatter.map((param: any) => {
+                let value: any = Number(param.value);
+                if (value > 10000 || value < 0.001 && value !== 0) {
+                  value = value.toExponential().replace(/e\+?/, ' x 10^');
+                }
+                return `${param.marker} ${param.seriesName}: ${value}`;
+              }).join('<br>');
+
+              return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+            },
+            transitionDuration: 0.2,
+            axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } }
+          },
+          legend: {
+            data: [name]
+          },
+          grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+          dataZoom: [
+            { show: true, realtime: true, type: 'inside' },
+          ],
+          series: [{
+            data: seriesData.map((el: any) => this.formatNumber(el.y)),
+            name: name,
+            type: 'line',
+            stack: 'counts',
+            areaStyle: this.enableArea ? {} : undefined,
+            smooth: false
+          }]
+        };
+
+        this.dataTimeExport.emit(seriesData);
+
+        // QUI era il buco: spegniamo tutto anche nel flusso "punto"
+        if (!this.isUpdate) {
+          this.progressBarCanvas.emit(false);
+          if (this.timeoutProgressBar) {
+            this.timeoutProgressBar.unsubscribe();
+          }
+          // aggiunta per il vostro spinner globale
+          this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+        } else {
+          this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+        }
+
+        this.isLoading = false;
       },
       error: (err: any) => {
         console.error("Errore getDataGraph:", err);
         if (!this.isUpdate) {
           this.progressBarCanvas.emit(false);
+          if (this.timeoutProgressBar) {
+            this.timeoutProgressBar.unsubscribe();
+          }
         } else {
           this.spinnerLoadingChild.emit(false);
           this.spinnerService.spinnerShow = false;

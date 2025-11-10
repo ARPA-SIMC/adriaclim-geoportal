@@ -76,13 +76,25 @@ services:
       migrator:
         condition: service_completed_successfully
 
+  # # Per sviluppo 
+  # angular:
+  #   build:
+  #     context: ./code/adria_project_frontend
+  #     dockerfile: Dockerfile.dev
+  #   container_name: adriapp_angular
+  #   ports:
+  #     - "4200:80"
+  #   depends_on:
+  #     - django
+  
+  # Per produzione
+
   angular:
     build:
-      context: .                                 # usa la root come contesto
-      dockerfile: code/adria_project_frontend/Dockerfile.prod   # percorso reale
-    container_name: adriapp_angular
+      context: ./code/adria_project_frontend
+      dockerfile: Dockerfile.prod
     ports:
-      - "4200:80"
+      - "80:80"
     depends_on:
       - django
 

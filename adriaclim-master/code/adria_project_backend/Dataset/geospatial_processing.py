@@ -209,6 +209,11 @@ def getDataPolygonNew(
             cache.set(key=key_cached, value=json.dumps(allData), timeout=43200)
             allData["dataPol"] = operation_before_after_cache(df, statistic, time_op)
             logger.debug("DB TIME: %.2f seconds", time.time() - start_time)
+            # --- FIX: validate data structure before return ---
+            if not allData.get("dataPol") or not isinstance(allData["dataPol"], list) or len(allData["dataPol"]) == 0:
+                logger.warning("[FIX] The data is not compliant → empty or invalid structure detected")
+                return {"error": "data_not_compliant"}
+            # --- END FIX ---
             return allData
         except Exception as e:
             logger.error("DB processing error: %s", e)
@@ -426,6 +431,9 @@ def getDataPolygonNew(
             "lat_lng": "(" + df_work["latitude"].astype(str) + "," + df_work["longitude"].astype(str) + ")",
             "value_0": pd.to_numeric(df_work[layer_name], errors="coerce"),
         })
+        logger.warning("[DEBUG CHECK] time_op=%s, statistic=%s, righe df_polygon=%d", time_op, statistic, len(df_polygon))
+        logger.warning("[DEBUG CHECK] date_value sample: %s", df_polygon["date_value"].head().tolist())
+        logger.warning("[DEBUG CHECK] value_0 sample: %s", df_polygon["value_0"].head().tolist())
         df_polygon = df_polygon.drop_duplicates(
             subset=["date_value", "lat_lng", "value_0"], keep="first"
         ).dropna(how="all", axis=1)
@@ -663,6 +671,26 @@ def getDataPolygonNew(
             logger.error("Errore nel log finale df_bulk: %s", e)
 
         logger.debug("Completed getDataPolygonNew in %.2f seconds", time.time() - start_time)
+        # --- FIX: validate data structure before return + fallback ---
+        if not allData.get("dataPol") or not isinstance(allData["dataPol"], list) or len(allData["dataPol"]) == 0:
+            logger.warning("[FIX] The data is not compliant → empty or invalid structure detected")
+
+            # Tentativo fallback automatico: ricomputa in modalità 'default'
+            try:
+                if time_op != "default":
+                    logger.warning("[FIX] Retrying operation_before_after_cache with time_op='default'")
+                    df_retry = pd.DataFrame(allData.get("dataBeforeOp", []))
+                    if not df_retry.empty:
+                        allData["dataPol"] = operation_before_after_cache(df_retry, statistic, "default")
+                        if allData["dataPol"]:
+                            logger.warning("[FIX] Fallback 'default' riuscito, restituisco dati validi")
+                            return allData
+            except Exception as e:
+                logger.error("[FIX] Fallback default fallito: %s", e)
+
+            # Se anche il fallback fallisce
+            return {"error": "data_not_compliant"}
+        # --- END FIX ---
         return allData
 
     except Exception as e:

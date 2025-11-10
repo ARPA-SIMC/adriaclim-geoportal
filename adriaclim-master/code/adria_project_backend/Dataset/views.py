@@ -110,6 +110,11 @@ def getDataGraphicNewCanvas(request):
 
 @api_view(['GET','POST'])
 def getDataVectorialNew(request):
+    logger.warning("[DEBUG BACKEND] getDataVectorialNew chiamato con:")
+    logger.warning(f"Dataset: {request.POST.get('dataset')}")
+    logger.warning(f"selVar: {request.POST.get('selVar')}")
+    logger.warning(f"selDate: {request.POST.get('selDate')}")
+
     try:
 
         dataset = request.data.get("dataset")
@@ -126,6 +131,8 @@ def getDataVectorialNew(request):
         if is_indicator == "false":
             num_param = int(num_dimensions)
         dataVect=getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
+        logger.warning("[DEBUG BACKEND] Risposta ERDDAP inviata al frontend")
+
         return JsonResponse({'dataVect': dataVect})
     except Exception as e:
         return str(e)
