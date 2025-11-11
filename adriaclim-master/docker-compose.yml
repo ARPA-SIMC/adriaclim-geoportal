@@ -91,7 +91,7 @@ services:
 
   angular:
     build:
-      context: ../code/adria_project_frontend
+      context: ./code/adria_project_frontend
       dockerfile: Dockerfile.prod
     ports:
       - "80:80"
