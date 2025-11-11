@@ -115,7 +115,7 @@ pipeline {
                             ${DOCKER_COMPOSE} build --no-cache angular &&
 
                             echo "[docker-compose] Build & start..." &&
-                            ${DOCKER_COMPOSE} --env-file ../.env up -d --build &&
+                            ${DOCKER_COMPOSE} --env-file .env up -d --build &&
 
                             echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
                         '
