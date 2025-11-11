@@ -111,6 +111,9 @@ pipeline {
                             ${DOCKER} pull redis:alpine || true &&
                             ${DOCKER} pull postgis/postgis:13-3.3 || true &&
 
+                            echo "[docker] Forzo rebuild di Angular (no cache)..." &&
+                            ${DOCKER_COMPOSE} build --no-cache angular &&
+
                             echo "[docker-compose] Build & start..." &&
                             ${DOCKER_COMPOSE} --env-file ../.env up -d --build &&
 
