@@ -148,7 +148,7 @@ pipeline {
                         echo '[OK] Deploy completato su ${DEPLOY_HOST}'
                     "'
                     """
-                    }
+                    
                 }
             }
         }
