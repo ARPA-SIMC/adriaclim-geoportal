@@ -104,34 +104,34 @@ pipeline {
                 script {
                     sh """
                     echo "[4] Avvio build e container su ${DEPLOY_HOST}"
-                    ssh -t -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} 'bash -lc "
+                    ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} bash -lc '
                         set -euo pipefail
 
-                        echo '[git] Posizionamento repo...'
+                        echo "[git] Posizionamento repo..."
                         cd ${REMOTE_PROJECT_PATH}
                         git fetch --all --prune
                         git checkout ${DEPLOY_BRANCH}
                         git reset --hard origin/${DEPLOY_BRANCH}
 
-                        echo '[secrets] Posiziono .env accanto a docker-compose.yml...'
+                        echo "[secrets] Posiziono .env accanto a docker-compose.yml..."
                         if [ -f "${REMOTE_PROJECT_PATH}/.env" ]; then
                         cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
                         fi
                         ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
 
-                        echo '[frontend] Build Angular (production)...'
-                        node -v
-                        npm -v
+                        echo "[frontend] Build Angular (production)..."
+                        node -v || echo "Node non trovato"
+                        npm -v || echo "NPM non trovato"
                         cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
                         if [ -f package-lock.json ]; then
-                        npm ci
+                        npm ci || npm install
                         else
                         npm install
                         fi
                         npx ng build --configuration=production --base-href=/
                         test -f dist/adria-project-front/index.html
 
-                        echo '[docker] Rebuild immagini e avvio servizi...'
+                        echo "[docker] Rebuild immagini e avvio servizi..."
                         cd ${REMOTE_PROJECT_PATH}/adriaclim-master
                         ${DOCKER} pull redis:alpine || true
                         ${DOCKER} pull postgis/postgis:13-3.3 || true
@@ -139,20 +139,25 @@ pipeline {
                         ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
                         ${DOCKER_COMPOSE} up -d
 
-                        echo '[health] Controlli rapidi...'
-                        ${DOCKER} ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'
+                        echo "[health] Controlli rapidi..."
+                        ${DOCKER} ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
 
-                        echo '[probe] Verifico Nginx risponda su 8000...'
-                        curl -sfI http://localhost:8000/ | head -1 || { echo '[ERRORE] Nginx non risponde'; exit 1; }
+                        echo "[probe] Verifico Nginx risponda su 8000..."
+                        if curl -sfI http://localhost:8000/ >/dev/null 2>&1; then
+                        echo "[OK] Nginx risponde correttamente"
+                        else
+                        echo "[ERRORE] Nginx non risponde"
+                        exit 1
+                        fi
 
-                        echo '[OK] Deploy completato su ${DEPLOY_HOST}'
-                    "'
+                        echo "[OK] Deploy completato su ${DEPLOY_HOST}"
+                    '
                     """
-                    
                 }
             }
         }
     }
+}
 }
 
 
