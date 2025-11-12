@@ -120,8 +120,9 @@ pipeline {
                             ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
 
                             echo "[frontend] Build Angular (production)..."
-                            # Carica nvm se presente (installato in precedenza), altrimenti usa npm di sistema
-                            [ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" || true
+                            export NVM_DIR="$HOME/.nvm"
+                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                            export PATH="$NVM_DIR/versions/node/v24.11.1/bin:$PATH"
                             nvm use --lts >/dev/null 2>&1 || true
 
                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
