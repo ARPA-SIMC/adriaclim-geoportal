@@ -101,14 +101,13 @@ pipeline {
         stage('Deploy e build container') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
-                    sh """
+                    sh '''
                         echo "[4] Avvio build e container su ${DEPLOY_HOST}"
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
                             set -euo pipefail
 
                             echo "[git] Posizionamento repo..."
                             cd ${REMOTE_PROJECT_PATH}
-                            # Assicura che la repo ci sia e sia pulita sul branch corretto
                             git fetch --all --prune
                             git checkout ${DEPLOY_BRANCH}
                             git reset --hard origin/${DEPLOY_BRANCH}
@@ -122,7 +121,7 @@ pipeline {
                             echo "[frontend] Build Angular (production)..."
                             export NVM_DIR="$HOME/.nvm"
                             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
-                            export PATH="$NVM_DIR/versions/node/v24.11.1/bin:\$PATH"
+                            export PATH="$NVM_DIR/versions/node/v24.11.1/bin:$PATH"
 
                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
                             if [ -f package-lock.json ]; then
@@ -136,17 +135,10 @@ pipeline {
                             echo "[docker] Rebuild immagini e avvio servizi..."
                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master
 
-                            # Pre-pull base images (tollerante ad errori di rete)
                             ${DOCKER} pull redis:alpine || true
                             ${DOCKER} pull postgis/postgis:13-3.3 || true
-
-                            # Stop/cleanup leggero (niente volumi)
                             ${DOCKER_COMPOSE} down
-
-                            # Rebuild senza cache di ciò che serve (nginx serve la dist, django backend, celery, etc.)
                             ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
-
-                            # Up
                             ${DOCKER_COMPOSE} up -d
 
                             echo "[health] Controlli rapidi..."
@@ -157,12 +149,11 @@ pipeline {
 
                             echo "[OK] Deploy completato su ${DEPLOY_HOST}"
                         '
-                    """
+                    '''
                 }
             }
         }
     }
-}
 //         stage('Deploy e build container') {
 //             steps {
 //                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
