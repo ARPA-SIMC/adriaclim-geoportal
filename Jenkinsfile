@@ -122,7 +122,11 @@ pipeline {
                                 echo '[frontend] Build Angular (production)...'
                                 export NVM_DIR=\"\$HOME/.nvm\"
                                 [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\" || true
-                                export PATH=\"\$NVM_DIR/versions/node/v24.11.1/bin:\$PATH\"
+                                [ -s \"\$NVM_DIR/bash_completion\" ] && . \"\$NVM_DIR/bash_completion\" || true
+                                export PATH=\"\$NVM_DIR/versions/node/\$(ls \$NVM_DIR/versions/node | tail -1)/bin:\$PATH\"
+
+                                node -v || echo '[!] Node non trovato'
+                                npm -v || echo '[!] NPM non trovato'
 
                                 cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
                                 if [ -f package-lock.json ]; then
