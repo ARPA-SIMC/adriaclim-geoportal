@@ -133,11 +133,17 @@ pipeline {
 
                         echo "[docker] Rebuild immagini e avvio servizi..."
                         cd ${REMOTE_PROJECT_PATH}/adriaclim-master
-                        ${DOCKER} pull redis:alpine || true
-                        ${DOCKER} pull postgis/postgis:13-3.3 || true
-                        ${DOCKER_COMPOSE} down
-                        ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
-                        ${DOCKER_COMPOSE} up -d
+                        # Info utili per il log (così vedi i nomi reali dei servizi)
+                        ${DOCKER_COMPOSE} config --services || true
+
+                        # Pull "best effort"
+                        ${DOCKER_COMPOSE} pull || true
+
+                        # Rebuild TUTTI i servizi definiti nel compose, senza elencarli (evita 'No such service')
+                        ${DOCKER_COMPOSE} build --no-cache
+
+                        # Avvio e creazione network se mancante, rimuovendo eventuali orfani
+                        ${DOCKER_COMPOSE} up -d --remove-orphans
 
                         echo "[health] Controlli rapidi..."
                         ${DOCKER} ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
