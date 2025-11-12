@@ -121,9 +121,8 @@ pipeline {
 
                             echo "[frontend] Build Angular (production)..."
                             export NVM_DIR="$HOME/.nvm"
-                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                            export PATH="$NVM_DIR/versions/node/v24.11.1/bin:$PATH"
-                            nvm use --lts >/dev/null 2>&1 || true
+                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
+                            export PATH="$NVM_DIR/versions/node/v24.11.1/bin:\$PATH"
 
                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
                             if [ -f package-lock.json ]; then
