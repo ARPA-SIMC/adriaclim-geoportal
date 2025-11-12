@@ -101,59 +101,63 @@ pipeline {
         stage('Deploy e build container') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
-                        echo "[4] Avvio build e container su ${DEPLOY_HOST}"
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
-                            set -euo pipefail
+                    script {
+                        sh '''
+                            echo "[4] Avvio build e container su ${DEPLOY_HOST}"
+                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
+                                set -euo pipefail
 
-                            echo "[git] Posizionamento repo..."
-                            cd ${REMOTE_PROJECT_PATH}
-                            git fetch --all --prune
-                            git checkout ${DEPLOY_BRANCH}
-                            git reset --hard origin/${DEPLOY_BRANCH}
+                                echo "[git] Posizionamento repo..."
+                                cd ${REMOTE_PROJECT_PATH}
+                                git fetch --all --prune
+                                git checkout ${DEPLOY_BRANCH}
+                                git reset --hard origin/${DEPLOY_BRANCH}
 
-                            echo "[secrets] Posiziono .env accanto a docker-compose.yml..."
-                            if [ -f "${REMOTE_PROJECT_PATH}/.env" ]; then
-                                cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
-                            fi
-                            ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
+                                echo "[secrets] Posiziono .env accanto a docker-compose.yml..."
+                                if [ -f "${REMOTE_PROJECT_PATH}/.env" ]; then
+                                    cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
+                                fi
+                                ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
 
-                            echo "[frontend] Build Angular (production)..."
-                            export NVM_DIR="$HOME/.nvm"
-                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
-                            export PATH="$NVM_DIR/versions/node/v24.11.1/bin:$PATH"
+                                echo "[frontend] Build Angular (production)..."
+                                export NVM_DIR="$HOME/.nvm"
+                                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
+                                export PATH="$NVM_DIR/versions/node/v24.11.1/bin:$PATH"
 
-                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
-                            if [ -f package-lock.json ]; then
-                                npm ci
-                            else
-                                npm install
-                            fi
-                            npx ng build --configuration=production --base-href=/
-                            test -f dist/adria-project-front/index.html
+                                cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
+                                if [ -f package-lock.json ]; then
+                                    npm ci
+                                else
+                                    npm install
+                                fi
+                                npx ng build --configuration=production --base-href=/
+                                test -f dist/adria-project-front/index.html
 
-                            echo "[docker] Rebuild immagini e avvio servizi..."
-                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master
+                                echo "[docker] Rebuild immagini e avvio servizi..."
+                                cd ${REMOTE_PROJECT_PATH}/adriaclim-master
 
-                            ${DOCKER} pull redis:alpine || true
-                            ${DOCKER} pull postgis/postgis:13-3.3 || true
-                            ${DOCKER_COMPOSE} down
-                            ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
-                            ${DOCKER_COMPOSE} up -d
+                                ${DOCKER} pull redis:alpine || true
+                                ${DOCKER} pull postgis/postgis:13-3.3 || true
+                                ${DOCKER_COMPOSE} down
+                                ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
+                                ${DOCKER_COMPOSE} up -d
 
-                            echo "[health] Controlli rapidi..."
-                            ${DOCKER} ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
+                                echo "[health] Controlli rapidi..."
+                                ${DOCKER} ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
 
-                            echo "[probe] Verifico Nginx risponda su 8000..."
-                            curl -sfI http://localhost:8000/ | head -1 || (echo "[ERRORE] Nginx non risponde" && exit 1)
+                                echo "[probe] Verifico Nginx risponda su 8000..."
+                                curl -sfI http://localhost:8000/ | head -1 || (echo "[ERRORE] Nginx non risponde" && exit 1)
 
-                            echo "[OK] Deploy completato su ${DEPLOY_HOST}"
-                        '
-                    '''
+                                echo "[OK] Deploy completato su ${DEPLOY_HOST}"
+                            '
+                        '''
+                    }
                 }
             }
         }
     }
+}
+
 //         stage('Deploy e build container') {
 //             steps {
 //                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
