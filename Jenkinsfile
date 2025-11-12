@@ -101,60 +101,53 @@ pipeline {
         stage('Deploy e build container') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
-                    script {
-                        sh """
-                            echo "[4] Avvio build e container su ${DEPLOY_HOST}"
-                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} "
-                                set -euo pipefail
+                script {
+                    sh """
+                    echo "[4] Avvio build e container su ${DEPLOY_HOST}"
+                    ssh -t -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} "bash -lc '
+                        set -euo pipefail
 
-                                echo '[git] Posizionamento repo...'
-                                cd ${REMOTE_PROJECT_PATH}
-                                git fetch --all --prune
-                                git checkout ${DEPLOY_BRANCH}
-                                git reset --hard origin/${DEPLOY_BRANCH}
+                        echo \"[git] Posizionamento repo...\"
+                        cd ${REMOTE_PROJECT_PATH}
+                        git fetch --all --prune
+                        git checkout ${DEPLOY_BRANCH}
+                        git reset --hard origin/${DEPLOY_BRANCH}
 
-                                echo '[secrets] Posiziono .env accanto a docker-compose.yml...'
-                                if [ -f '${REMOTE_PROJECT_PATH}/.env' ]; then
-                                    cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
-                                fi
-                                ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
+                        echo \"[secrets] Posiziono .env accanto a docker-compose.yml...\"
+                        if [ -f \"${REMOTE_PROJECT_PATH}/.env\" ]; then
+                        cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
+                        fi
+                        ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
 
-                                echo '[frontend] Build Angular (production)...'
-                                export NVM_DIR=\"\$HOME/.nvm\"
-                                [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\" || true
-                                [ -s \"\$NVM_DIR/bash_completion\" ] && . \"\$NVM_DIR/bash_completion\" || true
-                                export PATH=\"\$NVM_DIR/versions/node/\$(ls \$NVM_DIR/versions/node | tail -1)/bin:\$PATH\"
+                        echo \"[frontend] Build Angular (production)...\"
+                        node -v
+                        npm -v
+                        cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
+                        if [ -f package-lock.json ]; then
+                        npm ci
+                        else
+                        npm install
+                        fi
+                        npx ng build --configuration=production --base-href=/
+                        test -f dist/adria-project-front/index.html
 
-                                node -v || echo '[!] Node non trovato'
-                                npm -v || echo '[!] NPM non trovato'
+                        echo \"[docker] Rebuild immagini e avvio servizi...\"
+                        cd ${REMOTE_PROJECT_PATH}/adriaclim-master
+                        ${DOCKER} pull redis:alpine || true
+                        ${DOCKER} pull postgis/postgis:13-3.3 || true
+                        ${DOCKER_COMPOSE} down
+                        ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
+                        ${DOCKER_COMPOSE} up -d
 
-                                cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
-                                if [ -f package-lock.json ]; then
-                                    npm ci
-                                else
-                                    npm install
-                                fi
-                                npx ng build --configuration=production --base-href=/
-                                test -f dist/adria-project-front/index.html
+                        echo \"[health] Controlli rapidi...\"
+                        ${DOCKER} ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'
 
-                                echo '[docker] Rebuild immagini e avvio servizi...'
-                                cd ${REMOTE_PROJECT_PATH}/adriaclim-master
+                        echo \"[probe] Verifico Nginx risponda su 8000...\"
+                        curl -sfI http://localhost:8000/ | head -1 || (echo \"[ERRORE] Nginx non risponde\" && exit 1)
 
-                                ${DOCKER} pull redis:alpine || true
-                                ${DOCKER} pull postgis/postgis:13-3.3 || true
-                                ${DOCKER_COMPOSE} down
-                                ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
-                                ${DOCKER_COMPOSE} up -d
-
-                                echo '[health] Controlli rapidi...'
-                                ${DOCKER} ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'
-
-                                echo '[probe] Verifico Nginx risponda su 8000...'
-                                curl -sfI http://localhost:8000/ | head -1 || (echo '[ERRORE] Nginx non risponde' && exit 1)
-
-                                echo '[OK] Deploy completato su ${DEPLOY_HOST}'
-                            "
-                        """
+                        echo \"[OK] Deploy completato su ${DEPLOY_HOST}\"
+                    '"
+                    """
                     }
                 }
             }
