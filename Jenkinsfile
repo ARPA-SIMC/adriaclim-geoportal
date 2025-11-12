@@ -104,20 +104,59 @@ pipeline {
                     sh """
                         echo "[4] Avvio build e container su ${DEPLOY_HOST}"
                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
-                            set -e
-                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
+                            set -euo pipefail
 
-                            echo "[docker] pre-pull immagini di base..." &&
-                            ${DOCKER} pull redis:alpine || true &&
-                            ${DOCKER} pull postgis/postgis:13-3.3 || true &&
+                            echo "[git] Posizionamento repo..."
+                            cd ${REMOTE_PROJECT_PATH}
+                            # Assicura che la repo ci sia e sia pulita sul branch corretto
+                            git fetch --all --prune
+                            git checkout ${DEPLOY_BRANCH}
+                            git reset --hard origin/${DEPLOY_BRANCH}
 
-                            echo "[docker] Forzo rebuild di Angular (no cache)..." &&
-                            ${DOCKER_COMPOSE} build --no-cache angular &&
+                            echo "[secrets] Posiziono .env accanto a docker-compose.yml..."
+                            if [ -f "${REMOTE_PROJECT_PATH}/.env" ]; then
+                                cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
+                            fi
+                            ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
 
-                            echo "[docker-compose] Build & start..." &&
-                            ${DOCKER_COMPOSE} --env-file .env up -d --build &&
+                            echo "[frontend] Build Angular (production)..."
+                            # Carica nvm se presente (installato in precedenza), altrimenti usa npm di sistema
+                            export NVM_DIR="$HOME/.nvm"
+                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
+                            nvm use --lts >/dev/null 2>&1 || true
 
-                            echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
+                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
+                            if [ -f package-lock.json ]; then
+                                npm ci
+                            else
+                                npm install
+                            fi
+                            npx ng build --configuration=production --base-href=/
+                            test -f dist/adria-project-front/index.html
+
+                            echo "[docker] Rebuild immagini e avvio servizi..."
+                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master
+
+                            # Pre-pull base images (tollerante ad errori di rete)
+                            ${DOCKER} pull redis:alpine || true
+                            ${DOCKER} pull postgis/postgis:13-3.3 || true
+
+                            # Stop/cleanup leggero (niente volumi)
+                            ${DOCKER_COMPOSE} down
+
+                            # Rebuild senza cache di ciò che serve (nginx serve la dist, django backend, celery, etc.)
+                            ${DOCKER_COMPOSE} build --no-cache nginx django celery celery_beat migrator
+
+                            # Up
+                            ${DOCKER_COMPOSE} up -d
+
+                            echo "[health] Controlli rapidi..."
+                            ${DOCKER} ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
+
+                            echo "[probe] Verifico Nginx risponda su 8000..."
+                            curl -sfI http://localhost:8000/ | head -1 || (echo "[ERRORE] Nginx non risponde" && exit 1)
+
+                            echo "[OK] Deploy completato su ${DEPLOY_HOST}"
                         '
                     """
                 }
@@ -125,6 +164,33 @@ pipeline {
         }
     }
 }
+//         stage('Deploy e build container') {
+//             steps {
+//                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
+//                     sh """
+//                         echo "[4] Avvio build e container su ${DEPLOY_HOST}"
+//                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
+//                             set -e
+//                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
+
+//                             echo "[docker] pre-pull immagini di base..." &&
+//                             ${DOCKER} pull redis:alpine || true &&
+//                             ${DOCKER} pull postgis/postgis:13-3.3 || true &&
+
+//                             echo "[docker] Forzo rebuild di Angular (no cache)..." &&
+//                             ${DOCKER_COMPOSE} build --no-cache angular &&
+
+//                             echo "[docker-compose] Build & start..." &&
+//                             ${DOCKER_COMPOSE} --env-file .env up -d --build &&
+
+//                             echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
+//                         '
+//                     """
+//                 }
+//             }
+//         }
+//     }
+// }
 
 
 
