@@ -121,8 +121,7 @@ pipeline {
 
                             echo "[frontend] Build Angular (production)..."
                             # Carica nvm se presente (installato in precedenza), altrimenti usa npm di sistema
-                            export NVM_DIR="$HOME/.nvm"
-                            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
+                            [ -s "$HOME/.nvm/nvm.sh" ] && . "$HOME/.nvm/nvm.sh" || true
                             nvm use --lts >/dev/null 2>&1 || true
 
                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
