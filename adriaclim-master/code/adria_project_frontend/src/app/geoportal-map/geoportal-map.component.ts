@@ -2391,6 +2391,7 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
    * Prendiamo i dati del dataset tabledap selezionato
    */
   getDataVectorialTabledap() {
+    console.warn("[DEBUG] Entrato in getDataVectorialTabledap() V1");
 
     this.rettangoliLayer.clearLayers();
     this.removeAllLegends();

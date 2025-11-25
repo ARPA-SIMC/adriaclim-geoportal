@@ -2496,6 +2496,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
    * Prendiamo i dati del dataset tabledap selezionato
    */
   getDataVectorialTabledap() {
+    console.warn("[DEBUG] Entrato in getDataVectorialTabledap() V2");
 
     let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
     splittedVar = splittedVar[splittedVar.length - 1];

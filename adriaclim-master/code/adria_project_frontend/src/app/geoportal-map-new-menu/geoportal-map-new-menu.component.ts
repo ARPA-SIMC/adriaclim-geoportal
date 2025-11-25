@@ -2153,6 +2153,7 @@ export class GeoportalMapNewMenuComponent {
    * Prendiamo i dati del dataset tabledap selezionato
    */
   getDataVectorialTabledap() {
+    console.warn("[DEBUG] Entrato in getDataVectorialTabledap() V3");
 
     this.rettangoliLayer.clearLayers();
     this.removeAllLegends();
@@ -2178,6 +2179,22 @@ export class GeoportalMapNewMenuComponent {
     // setTimeout(() => {
     this.spinnerLoader.spinnerShow = true;
     // }, 500);
+    // --- FIX automatico per dataset annuali ---
+    try {
+      const datasetName = this.selData.get("dataSetSel")?.value.name.title?.toLowerCase() || "";
+      if (datasetName.includes("annual") || datasetName.includes("yearly")) {
+        const selectedDate = this.selectedDate.get("dateSel")?.value;
+        if (selectedDate) {
+          const year = new Date(selectedDate).getFullYear();
+          // Forziamo la data al primo gennaio dell’anno selezionato
+          this.selectedDate.get("dateSel")?.setValue(`${year}-01-01`);
+          console.warn(`[FIX] Dataset annuale → data normalizzata a ${year}-01-01`);
+        }
+      }
+    } catch (e) {
+      console.error("[FIX ERROR] Normalizzazione data annuale fallita:", e);
+    }
+    // --- END FIX ---
 
     this.httpService.post('dataset/getDataVectorialNew/', {
       dataset: this.selData.get("dataSetSel")?.value.name,
@@ -2187,16 +2204,26 @@ export class GeoportalMapNewMenuComponent {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        if (res.dataVect.includes("HTTP Error 404")) {
-          this.compliantErrorErddap = "The data is not compliant"
+        console.log("[DEBUG FRONTEND] Risposta completa da backend:", res);
 
-          // Alert tramite bootstrap con html
+        if (typeof res === "string") {
+          console.warn("[DEBUG FRONTEND] Risposta è una stringa, non un oggetto JSON:", res);
+        }
+
+        if (typeof res.dataVect === "string" && res.dataVect.includes("HTTP Error 404")) {
+          console.warn("[DEBUG FRONTEND] ERDDAP returned 404 → dataset non trovato per la data selezionata");
+
+          // Messaggio chiaro per l’utente
+          this.compliantErrorErddap = "No data available for the selected date.";
           this.showAlertGenericError = true;
 
-          // Alert tramite snackBar angular material
-          // this.openSnackBar("The data is not compliant", "Close", "center", "top");
+          // Ferma eventuali spinner
+          this.spinnerLoader.spinnerShow = false;
 
+          // Interrompe subito l’elaborazione
+          return;
         }
+
         else {
 
           this.allDataVectorial = res['dataVect'];
@@ -2327,152 +2354,6 @@ export class GeoportalMapNewMenuComponent {
           this.spinnerLoader.spinnerShow = false;
 
         }, 500);
-
-      },
-      error: (msg: any) => {
-        console.log('METADATA ERROR: ', msg);
-        this.spinnerLoader.spinnerShow = false;
-      }
-
-    });
-  }
-
-  /**
-   * Prendiamo i dati del dataset tabledap selezionato (vecchia)
-   */
-  getDataVectorialTabledapOld() {
-
-    let splittedVar = this.selData.get("dataSetSel")?.value.name.variable_names.split(" ");
-    splittedVar = splittedVar[splittedVar.length - 1];
-    //se isIndicator è true, allora si tratta di un tabledap, altrimenti è griddap
-    this.isIndicator = this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? false : true;
-    if (this.isIndicator) {
-      //è un tabledap quindi niente extra param
-      this.isExtraParam = false;
-    } else {
-      //è un griddap
-      if (this.selData.get("dataSetSel")?.value.name.dimensions > 3) {
-
-        this.isExtraParam = true;
-        this.extraParamNoWms(this.metadata, this.valueCustom);
-      } else {
-        this.isExtraParam = false;
-      }
-    }
-
-
-    this.httpService.post('dataset/getDataVectorialNew/', {
-      dataset: this.selData.get("dataSetSel")?.value.name,
-      selVar: this.variableGroup.get("variableControl")?.value,
-      isIndicator: this.isIndicator ? "true" : "false",
-      selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
-    }).subscribe({
-      next: (res: any) => {
-        if (res.dataVect.includes("HTTP Error 404")) {
-          this.compliantErrorErddap = "The data is not compliant"
-
-          // Alert tramite bootstrap con html
-          this.showAlertGenericError = true;
-
-          // Alert tramite snackBar angular material
-          // this.openSnackBar("The data is not compliant", "Close", "center", "top");
-
-        }
-        else {
-
-          this.allDataVectorial = res['dataVect'];
-          let allLatCoordinates = this.allDataVectorial[1];
-          let allLongCoordinates = this.allDataVectorial[2];
-          let allValues = this.allDataVectorial[0];
-          let value_min = this.allDataVectorial[3];
-          let value_max = this.allDataVectorial[4];
-          let bounds: any;
-          let rectangle: any;
-          let value_mid: any;
-          if (parseFloat(value_min) < 0) {
-            value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-          } else {
-            value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
-          }
-          this.valueMin = parseFloat(value_min);
-          this.valueMax = parseFloat(value_max);
-          this.valueMid = value_mid;
-
-          this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-          let centerLat;
-          let centerLong;
-          if (allLatCoordinates.length === 1) {
-            centerLat = allLatCoordinates[0];
-            centerLong = allLongCoordinates[0];
-
-          } else {
-            const center = Math.round(allLatCoordinates.length / 2);
-            centerLat = allLatCoordinates[center];
-            centerLong = allLongCoordinates[center];
-          }
-
-          const zoomTest = L.latLng(centerLat, centerLong);
-          if (allLatCoordinates.length === 1) {
-            // zoom più elevato essendo un singolo punto!
-            this.map.setView(zoomTest, 14);
-          } else {
-            this.map.setView(zoomTest, 8);
-          }
-
-          for (let i = 0; i < allLatCoordinates.length; i++) {
-            if (this.isIndicator) {
-              this.circleCoords.push(
-                {
-                  lat: allLatCoordinates[i],
-                  lng: allLongCoordinates[i],
-                }
-              )
-              //tabledap case, with circle
-              const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-              let varColor: any;
-              if (colorStorage) {
-                const colorStorageJson = JSON.parse(colorStorage);
-                varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
-              } else {
-                varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
-              }
-              this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
-              this.circleMarkerArray.push(this.markerToAdd);
-              this.markersLayer.addLayer(this.markerToAdd);
-
-
-              this.map.addLayer(this.markersLayer);
-
-            } else {
-              //griddap case with rectangle, NON SERVONO I MARKER!
-
-              bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-              let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-              let varColor: any;
-              if (colorStorage) {
-                let colorStorageJson = JSON.parse(colorStorage);
-                varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
-
-              }
-              else {
-                varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
-
-              }
-
-              let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
-              this.rettangoliLayer.addLayer(rectangle);
-
-              this.map.addLayer(this.rettangoliLayer);
-
-            }
-          }
-          if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-            this.circleMarkerArray.forEach((circle: any) => {
-              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
-            });
-            this.map.off('click');
-          }
-        }
 
       },
       error: (msg: any) => {

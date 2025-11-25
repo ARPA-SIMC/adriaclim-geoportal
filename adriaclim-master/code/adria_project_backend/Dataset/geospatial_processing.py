@@ -125,21 +125,33 @@ def getDataPolygonNew(
         dataframe = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"]).dropna(how="any")
         dataframe["date_value"] = pd.to_datetime(dataframe["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe, statistic, time_op)
+        # --- FIX: gestisce statistiche multicolonna (boxPlot, min_10thPerc_median_90thPerc_max, ecc.)
+        multi_stats = ("min_mean_max", "min_10thPerc_median_90thPerc_max")
+        if statistic not in multi_stats:
+            df = pd.DataFrame(pol_from_cache["dataPol"])
+            values = df["y"].tolist()
+            if len(values) == 1:
+                mean = median = std_dev = trend_value = values[0]
+            else:
+                trend_value = calculate_trend(df["x"].tolist(), df["y"].tolist())
+                mean, median, std_dev = df["y"].mean(), df["y"].median(), df["y"].std()
 
-        df = pd.DataFrame(pol_from_cache["dataPol"])
-        values = df["y"].tolist()
-        if len(values) == 1:
-            mean = median = std_dev = trend_value = values[0]
+            pol_from_cache.update({
+                "mean": mean,
+                "median": median,
+                "stdev": std_dev,
+                "trend_yr": trend_value,
+            })
         else:
-            trend_value = calculate_trend(df["x"].tolist(), df["y"].tolist())
-            mean, median, std_dev = df["y"].mean(), df["y"].median(), df["y"].std()
+            # per statistiche multicolonna evitiamo il calcolo di y
+            pol_from_cache.update({
+                "mean": None,
+                "median": None,
+                "stdev": None,
+                "trend_yr": None,
+            })
+        # --- END FIX
 
-        pol_from_cache.update({
-            "mean": mean,
-            "median": median,
-            "stdev": std_dev,
-            "trend_yr": trend_value,
-        })
         if parametro_agg != "None":
             if pd.isna(pol_from_cache["dataTable"][0][parametro_agg]):
                 pol_from_cache["dataTable"][0][parametro_agg] = "Value not defined"
@@ -197,6 +209,11 @@ def getDataPolygonNew(
             cache.set(key=key_cached, value=json.dumps(allData), timeout=43200)
             allData["dataPol"] = operation_before_after_cache(df, statistic, time_op)
             logger.debug("DB TIME: %.2f seconds", time.time() - start_time)
+            # --- FIX: validate data structure before return ---
+            if not allData.get("dataPol") or not isinstance(allData["dataPol"], list) or len(allData["dataPol"]) == 0:
+                logger.warning("[FIX] The data is not compliant → empty or invalid structure detected")
+                return {"error": "data_not_compliant"}
+            # --- END FIX ---
             return allData
         except Exception as e:
             logger.error("DB processing error: %s", e)
@@ -414,6 +431,9 @@ def getDataPolygonNew(
             "lat_lng": "(" + df_work["latitude"].astype(str) + "," + df_work["longitude"].astype(str) + ")",
             "value_0": pd.to_numeric(df_work[layer_name], errors="coerce"),
         })
+        logger.warning("[DEBUG CHECK] time_op=%s, statistic=%s, righe df_polygon=%d", time_op, statistic, len(df_polygon))
+        logger.warning("[DEBUG CHECK] date_value sample: %s", df_polygon["date_value"].head().tolist())
+        logger.warning("[DEBUG CHECK] value_0 sample: %s", df_polygon["value_0"].head().tolist())
         df_polygon = df_polygon.drop_duplicates(
             subset=["date_value", "lat_lng", "value_0"], keep="first"
         ).dropna(how="all", axis=1)
@@ -651,6 +671,26 @@ def getDataPolygonNew(
             logger.error("Errore nel log finale df_bulk: %s", e)
 
         logger.debug("Completed getDataPolygonNew in %.2f seconds", time.time() - start_time)
+        # --- FIX: validate data structure before return + fallback ---
+        if not allData.get("dataPol") or not isinstance(allData["dataPol"], list) or len(allData["dataPol"]) == 0:
+            logger.warning("[FIX] The data is not compliant → empty or invalid structure detected")
+
+            # Tentativo fallback automatico: ricomputa in modalità 'default'
+            try:
+                if time_op != "default":
+                    logger.warning("[FIX] Retrying operation_before_after_cache with time_op='default'")
+                    df_retry = pd.DataFrame(allData.get("dataBeforeOp", []))
+                    if not df_retry.empty:
+                        allData["dataPol"] = operation_before_after_cache(df_retry, statistic, "default")
+                        if allData["dataPol"]:
+                            logger.warning("[FIX] Fallback 'default' riuscito, restituisco dati validi")
+                            return allData
+            except Exception as e:
+                logger.error("[FIX] Fallback default fallito: %s", e)
+
+            # Se anche il fallback fallisce
+            return {"error": "data_not_compliant"}
+        # --- END FIX ---
         return allData
 
     except Exception as e:

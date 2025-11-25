@@ -1,237 +1,192 @@
-// pipeline {
-//     agent any
-
-//     environment {
-//         PROJECT_ROOT = 'adriaclim-master'
-//         BACKEND_SERVICE = 'django'
-//     }
-
-//     stages {
-
-//         stage('Inject Secrets') {
-//             steps {
-//                 dir("${PROJECT_ROOT}") {
-//                     withCredentials([file(credentialsId: 'adria-env', variable: 'ENV_FILE')]) {
-//                         sh '''
-//                             echo "Copying .env file from Jenkins credentials" 
-//                             cp "$ENV_FILE" .env
-//                             echo ".env is ready"
-//                         '''
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Cleanup Environment') {
-//             steps {
-//                 dir("${PROJECT_ROOT}") {
-//                     sh '''
-//                         echo "Cleaning up containers, volumes and orphans"
-//                         docker compose down -v --remove-orphans || echo "No containers to stop"
-//                     '''
-//                     echo "Running docker system prune -af"
-//                     sh 'docker system prune -af || echo "Nothing to clean"'
-//                 }
-//             }
-//         }
-
-//         stage('Build & Start Containers') {
-//             steps {
-//                 dir("${PROJECT_ROOT}") {
-//                     sh '''
-//                         echo "Building and starting all containers"
-//                         docker compose up -d --build
-//                         echo "Showing running containers..."
-//                         docker compose ps
-//                     '''
-//                 }
-//             }
-//         }
-
-//         stage('Run Django Tests') {
-//             steps {
-//                 dir("${PROJECT_ROOT}") {
-//                     sh '''
-//                         echo "Running Django test suite..."
-//                         docker compose exec -T django python adria_project_backend/manage.py test tests
-//                     '''
-//                 }
-//             }
-//         }
-//     }
-// }
-
 pipeline {
     agent any
 
     environment {
-        TEST_HOST = '172.19.99.37'
-        SSH_USER  = 'fos'
-        REMOTE_PROJECT_PATH = '/home/fos/adriaclimplus-test/adriaclim-master'
+        REMOTE_PROJECT_PATH_TEST = '/home/arpae/adriaclim-geoportal'
+        REMOTE_PROJECT_PATH_PROD = '/home/arpae/adriaclim-geoportal'
     }
 
     stages {
-        stage('Inject Secrets su VM di Test') {
+        stage('Selezione host') {
+            steps {
+                script {
+                    // Legge il file env-hosts.yml da Jenkins Config File Management
+                    configFileProvider([configFile(fileId: 'env-hosts.yml', variable: 'CONFIG_FILE')]) {
+                        def envYaml = readYaml file: "$CONFIG_FILE"
+                        def hosts = []
+
+                        if (env.GIT_BRANCH.contains('prod')) {
+                            hosts = envYaml.hosts['prod']
+                            env.DEPLOY_BRANCH = 'prod'
+                        } else {
+                            hosts = envYaml.hosts['test']
+                            env.DEPLOY_BRANCH = 'test'
+                        }
+
+                        env.SSH_USER = 'arpae'
+                        env.REMOTE_PROJECT_PATH = (env.DEPLOY_BRANCH == 'prod')
+                            ? env.REMOTE_PROJECT_PATH_PROD
+                            : env.REMOTE_PROJECT_PATH_TEST
+                        env.SSH_CREDENTIAL_ID = 'arpae-ssh-key'
+                        env.DEPLOY_HOST = hosts[0]
+
+                        // Definizione condizionale di sudo e docker-compose
+                        env.SUDO = (env.DEPLOY_BRANCH == 'prod') ? 'sudo' : ''
+                        env.DOCKER = (env.DEPLOY_BRANCH == 'prod') ? 'sudo docker' : 'docker'
+                        env.DOCKER_COMPOSE = (env.DEPLOY_BRANCH == 'prod') ? 'sudo docker-compose' : 'docker-compose'
+
+                        echo "→ Deploy su ${env.DEPLOY_HOST} (${env.DEPLOY_BRANCH}) come utente ${env.SSH_USER}"
+                    }
+                }
+            }
+        }
+
+        stage('Pulizia e aggiornamento codice') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
+                    sh """
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
+                            set -e
+                            echo "[1] Pulizia ambiente su ${DEPLOY_HOST}..." &&
+                            
+                            if [ ! -d "${REMOTE_PROJECT_PATH}" ]; then
+                                echo "[!] La directory ${REMOTE_PROJECT_PATH} non esiste. Eseguo git clone..." &&
+                                cd \$(dirname ${REMOTE_PROJECT_PATH}) &&
+                                git clone https://github.com/ARPA-SIMC/adriaclim-geoportal.git \$(basename ${REMOTE_PROJECT_PATH}) &&
+                                cd ${REMOTE_PROJECT_PATH} &&
+                                echo "[OK] Clone completato con successo."
+                            fi
+
+                            echo "[✓] Procedo con aggiornamento..." &&
+                            cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
+
+                            echo "[🧹 Stop e rimozione container precedenti...]" &&
+                            sudo docker ps -aq | xargs -r sudo docker stop || true &&
+                            sudo docker ps -aq | xargs -r sudo docker rm -f || true &&
+                            sudo docker-compose down -v --remove-orphans || true &&
+                            sudo docker system prune -af || true &&
+
+                            echo "[2] Aggiorno codice da Git..." &&
+                            cd ${REMOTE_PROJECT_PATH} &&
+                            git fetch origin &&
+                            git checkout ${DEPLOY_BRANCH} || git checkout -b ${DEPLOY_BRANCH} &&
+                            git reset --hard origin/${DEPLOY_BRANCH}
+                        '
+                    """
+                }
+            }
+        }
+
+        stage('Inject Secrets (.env)') {
             steps {
                 withCredentials([
                     file(credentialsId: 'adria-env', variable: 'ENV_FILE'),
-                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
+                    sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')
                 ]) {
                     sh """
-                        echo "Invio il file .env alla VM di test"
-                        scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${env.SSH_USER}@${env.TEST_HOST}:${env.REMOTE_PROJECT_PATH}/.env
-                    """
-                }
-            }
-        }
-
-        stage('Pulizia e Build su VM di Test') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
-                ]) {
-                    sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
-                            set -e
-                            cd ${env.REMOTE_PROJECT_PATH} &&
-                            echo "[1] Pulizia ambiente..." &&
-                            docker compose down -v --remove-orphans || echo "Niente da pulire" &&
-                            docker system prune -af || echo "Niente da pulire" &&
-                            echo "[2] Aggiorno codice..." &&
-                            git pull &&
-                            echo "[3] Build & start dei container..." &&
-                            docker compose up -d --build
+                        echo "[3] Invio .env su ${DEPLOY_HOST}"
+                        scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${SSH_USER}@${DEPLOY_HOST}:/tmp/.env
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
+                            mkdir -p ${REMOTE_PROJECT_PATH} &&
+                            mv /tmp/.env ${REMOTE_PROJECT_PATH}/.env &&
+                            chown ${SSH_USER}:${SSH_USER} ${REMOTE_PROJECT_PATH}/.env &&
+                            chmod 600 ${REMOTE_PROJECT_PATH}/.env &&
+                            echo "[OK] .env posizionato correttamente in ${REMOTE_PROJECT_PATH}"
                         '
                     """
                 }
             }
         }
 
-        stage('Test su VM di Test') {
+        stage('Deploy e build container') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
-                ]) {
+                withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
+                script {
                     sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
-                            set -e
-                            cd ${REMOTE_PROJECT_PATH} &&
-                            echo "[4] Eseguo i test Django..." &&
-                            docker compose exec -T django python adria_project_backend/manage.py test tests
-                        '
-                    """
-                }
-            }
-        }
+                    echo "[4] Avvio build e container su ${DEPLOY_HOST}"
+                    ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} bash -lc '
+                        set -euo pipefail
 
-        stage('Deploy (Restart/Update) su VM di Test') {
-            when {
-                expression {
-                    currentBuild.resultIsBetterOrEqualTo('SUCCESS')
-                }
-            }
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
-                ]) {
-                    sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${env.SSH_USER}@${env.TEST_HOST} '
-                            set -e
-                            cd ${REMOTE_PROJECT_PATH} &&
-                            echo "[5] Restart finale dei container (deploy concluso)..." &&
-                            docker compose down -v --remove-orphans &&
-                            docker compose up -d --build
-                        '
+                        echo "[git] Posizionamento repo..."
+                        cd ${REMOTE_PROJECT_PATH}
+                        git fetch --all --prune
+                        git checkout ${DEPLOY_BRANCH}
+                        git reset --hard origin/${DEPLOY_BRANCH}
+
+                        echo "[secrets] Posiziono .env accanto a docker-compose.yml..."
+                        if [ -f "${REMOTE_PROJECT_PATH}/.env" ]; then
+                        cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
+                        fi
+                        ls -la ${REMOTE_PROJECT_PATH}/adriaclim-master/.env || true
+
+                        echo "[frontend] Build Angular (production)..."
+                        node -v || echo "Node non trovato"
+                        npm -v || echo "NPM non trovato"
+                        cd ${REMOTE_PROJECT_PATH}/adriaclim-master/code/adria_project_frontend
+                        if [ -f package-lock.json ]; then
+                        npm ci || npm install
+                        else
+                        npm install
+                        fi
+                        npx ng build --configuration=production --base-href=/
+                        test -f dist/adria-project-front/index.html
+
+                        echo "[docker] Rebuild immagini e avvio servizi..."
+                        cd ${REMOTE_PROJECT_PATH}/adriaclim-master
+                        # Info utili per il log (così vedi i nomi reali dei servizi)
+                        ${DOCKER_COMPOSE} config --services || true
+
+                        # Pull "best effort"
+                        ${DOCKER_COMPOSE} pull || true
+
+                        # Rebuild TUTTI i servizi definiti nel compose, senza elencarli (evita 'No such service')
+                        ${DOCKER_COMPOSE} build --no-cache
+
+                        # Avvio e creazione network se mancante, rimuovendo eventuali orfani
+                        ${DOCKER_COMPOSE} up -d --remove-orphans
+
+                        echo "[health] Controlli rapidi..."
+                        ${DOCKER} ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
+
+                        echo "[probe] Verifico Nginx risponda su 8000..."
+                        if curl -sfI http://localhost:8000/ >/dev/null 2>&1; then
+                        echo "[OK] Nginx risponde correttamente"
+                        else
+                        echo "[ERRORE] Nginx non risponde"
+                        exit 1
+                        fi
+
+                        echo "[OK] Deploy completato su ${DEPLOY_HOST}"
+                    '
                     """
                 }
             }
         }
     }
 }
+}
 
 
-// jenkinsfile per produzione
-
-// pipeline {
-//     agent any
-
-//     environment {
-//         DEV_HOST = '172.19.99.37'
-//         DEV_USER = 'fos'
-//         DEV_PROJECT_PATH = '/home/fos/adriaclimplus-test/adriaclim-master'
-//         PROD_HOST = 'IP_PRODUZIONE'
-//         PROD_USER = 'nomeutente'
-//         PROD_PROJECT_PATH = '/home/nomeutente/adriaclimplus-prod/adriaclim-master'
-//     }
-
-//     stages {
-//         stage('Deploy su DEV (Test)') {
-//             when {
-//                 not {
-//                     branch 'prod'
-//                 }
-//             }
+//         stage('Deploy e build container') {
 //             steps {
-//                 withCredentials([
-//                     file(credentialsId: 'adria-env', variable: 'ENV_FILE'),
-//                     sshUserPrivateKey(credentialsId: 'test-ssh-key', keyFileVariable: 'SSH_KEY')
-//                 ]) {
+//                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
 //                     sh """
-//                         echo "Invio il file .env alla VM di test"
-//                         scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${DEV_USER}@${DEV_HOST}:${DEV_PROJECT_PATH}/.env
-
-//                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${DEV_USER}@${DEV_HOST} '
+//                         echo "[4] Avvio build e container su ${DEPLOY_HOST}"
+//                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
 //                             set -e
-//                             cd ${DEV_PROJECT_PATH} &&
-//                             echo "[1] Pulizia ambiente..." &&
-//                             docker compose down -v --remove-orphans || echo "Niente da pulire" &&
-//                             docker system prune -af || echo "Niente da pulire" &&
-//                             echo "[2] Aggiorno codice..." &&
-//                             git pull &&
-//                             echo "[3] Build & start dei container..." &&
-//                             docker compose up -d --build &&
-//                             echo "[4] Eseguo i test Django..." &&
-//                             docker compose exec -T django python adria_project_backend/manage.py test tests &&
-//                             echo "[5] Restart finale dei container (deploy concluso)..." &&
-//                             docker compose down -v --remove-orphans &&
-//                             docker compose up -d --build
-//                         '
-//                     """
-//                 }
-//             }
-//         }
+//                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
 
-//         stage('Deploy su PROD (Produzione)') {
-//             when {
-//                 branch 'prod'
-//             }
-//             steps {
-//                 script {
-//                     input message: "Sei sicura di voler eseguire il deploy in PRODUZIONE?", ok: "Sì, deploy in prod"
-//                 }
-//                 withCredentials([
-//                     file(credentialsId: 'adria-env-prod', variable: 'ENV_FILE'),
-//                     sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyFileVariable: 'SSH_KEY')
-//                 ]) {
-//                     sh """
-//                         echo "Invio il file .env alla VM di produzione"
-//                         scp -i ${SSH_KEY} -o StrictHostKeyChecking=no ${ENV_FILE} ${PROD_USER}@${PROD_HOST}:${PROD_PROJECT_PATH}/.env
+//                             echo "[docker] pre-pull immagini di base..." &&
+//                             ${DOCKER} pull redis:alpine || true &&
+//                             ${DOCKER} pull postgis/postgis:13-3.3 || true &&
 
-//                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} '
-//                             set -e
-//                             cd ${PROD_PROJECT_PATH} &&
-//                             echo "[1] Pulizia ambiente..." &&
-//                             docker compose down -v --remove-orphans || echo "Niente da pulire" &&
-//                             docker system prune -af || echo "Niente da pulire" &&
-//                             echo "[2] Aggiorno codice..." &&
-//                             git pull &&
-//                             echo "[3] Build & start dei container..." &&
-//                             docker compose up -d --build &&
-//                             echo "[4] Eseguo i test Django..." &&
-//                             docker compose exec -T django python adria_project_backend/manage.py test tests &&
-//                             echo "[5] Restart finale dei container (deploy concluso)..." &&
-//                             docker compose down -v --remove-orphans &&
-//                             docker compose up -d --build
+//                             echo "[docker] Forzo rebuild di Angular (no cache)..." &&
+//                             ${DOCKER_COMPOSE} build --no-cache angular &&
+
+//                             echo "[docker-compose] Build & start..." &&
+//                             ${DOCKER_COMPOSE} --env-file .env up -d --build &&
+
+//                             echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
 //                         '
 //                     """
 //                 }
@@ -239,4 +194,6 @@ pipeline {
 //         }
 //     }
 // }
+
+
 

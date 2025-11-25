@@ -288,14 +288,18 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   /**
    * Funzione che abilita o disabilita le statistiche all'interno del menu a tendina statistics
    */
+  // disableStatistics(s: any): boolean {
+  //   // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
+  //   if (s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
+  //     return true;
+  //   }
+  //   else {
+  //     return false;
+  //   }
+  // }
   disableStatistics(s: any): boolean {
-    // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
-    if (s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
-      return true;
-    }
-    else {
-      return false;
-    }
+    // Enable all statistics, including boxPlot
+    return false;
   }
 
   formatDate(d: any) {
@@ -342,7 +346,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<GeoportalMapDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: any,
-  private spinnerService: SpinnerLoaderService) {
+    public spinnerService: SpinnerLoaderService) {
     // if(this.yesInfo != null) {
     //   this.yesInfo.style.display = "none";
 
