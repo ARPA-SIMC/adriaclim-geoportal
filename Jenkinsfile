@@ -139,7 +139,7 @@ pipeline {
                         # Pull "best effort"
                         ${DOCKER_COMPOSE} pull || true
 
-                        # Rebuild TUTTI i servizi definiti nel compose, senza elencarli (evita 'No such service')
+                        # Rebuild TUTTI i servizi definiti nel compose, senza elencarli (evita No such service)
                         ${DOCKER_COMPOSE} build --no-cache
 
                         # Avvio e creazione network se mancante, rimuovendo eventuali orfani
