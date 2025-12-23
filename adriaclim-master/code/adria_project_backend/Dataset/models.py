@@ -33,6 +33,8 @@ class Node(models.Model):
     variable_types = models.CharField(max_length=250, default="",null=True)
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
+    description = models.TextField(null=True, blank=True)
+
     
 class Indicator(models.Model):
     

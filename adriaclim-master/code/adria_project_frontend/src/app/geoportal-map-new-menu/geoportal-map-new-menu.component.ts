@@ -774,6 +774,8 @@ export class GeoportalMapNewMenuComponent {
       next: (res: any) => {
 
         this.resAllNodes = res.nodes;
+        console.log("DEBUG NODES:", this.resAllNodes);
+
 
         this.resAllNodes.forEach((element: any) => {
           this.dataAllNodes.push(

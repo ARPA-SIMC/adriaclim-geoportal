@@ -25,7 +25,9 @@ from Dataset.models import Node
 from Processing.data_analysis import updateStatisticsNew, getDataVectorial
 from Processing import compareStatistics
 from Processing.functionTable import getDataFunctionsTable
-
+import yaml
+import os
+import re
 
 
 
@@ -43,12 +45,132 @@ def getDataTable(request,dataset_id,layer_name,time_start,time_finish,latitude,l
     out=[[row[h] for h in headers] for row in data]
     return HttpResponse(render(request,"getData.html",{"data":out,"headers":headers}))
 
-@api_view(['GET','POST'])
+# @api_view(['GET','POST'])
+# def getAllNodes(request):
+#     try:
+#         nodes = Node.objects.all()
+#         nodes_list = [model_to_dict(node) for node in nodes]
+#         return JsonResponse({"nodes": nodes_list})
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)})
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+YAML_PATH = os.path.join(BASE_DIR, "indicator_definitions.yml")
+
+try:
+    with open(YAML_PATH, "r", encoding="utf-8") as f:
+        INDICATOR_MAP = yaml.safe_load(f) or {}
+except Exception:
+    INDICATOR_MAP = {}
+
+def normalize_key(value: str) -> str:
+    value = (value or "").lower()
+    value = re.sub(r"\(.*?\)", "", value)          # remove (...) chunks
+    value = re.sub(r"anomaly|anom", "anomaly", value)  # unify anomaly naming
+    value = re.sub(r"[^a-z0-9_]", "_", value)
+    value = re.sub(r"_+", "_", value)
+    return value.strip("_")
+
+def get_desc_from_yaml(key: str):
+    """
+    Supporta YAML sia:
+      trend: "testo..."
+    sia:
+      trend:
+        label: Trend
+        description: "testo..."
+    """
+    raw = INDICATOR_MAP.get(key)
+    if isinstance(raw, str):
+        raw = raw.strip()
+        return raw if raw else None
+    if isinstance(raw, dict):
+        d = raw.get("description")
+        if isinstance(d, str):
+            d = d.strip()
+            return d if d else None
+    return None
+
+
+def extract_keys_from_token(token: str):
+    """
+    Estrae possibili chiavi da un token:
+    - token intero normalizzato
+    - parti split su '_' (es: prcptot_trend_1993 -> prcptot + trend)
+    """
+    keys = []
+    if not token:
+        return keys
+
+    t_norm = normalize_key(token)
+    if t_norm:
+        keys.append(t_norm)
+
+    # Spezza su underscore per catturare base + modifier (trend/anomaly/pvalue/...)
+    parts = [p for p in t_norm.split("_") if p]
+    for p in parts:
+        keys.append(p)
+
+    # Dedup preservando ordine
+    out = []
+    seen = set()
+    for k in keys:
+        if k not in seen:
+            seen.add(k)
+            out.append(k)
+    return out
+
+
+@api_view(['GET', 'POST'])
 def getAllNodes(request):
     try:
         nodes = Node.objects.all()
-        nodes_list = [model_to_dict(node) for node in nodes]
+        nodes_list = []
+
+        for node in nodes:
+            d = model_to_dict(node)
+
+            found_desc = []
+            seen_desc = set()
+
+            # A) Candidate keys dal TITLE (scansiono parole/pezzi)
+            title = node.title or ""
+            # prendo token "umani" e anche versioni normalizzate
+            title_tokens = re.findall(r"[A-Za-z0-9_]+", title)
+
+            for tok in title_tokens:
+                for k in extract_keys_from_token(tok):
+                    desc = get_desc_from_yaml(k)
+                    if desc and desc not in seen_desc:
+                        seen_desc.add(desc)
+                        found_desc.append(desc)
+
+            # B) Candidate keys dalle VARIABLE_NAMES (più affidabile)
+            if node.variable_names:
+                for v in node.variable_names.split():
+                    if v.lower() in ("time", "latitude", "longitude"):
+                        continue
+
+                    # esempio: PRCPTOT_trend_1993_2011 -> prcptot + trend
+                    for k in extract_keys_from_token(v):
+                        desc = get_desc_from_yaml(k)
+                        if desc and desc not in seen_desc:
+                            seen_desc.add(desc)
+                            found_desc.append(desc)
+
+            # C) Se ho più match (es TXd + trend) li mostro a punti
+            if not found_desc:
+                description = None
+            elif len(found_desc) == 1:
+                description = found_desc[0]
+            else:
+                description = "\n".join(f"- {x}" for x in found_desc)
+
+            d["description"] = description
+            nodes_list.append(d)
+
         return JsonResponse({"nodes": nodes_list})
+
     except Exception as e:
         return JsonResponse({"error": str(e)})
 

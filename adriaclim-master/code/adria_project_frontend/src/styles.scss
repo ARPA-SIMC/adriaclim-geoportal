@@ -91,4 +91,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; width: 100v
   // min-height: fit-content;
 }
 
-
+.adl-tooltip .mdc-tooltip__surface {
+  white-space: pre-line !important;
+  max-width: 420px !important;
+}

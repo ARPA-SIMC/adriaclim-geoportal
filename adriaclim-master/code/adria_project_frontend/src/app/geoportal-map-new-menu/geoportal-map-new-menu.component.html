@@ -58,9 +58,14 @@
                         {{n.name.title}}
                       </mat-radio-button> -->
                         <!-- <mat-radio-button fxFlex class="example-radio-button" [value]="n" -->
-                        <mat-radio-button class="example-radio-button col-12" [value]="n"
-                          (change)="getMeta(n.name.id); addToActiveLayers(n); getSelectedNode(n); ">
-                          {{n.name.title}}
+                        <mat-radio-button
+                          class="example-radio-button col-12"
+                          [value]="n"
+                          (change)="getMeta(n.name.id); addToActiveLayers(n); getSelectedNode(n);"
+                          [matTooltip]="n.name.description || 'Description not available'"
+                          matTooltipPosition="right"
+                        >
+                          {{ n.name.title }}
                         </mat-radio-button>
                       </div>
                       <mat-divider style="width: 100%; margin: 10px 0px;"></mat-divider>
@@ -258,7 +263,13 @@
                   <!-- <mat-select formControlName="activeLayersControl" (selectionChange)="getMeta(activeLayersGroup.get('activeLayersControl')?.value.name.dataset_id, 'ok')"> -->
                   <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)">
                     <mat-option *ngFor="let a of activeLayersArray" [value]="a">
-                      {{a.name.title}}
+                      <span
+                        [matTooltip]="a.description || 'Description not available'"
+                        matTooltipClass="adl-tooltip"
+                        matTooltipPosition="right"
+                      >
+                        {{ a.name.title }}
+                      </span>
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
