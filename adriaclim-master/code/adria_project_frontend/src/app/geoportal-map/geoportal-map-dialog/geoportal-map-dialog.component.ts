@@ -113,6 +113,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   progressWidth = this.progress + "%"
 
   fakeProgressInterval: any;   // timer per il finto avanzamento
+  private fakeProgressStepInterval: any = null;
   isFakeActive = false;
   fakeProgressStartedAt = 0;
   readonly MIN_VISIBLE_MS = 600; // garantisce visibilità minima della barra
@@ -847,7 +848,13 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * Funzione che permette di ricevere dal componente figlio i valori delle statistiche calcolate per il dataset mostrato sul grafico
    */
   meanMedianStdev(event: any) {
-    let mean_median_stdev = event.split("_");
+  // If null/empty, clear stats so the UI can hide them
+    if (!event || typeof event !== 'string') {
+      this.expoFormat(null);
+      return;
+    }
+
+    const mean_median_stdev = event.split("_");
     this.expoFormat(mean_median_stdev);
   }
 
@@ -904,33 +911,49 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   stopFakeProgress() {
-  if (this.fakeProgressInterval) {
-    clearInterval(this.fakeProgressInterval);
-    this.fakeProgressInterval = null;
-  }
+  // Stop advancing the "fake to 90%" interval
+    this.isFakeActive = false;
 
-  // se la barra era ferma bassa, portala almeno al 95
-  if (this.progress < 95) {
-    this.progress = 95;
-    this.progressWidth = "95%";
-  }
-
-  // anima lentamente l’ultimo tratto fino al 100%
-  const step = setInterval(() => {
-    if (this.progress < 100) {
-      this.progress += 1;
-      this.progressWidth = this.progress + "%";
-    } else {
-      clearInterval(step);
-      setTimeout(() => {
-        this.progressBarAtStart = false;
-        this.progress = 0;
-        this.progressWidth = "0%";
-        this.isFakeActive = false;
-      }, 500); // resta visibile mezzo secondo
+    if (this.fakeProgressInterval) {
+      clearInterval(this.fakeProgressInterval);
+      this.fakeProgressInterval = null;
     }
-  }, 10); // incremento veloce (0.01s)
-}
+
+    // IMPORTANT: stop any previous "step to 100%" animation
+    if (this.fakeProgressStepInterval) {
+      clearInterval(this.fakeProgressStepInterval);
+      this.fakeProgressStepInterval = null;
+    }
+
+    // If already hidden, do nothing (idempotent)
+    if (!this.progressBarAtStart) {
+      return;
+    }
+
+    // Jump to at least 95%
+    if (this.progress < 95) {
+      this.progress = 95;
+      this.progressWidth = this.progress + "%";
+    }
+
+    // Animate last part to 100%
+    this.fakeProgressStepInterval = setInterval(() => {
+      if (this.progress < 100) {
+        this.progress += 1;
+        this.progressWidth = this.progress + "%";
+      } else {
+        clearInterval(this.fakeProgressStepInterval);
+        this.fakeProgressStepInterval = null;
+
+        setTimeout(() => {
+          this.progressBarAtStart = false;
+          this.progress = 0;
+          this.progressWidth = "0%";
+        }, 500);
+      }
+    }, 10);
+  }
+
 
 
 
@@ -938,7 +961,14 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
    * Funzione che prende in input i valori delle statistiche permette di formattare i valori con x10^ quando i numeri sono troppo grandi o troppo piccoli
    */
   expoFormat(mean_median_stdev: any) {
-
+    // If stats are not meaningful (e.g. single timestamp case), clear them
+    if (!mean_median_stdev || !Array.isArray(mean_median_stdev) || mean_median_stdev.length < 4) {
+      this.meanValue = null;
+      this.medianValue = null;
+      this.stdevValue = null;
+      this.trendValue = null;
+      return;
+    }
     this.meanValue = Number(mean_median_stdev[0]).toFixed(3);
     this.medianValue = Number(mean_median_stdev[1]).toFixed(3);
     this.stdevValue = Number(mean_median_stdev[2]).toFixed(3);

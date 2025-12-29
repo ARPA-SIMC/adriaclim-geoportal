@@ -190,7 +190,7 @@
 
                   <div
                     class="col d-flex flex-row gap-sm-0 gap-md-1 gap-lg-4 justify-content-xl-between align-items-center"
-                    *ngIf="showStatistic">
+                    *ngIf="showStatistic && meanValue !== null">
                     <span>Mean: <br> {{meanValue}}</span>
                     <span>Median: <br> {{medianValue}}</span>
                     <span>Stddev: <br> {{stdevValue}}</span>

@@ -657,6 +657,165 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     this.allDataPolygon = response['dataVect'];
+    // Detect "single timestamp" case: all points share the same time.
+    // In this case, a time-series line chart is not meaningful.
+    const times = (this.allDataPolygon?.dataBeforeOp || [])
+      .map((r: any) => r.date_value)
+      .filter((t: any) => !!t);
+
+    const uniqueTimes = Array.from(new Set(times));
+    const isSingleTimestamp = uniqueTimes.length === 1;
+
+    if (isSingleTimestamp) {
+      // Do NOT show mean/median/stdev/trend in the UI for single-timestamp views
+      this.meanMedianStdev.emit(null);
+
+      // 1) Pick raw values as best as we can (dataBeforeOp -> dataTable -> dataPol)
+      let rawValues: number[] = [];
+
+      if (Array.isArray(this.allDataPolygon?.dataBeforeOp) && this.allDataPolygon.dataBeforeOp.length) {
+        rawValues = this.allDataPolygon.dataBeforeOp
+          .map((r: any) => Number(r.value_0))
+          .filter((v: any) => Number.isFinite(v));
+      } else if (Array.isArray(this.allDataPolygon?.dataTable) && this.allDataPolygon.dataTable.length) {
+        rawValues = this.allDataPolygon.dataTable
+          .map((r: any) => Number(r[this.variable]))
+          .filter((v: any) => Number.isFinite(v));
+      } else if (Array.isArray(this.allDataPolygon?.dataPol) && this.allDataPolygon.dataPol.length) {
+        rawValues = this.allDataPolygon.dataPol
+          .map((r: any) => Number(r.y))
+          .filter((v: any) => Number.isFinite(v));
+      }
+
+      // If we can't compute anything, fall back to the normal flow below
+      if (rawValues.length) {
+        const stat = this.statistic;
+
+        // If user selected a single aggregate stat, show ONE wide bar (what the client asked for)
+        const wantsSingleBar =
+          stat === 'min' ||
+          stat === 'max' ||
+          stat === 'median' ||
+          stat === 'avg' ||
+          stat === '10thPerc' ||
+          stat === '90thPerc';
+
+        if (wantsSingleBar) {
+          const sorted = [...rawValues].sort((a, b) => a - b);
+
+          const percentile = (q: number) => {
+            const idx = (sorted.length - 1) * q;
+            const lo = Math.floor(idx);
+            const hi = Math.ceil(idx);
+            if (lo === hi) return sorted[lo];
+            return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+          };
+
+          let aggValue = 0;
+          let label = 'Value';
+
+          if (stat === 'min') { aggValue = Math.min(...rawValues); label = 'Min'; }
+          else if (stat === 'max') { aggValue = Math.max(...rawValues); label = 'Max'; }
+          else if (stat === 'median') { aggValue = percentile(0.5); label = 'Median'; }
+          else if (stat === '10thPerc') { aggValue = percentile(0.10); label = '10th Perc'; }
+          else if (stat === '90thPerc') { aggValue = percentile(0.90); label = '90th Perc'; }
+          else { // avg
+            aggValue = rawValues.reduce((s, v) => s + v, 0) / rawValues.length;
+            label = 'Mean';
+          }
+
+          this.chartOption = {
+            xAxis: { type: 'category', data: [label] },
+            yAxis: {
+              type: 'value',
+              axisLabel: {
+                formatter: (val: any) =>
+                  isNaN(Number(this.dimUnit)) && this.dimUnit ? `${val} ${this.dimUnit}` : `${val}`
+              }
+            },
+            tooltip: { trigger: 'item' },
+            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+            series: [{
+              name: label,
+              type: 'bar',
+              barWidth: 80, // wide bar, not infinitesimal
+              data: [Number(this.formatNumber(aggValue))]
+            }]
+          };
+
+          this.dataTimeExport.emit(this.allDataPolygon.dataPol);
+          this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+          this.progressBarCanvas.emit(false);
+          return;
+        }
+
+        // Otherwise (sum / composite stats), show histogram distribution
+        const minV = Math.min(...rawValues);
+        const maxV = Math.max(...rawValues);
+
+        // Edge case: all values identical -> single wide bar "Count"
+        if (minV === maxV) {
+          this.chartOption = {
+            xAxis: { type: 'category', data: ['Value'] },
+            yAxis: { type: 'value' },
+            tooltip: { trigger: 'item' },
+            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+            series: [{
+              name: 'Count',
+              type: 'bar',
+              barWidth: 80,
+              data: [rawValues.length]
+            }]
+          };
+
+          this.dataTimeExport.emit(this.allDataPolygon.dataPol);
+          this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+          this.progressBarCanvas.emit(false);
+          return;
+        }
+
+        const binCount = 10;
+        const binSize = (maxV - minV) / binCount;
+
+        const bins = new Array(binCount).fill(0);
+        rawValues.forEach(v => {
+          const idx = Math.min(binCount - 1, Math.floor((v - minV) / binSize));
+          bins[idx] += 1;
+        });
+
+        const labels = bins.map((_, i) => {
+          const a = minV + i * binSize;
+          const b = minV + (i + 1) * binSize;
+          return `${this.formatNumber(a)} – ${this.formatNumber(b)}`;
+        });
+
+        this.chartOption = {
+          xAxis: {
+            type: 'category',
+            data: labels,
+            axisLabel: { rotate: 30 }
+          },
+          yAxis: { type: 'value' },
+          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+          grid: { left: '3%', right: '4%', bottom: '12%', containLabel: true },
+          series: [{
+            name: 'Count',
+            type: 'bar',
+            data: bins,
+            barMaxWidth: 60
+          }]
+        };
+
+        this.dataTimeExport.emit(this.allDataPolygon.dataPol);
+        this.spinnerLoadingChild.emit(false);
+        this.spinnerService.spinnerShow = false;
+        this.progressBarCanvas.emit(false);
+        return;
+      }
+    }
+
     // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
     // let dataBeforeOp = _.cloneDeep([...allDataPolygon["dataBeforeOp"]]) //abbiamo tutte le date e i valori
     // console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
@@ -1127,6 +1286,51 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             element.x = this.formatDate(element.x) ?? element.x;
           }
         });
+        
+        // --- Single data point -> show a wide bar instead of a useless dot/line ---
+        if (Array.isArray(seriesData) && seriesData.length === 1) {
+          // Do NOT show mean/median/stdev/trend for single-point view
+          this.meanMedianStdev.emit(null);
+
+          const singleY = Number(seriesData[0].y);
+          const singleX = seriesData[0].x; // already formatted later, but we can keep it simple
+
+          this.chartOption = {
+            xAxis: { type: 'category', data: [String(singleX)] },
+            yAxis: {
+              type: 'value',
+              axisLabel: {
+                formatter: (val: any) =>
+                  isNaN(Number(this.dimUnit)) && this.dimUnit ? `${val} ${this.dimUnit}` : `${val}`
+              }
+            },
+            tooltip: { trigger: 'item' },
+            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+            series: [{
+              name: name,
+              type: 'bar',
+              barWidth: 80,
+              data: [this.formatNumber(singleY)]
+            }]
+          };
+
+          this.dataTimeExport.emit(seriesData);
+
+          // stop loaders (same behavior as your normal flow)
+          if (!this.isUpdate) {
+            this.progressBarCanvas.emit(false);
+            if (this.timeoutProgressBar) this.timeoutProgressBar.unsubscribe();
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
+          } else {
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
+          }
+
+          this.isLoading = false;
+          return;
+        }
+        // --- End single data point ---
 
         this.chartOption = {
           xAxis: {
