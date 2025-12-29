@@ -59,24 +59,54 @@
       <mat-form-field appearance="fill" class="col-12">
         <mat-label>Dataset</mat-label>
         <!-- <mat-select #quartoMatSelect formControlName="menu" (openedChange)="changeHeight(); setFilter()" class="d-flex"> -->
-        <mat-select #quartoMatSelect formControlName="menu" (openedChange)="setFilter()" class="d-flex">
-          <div>
+         <mat-select
+            #quartoMatSelect
+            formControlName="menu"
+            (openedChange)="setFilter()"
+            class="d-flex"
+          >
+            <!-- Trigger: tooltip sul selezionato -->
+            <mat-select-trigger>
+              <span
+                [matTooltip]="quartoMatSelect.value?.description || 'Description not available'"
+                matTooltipPosition="right"
+                matTooltipShowDelay="150"
+              >
+                {{ quartoMatSelect.value?.title || 'Select dataset' }}
+              </span>
+            </mat-select-trigger>
 
-            <div class="col-12 d-flex flex-row justify-content-center align-items-center">
-              <mat-form-field class="example-full-width" color="primary" appearance="outline">
+            <!-- Search box (DEVE stare in un mat-option) -->
+            <mat-option
+              class="select-search-option"
+              disabled
+              (click)="$event.stopPropagation()"
+            >
+              <mat-form-field
+                class="example-full-width"
+                color="primary"
+                appearance="outline"
+              >
                 <mat-label>Filter</mat-label>
-                <input type="text" matInput #searchInput (keyup)="onKey($event)">
+                <input type="text" matInput #searchInput (keyup)="onKey($event)" />
                 <button matSuffix mat-icon-button aria-label="Clear">
                   <mat-icon>search</mat-icon>
                 </button>
               </mat-form-field>
-
-            </div>
-            <mat-option *ngFor="let m of searchFilter" [value]="m">
-              {{m.title}}
             </mat-option>
-          </div>
-        </mat-select>
+
+            <!-- Options: tooltip sul testo (non sul mat-option) -->
+            <mat-option *ngFor="let m of searchFilter" [value]="m">
+              <span
+                [matTooltip]="m.description || 'Description not available'"
+                matTooltipPosition="right"
+                matTooltipShowDelay="150"
+              >
+                {{ m.title }}
+              </span>
+            </mat-option>
+
+          </mat-select>
       </mat-form-field>
 
     </div>

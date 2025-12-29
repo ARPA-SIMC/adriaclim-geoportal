@@ -95,3 +95,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; width: 100v
   white-space: pre-line !important;
   max-width: 420px !important;
 }
+
+/* Tooltip visible even inside dialogs/overlays */
+.cdk-overlay-container {
+  z-index: 3000 !important;
+}
+
+.mat-tooltip {
+  white-space: pre-line;
+  max-width: 420px;
+}
+
+.select-search-option {
+  // permette di usare input dentro option disabled
+  opacity: 1 !important;
+  height: auto !important;
+  cursor: default !important;
+}
+
+.select-search-option .mat-mdc-option-pseudo-checkbox {
+  display: none !important;
+}
+
+.select-search-option .mat-mdc-option-text {
+  width: 100%;
+}
+
+.mat-tooltip {
+  white-space: pre-line;
+}
