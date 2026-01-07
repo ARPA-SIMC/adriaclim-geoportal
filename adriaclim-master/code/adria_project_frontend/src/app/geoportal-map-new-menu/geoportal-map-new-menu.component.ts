@@ -2229,6 +2229,11 @@ export class GeoportalMapNewMenuComponent {
         else {
 
           this.allDataVectorial = res['dataVect'];
+          const storageKey = this.selData.get('dataSetSel')?.value?.name?.title;
+          // Se non esiste una palette salvata, forza i default del componente
+          if (storageKey && !localStorage.getItem(storageKey)) {
+            this.restoreDefaultColors();
+          }
           let allLatCoordinates = this.allDataVectorial[1];
           let allLongCoordinates = this.allDataVectorial[2];
           let allValues = this.allDataVectorial[0];
@@ -2301,10 +2306,15 @@ export class GeoportalMapNewMenuComponent {
                   const colorStorageJson = JSON.parse(colorStorage);
                   varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
                 } else {
-
-                  varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
-                }
-
+                    varColor = this.getColor(
+                      allValues[i],
+                      value_min,
+                      value_max,
+                      this.valueMinColor,
+                      this.valueMidColor,
+                      this.valueMaxColor
+                    );
+                  }
                 this.map.removeLayer(this.rettangoliLayer);
 
                 this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
@@ -2330,11 +2340,23 @@ export class GeoportalMapNewMenuComponent {
 
                 }
                 else {
-                  varColor = this.getColor(allValues[i], value_min, value_max, "#f44336", "#9c27b0", "#3f51b5");
-
+                  varColor = this.getColor(
+                    allValues[i],
+                    value_min,
+                    value_max,
+                    this.valueMinColor,
+                    this.valueMidColor,
+                    this.valueMaxColor
+                  );
                 }
-
-                rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+                rectangle = L.rectangle(bounds, {
+                  fillOpacity: 0.4,
+                  opacity: 0.4,
+                  fill: true,
+                  stroke: false,
+                  color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b),
+                  weight: 1
+                });
                 this.allRectangles.push(rectangle);
 
                 this.rettangoliLayer.addLayer(rectangle);
