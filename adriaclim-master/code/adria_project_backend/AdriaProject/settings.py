@@ -11,14 +11,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 import json
-
 from kombu import Queue
 from pathlib import Path
 from datetime import datetime
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
-
-# import AdriaProject 
 
 USE_TZ = True
 TIME_ZONE = "Europe/Rome"
@@ -31,11 +28,7 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-
 ALLOWED_HOSTS = ['*']
-
-
-
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -45,8 +38,6 @@ CACHES = {
         }
     }
 }
-
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,22 +56,8 @@ INSTALLED_APPS = [
     'Processing',
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:4200",
-#     "http://localhost:8080",
-#     "http://127.0.0.1:9000",
-#     "http://localhost:8000",
-#     "https://geoportale-adriaclim.datamb.it"
-#  ]
-
 CORS_ORIGIN_ALLOW_ALL = True
-
 CORS_ALLOW_CREDENTIALS = True
-
-# CORS_ALLOWED_ORIGIN_REGEXES = [
-#     'http://localhost:4200',
-# ]
-
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
@@ -89,7 +66,6 @@ CORS_ALLOW_METHODS = [
     "POST",
     "PUT",
 ]
-
 
 CORS_ALLOW_HEADERS = (
     'accept',
@@ -120,10 +96,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://172.19.99.34:8000',
     'https://geoportale-adriaclim.datamb.it',
 ]
+
 CSRF_USE_SESSIONS = True
-
-
-
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -133,14 +107,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
-        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-        # 'rest_framework.permissions.DjangoModelPermissions'
-
     ),
 }
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -153,9 +123,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'AdriaProject.urls'
-
 TEMPLATES_DIRS=os.path.join(BASE_DIR,'templates')
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -179,7 +147,6 @@ ASGI_APPLICATION = 'AdriaProject.asgi:application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
          'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -193,7 +160,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -209,29 +175,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
 
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
-#STATIC_ROOT=os.path.join(BASE_DIR,'static/assets')
 STATIC_ROOT = '/static'
-
 STATICFILES_DIRS=[
     BASE_DIR / 'static',
 ]
@@ -253,6 +210,7 @@ CELERY_TIMEZONE = "Europe/Rome"
 CELERY_QUEUES = (
     Queue('my_queue', routing_key='my_queue'),
 )
+
 CELERY_BEAT_SCHEDULE = {
     'my_task': {
         'task': 'AdriaProject.tasks.task_get_all_data',

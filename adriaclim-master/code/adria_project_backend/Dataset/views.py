@@ -270,21 +270,6 @@ def getDataPolygonNew_view(request):
     except Exception as e:
         return str(e)
 
-# @api_view(['GET','POST'])
-# def check_task_status(request):
-#     try:
-#         task = AsyncResult(request.data.get('task_id'))
-#         response = {'status': task.status}
-#         if task.status == 'SUCCESS':
-#             response['result'] = task.result
-#         if task.state == "PROGRESS":
-#             response["progressBar"] = task.info.get('current')
-#         return JsonResponse({"dataVect":response})
-#     except Exception as e:
-#         response["error"] = str(e)
-#         return JsonResponse({"dataVect":response})
-
-
 logger = logging.getLogger(__name__)
 
 def _json_sanitize(obj):

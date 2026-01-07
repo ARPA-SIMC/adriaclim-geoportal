@@ -249,54 +249,7 @@ def url_is_indicator(is_indicator, is_graph, is_annual, **kwargs):
                     + kwargs["longitude_end"]
                     + ")%5D"
                 )
-        # elif is_indicator == "false" and is_graph == False and is_annual == False:
-        #     if kwargs["num_param"] > 3:
-        #         url = (
-        #             ERDDAP_URL
-        #             + "/griddap/"
-        #             + kwargs["dataset_id"]
-        #             + ".csv?"
-        #             + kwargs["layer_name"]
-        #             + "%5B("
-        #             + kwargs["time_start"]
-        #             + "):1:("
-        #             + kwargs["time_finish"]
-        #             + ")%5D%5B("
-        #             + str(kwargs["range_value"])
-        #             + "):1:("
-        #             + str(kwargs["range_value"])
-        #             + ")%5D%5B("
-        #             + kwargs["latitude_start"]
-        #             + "):1:("
-        #             + kwargs["latitude_end"]
-        #             + ")%5D%5B("
-        #             + kwargs["longitude_start"]
-        #             + "):1:("
-        #             + kwargs["longitude_end"]
-        #             + ")%5D"
-        #         )
-        #     else:
-        #         url = (
-        #             ERDDAP_URL
-        #             + "/griddap/"
-        #             + kwargs["dataset_id"]
-        #             + ".csv?"
-        #             + kwargs["layer_name"]
-        #             + "%5B("
-        #             + kwargs["time_start"]
-        #             + "):1:("
-        #             + kwargs["time_finish"]
-        #             + ")%5D%5B("
-        #             + kwargs["latitude_start"]
-        #             + "):1:("
-        #             + kwargs["latitude_end"]
-        #             + ")%5D%5B("
-        #             + kwargs["longitude_start"]
-        #             + "):1:("
-        #             + kwargs["longitude_end"]
-        #             + ")%5D"
-        #         )
-
+                
         elif is_indicator == "false" and is_graph and is_annual == False:
             if kwargs["num_parameters"] > 3:
                 url = (
