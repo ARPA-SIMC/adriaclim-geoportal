@@ -1255,21 +1255,22 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           this.circleMarkerArray.forEach((circle: any) => {
             circle.removeEventListener('click');
           });
-        } else {
-          if (this.clickPointOnOff) {
-            this.map.off('click');
-            this.map.on('click', this.onMapClick.bind(this));
-          }
+        } else if (this.clickPointOnOff) {
+          this.map.off('click');
+          this.map.on('click', this.onMapClick.bind(this));
         }
+
         this.metadata = res;
-        // console.log("METADATA =", this.metadata);
-        // console.log("Id meta======", idMeta);
 
-        if (controlDate === "ok") {
-
-          this.getLayers(idMeta, controlDate, controlExtra);
+        // PATCH CRITICA: applica i default PRIMA della creazione del WMS
+        const key = this.selData.get('dataSetSel')?.value?.name?.title;
+        if (key && !localStorage.getItem(key)) {
+          this.restoreDefaultColors();
         }
-        else {
+
+        if (controlDate === 'ok') {
+          this.getLayers(idMeta, controlDate, controlExtra);
+        } else {
           this.getLayers(idMeta);
         }
       },

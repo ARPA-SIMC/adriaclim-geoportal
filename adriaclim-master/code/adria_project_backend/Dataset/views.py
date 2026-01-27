@@ -120,6 +120,26 @@ def extract_keys_from_token(token: str):
             out.append(k)
     return out
 
+def extract_primary_indicator_key(title: str):
+    """
+    Estrae UNA chiave primaria dal titolo, evitando match multipli.
+    Strategia:
+    - se il titolo contiene '|', prende l'ultimo segmento (es: "... | anomaly")
+    - altrimenti prende l'ultimo token "pulito"
+    - normalizza e ritorna
+    """
+    t = (title or "").strip()
+    if not t:
+        return None
+
+    if "|" in t:
+        candidate = t.split("|")[-1].strip()
+    else:
+        tokens = re.findall(r"[A-Za-z0-9_]+", t)
+        candidate = tokens[-1] if tokens else ""
+
+    k = normalize_key(candidate)
+    return k or None
 
 @api_view(['GET', 'POST'])
 def getAllNodes(request):
@@ -133,17 +153,20 @@ def getAllNodes(request):
             found_desc = []
             seen_desc = set()
 
-            # A) Candidate keys dal TITLE (scansiono parole/pezzi)
+            # A) One primary key from TITLE (no multi-scan)
             title = node.title or ""
-            # prendo token "umani" e anche versioni normalizzate
-            title_tokens = re.findall(r"[A-Za-z0-9_]+", title)
+            primary_key = extract_primary_indicator_key(title)
 
-            for tok in title_tokens:
-                for k in extract_keys_from_token(tok):
-                    desc = get_desc_from_yaml(k)
-                    if desc and desc not in seen_desc:
-                        seen_desc.add(desc)
-                        found_desc.append(desc)
+            candidate_keys = []
+            if primary_key:
+                candidate_keys.extend(extract_keys_from_token(primary_key))  # gestisce anomaly/trend/pvalue ecc.
+
+            for k in candidate_keys:
+                desc = get_desc_from_yaml(k)
+                if desc and desc not in seen_desc:
+                    seen_desc.add(desc)
+                    found_desc.append(desc)
+                    break
 
             # B) Candidate keys dalle VARIABLE_NAMES (più affidabile)
             if node.variable_names:
@@ -151,12 +174,15 @@ def getAllNodes(request):
                     if v.lower() in ("time", "latitude", "longitude"):
                         continue
 
-                    # esempio: PRCPTOT_trend_1993_2011 -> prcptot + trend
                     for k in extract_keys_from_token(v):
                         desc = get_desc_from_yaml(k)
                         if desc and desc not in seen_desc:
                             seen_desc.add(desc)
                             found_desc.append(desc)
+                            break  # <-- STOP su questa variabile
+
+                    if found_desc:   # <-- STOP totale: una descrizione sola
+                        break
 
             # C) Se ho più match (es TXd + trend) li mostro a punti
             if not found_desc:

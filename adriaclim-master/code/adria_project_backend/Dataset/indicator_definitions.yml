@@ -58,12 +58,6 @@ wave_period: "Mean wave period."
 wave_direction: "Mean wave direction."
 
 p: "P-value associated with the trend estimate."
-pvalue: "P-value associated with the trend estimate."
 p_value: "P-value associated with the trend estimate."
 stderr: "Standard error associated with the estimated trend."
-std_error: "Standard error associated with the estimated trend."
-signif: "Statistical significance of the computed trend."
-trend: "Linear trend of the indicator over the selected time period."
-anomaly: "Anomaly relative to the climatological reference period (observed minus reference mean)."
-mean: "Mean value of the indicator over the selected period."
-avg: "Average value computed over the selected period."
+
