@@ -750,6 +750,80 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           return;
         }
 
+        // --- MULTI-STAT single timestamp (client requirement) ---
+        const wantsMultiBars =
+          stat === "min_mean_max" ||
+          stat === "min_10thPerc_median_90thPerc_max";
+
+        if (wantsMultiBars) {
+          const sorted = [...rawValues].sort((a, b) => a - b);
+
+          const percentile = (q: number) => {
+            const idx = (sorted.length - 1) * q;
+            const lo = Math.floor(idx);
+            const hi = Math.ceil(idx);
+            if (lo === hi) return sorted[lo];
+            return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+          };
+
+          const mean = rawValues.reduce((s, v) => s + v, 0) / rawValues.length;
+
+          // Values to plot (single category, multiple series)
+          const seriesItems =
+            stat === "min_mean_max"
+              ? [
+                  { name: "Min", value: Math.min(...rawValues) },
+                  { name: "Mean", value: mean },
+                  { name: "Max", value: Math.max(...rawValues) },
+                ]
+              : [
+                  { name: "Min", value: Math.min(...rawValues) },
+                  { name: "10th Perc", value: percentile(0.10) },
+                  { name: "Median", value: percentile(0.50) },
+                  { name: "90th Perc", value: percentile(0.90) },
+                  { name: "Max", value: Math.max(...rawValues) },
+                ];
+
+          // One label (single timestamp)
+          const timeLabel = uniqueTimes[0] ? this.formatDate(uniqueTimes[0]) : "Value";
+
+          // Make bars visible even when some values coincide:
+          // - overlap bars a bit (barGap negative)
+          // - different widths and z-order so you can still "see" them behind
+          const widths = [70, 56, 44, 34, 26]; // descending
+          const baseZ = 10;
+
+          this.chartOption = {
+            xAxis: { type: "category", data: [String(timeLabel)] },
+            yAxis: {
+              type: "value",
+              axisLabel: {
+                formatter: (val: any) =>
+                  isNaN(Number(this.dimUnit)) && this.dimUnit ? `${val} ${this.dimUnit}` : `${val}`,
+              },
+            },
+            tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+            legend: { data: seriesItems.map(s => s.name) },
+            grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
+            series: seriesItems.map((s, i) => ({
+              name: s.name,
+              type: "bar",
+              data: [Number(this.formatNumber(s.value))],
+              barWidth: widths[Math.min(i, widths.length - 1)],
+              barGap: "-65%",         // overlap a bit
+              barCategoryGap: "40%",  // keeps group compact
+              z: baseZ + (seriesItems.length - i), // front/back ordering
+            })),
+          };
+
+          this.dataTimeExport.emit(this.allDataPolygon.dataPol);
+          this.spinnerLoadingChild.emit(false);
+          this.spinnerService.spinnerShow = false;
+          this.progressBarCanvas.emit(false);
+          return;
+        }
+        // --- END MULTI-STAT ---
+
         // Otherwise (sum / composite stats), show histogram distribution
         const minV = Math.min(...rawValues);
         const maxV = Math.max(...rawValues);
