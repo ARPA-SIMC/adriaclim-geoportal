@@ -88,10 +88,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   optionBoxPlot: any = {
     title: [
-      {
-        text: 'Michelson-Morley Experiment',
-        left: 'center'
-      },
+      // {
+      //   // text: 'Michelson-Morley Experiment',
+      //   left: 'center'
+      // },
       {
         text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
         borderColor: '#999',
