@@ -167,33 +167,5 @@ pipeline {
 }
 
 
-//         stage('Deploy e build container') {
-//             steps {
-//                 withCredentials([sshUserPrivateKey(credentialsId: "${env.SSH_CREDENTIAL_ID}", keyFileVariable: 'SSH_KEY')]) {
-//                     sh """
-//                         echo "[4] Avvio build e container su ${DEPLOY_HOST}"
-//                         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${DEPLOY_HOST} '
-//                             set -e
-//                             cd ${REMOTE_PROJECT_PATH}/adriaclim-master &&
-
-//                             echo "[docker] pre-pull immagini di base..." &&
-//                             ${DOCKER} pull redis:alpine || true &&
-//                             ${DOCKER} pull postgis/postgis:13-3.3 || true &&
-
-//                             echo "[docker] Forzo rebuild di Angular (no cache)..." &&
-//                             ${DOCKER_COMPOSE} build --no-cache angular &&
-
-//                             echo "[docker-compose] Build & start..." &&
-//                             ${DOCKER_COMPOSE} --env-file .env up -d --build &&
-
-//                             echo "[✔] Deploy completato su ${DEPLOY_HOST} (${DEPLOY_BRANCH})"
-//                         '
-//                     """
-//                 }
-//             }
-//         }
-//     }
-// }
-
 
 
