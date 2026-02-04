@@ -30,8 +30,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @Input() circleCoords: any;
   @Input() progressBarAtStart: any;
   @Input() isUpdate: boolean = false;
-  // @Output() meanMedianStdev = new EventEmitter<any>();
-
   @Output() compareStats = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
@@ -43,8 +41,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
 
   @Input() compareObj: any;
-
-  // @ViewChild("parent") parent!: ElementRef<HTMLElement>;
 
   myChart: any;
   dateGraphZoom : any[] = [];
@@ -92,7 +88,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   }
 
   ngAfterViewInit() {
-    // this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
     this.myChart = echarts.init(this.parentRef.nativeElement);
   }
 
@@ -106,7 +101,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
     return number.toString();
   }
 
-  // FUNZIONE CHE CAMBIA IL FORMATO DELLA DATA PASSATA
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
       d = new Date(d);
@@ -145,18 +139,12 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
       dateEnd: this.dataset.time_end,
       lat: this.latlng.lat,
       lng: this.latlng.lng,
-      // lat_max: this.dataset.lat_max,
-      // lat_min: this.dataset.lat_min,
-      // lng_min: this.dataset.lng_min,
-      // lng_max: this.dataset.lng_max
       lat_max: "no",
       lat_min: "no",
       lng_min: "no",
       lng_max: "no"
     }
-    // console.log("RANGE: ", this.range);
 
-    // this.httpService.post('dataset/getDataGraphicNewCanvas/', data, { responseType: 'text' }).subscribe(response => {
     this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe((response: any) => {
 
       if (response.allData !== "fuoriWms"){
@@ -165,9 +153,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
         }
 
         this.dataRes = response;
-
-        // this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
-
         const name = this.dataRes.allData.entries[0];
         if(this.operation === "annualMonth"){
           this.dataRes.allData[name] = this.dataRes.allData[name].reverse();
@@ -283,7 +268,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   }
 
   getGraphCompare() {
-    // this.compareObj["operation"] = this.operation;
     let data = this.compareObj;
     this.httpService.post('dataset/compareDatasets/', data).subscribe({
       next: (res: any) => {
@@ -297,7 +281,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           meanDiffAvgAbs: res.compareResult.meanDiffAvgAbs,
           rootSquaredDiff: res.compareResult.rootSquaredDiff
         }
-        // this.compareStats.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
         this.compareStats.emit(stats);
 
         let namesArray = [firstKey, secondKey];
@@ -306,11 +289,9 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           color: this.colors,
           xAxis: [
             {
-              // name: "firstAxisName",
               type: 'category',
               boundaryGap: false,
               axisLine:{
-                // onZero: false,
                 lineStyle:{
                   color: this.colors[1]
                 }
@@ -327,11 +308,9 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
               })
             },
             {
-              // name: "secondAxisName",
               type: 'category',
               boundaryGap: false,
               axisLine:{
-                // onZero: false,
                 lineStyle:{
                   color: this.colors[0]
                 }
@@ -350,8 +329,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           ],
           yAxis: {
             type: 'value',
-            // min: minMaxValue.min,
-            // max: minMaxValue.max,
           },
           toolbox: {
             feature: {
@@ -364,10 +341,8 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           },
           tooltip: {
             trigger: 'axis',
-            // axis: 'x1',
             formatter: (paramsFormatter: any) => {
               const tooltipHTML = paramsFormatter.map((param: any, index:number) => {
-                // console.log("PARAM",param);
                 let value: any = Number(param.value);
                 if (value > 10000 || value < 0.001 && value !== 0) {
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
@@ -400,7 +375,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
             }
           },
           legend: {
-            // data:
             orient: 'horizontal',
             itemGap: 70,
           },
@@ -439,7 +413,6 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           ]
         }
 
-        // this.dataTimeExport.emit(this.dataRes.allData[name]);
         this.spinnerLoadingChild.emit(false);
         this.spinnerService.spinnerShow = false;
         this.progressBarCanvas.emit(false);

@@ -39,7 +39,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   progressBarAtStart: boolean = true;
 
-  // @ViewChild(MatPaginator) paginator!: MatPaginator;
   private paginator!: MatPaginator;
   dataTable: any;
 
@@ -74,24 +73,16 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   trendValue: any;
   statCalc: any;
   prodDev = this.httpService.apiUrl === "http://localhost:8000/" ? "dev" : "prod";
-
   info: any = false;
-  // yesInfo = document.getElementById("yesInfo");
-
   circleCoords: any;
-
   operation: any = "default";
   statistic: any = "avg";
-
-  // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
   isIndicator: any;
   polygon: any;
   polyExport: any;
   polName: any;
-
   minRange: any;
   maxRange: any;
-
   options: Options = {
     floor: 0,
     ceil: 100,
@@ -111,12 +102,11 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   progress = 0
   progressWidth = this.progress + "%"
-
-  fakeProgressInterval: any;   // timer per il finto avanzamento
+  fakeProgressInterval: any;  
   private fakeProgressStepInterval: any = null;
   isFakeActive = false;
   fakeProgressStartedAt = 0;
-  readonly MIN_VISIBLE_MS = 600; // garantisce visibilità minima della barra
+  readonly MIN_VISIBLE_MS = 600; 
   
 
   typeOfExport: TypeOfExport[] = [
@@ -237,8 +227,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che controlla se mostrare o no le statistiche attraverso l'operazione selezionata sopra il grafico della modale
-   */
+  * Check whether to show statistics based on the operation selected above the modal chart
+  */
   showStatPointSelected(checkPoly: any) {
     if (!checkPoly) {
       if (this.form.get('operationSel')?.value === "default") {
@@ -254,8 +244,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che mostra o nasconde il menu a tendina riguardante il time scale
-   */
+  * Show or hide the time scale dropdown menu
+  */
   removeAnnualCycle(o: any): boolean {
 
     if (this.dataset.adriaclim_timeperiod === "yearly") {
@@ -287,19 +277,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che abilita o disabilita le statistiche all'interno del menu a tendina statistics
-   */
-  // disableStatistics(s: any): boolean {
-  //   // s.value === 'boxPlot' && form.get('operationSel')?.value === 'default'
-  //   if (s.value === 'boxPlot' && (this.form.get('operationSel')?.value === 'default' || this.form.get('operationSel')?.value === 'annualDay')) {
-  //     return true;
-  //   }
-  //   else {
-  //     return false;
-  //   }
-  // }
+  * Enable or disable statistics within the statistics dropdown menu
+  */
   disableStatistics(s: any): boolean {
-    // Enable all statistics, including boxPlot
     return false;
   }
 
@@ -348,11 +328,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     private dialogRef: MatDialogRef<GeoportalMapDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: any,
     public spinnerService: SpinnerLoaderService) {
-    // if(this.yesInfo != null) {
-    //   this.yesInfo.style.display = "none";
-
-    // }
-
     this.description = data.description;
     this.success = data.success;
     this.datasetId = data.datasetId;
@@ -368,27 +343,18 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.arrayVariable = data.arrayVariable;
     this.range = data.range;
     this.extraParamExport = data.extraParamExport;
-
-    // PARAMETRI PER CREAZIONE GRAFICO POLIGONI
     this.isIndicator = data.isIndicator;
     this.polygon = data.polygon;
     this.polyExport = data.polyExport;
     this.polName = data.polName;
-
     this.circleCoords = data.circleCoords;
-
     this.compareObj = data.compareObj;
-
-
-    // this.start = this.dateStart.getTime();
-    // this.end = this.dateEnd.getTime();
     if (this.dataset) {
 
       this.stepDate = this.dataset.adriaclim_timeperiod;
     }
 
     this.form = this.fb.group({
-      // cod: new FormControl(this.element.cod_algo_type),
       cod: new FormControl(null),
       operationSel: new FormControl("default"),
       statisticSel: new FormControl("avg"),
@@ -402,9 +368,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       trendValue: new FormControl(null),
 
       prova: new FormControl(null),
-      // minSliderDate: new FormControl(this.dateStart),
-      // maxSliderDate: new FormControl(this.dateEnd),
-      // minSlider
     })
     if (this.dataset) {
       if (this.dataset.dimensions > 3 && this.dataset.wms_url !== "") {
@@ -431,10 +394,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che cambia il contenuto della modale del grafico mostrando una parte dedicata alle informazioni inerenti al grafico
-   */
+  * Change the chart modal content to display the section with chart-related information
+  */
   showInfo() {
-    // this.info = !this.info;
     let noInfo = document.getElementById("noInfo");
     let yesInfo = document.getElementById("yesInfo");
     if (noInfo && yesInfo) {
@@ -464,19 +426,12 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     if (!this.openGraph) {
       this.getMetadataTable();
-      // this.setDataSourceAttributes();
-
     }
     else {
-      // this.spinnerLoading = false;
       if (!this.polygon) {
         this.getGraphTable();
-
       }
-
-      // this.removeAnnualCycle();
     }
-    // this.getAlgoType();
   }
 
   close() {
@@ -484,10 +439,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che permette di ottenere i metadati per popolare la tabella
-   */
+  * Retrieve metadata to populate the table
+  */
   getMetadataTable() {
-
     let data = {
       idMeta: this.datasetId
     }
@@ -505,32 +459,22 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
         dim_unit = this.dataTable.metadata.table.columnUnits[this.dataTable.metadata.table.columnUnits.length - 1];
         this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
       }
-      // this.dataTable.data.table.forEach((el: any) => {
       let objArr: any = {};
       let arr1: any = [];
-
       this.dataTable.metadata.table.rows.forEach((arr: any) => {
         objArr = {};
-
         this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
           objArr[key] = arr[i];
-
         })
         arr1.push(objArr);
-
       });
       this.dataTable.metadata.table.rows = [...arr1];
-
       if (this.dataTable.metadata.table.rows.length > 0) {
         this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
-        // bypass ngIf for paginator
         this.setDataSourceAttributes();
-
       }
-      // this.myDiv.nativeElement.innerHTML = response;
       console.log("METADATA?");
       this.spinnerService.spinnerShow = false;
-      // this.spinnerLoading = false;
     });
 
   }
@@ -552,13 +496,12 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che permette di popolare la tabella con i metadati
-   */
+  * Populate the table with metadata
+  */
   getGraphTable() {
   this.dimUnit = "";
   if (this.dataset) {
-    this.spinnerLoading = true;   //mostra lo spinner
-
+    this.spinnerLoading = true; 
     let data = {
       idMeta: this.datasetId,
       dimensions: this.dataset.dimensions,
@@ -606,16 +549,15 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
           this.description = "The selected point is outside the WMS coverage";
         }
 
-        this.spinnerLoading = false;   //sempre a fine next
+        this.spinnerLoading = false; 
       },
       error: (err: any) => {
         console.error("Errore in getGraphTable:", err);
-        this.spinnerLoading = false;   //spegne anche in caso di errore
+        this.spinnerLoading = false;
       }
     });
   }
 }
-
 
   createErddapUrl() {
     let prova: any[] = [];
@@ -626,11 +568,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che permette di scaricare un file direttamente dalla piattaforma erddap tramite l'url generato con tutte le informazioni necessarie
-   */
+  * Download a file directly from the ERDDAP platform using the generated URL with all required parameters
+  */
   exportData(typeSel: any) {
-    //siamo nel caso del punto
-
     let erddapUrl: any;
     let latMin: any;
     let latMax: any;
@@ -648,10 +588,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
     if (this.dataset.griddap_url !== "") {
       erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/" + this.datasetId + typeSel + "?";
-      //https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/adriaclim_WRF_5e78_b419_ec8a.htmlTable?
-
-      //consecutive_dry_days_index_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D,number_of_cdd_periods_with_more_than_5days_per_time_period%5B(2036-01-15T21:00:00Z):1:(2036-01-15T21:00:00Z)%5D%5B(37.00147):1:(46.97328)%5D%5B(10.0168):1:(21.98158)%5D
-
       let variable: any;
       this.form.get("varSelected")?.value.map((el: any, index: number) => {
 
@@ -664,14 +600,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
         }
 
-        //https://erddap.cmcc-opa.eu/erddap/griddap/MedCordex_IPSL_f042_2fca_cade.csv?fg%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D%2Ctxn%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5Dtxx%5B(2020-01-01T00:00:00Z):1:(2020-01-01T00:00:00Z)%5D%5B(42.8210909111826):1:(42.8210909111826)%5D%5B(11.535644531250002):1:(11.535644531250002)%5D
-
         if (this.dataset.dimensions === 3) {
-          //siamo nel caso di latitude e long
-          //va aggiunto controllo su poligono
-          //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_5215_16d2_473e.csv?wind10m%5B(2050-11-09T00:00:00Z):1:(2050-11-09T00:00:00Z)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
           if (this.polygon) {
-
             erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
 
           }
@@ -680,17 +610,13 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
           }
         }
         else {
-          //caso parametro aggiuntivo
-          //va aggiunto controllo su poligono
           if (this.minRange === undefined || this.maxRange === undefined) {
-            //aggiunto controllo nel caso in cui ci sia un parametro aggiuntivo ma siamo nel caso del griddap senza wms!
             this.minRange = 0
             this.maxRange = 0
           }
           let rangeMin = this.minRange;
           let rangeMax = this.maxRange;
           if (this.polygon) {
-            //url_type = https://erddap-adriaclim.cmcc-opa.eu/erddap/griddap/atm_regional_1f91_1673_845b.htmlTable?vegetfrac%5B(2005-11-20):1:(2005-11-20T00:00:00Z)%5D%5B(1.0):1:(13.0)%5D%5B(90.0):1:(-90.0)%5D%5B(-171.2326):1:(180.4572)%5D
             erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
           }
           else {
@@ -701,11 +627,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
       });
     } else {
-      //caso tabledap, dobbiamo costruire il suo url!
-      //https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/arpav_CDD_seasonal.htmlTable?time%2Clatitude%2Clongitude%2CIndicator&time%3E=2022-11-09&time%3C=2022-11-16&latitude%3E=45.605&latitude%3C=45.605&longitude%3E=12.65&longitude%3C=12.65
       erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/" + this.datasetId + typeSel + "?";
       let variable_names = this.dataset.variable_names.split(" ");
-
       variable_names.forEach((variable: any, index: any) => {
         if (index === variable_names.length - 1) {
           erddapUrl += variable;
@@ -734,11 +657,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   addDataTimeExport(graph: any) {
-    // Array di timestamp a partire dalle date presenti in 'graph'
     const timestampArray = graph.map((element: any) => {
       if (element.x.indexOf("T") > -1) {
-        //siamo nel caso del poligono, formattare la data in maniera corretta
-
         element.x = this.formatDate(new Date(element.x));
       }
       const dateParts = element.x.split('/');
@@ -747,11 +667,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       return date;
     });
 
-    // Salva la data minima e massima del grafico
-    // this.dataMinExport = new Date(Math.min(...timestampArray));
-    // this.dataMaxExport = new Date(Math.max(...timestampArray));
-
-    //this.minValue = timestampArray[0].getTime();
     this.minValue = timestampArray[0].getTime();
     this.maxValue = timestampArray[timestampArray.length - 1].getTime();
 
@@ -771,29 +686,22 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   dataTablePolygon(event: any) {
-    // this.spinnerLoading = false;
     this.dataTable = event;
-
     this.displayedColumns = Object.keys(this.dataTable[0]);
     let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
-    // console.log("lastCol", lastCol);
     this.dimUnit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
 
     if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
       this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
     }
 
-    // this.dataTable.data.table.forEach((el: any) => {
     let objArr: any = {};
     let arr1: any = [];
-
     this.dataTable.forEach((arr: any, index: number) => {
       if (index !== 0) {
         objArr = {};
-
         this.displayedColumns.forEach((key: any, i: number) => {
           if (i === this.displayedColumns.length - 1) {
-            //ultima chiave da non cambiare
             objArr[key] = arr[lastCol];
           } else {
             objArr[key] = arr[key];
@@ -817,36 +725,37 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che permette di ricevere dal componente figlio il valore della variabile spinnerloading
-   */
+  * Receive the spinnerLoading value from the child component
+  */
   spinnerLoadingChild(event: any) {
 
     this.spinnerLoading = event;
   }
 
   /**
-   * Funzione che permette di ricevere dal componente figlio il valore delle statistiche per il compare di due dataset per poi popolare un oggetto
-   */
+  * Receive statistics values from the child component for dataset comparison
+  * and populate an object
+  */
   compareStats(event: any) {
     this.stats = {
       meanDiffAvg: parseFloat(event.meanDiffAvg).toFixed(5),
       meanDiffAvgAbs: parseFloat(event.meanDiffAvgAbs).toFixed(5),
       rootSquaredDiff: parseFloat(event.rootSquaredDiff).toFixed(5),
     };
-    // console.log("STATS = ", this.stats);
-
   }
 
   /**
-   * Funzione che permette di ricevere dal componente figlio l'errore ricevuto assegnandolo alla descrizione per mostrarla sulla modale
-   */
+  * Receive the error from the child component, assign it to the description,
+  * and display it in the modal
+  */
   descriptionError(event: any) {
     this.description = event;
   }
 
   /**
-   * Funzione che permette di ricevere dal componente figlio i valori delle statistiche calcolate per il dataset mostrato sul grafico
-   */
+  * Receive the calculated statistics values from the child component
+  * for the dataset displayed in the chart
+  */
   meanMedianStdev(event: any) {
   // If null/empty, clear stats so the UI can hide them
     if (!event || typeof event !== 'string') {
@@ -859,11 +768,10 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che permette di ricevere dal componente figlio i valori che controllano la progressione della progress bar di caricamento
-   */
-  // riceve aggiornamenti reali (PROGRESS) dal figlio
+  * Receive values from the child component that control
+  * the loading progress bar progression
+  */
   progressBar(event: any) {
-    // se sta girando il fake, lo disattivo e passo a progress reale
     if (this.isFakeActive) {
       if (this.fakeProgressInterval) {
         clearInterval(this.fakeProgressInterval);
@@ -874,14 +782,11 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
     this.progress = Number(event) || 0;
     this.progressWidth = this.progress + "%";
-    // assicuro la visibilità della barra mentre ricevo progress reali
     this.progressBarAtStart = true;
   }
 
-  // il figlio può chiedere di mostrare/nascondere la barra, ma
-  // durante il fake lo IGNORO per evitare che sparisca subito
   progressBarCanvas(event: any) {
-    if (this.isFakeActive) return; // ignora richieste di spegnimento mentre fake è attivo
+    if (this.isFakeActive) return; 
     this.progressBarAtStart = !!event;
   }
 
@@ -889,20 +794,15 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     console.log("[PADRE] startFakeProgress eseguito");
     this.isFakeActive = true;
     this.fakeProgressStartedAt = Date.now();
-
-    // mostra barra e resetta
     this.progressBarAtStart = true;
     this.progress = 0;
     this.progressWidth = "0%";
-
-    // stop di eventuale timer precedente
     if (this.fakeProgressInterval) {
       clearInterval(this.fakeProgressInterval);
     }
 
-    // incremento finto rapido fino al 90%
     this.fakeProgressInterval = setInterval(() => {
-      if (!this.isFakeActive) return; // se nel frattempo è passato a reale, non avanzare finto
+      if (!this.isFakeActive) return; 
       if (this.progress < 90) {
         this.progress += 5;
         this.progressWidth = this.progress + "%";
@@ -911,14 +811,12 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   stopFakeProgress() {
-  // Stop advancing the "fake to 90%" interval
     this.isFakeActive = false;
 
     if (this.fakeProgressInterval) {
       clearInterval(this.fakeProgressInterval);
       this.fakeProgressInterval = null;
     }
-
     // IMPORTANT: stop any previous "step to 100%" animation
     if (this.fakeProgressStepInterval) {
       clearInterval(this.fakeProgressStepInterval);
@@ -958,8 +856,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
 
   /**
-   * Funzione che prende in input i valori delle statistiche permette di formattare i valori con x10^ quando i numeri sono troppo grandi o troppo piccoli
-   */
+  * Format statistics values using x10^ notation
+  * when numbers are too large or too small
+  */
   expoFormat(mean_median_stdev: any) {
     // If stats are not meaningful (e.g. single timestamp case), clear them
     if (!mean_median_stdev || !Array.isArray(mean_median_stdev) || mean_median_stdev.length < 4) {
@@ -1009,21 +908,16 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che assegna l'operazione e la statistica selezionata dall'utente
-   */
+  * Assign the operation and statistic selected by the user
+  */
   sendSelGraphPoly() {
-    // niente barra per l’update
     this.progressBarAtStart = false;
-
-    //non accendere lo spinner globale durante update
     this.spinnerService.spinnerShow = false;
 
     this.operation = this.form.get('operationSel')?.value;
     this.statistic  = this.form.get('statisticSel')?.value;
-
-    // invia un "impulso" di update al figlio
     this.isUpdate = true;
-    setTimeout(() => { this.isUpdate = false; }, 0); // reset immediato, serve solo come trigger
+    setTimeout(() => { this.isUpdate = false; }, 0); 
   }
 
 
@@ -1032,8 +926,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   /**
-   * Funzione che permette di aggiornare le statistiche del dataset mostrato sul grafico
-   */
+  * Update statistics for the dataset displayed in the chart
+  */
   calcStatistics() {
     let data = {
       dates: this.statCalc.dates,

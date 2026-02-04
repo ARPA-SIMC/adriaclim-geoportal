@@ -86,21 +86,20 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
     }
     catch (error) {
-      // reject(error);
       console.log("ERROR CHARGE ALL", error);
 
     }
   }
 
   /**
-   * Funzione che controlla se il nome del metadato dimensions è uguale a un determinato nome e ritorna il nome corretto da visualizzare
-   */
+  * Check whether the dimensions metadata name matches a given name
+  * and return the correct display name
+  */
   checkDimensions() {
     if(this.firstDataset.name.dimensions > 3) {
 
       let name = this.firstDataset.name.dimension_names.split(" ")[1];
       if (name === "depth") {
-        // this.extraParam.name = "elevation";
         this.extraParamFirst = {
           name: "Elevation",
           minValue: - this.firstDataset.name.param_max,
@@ -207,11 +206,9 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
   checkForDepth1() {
     if(!this.valueOne) {
-      // se non è stato selezionato un valore prendi quello impostato di default
       return this.firstValue;
     }
     else{
-      //dobbiamo controllare se è Elevation
       if(this.extraParamFirst.name === "Elevation"){
         return -this.valueOne;
       }
@@ -224,11 +221,9 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
   checkForDepth2() {
     if(!this.valueTwo) {
-      // se non è stato selezionato un valore prendi quello impostato di default
       return this.secondValue;
     }
     else{
-      //dobbiamo controllare se è Elevation
       if(this.extraParamSecond.name === "Elevation"){
         return -this.valueTwo;
       }
@@ -240,37 +235,26 @@ export class GeoportalCompareDialogComponent implements OnInit {
   }
 
   /**
-   * Funzione che ottiene le variabili del primo dataset selezionato
-   */
+  * Get variables from the first selected dataset
+  */
   async getSelectedVarFirstDataset(){
 
     this.firstDataset = this.form.get('firstDataset')?.value;
-    // console.log("SELECTED VAR DATASET: ", this.firstDataset);
-
     if (this.firstDataset.name) {
       let variableNames = this.firstDataset.name.variable_names.split(" ");
-      // let variableNames = first.name.variable_names.split(" ");
       let variableTypes = this.firstDataset.name.variable_types.split(" ");
-      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
       variableNames.forEach((vName:any, index: number) =>{
-     // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (
         vName !== "time" && vName !== "latitude" && vName !== "longitude" &&
         (variableTypes[index] === "float" || variableTypes[index] === "double")
       ) {
-        // console.log("VNAME===========", vName, "variable types==========", variableTypes[index]);
-
         this.firstDatasetVariables.push({ name: vName, type: variableTypes[index] });
       }
       });
     }
     else if (this.firstDataset.variable_names) {
-      //sono tabledap
-      // this.firstDatasetVariables = this.firstDataset.variable_names.split(" ");
       let variableNames = this.firstDataset.variable_names.split(" ");
-      // let variableNames = first.name.variable_names.split(" ");
       let variableTypes = this.firstDataset.variable_types.split(" ");
-      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
       variableNames.forEach((variableName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (
@@ -287,22 +271,14 @@ export class GeoportalCompareDialogComponent implements OnInit {
   }
 
   /**
-   * Funzione che ottiene le variabili del secondo dataset selezionato
-   */
+  * Get variables from the second selected dataset
+  */
   async getSelectedVarSecondDataset(){
-
-    // await this.chargeAll();
-    // setTimeout(() => {
-    //   this.checkDimensions();
-
-    // }, 500);
     this.secondDataset = this.form.get('secondDataset')?.value;
 
     if (this.secondDataset.name) {
       let variableNames = this.secondDataset.name.variable_names.split(" ");
-      // let variableNames = first.name.variable_names.split(" ");
       let variableTypes = this.secondDataset.name.variable_types.split(" ");
-      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
       variableNames.forEach((variableName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (
@@ -314,12 +290,8 @@ export class GeoportalCompareDialogComponent implements OnInit {
       });
     }
     else if (this.secondDataset.variable_names) {
-      //sono tabledap
-      // this.firstDatasetVariables = this.firstDataset.variable_names.split(" ");
       let variableNames = this.secondDataset.variable_names.split(" ");
-      // let variableNames = first.name.variable_names.split(" ");
       let variableTypes = this.secondDataset.variable_types.split(" ");
-      // console.log("VariableName===========",variableNames,"variable types==========",variableTypes);
       variableNames.forEach((variableName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (

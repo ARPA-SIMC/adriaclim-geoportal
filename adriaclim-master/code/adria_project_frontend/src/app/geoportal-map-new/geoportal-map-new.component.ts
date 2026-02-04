@@ -939,200 +939,6 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
         console.log("TIMEPERIOD DATASETS =", this.timeperiodDatasets);
         console.log("MENU DATASETS =", this.menuDatasets);
         console.log("FORM MENU DATASETS =", this.formMenuDatasets.value);
-
-
-        // console.log("PRIMO ELEMENTO DI CATEGORY DATASETS =", this.categoryDatasets[0]);
-        // console.log("indicators =", this.indicators);
-        // console.log("models =", this.models);
-        // console.log("observations =", this.observations);
-        // console.log("reanallysis =", this.reanallysis);
-
-        // res.nodes.forEach((node: any) => {
-
-        //   //riempiamo tree con tutti i nodi
-        //   if (node.adriaclim_dataset === "indicator") {
-        //     const indicatori = TREE_DATA.filter((indicators: any) => indicators.name === "Indicators")[0];
-        //     //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-        //     const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-        //     if (indicatori?.children?.findIndex(scaleIndicator => scaleIndicator.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-        //       indicatori?.children?.push({
-        //         name: scaleUpperCase,
-        //         children: []
-        //       });
-        //     }
-
-        //     // ordina in senso alfabetico la parte relativa agli scale del modello
-        //     indicatori?.children?.sort((o1: any, o2: any) => {
-        //       if (o1.name > o2.name) {
-        //         return 1;
-        //       }
-        //       if (o1.name < o2.name) {
-        //         return -1;
-        //       }
-        //       return 0;
-        //     })
-
-        //     const scale = indicatori.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-        //     const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-        //     if (scale?.children?.findIndex(timeInd => timeInd.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-        //       scale?.children?.push({
-        //         name: timeUpperCase,
-        //         children: []
-        //       });
-        //     }
-
-        //     //ordina in senso alfabetico la parte relativa ai timeperiod del modello
-        //     scale?.children?.sort((o1: any, o2: any) => {
-        //       if (o1.name > o2.name) {
-        //         return 1;
-        //       }
-        //       if (o1.name < o2.name) {
-        //         return -1;
-        //       }
-        //       return 0;
-        //     })
-
-        //     const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-        //     if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-        //       time?.children?.push({
-        //         name: node
-        //       });
-        //       indicatori?.children?.sort((o1: any, o2: any) => {
-        //         if (o1.name.title > o2.name.title) {
-        //           return 1;
-        //         }
-        //         if (o1.name.title < o2.name.title) {
-        //           return -1;
-        //         }
-        //         return 0;
-        //       })
-        //     }
-        //   }
-        //   else if (node.adriaclim_dataset === "model") {
-        //     const modelli = TREE_DATA.filter((models: any) => models.name === "Numerical models")[0]
-        //     //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-        //     const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-        //     if (modelli?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-        //       modelli?.children?.push({
-        //         name: scaleUpperCase,
-        //         children: []
-        //       });
-        //     }
-
-        //     //ordina in senso alfabetico la parte relativa agli scale del modello
-        //     modelli?.children?.sort((o1: any, o2: any) => {
-        //       if (o1.name > o2.name) {
-        //         return 1;
-        //       }
-        //       if (o1.name < o2.name) {
-        //         return -1;
-        //       }
-        //       return 0;
-        //     })
-
-        //     const scale = modelli.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-        //     const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-        //     if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-        //       scale?.children?.push({
-        //         name: timeUpperCase,
-        //         children: []
-        //       });
-        //     }
-
-        //     //ordina in senso alfabetico la parte relativa ai timeperiod del modello
-        //     scale?.children?.sort((o1: any, o2: any) => {
-        //       if (o1.name > o2.name) {
-        //         return 1;
-        //       }
-        //       if (o1.name < o2.name) {
-        //         return -1;
-        //       }
-        //       return 0;
-        //     })
-
-        //     const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-        //     if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-        //       time?.children?.push({
-        //         name: node
-        //       });
-        //       modelli?.children?.sort((o1: any, o2: any) => {
-        //         if (o1.name.title > o2.name.title) {
-        //           return 1;
-        //         }
-        //         if (o1.name.title < o2.name.title) {
-        //           return -1;
-        //         }
-        //         return 0;
-        //       })
-        //     }
-        //   }
-        //   else if (node.adriaclim_dataset === "observation") {
-        //     const observation = TREE_DATA.filter((obs: any) => obs.name === "Observations")[0];
-        //     //creare figli automaticamente in base al valore di adriaclim_scale e adriaclim_timeperiod
-        //     const scaleUpperCase = node.adriaclim_scale.charAt(0).toUpperCase() + node.adriaclim_scale.slice(1);
-        //     if (observation?.children?.findIndex(scaleModel => scaleModel.name.toLowerCase() === node.adriaclim_scale.toLowerCase()) === -1) {
-        //       observation?.children?.push({
-        //         name: scaleUpperCase,
-        //         children: []
-        //       });
-        //     }
-
-        //     //ordina in senso alfabetico la parte relativa agli scale di observations
-        //     observation?.children?.sort((o1: any, o2: any) => {
-        //       if (o1.name > o2.name) {
-        //         return 1;
-        //       }
-        //       if (o1.name < o2.name) {
-        //         return -1;
-        //       }
-        //       return 0;
-        //     })
-
-        //     const scale = observation.children?.filter((sca: any) => sca.name.toLowerCase().includes(node.adriaclim_scale.toLowerCase()))[0];
-        //     const timeUpperCase = node.adriaclim_timeperiod.charAt(0).toUpperCase() + node.adriaclim_timeperiod.slice(1);
-        //     if (scale?.children?.findIndex(timeModel => timeModel.name.toLowerCase() === node.adriaclim_timeperiod.toLowerCase()) === -1) {
-        //       scale?.children?.push({
-        //         name: timeUpperCase,
-        //         children: []
-        //       });
-        //     }
-
-        //     //ordina in senso alfabetico la parte relativa ai timeperiod di observations
-        //     scale?.children?.sort((o1: any, o2: any) => {
-        //       if (o1.name > o2.name) {
-        //         return 1;
-        //       }
-        //       if (o1.name < o2.name) {
-        //         return -1;
-        //       }
-        //       return 0;
-        //     })
-
-        //     const time = scale?.children?.filter((time: any) => time.name.toLowerCase().includes(node.adriaclim_timeperiod.toLowerCase()))[0];
-        //     if (time?.children?.findIndex(elModel => elModel.name === node.title) === -1) {
-        //       time?.children?.push({
-        //         name: node
-        //       });
-
-        //       observation?.children?.sort((o1: any, o2: any) => {
-        //         if (o1.name.title > o2.name.title) {
-        //           return 1;
-        //         }
-        //         if (o1.name.title < o2.name.title) {
-        //           return -1;
-        //         }
-        //         return 0;
-        //       })
-
-        //     }
-
-        //   }
-        //   this.dataAllNodes.push(
-        //     { name: node }
-        //   );
-
-        // });
-
         this.dataAllNodesTree.data = TREE_DATA;
 
         this.dataAllNodes.sort((o1, o2) => {
@@ -1144,11 +950,6 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           }
           return 0;
         })
-
-        // console.log("DATA ALL NODES =", this.dataAllNodes);
-        // console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
-
-
       },
       error: (msg: any) => {
         console.log("SUB ERROR");
@@ -1318,15 +1119,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
         }
       });
-      // console.log("Test===========",test);
-      // this.variableArray = node.variable_names.split(" ");
     }
-    // this.isIndicator = node.name.griddap_url !== "" ? false : true; //true se è tabledap, false se è griddap
-    // if (this.isIndicator) {
-
-    //   this.variableArray = this.variableArray.slice(-1);
-    // }
-    // console.log("thisVariableArray: ", this.variableArray);
 
     if(this.variableArray.length > 0) {
       this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
@@ -2359,53 +2152,6 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
-
-    // if (this.circleMarkerArray.length > 0) {
-    //   this.circleMarkerArray.forEach((circle: any) => {
-    //     circle.removeEventListener('click');
-    //   });
-    // }
-
-    // if(this.confronto) {
-    //   // firstDataset: this.form.get('firstDataset')?.value,
-    //   // secondDataset: this.form.get('secondDataset')?.value,
-    //   // firstVarSel: this.form.get('variableFirstData')?.value,
-    //   // secondVarSel: this.form.get('variableSecondData')?.value,
-    //   let dataId = this.datasetCompare.firstDataset.name.dataset_id;
-    //   let title = this.datasetCompare.firstDataset.name.title;
-    //   let firstDataset = this.datasetCompare.firstDataset;
-    //   let secondDataset = this.datasetCompare.secondDataset;
-    //   let firstVariable = this.datasetCompare.firstVarSel;
-    //   let secondVariable = this.datasetCompare.secondVarSel;
-
-    //   dialogConfig.data = {
-    //     success: true,
-    //     datasetId: dataId,
-    //     datasetName: title,
-    //     confronto: this.confronto,
-    //     firstDataset: firstDataset,
-    //     seconddataset: secondDataset,
-    //     latlng: this.coordOnClick,
-    //     firstVariable: firstVariable,
-    //     secondVariable: secondVariable,
-
-    //     dateStart: this.dateStart,
-    //     dateEnd: this.dateEnd,
-
-    //     // arrayVariable: this.variableArray,
-    //     // range: this.value,
-    //     openGraph: true,
-    //     // extraParamExport: this.extraParamExport,
-    //     // polyExport: polygon ? polygon[0].pol.getBounds() : null,
-    //     // polygon: polygon ? polygon[0].pol.getLatLngs()[0] : null,
-    //     // polName: polygon ? polygon[0].polName : null,
-    //     // circleCoords: this.circleCoords,
-    //     isIndicator: this.isIndicator ? "true" : "false",
-    //   };
-
-    // }
-    // else {
-
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
 
@@ -2721,11 +2467,6 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
       value_min_mid = Math.ceil((parseFloat(value_mid) + parseFloat(value_min)) / 2);
       value_mid_max = Math.ceil((parseFloat(value_max) + parseFloat(value_mid)) / 2);
     }
-    // console.log("VALUE MIN =", value_min);
-    // console.log("VALUE MIN MID =", value_min_mid);
-    // console.log("VALUE MID =", value_mid);
-    // console.log("VALUE MID MAX =", value_mid_max);
-    // console.log("VALUE MAX =", value_max);
 
     value_min = this.formatNumber(value_min, 5);
     value_min_mid = this.formatNumber(value_min_mid, 5);
@@ -3021,119 +2762,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
     return number.toString();
   }
 
-  /**
-   * Apply filter con expand da rivedere
-   */
-  // applyFilter(filterValue: string): any[] {
-  //   // console.log();
-  //   // console.log();
-  //   // console.log();
-  //   // console.log();
-
-
-  //   // this.treeControl.collapseAll();
-  //   // this.treeControl.expandAll();
-
-  //   filterValue = filterValue.trim().toLowerCase();
-  //   console.log("FILTER VALUE =", filterValue);
-  //   let arr: any[] = [];
-  //   let treeFiltrato: any[] = [];
-  //   let treeClone: any;
-  //   const dataClone = _.cloneDeep(this.dataAllNodesTree);
-  //   if(this.treeControl.dataNodes) {
-  //     if(this.treeControl.dataNodes.length > 0) {
-  //       treeFiltrato = this.treeControl.dataNodes.filter((item: any) => {
-  //         if(typeof item.name === "object") {
-
-  //           return item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue);
-  //         }
-  //         // console.log("============================================");
-  //         // console.log("============================================");
-  //         // console.log("ITEM APPLY FILTER =", item);
-  //         // console.log("ITEM TYPE =", typeof item);
-  //         // console.log("ITEM.NAME =", item.name);
-  //         // console.log("ITEM.NAME TYPE =", typeof item.name);
-  //         // console.log("============================================");
-  //         // console.log("============================================");
-  //         // if(typeof item.name === "object") {
-  //         //   console.log("INCLUDES NAME FILTER VALUE =", item.name.title.toLowerCase().includes(filterValue));
-  //         //   if(item.name.title.toLowerCase().includes(filterValue) || item.name.institution.toLowerCase().includes(filterValue)) {
-  //         //     // arr.push(item);
-  //         //     // console.log("ARR =", arr);
-  //         //     //return arr;
-  //         //   }
-  //         //   // return arr
-
-  //         // }
-
-
-  //       })
-  //       // console.log("TREE FILTRATO =", treeFiltrato);
-
-  //     }
-  //     const numeri = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  //     const numeriFiltrati = numeri.filter((item: any) => {
-  //       return item > 5;
-  //     });
-  //     // console.log("NUMERI FILTRATI =", numeriFiltrati);
-  //     treeClone = _.cloneDeep(this.treeControl);
-  //     treeClone.dataNodes = treeFiltrato;
-
-  //   }
-
-  // //  dataClone = _.cloneDeep(this.dataAllNodesTree);
-  //  console.log("TREE CONTROL =", this.treeControl);
-  //  //  console.log("ARR =", arr);
-  //  if(!filterValue) {
-  //   console.log("COLLAPSE");
-
-  //   // this.treeControl.collapseAll();
-  //   // this.dataAllNodesTree = dataClone;
-  //   return this.dataAllNodesTree.data;
-  //   //  this.dataAllNodesTree.data = arr;
-  //   // this.dataAllNodesTree.data = treeFiltrato
-  //   // return this.dataAllNodesTree.data;
-  // }
-  // else {
-  //   console.log("EXPAND");
-  //   // this.treeControl.dataNodes.forEach(tree => {
-  //     //   treeFiltrato.forEach(f => {
-  //       //     if(tree === f) {
-  //   //       tree = f;
-
-  //   //     }
-  //   //   });
-  //   // });
-  //   this.dataAllNodesTree.data = treeFiltrato;
-  //   // this.treeControl.expandAll();
-  //   // this.treeControl.dataNodes = treeFiltrato;
-  //   console.log("DATA ALL NODES TREE =", this.dataAllNodesTree.data);
-  //   this.dataAllNodesTree.data.forEach(element => {
-  //     this.treeControl.dataNodes.forEach(tree => {
-  //       if(element.name === tree.name) {
-  //         if(tree.expandable === true) {
-  //           this.treeControl.expand(tree);
-  //         }
-  //       }
-
-  //     });
-  //     // this.treeControl.expand(element)
-  //   });
-  //   return this.dataAllNodesTree.data;
-  //   // return this.treeControl.dataNodes
-  //     // this.treeControl.dataNodes.forEach(element => {
-
-  //     // });
-  //     // this.dataAllNodesTree.data = arr;
-  //     // this.dataAllNodesTree.data
-  //     // return this.dataAllNodesTree.data;
-  //   }
-
-  //   // this.treeControl.dataNodes = arr;
-  //   // return this.dataAllNodesTree.data
-
-
-  // }
+ 
   /**
    * Funzione che controlla quale bottone è stato cliccato aprendo e chiudendo il menu corrispondente
    */
@@ -3222,7 +2851,6 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
    * Funzione che carica il layer corrispondente sulla mappa alla selezione di un dataset
    */
   selDatasetProva(node: any) {
-    // console.log("NODE PROVA NUOVO MENU =", node);
     let obj = {
       name: node
     }

@@ -22,15 +22,12 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
   success: boolean;
   datasetName: any;
   openGraph: any;
-  // valueMinColor: any = "#f44336";
   valueMinColor: any;
   valueMinMidColor: any;
   valueMidMaxColor: any;
   valueMidColor: any;
   valueMaxColor: any;
   sameColor: any;
-  // valueMidColor: any = "#9c27b0";
-  // valueMaxColor: any = "#3f51b5";
   form!: FormGroup;
 
   constructor(
@@ -75,16 +72,16 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
   }
 
   /**
-   * FUNZIONE CHE RIPRISTINA I COLORI DI DEFAULT DELLA LEGENDA
-   */
+ * Reset legend colors to their default values
+ */
   restoreDefault(){
     this.spinnerLoader.spinnerShow = true;
     this.dialogRef.close("restoreDefault");
   }
 
-  /**
-   * FUNZIONE CHE AGGIORNA I COLORI DELLA LEGENDA SULLA BASE DELLA SELEZIONE DELL'UTENTE
-   */
+/**
+ * Update legend colors based on user selection
+ */
   updateColors(){
     this.spinnerLoader.spinnerShow = true;
 
@@ -100,7 +97,6 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       localStorage.setItem(this.datasetName,JSON.stringify(this.form.value));
     }catch(error:any){
       if(error instanceof DOMException && error.name === 'QuotaExceededError'){
-        //localstorage è pieno
         let firstKey = localStorage.key(0);
         if(firstKey) {
           localStorage.removeItem(firstKey);
@@ -110,14 +106,11 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       }
 
     }
-
-    //i colori nuovi ci sono, ora bisogna aggiornare la legenda e la mappa
-    //step 1: aggiornare la legenda
     this.dialogRef.close(this.form.value);
   }
 
   /**
-   * Funzione che ritorna il colore intermedio passandogli due colori
+   * Return the intermediate color given two colors
    */
   mixColors(color1: string, color2: string): string {
     // Convert hexadecimal color strings to RGB values
