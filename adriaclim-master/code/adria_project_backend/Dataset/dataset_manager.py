@@ -54,12 +54,12 @@ def save_node_to_db(node_id: str, defaults: Dict[str, Any]) -> None:
 
 
 def process_dataset_row(row: Dict[str, Any]) -> None:
-    # Estrae i metadati associati al dataset
+    # Extract metadata associated with the dataset
     metadata = process_metadata(row["Info"])
     if not metadata:
         return
 
-    # Inizializzazione delle variabili di supporto
+    # Initialize helper variables
     adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = None
     institution = "UNKNOWN"
     time_start = time_end = ""
@@ -70,25 +70,25 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
     node_id = row["DatasetID"]
     griddap_url = row["griddap"]
 
-    # Ciclo su ciascun riga dei metadati
+    # Iterate over each metadata row
     for meta_row in metadata:
         row_type = meta_row["RowType"]
         var_name = meta_row["VariableName"]
         attr_name = meta_row["AttributeName"]
         attr_value = meta_row["Value"]
 
-        # Conteggio delle dimensioni e costruzione stringa nomi dimensioni
+        # Count dimensions and build dimension name string
         if row_type == "dimension":
             dimensions += 1
             dimension_names += f"{var_name} "
 
-        # Conteggio variabili e tipologie
+        # Count variables and types
         if row_type == "variable":
             variables += 1
             variable_names += f"{var_name} "
             variable_types += f"{meta_row['DataType']} "
 
-        # Estrazione metadati personalizzati AdriaClim e metadati globali
+        # Extract AdriaClim custom metadata and global metadata
         if attr_name == "adriaclim_dataset":
             adriaclim_dataset = attr_value
         elif attr_name == "adriaclim_model":
@@ -114,7 +114,7 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
         elif attr_name == "geospatial_lon_max":
             lng_max = attr_value
 
-        # Estrazione range e passo parametri da griddap
+       # Extract range and step parameters from griddap
         if griddap_url:
             if attr_name == "actual_range" and var_name not in ["time", "latitude", "longitude"]:
                 try:
@@ -122,16 +122,15 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
                     param_min = float(parts[0])
                     param_max = float(parts[1].strip())
                 except Exception:
-                    pass  # Range non valido o malformato
+                    pass  # Invalid or malformed range
             elif row_type == "dimension" and var_name not in ["time", "Times", "latitude", "longitude"]:
                 try:
                     spacing = attr_value
                     average_spacing_others = spacing.split(",")[2]
                     param_step = abs(float(average_spacing_others.split("=")[1]))
                 except Exception:
-                    pass  # Nessuno spacing calcolabile
+                    pass  # Unable to compute spacing
 
-    # Se presenti time_start e time_end, si salva il dataset nel DB
     if time_start and time_end:
         defaults = {
             "adriaclim_dataset": adriaclim_dataset,
@@ -161,7 +160,6 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
             "wms_url": row["wms"],
         }
 
-        # Salvataggio nodo nel database
         save_node_to_db(node_id, defaults)
 
 
@@ -312,7 +310,6 @@ def getAllDatasets():
                     except Exception:
                         pass
 
-        # Inferenze automatiche
         is_indicator = re.search("indicator", row["Title"], re.IGNORECASE)
         if is_indicator and adriaclim_scale is None:
             adriaclim_scale = "large"
@@ -338,7 +335,7 @@ def getAllDatasets():
             else:
                 adriaclim_timeperiod = "UNKNOWN"
         
-        # Escludi SOLO dataset selezionati
+        # Exclude ONLY selected datasets
         PERIODI_DA_ESCLUDERE = ["6h", "3h", "1min", "hourly"]
 
         if adriaclim_timeperiod and adriaclim_timeperiod.lower() in PERIODI_DA_ESCLUDERE:

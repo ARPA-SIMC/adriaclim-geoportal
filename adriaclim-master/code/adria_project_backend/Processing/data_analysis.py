@@ -26,7 +26,7 @@ def aggregateGraphicValues(vals, operation):
     if not vals:
         return None
 
-    vals_sorted = sorted(vals)  # Ordinamento necessario per percentili e mediana
+    vals_sorted = sorted(vals)  # Sorting required for percentiles and median
 
     if operation == "mediana":
         return np.median(vals_sorted)
@@ -53,7 +53,7 @@ def percentileFunction(array, perc):
     :param perc: Percentile da calcolare (0-100)
     :return: Valore del percentile
     """
-    array_sorted = sorted(array)  # Ordinamento necessario
+    array_sorted = sorted(array)  # Sorting required
     k = (len(array_sorted) - 1) * perc / 100
     f = int(k)
     c = min(f + 1, len(array_sorted) - 1)
@@ -61,7 +61,7 @@ def percentileFunction(array, perc):
     if f == c:
         return array_sorted[int(k)]
 
-    # Interpolazione lineare tra i due punti vicini
+    # Linear interpolation between the two nearest points
     d0 = array_sorted[f] * (c - k)
     d1 = array_sorted[c] * (k - f)
     return d0 + d1
@@ -93,7 +93,7 @@ def subtract_mean_trend(dates, values, timeperiod):
     else:
         raise ValueError(f"Invalid timeperiod: {timeperiod}")
 
-    # Calcolo della media per periodo e sottrazione
+    # Compute the mean per period and subtract it
     df["mean_timeperiod"] = df.groupby(groupby_col)["value"].transform("mean")
     df["value"] -= df["mean_timeperiod"]
 
@@ -113,18 +113,18 @@ def calculate_trend(dates, values, **kwargs):
     try:
         y = np.array(values)
 
-        # Rimozione trend stagionale, se specificato
+        # Remove seasonal trend, if specified
         if kwargs.get("timeperiod") and kwargs["timeperiod"] != "yearly":
             y = subtract_mean_trend(dates, y, kwargs["timeperiod"])
 
-        # Conversione date a timestamp
+        # Convert dates to timestamps
         dates = check_dates_format_trend(dates)
         days = np.array([d.timestamp() for d in dates])
 
-        # Regressione lineare tra giorni e valori
+        # Linear regression between days and values
         slope, _, _, _, _ = stats.linregress(days, y)
 
-        # Ritorna la variazione per anno (slope giornaliera * secondi in un anno)
+        # Return the yearly change (daily slope * seconds in one year)
         return slope * 86400 * 365.25
 
     except Exception as e:
@@ -172,7 +172,7 @@ def packageGraphData(allData, **kwargs):
 
         if kwargs.get("operation") == "default":
             try:
-                # Calcolo statistiche solo se richiesto
+                # Compute statistics only if requested
                 data.update({
                     "mean": mean(values),
                     "median": median(values),
@@ -188,7 +188,7 @@ def packageGraphData(allData, **kwargs):
                 else:
                     logger.error(f"Errore nel calcolo delle statistiche: {e}")
 
-        # Output CSV se richiesto
+        # Output CSV if requested
         if kwargs.get("output") == "csv":
             csv_output = "Date,Dataset,Latitude,Longitude,Value\n"
             csv_output += "\n".join(
@@ -197,7 +197,7 @@ def packageGraphData(allData, **kwargs):
             )
             return csv_output
 
-        # Output JSON per visualizzazione grafica
+        # Output JSON for chart visualization
         for n in range(len(values)):
             entry = {"x": dates[n], "y": values[n]}
             data.setdefault(layerName[n], []).append(entry)
@@ -228,9 +228,9 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
         pattern = re.compile(r"\d{4}-(\d{2})-\S*")
         months = [f"{i:02}" for i in range(1, 13)]
         for mon in months:
-            # Crea una data fittizia per l'output
+            # Create a dummy date for the output
             dat = f"0000-{mon}-01T00:00:00Z"
-            # Estrae i valori del mese corrente
+            # Extract values for the current month
             vals = [
                 v for n, v in enumerate(values)
                 if pattern.match(dates[n]) and pattern.match(dates[n]).group(1) == mon
@@ -255,7 +255,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
     :return: Lista di dizionari pronti per la visualizzazione
     """
     try:
-        # Mappa delle statistiche supportate
+        # Supported statistics map
         ops = {
             "avg": "mean",
             "min": "min",
@@ -280,9 +280,9 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
             groupby_col = df_polygon["season"]
         else:
             df_polygon["day_month"] = df_polygon["date_value"].dt.strftime('%m-%d')
-            groupby_col = df_polygon["date_month"]  # ← attenzione: 'date_month' deve esistere già
+            groupby_col = df_polygon["date_month"]  # ← Warning: 'date_month' must already exist
 
-        # Determina le funzioni di aggregazione
+        # Determine aggregation functions
         if ops[statistic] == "min_mean_max":
             agg_func = ["min", "mean", "max"]
         elif ops[statistic] == "min_10thPerc_median_90thPerc_max":
@@ -293,7 +293,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         res_values = df_polygon.groupby(groupby_col)["value_0"].agg(agg_func)
         df_polygon = df_polygon.drop_duplicates(subset=["date_value"], keep="first")
 
-        # Prepara lista di etichette temporali
+        # Prepare list of time labels
         if time_op == "default":
             list_time = list(res_values.index.strftime('%Y-%m-%dT%H:%M:%SZ'))
         elif time_op == "annualMonth":
@@ -303,7 +303,7 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         elif time_op == "annualSeason":
             list_time = [seasons[index] for index in res_values.index.tolist()]
 
-        # Costruzione della lista finale di dati
+        # Build final data list
         data_pol_list = []
         if ops[statistic] == "min_mean_max":
             for i in range(len(list_time)):
@@ -386,8 +386,8 @@ def getDataVectorial(
             value_min = min(values)
             value_max = max(values)
         else:
-            value_min = 0.0 # valore predefinito se non ci sono valori validi
-            value_max = 0.0 # valore predefinito se non ci sono valori validi
+            value_min = 0.0 # Default value if no valid values are available
+            value_max = 0.0 # Default value if no valid values are available
             
         allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
 

@@ -57,7 +57,7 @@ def getMetadataTime1(dataset_id: str) -> List[Any]:
             names=["Row Type", "Variable Name", "Attribute Name", "Data Type", "Value"],
         ).fillna("nan")
 
-        # Inizializzazione variabili
+        # Initialize variables
         variable_meta = title_meta = layer_name = values_time = attribution_layer = ""
         values_others = average_spacing_others = positive_negative = ""
         latitude_range = longitude_range = ""

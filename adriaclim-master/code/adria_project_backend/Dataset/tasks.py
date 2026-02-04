@@ -91,7 +91,7 @@ def task_get_data_polygon(self,request_data):
     
         shapely.speedups.enable()
         pol_vertices_str = str(vertices[0][0]).replace(" ", "")
-        key_cached = dataset_id + "_" + pol_vertices_str #chiave della cache!
+        key_cached = dataset_id + "_" + pol_vertices_str # Cache key
         current = 10
         total = 100
         self.update_state(state='PROGRESS',
@@ -127,7 +127,7 @@ def task_get_data_polygon(self,request_data):
             polygons = Polygon.objects.filter(
                 Q(dataset_id=dataset_id) & Q(coordinate__within=(geos_polygon)))
             if polygons.exists():
-                 # qui siamo nel caso in cui è presente il poligono con quel dataset id e con i punti nel poligono selezionato!
+                 # Here we are in the case where the polygon exists for this dataset ID and contains points within the selected polygon
                 try:
                     current = 80
                     self.update_state(state='PROGRESS',
@@ -135,8 +135,8 @@ def task_get_data_polygon(self,request_data):
                     allData = {}
                     data_table_list = []
                     for pol in polygons:
-                        #checkare se quel determinato punto del dataset sta nel poligono selezionato
-                        #sta nel poligono selezionato 
+                        # Check whether this dataset point is inside the selected polygon
+                        # Inside the selected polygon 
                         data_table = {}
                         data_table["time"] = pol.date_value
                         data_table["latitude"] = pol.latitude
@@ -148,7 +148,7 @@ def task_get_data_polygon(self,request_data):
                         data_table_list.append(data_table)
                     allData[
                         "dataTable"
-                    ] = data_table_list  # così abbiamo la tabella, ora ci serve il grafico.....
+                    ] = data_table_list  
 
                     df_polygon_model = pd.DataFrame(
                         [
@@ -168,7 +168,7 @@ def task_get_data_polygon(self,request_data):
                         date_value_to_list = date_value_to_list.drop_duplicates(subset="date_value",keep="first")
                         date_value_to_list["date_value"] = pd.to_datetime(date_value_to_list["date_value"])
 
-                        # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                        # Apply the operation based on the values of operation and time_op
                         df_polygon_model["date_value"] = pd.to_datetime(df_polygon_model["date_value"])
 
                         pol_from_db_values = df_polygon_model["value_0"].tolist()
@@ -193,7 +193,7 @@ def task_get_data_polygon(self,request_data):
                         allData["stdev"] = std_dev
                         allData["trend_yr"] = trend_value
                     
-                    cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #lo setta nella cache per 12 ore
+                    cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) # Store it in the cache for 12 hours
                     allData["dataPol"] = operation_before_after_cache(
                         df_polygon_model, statistic, time_op
                     )
@@ -205,9 +205,8 @@ def task_get_data_polygon(self,request_data):
                     return str(e)
 
             else:
-                # Definisci i limiti del poligono
-                # caso di circle coords
-
+              # Define polygon bounds
+              # Circle coordinates case
                 xmin, ymin, xmax, ymax = shapely_polygon.bounds
                 circ = shapely_polygon.length
                 area = shapely_polygon.area
@@ -217,17 +216,17 @@ def task_get_data_polygon(self,request_data):
                     step = 0.2
                 else:
                     step = 0.1
-                # Salva tutte le coordinate dei punti interni al poligono
+                # Save all coordinates of points inside the polygon
                 points_inside_polygon = []
                 try:
                     if len(circle_coords) > 0:
-                        #si tratta del caso senza wms!
+                        # This is the case without WMS
                         for coord in circle_coords:
                             point = ShapelyPoint(coord["lat"], coord["lng"])
                             if point.within(shapely_polygon):
                                 points_inside_polygon.append((coord["lat"], coord["lng"]))
                     else:
-                        #caso con wms!
+                        # Case with WMS
                         for x in range(int(xmin / step), int(xmax / step)):
                             for y in range(int(ymin / step), int(ymax / step)):
                                 point = ShapelyPoint(x * step, y * step)
@@ -236,13 +235,13 @@ def task_get_data_polygon(self,request_data):
                 except Exception as coord:
                     return str(coord)
 
-                # Visualizza le coordinate dei punti all'interno del poligono
+                # Display the coordinates of points inside the polygon
                 current = 20
                 self.update_state(state='PROGRESS',
                             meta={'current': current, 'total': total})
                 df_polygon = pd.DataFrame(columns=["date_value", "lat_lng", "value_0"])
                 points_len = len(points_inside_polygon)
-                eight_length = points_len // 8 #25 0.125 40 silvio
+                eight_length = points_len // 8 #25 0.125 40
                 six_length = points_len // 6 #30 #0.166 45
                 two_eight_len = 2 * points_len // 8 #35 0.25 50
                 two_six_len = 2 * points_len // 6 #40 0.33 55
@@ -264,13 +263,13 @@ def task_get_data_polygon(self,request_data):
                                     meta={'current': current, 'total': total})
                         
                     if index == six_length:
-                        #è ad un sesto
+                        # It is at one-sixth
                         current = 45
                         self.update_state(state='PROGRESS',
                                     meta={'current': current, 'total': total})
                         
                     if index == two_eight_len:
-                        #è ad un sesto
+                        # It is at two-eighths (i.e., one-fourth)
                         current = 50
                         self.update_state(state='PROGRESS',
                                     meta={'current': current, 'total': total})
@@ -386,7 +385,7 @@ def task_get_data_polygon(self,request_data):
                                     )
                                     dataTable.append(dat_tab)
                                     if not pd.isna(row[layer_name]):
-                                        #non è nan, lo inserisco
+                                        # Not NaN, insert it
                                         df_polygon.loc[i] = [
                                             row["time"],
                                             "(" + row["latitude"] + "," + row["longitude"] + ")",
@@ -467,17 +466,16 @@ def task_get_data_polygon(self,request_data):
                     
                     df_polygon["value_0"] = pd.to_numeric(df_polygon["value_0"])
                     allData["dataBeforeOp"] = df_polygon.to_dict(orient="records")
-                    #calcolare la media di tutti i valori raggruppati per data
-                    # date_value_to_list = df_polygon["date_value"].tolist()
-                
-                    # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                    # Compute the mean of all values grouped by date
+
+                    # Apply the operation based on the values of operation and time_op
                     if time_op == "default":
                         date_value_to_list = df_polygon.copy()
                         date_value_to_list = date_value_to_list.drop_duplicates(subset="date_value",keep="first")
                         date_value_to_list["date_value"] = pd.to_datetime(date_value_to_list["date_value"])
 
                     
-                        # a seconda del valore di operation e di time_op viene fatta l'operazione7
+                        # Apply the operation based on the values of operation and time_op
                         df_polygon["date_value"] = pd.to_datetime(df_polygon["date_value"])
                         pol_values = df_polygon["value_0"].tolist()
                         trend_value_mean = df_polygon.groupby("date_value")["value_0"].mean().tolist()
@@ -513,11 +511,8 @@ def task_get_data_polygon(self,request_data):
                         data_table_list.append(data_table)
 
                     allData["dataTable"] = data_table_list
-                    # Mi setto la cache prima di fare l'operazione richiesta ma con tutte le date e tutti i valori!
-                    cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) #12 ore di cache
-                    # current = 85
-                    # self.update_state(state='PROGRESS',
-                    #         meta={'current': current, 'total': total})
+                    # Set the cache before performing the requested operation, using all dates and values
+                    cache.set(key=key_cached,value=json.dumps(allData),timeout=43200) # 12-hour cache
                     allData["dataPol"] = operation_before_after_cache(
                         df_polygon, statistic, time_op
                     )

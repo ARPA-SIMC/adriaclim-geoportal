@@ -15,9 +15,8 @@ import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
 })
 export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   private isLoading = false;
-  private suppressProgress = false; // disattiva barra/spinner per l’update corrente
+  private suppressProgress = false; // Disable spinner for current update
 
-  // isLoading!: boolean;
   @Input() isUpdate: boolean = false;
   @Input() idMeta: any;
   @Input() dataset: any;
@@ -50,8 +49,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   myChart: any;
   dateGraphZoom: any[] = [];
   valueGraphZoom: any[] = [];
-  // startValue: any;
-  // endValue: any =  (document.getElementById('main') as HTMLDivElement).getEchartsInstance().getOption().dataZoom[0]
   months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   seasons: any = {
     0: "Winter",
@@ -88,10 +85,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   optionBoxPlot: any = {
     title: [
-      // {
-      //   // text: 'Michelson-Morley Experiment',
-      //   left: 'center'
-      // },
       {
         text: 'upper: Q3 + 1.5 * IQR \nlower: Q1 - 1.5 * IQR',
         borderColor: '#999',
@@ -257,10 +250,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       } else {
         this.getDataGraph();
       }
-      return; // NON azzerare qui isUpdate nel figlio
+      return; // DO NOT reset isUpdate here in the child
     }
 
-    // CARICAMENTO NORMALE: consentiamo barra/spinner
+    // NORMAL LOAD: allow loading bar/spinner
     this.suppressProgress = false;
     if (this.polygon) {
       this.firstSpinner();
@@ -276,11 +269,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnInit() {
     console.log("INZIO CANVAS GRAPH")
     this.isLoading = true;
-
-    // EChartsOption, graphic
-    // this.getDataGraph();
-    // this.getDataGraphPolygon();
-
     for (let i = 0, sum = 0; i < this.dataBoxPlot.length; ++i) {
       if (this.dataBoxPlot[i] >= 0) {
         this.positive.push(this.dataBoxPlot[i]);
@@ -294,30 +282,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // this.myChart = echarts.init(document.getElementById('main') as HTMLDivElement);
     this.myChart = echarts.init(this.parentRef.nativeElement);
 
   }
 
-  // zoomGraphOn(startValue: any, endValue: any) {
-  //change the value of the graph
-  // console.log("zoom start =", startValue);
-  // console.log("zoom end =", endValue);
-
-  // }
-
-  // zoomGraph(startValue: any, endValue: any) {
-  //change the value of the graph
-  // setTimeout(() => {
-  // console.log("zoom start =", startValue);
-  // console.log("zoom end =", endValue);
-
-  // }, 1000);
-  // }
-
   /**
-   * Funzione che permette di formattare i numeri visualizzabili con un massimo di 2 cifre decimali
-   */
+ * Format numbers for display with a maximum of 2 decimal places
+ */
   formatNumber(number: any) {
     const decimalCount = (number.toString().split('.')[1] || '').length;
 
@@ -329,41 +300,31 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * Funzione che permette di formattare la data da visualizzare sulla base dell'operazione selezionata
-   */
+ * Format the display date based on the selected operation
+ */
   formatDate(d: any) {
     if (this.operation !== "annualDay") {
-      //console.log("d",d);
       d = new Date(d);
-      // console.log("!= annualDay", d);
-
     }
     if (this.operation === "annualMonth") {
-      //console.log("=== annualMonth");
-
       return this.months[d.getMonth()];
     }
     else if (this.operation === "annualDay") {
-      //console.log("=== annualDay");
-
       return d;
     }
     else if (this.operation === "annualSeason") {
-      // console.log("this.season",d);
       return this.seasons[d.getMonth()];
     }
     else {
       let month = d.getMonth() + 1
       let day = d.getDate()
       let year = d.getFullYear()
-      // console.log("Entro qui!!")
-      // console.log(day + "/" + month + "/" + year);
       return day + "/" + month + "/" + year;
     }
   }
 
   getDataGraphPolygonInterval() {
-    // chiusura poligono se serve
+    // Close polygon if needed
     if (this.polygon && this.polygon.length >= 3) {
       const first = this.polygon[0];
       const last = this.polygon[this.polygon.length - 1];
@@ -386,7 +347,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     console.log("DATA IF POLYGON =", data);
 
-    // controllo boxPlot
+    // Check boxPlot
     if (this.statistic !== "boxPlot") {
       if (this.isLoading) {
         console.log("Caricamento già in corso, ignoro nuova richiesta");
@@ -394,7 +355,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
       this.isLoading = true;
 
-      // solo se NON è update → mostra spinner + barra
+      // Show spinner and loading bar only if NOT an update
       if (!this.isUpdate) {
         this.firstSpinner();
         if (this.context === "one") {
@@ -403,7 +364,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           this.chartAlreadyLoaded = true;
         }
       } else {
-        // update → solo spinner
+        // Update → spinner only
         this.spinnerLoadingChild.emit(true);
         this.spinnerService.spinnerShow = true;
       }
@@ -481,7 +442,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       });
     }
 
-    // --- Ramo BoxPlot aggiornato ---
+    // --- Updated BoxPlot branch ---
     else {
       if (this.isLoading) {
         console.log("Caricamento già in corso, ignoro nuova richiesta");
@@ -490,7 +451,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.isLoading = true;
 
       if (!this.isUpdate) {
-      // mostra spinner solo per boxPlot
+      // Show spinner only for boxPlot
       if (this.statistic === 'boxPlot') {
         this.firstSpinner();
         console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
@@ -517,12 +478,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 const task_status = res?.dataVect?.status;
                 const result = res?.dataVect?.result;
 
-                // Stop polling appena finisce
+                // Stop polling as soon as it finishes
                 if (task_status === 'SUCCESS') {
                   clearInterval(this.taskStatusInterval);
                   this.taskStatusInterval = null;
 
-                  // spegni sempre lo spinner
+                  // Always turn off the spinner
                   if (!this.isUpdate) {
                     this.fakeProgressStop.emit();
                   } else {
@@ -577,7 +538,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
                   this.isLoading = false;
 
-                  // --- FIX: forza spegnimento spinner dopo 1s per sicurezza ---
+                  // --- FIX: force spinner shutdown after 1s for safety ---
                   setTimeout(() => {
                     if (!this.isUpdate) {
                       this.fakeProgressStop.emit();
@@ -605,7 +566,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                   this.isLoading = false;
                 }
 
-                // se PROGRESS → continua il polling
+                // If PROGRESS → continue polling
                 },
                 error: (err: any) => {
                   clearInterval(this.taskStatusInterval);
@@ -626,8 +587,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 },
                 error: (err: any) => {
                   console.error("Errore boxPlot:", err);
-
-                  // spegni comunque lo spinner se fallisce la prima POST
+                  // Turn off the spinner anyway if the first POST fails
                   if (!this.isUpdate) {
                     this.fakeProgressStop.emit();
                   } else {
@@ -642,8 +602,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
 
   /**
-   * Funzione che permette di mostrare il grafico del poligono
-   */
+ * Display the polygon chart
+ */
   getDataGraphPolygon(response: any) {
 
     console.log("VERA RES PER POLIGONO", response);
@@ -890,48 +850,29 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     }
 
-    // let dataBeforeOp = allDataPolygon["dataBeforeOp"] //abbiamo tutte le date e i valori
-    // let dataBeforeOp = _.cloneDeep([...allDataPolygon["dataBeforeOp"]]) //abbiamo tutte le date e i valori
-    // console.log("allDataPolygon VERA E PROPRIA", allDataPolygon);
-    // let dataPolygonDeep = _.cloneDeep([...allDataPolygon["dataPol"]]);
     let dataInGraph = _.cloneDeep([...this.allDataPolygon["dataPol"]]);
-    let allDates = _.cloneDeep([...dataInGraph]) //qui ci sono tutte le date, se le filtriamo e leviamo i duplicati avremo solo
+    let allDates = _.cloneDeep([...dataInGraph]);
 
     allDates = dataInGraph.map((el: any) => {
       return el.x;
     })
 
-    // console.log("Before set=========",allDates);
-    allDates = [...new Set(allDates)]; //abbiamo solo le date 20!
-    // console.log("AllDates======",allDates);
-    //se di queste usiamo lo zoom e prendiamo le date che stanno nello zoom effettuato
-    //this.zoomFunctionGraph(allDates, dataBeforeOp);
+    allDates = [...new Set(allDates)]; 
     this.myChart.on('dataZoom', () => {
       let option = this.myChart.getOption();
-      // console.log("OPTIONSSSSSS =", option);
       this.startZoom = option.dataZoom[0].startValue;
       this.endZoom = option.dataZoom[0].endValue;
-      // console.log("startZoom", this.startZoom, typeof this.startZoom);
-      // console.log("endZoom", this.endZoom, typeof this.endZoom);
-
       let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom], allDates[this.endZoom]));
-      // console.log("arrayDate", arrayDate);
-
       this.zoomFunctionGraph(arrayDate, dataInGraph);
 
     });
-    // this.meanMedianStdev.emit(this.dataRes.allData.mean+"_"+this.dataRes.allData.median+"_"+this.dataRes.allData.stdev+"_"+this.dataRes.allData.trend_yr);
-    // console.log("allDataPolygon", allDataPolygon);
 
-    // this.meanMedianStdev.emit(allDataPolygon.mean+"_"+allDataPolygon.median+"_"+allDataPolygon.stdev+"_"+allDataPolygon.trend_yr);
     let arrayDataDate = this.allDataPolygon.dataPol.map((el: any) => {
       return el["x"]
     });
-    // arrayDataDate = [...new Set(arrayDataDate)];
     let arrayDataValue = this.allDataPolygon.dataPol.map((el: any) => {
       return el["y"]
     });
-    // arrayDataValue = [...new Set(arrayDataValue)];
     this.statisticCalc.emit({
       dates: arrayDataDate,
       values: arrayDataValue
@@ -945,7 +886,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       max: Math.max(...value).toFixed(0)
     }
     if (this.statistic === "min_mean_max" || this.statistic === "min_10thPerc_median_90thPerc_max") {
-      //caso di min_mean_max o min_10thPerc..., una linea per ogni statistica
 
       let allStats = Object.keys(this.allDataPolygon.dataPol[0]);
       allStats = allStats.filter((stat: any) => stat !== "x");
@@ -958,8 +898,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
       });
       let prova = this.allDataPolygon.dataPol.map((element: any) => element.x);
-
-      // let statsName = this.statistic.split("_");
       this.chartOption = {
 
         xAxis: {
@@ -967,10 +905,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           boundaryGap: false,
           data: this.allDataPolygon.dataPol.map((element: any) => {
             let elDate = new Date(element.x).toLocaleDateString();
-            // console.log("element.x", element.x);
-
             if (elDate !== "Invalid Date") {
-              // console.log("elDate", elDate);
               return elDate;
             }
             else {
@@ -1050,7 +985,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             name: stat,
             type: 'line',
             stack: this.enableArea ? "counts" : "",
-            // stack: "",
             areaStyle: this.enableArea ? {} : undefined,
             smooth: false,
           }
@@ -1061,7 +995,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     else {
 
       this.allDataPolygon.dataPol.forEach((element: any) => {
-        // element.x = this.formatDate(element.x);
         element.y = Number(element.y);
       });
       let name = this.variable;
@@ -1072,12 +1005,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           type: 'category',
           boundaryGap: false,
           data: this.allDataPolygon.dataPol.map((element: any) => {
-
-            // console.log("element.x", element.x);
-
             let elDate = new Date(element.x).toLocaleDateString();
             if (elDate !== "Invalid Date") {
-              // console.log("elDate", elDate);
               return elDate;
             }
             else {
@@ -1105,8 +1034,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         tooltip: {
           trigger: 'axis',
           formatter: (paramsFormatter: any) => {
-            // console.log("PARAMS FORMATTER =", paramsFormatter);
-
             const tooltipHTML = paramsFormatter.map((param: any) => {
               let value: any = Number(param.value);
 
@@ -1180,9 +1107,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
 
-  /**
-   * Funzione che permette di filtrare i dati da mostrare sul grafico in base allo zoom effettuato
-   */
+ /**
+ * Filter chart data based on the current zoom level
+ */
   filterElement(min: any, max: any) {
     return function (a: any) {
       let p = a >= min && a <= max;
@@ -1191,32 +1118,27 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   /**
-   * Funzione che lancia un timout per progress bar di caricamento per chiamata backend
-   */
+ * Start a timeout for the loading progress bar during a backend call
+ */
   timeforProgressBar() {
     let addTime: number = 0;
-    const intervalValue = 5000; // Intervallo di 5 secondi
-
+    const intervalValue = 5000;
     this.timeoutProgressBar = interval(intervalValue).subscribe(() => {
-      addTime += 5; // Aggiungi 5 a addTime
+      addTime += 5; 
       this.progressBar.emit(addTime);
-
       if (addTime >= 95) {
-        this.timeoutProgressBar.unsubscribe(); // Ferma l'intervallo quando addTime raggiunge o supera 95
+        this.timeoutProgressBar.unsubscribe();
       }
     });
   }
 
   /**
-   * Funzione che gestisce i dati ricevuti per mostrare il grafico corrispondente
-   */
+ * Handle the received data to display the corresponding chart
+ */
   getDataGraph() {
-    // se unità "No", reset
     if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
-
-    // normalizza le date del dataset
     if (this.dataset.time_start && this.dataset.time_start.includes("T")) {
       const dateStart = new Date(this.dataset.time_start);
       this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1)
@@ -1253,8 +1175,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
     this.isLoading = true;
-
-    // punto → usavate la progress bar finta
     if (!this.isUpdate) {
       this.timeforProgressBar();
     } else {
@@ -1266,7 +1186,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       next: (response: any) => {
         console.log("[GRAPH] RESPONSE getDataGraph =", response);
 
-        // caso "fuoriWms"
+        // case "outWms"
         if (response.allData === "fuoriWms") {
           if (!this.isUpdate) {
             this.progressBarCanvas.emit(false);
@@ -1282,7 +1202,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           return;
         }
 
-        // caso errore testuale dal backend
+        // Backend textual error case
         if (typeof response === "string") {
           console.warn("[GRAPH] backend ha risposto con errore testuale:", response);
           if (!this.isUpdate) {
@@ -1300,7 +1220,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         this.dataRes = response;
 
-        // statistiche
+        // statistics
         this.meanMedianStdev.emit(
           this.dataRes.allData.mean +
           "_" + this.dataRes.allData.median +
@@ -1327,14 +1247,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         const seriesData = this.dataRes.allData[name];
 
-        // ordina per data
+        // Sort by date
         seriesData.sort((a: any, b: any) => {
           const da = new Date(a.x).getTime();
           const db = new Date(b.x).getTime();
           return da - db;
         });
 
-        // rileva se è annuale
+        // Detect whether it is annual
         const months = new Set<number>();
         const years = new Set<number>();
         seriesData.forEach((el: any) => {
@@ -1346,7 +1266,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         });
         const isPureAnnual = years.size > 1 && months.size === 1;
 
-        // normalizza
+        // normalize
         seriesData.forEach((element: any) => {
           element.date = element.x;
           element.y = Number(element.y);
@@ -1365,10 +1285,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         if (Array.isArray(seriesData) && seriesData.length === 1) {
           // Do NOT show mean/median/stdev/trend for single-point view
           this.meanMedianStdev.emit(null);
-
           const singleY = Number(seriesData[0].y);
           const singleX = seriesData[0].x; // already formatted later, but we can keep it simple
-
           this.chartOption = {
             xAxis: { type: 'category', data: [String(singleX)] },
             yAxis: {
@@ -1469,14 +1387,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         };
 
         this.dataTimeExport.emit(seriesData);
-
-        // QUI era il buco: spegniamo tutto anche nel flusso "punto"
         if (!this.isUpdate) {
           this.progressBarCanvas.emit(false);
           if (this.timeoutProgressBar) {
             this.timeoutProgressBar.unsubscribe();
           }
-          // aggiunta per il vostro spinner globale
           this.spinnerLoadingChild.emit(false);
           this.spinnerService.spinnerShow = false;
         } else {
@@ -1503,8 +1418,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   checkMinValue() {
-    // console.log("DATA RES = ", this.dataRes);
-
     let arrayOfValue: any;
     let min: any;
 

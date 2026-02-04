@@ -125,7 +125,7 @@ def getDataPolygonNew(
         dataframe = pd.DataFrame.from_dict(pol_from_cache["dataBeforeOp"]).dropna(how="any")
         dataframe["date_value"] = pd.to_datetime(dataframe["date_value"])
         pol_from_cache["dataPol"] = operation_before_after_cache(dataframe, statistic, time_op)
-        # --- FIX: gestisce statistiche multicolonna (boxPlot, min_10thPerc_median_90thPerc_max, ecc.)
+        # --- FIX: handle multi-column statistics (boxPlot, min_10thPerc_median_90thPerc_max, etc.)
         multi_stats = ("min_mean_max", "min_10thPerc_median_90thPerc_max")
         if statistic not in multi_stats:
             df = pd.DataFrame(pol_from_cache["dataPol"])
@@ -143,7 +143,7 @@ def getDataPolygonNew(
                 "trend_yr": trend_value,
             })
         else:
-            # per statistiche multicolonna evitiamo il calcolo di y
+            # For multi-column statistics, skip computing y
             pol_from_cache.update({
                 "mean": None,
                 "median": None,
@@ -220,7 +220,7 @@ def getDataPolygonNew(
             return str(e)
 
 
-    # --- DB AND CACHE MISS -> TENTATIVO BULK (single call) ---
+    # --- DB AND CACHE MISS -> BULK attempt (single call) ---
     logger.debug("DB AND CACHE MISS")
 
     try:
@@ -241,7 +241,7 @@ def getDataPolygonNew(
             lon_min_f, lon_max_f = lon_max_f, lon_min_f
         logger.debug("BBOX shapely (float) -> lat[%.6f, %.6f] lon[%.6f, %.6f]", lat_min_f, lat_max_f, lon_min_f, lon_max_f)
 
-        # 2) clamp SOLO per griddap (indicator == "false") via .das
+        # 2) # Clamp ONLY for griddap (indicator == "false") via .das
         def _get_axis_bounds_from_das(erddap_url: str, ds_id: str):
             try:
                 with urllib.request.urlopen(f"{erddap_url}/griddap/{ds_id}.das", timeout=8) as resp:
@@ -269,7 +269,7 @@ def getDataPolygonNew(
                 lon_max_f = min(lon_max_f, lon_hi)
             logger.debug("BBOX clampato (float) -> lat[%.6f, %.6f] lon[%.6f, %.6f]", lat_min_f, lat_max_f, lon_min_f, lon_max_f)
 
-        # 3) validazione area > 0 e conversione stringhe
+        # 3) Validate area > 0 and convert strings
         if lat_min_f >= lat_max_f or lon_min_f >= lon_max_f:
             raise ValueError("BBOX fuori dall'estensione del dataset dopo clamp")
 
@@ -279,7 +279,7 @@ def getDataPolygonNew(
         longMax = f"{lon_max_f:.4f}"
         logger.debug("BBOX finale -> lat[%s,%s] lon[%s,%s]", latMin, latMax, longMin, longMax)
 
-        # 4) costruzione URL (stride solo per griddap)
+        # 4) Build URL (stride only for griddap)
         if is_indicator == "true":
             bulk_url = url_is_indicator(
                 "true",
@@ -314,29 +314,29 @@ def getDataPolygonNew(
         logger.info("Provo BULK URL (bbox): %s", bulk_url)
         df_bulk = read_erddap_data(bulk_url)
 
-        # === BLOCCO BULK CLEAN + FILTRO GEOMETRICO ===
+        # === CLEAN BULK BLOCK + GEOMETRIC FILTER ===
 
         from shapely.geometry import Point, box as shapely_box
         import numpy as np
 
-        # Conversione colonne
+        # Convert columns
         df_bulk["latitude"] = pd.to_numeric(df_bulk["latitude"], errors="coerce")
         df_bulk["longitude"] = pd.to_numeric(df_bulk["longitude"], errors="coerce")
         df_bulk = df_bulk.dropna(subset=["latitude", "longitude"])
 
-        # Controllo colonne richieste (una sola volta qui)
+        # Check required columns (once, here)
         required_cols = {"time", "latitude", "longitude", layer_name}
         if df_bulk is None or df_bulk.empty or not required_cols.issubset(set(df_bulk.columns)):
             raise ValueError("Bulk ERDDAP empty/invalid schema")
 
-        # Bounding box del poligono
+        # Polygon bounding box
         xmin, ymin, xmax, ymax = shapely_polygon.bounds
 
-        # Punti unici (lat/lon) nel bulk
+        # Unique (lat/lon) points in the bulk
         unique_points = df_bulk[["latitude", "longitude"]].drop_duplicates()
         logger.warning(f"[DEBUG FILTER] → VALORI UNICI LAT/LON: {unique_points.to_dict('records')}")
 
-        # Inferenza passo griglia
+        # Infer grid step
         lat_uni = np.array(sorted(unique_points["latitude"].unique()))
         lon_uni = np.array(sorted(unique_points["longitude"].unique()))
 
@@ -351,7 +351,7 @@ def getDataPolygonNew(
         res_lat = _step(lat_uni) or 1.0
         res_lon = _step(lon_uni) or 1.0
 
-        # Mezzo passo + margine extra
+        # Half-step + extra margin
         pad_lat = res_lat / 2.0 + 0.25
         pad_lon = res_lon / 2.0 + 0.25
 
@@ -359,11 +359,11 @@ def getDataPolygonNew(
                     res_lat, res_lon, pad_lat, pad_lon)
 
         if len(unique_points) == 1:
-            # Dataset a singolo centro cella
+            # Single-cell-center dataset
             lat = float(unique_points.iloc[0]["latitude"])
             lon = float(unique_points.iloc[0]["longitude"])
 
-            # Cella stimata con risoluzione + margine
+            # Estimated cell with resolution + margin
             cell = shapely_box(lon - pad_lon, lat - pad_lat, lon + pad_lon, lat + pad_lat)
 
             if cell.intersects(shapely_polygon_inverse):
@@ -371,7 +371,7 @@ def getDataPolygonNew(
                 logger.warning("[DEBUG FILTER] Punto unico → cella (%.2fx%.2f + margine) interseca → uso BULK",
                             res_lat, res_lon)
             else:
-                # Forzatura: se i dati ci sono comunque → usali lo stesso
+                # Force usage: if data exists anyway, use it
                 if not df_bulk.empty:
                     df_bulk_filtered = df_bulk
                     logger.warning("[DEBUG FILTER] Punto unico → cella NON interseca, ma dati presenti → forzato uso BULK")
@@ -380,7 +380,7 @@ def getDataPolygonNew(
                     raise ValueError("bulk_filter_empty")
 
         else:
-            # Dataset grigliato: teniamo solo le celle che intersecano il poligono
+            # Gridded dataset: keep only cells intersecting the polygon
             keep = set()
             for lat, lon in unique_points.itertuples(index=False):
                 lat = float(lat); lon = float(lon)
@@ -392,7 +392,7 @@ def getDataPolygonNew(
                 raise ValueError("bulk_filter_empty")
 
 
-            # Filtra df ai soli (lat,lon) tenuti
+            # Filter dataframe to kept (lat, lon) only
             df_bulk["lat_lng_key"] = list(zip(df_bulk["latitude"].astype(float), df_bulk["longitude"].astype(float)))
             df_bulk_filtered = df_bulk[df_bulk["lat_lng_key"].isin(keep)].copy()
             df_bulk_filtered.drop(columns=["lat_lng_key"], inplace=True)
@@ -400,13 +400,10 @@ def getDataPolygonNew(
         logger.warning(f"[DEBUG FILTER] BULK post-filter shape: {df_bulk_filtered.shape}")
         df_bulk = df_bulk_filtered
 
+        # === END CLEAN BULK BLOCK + GEOMETRIC FILTER ===
 
 
-        # === FINE BLOCCO BULK CLEAN + FILTRO GEOMETRICO ===
-
-
-
-        # ===== BULK VETTORIALE (no loop, no DB, sanitize) =====
+        # ===== VECTOR BULK (no loop, no DB, sanitize) =====
         def _json_sanitize(obj):
             if isinstance(obj, dict):
                 return {k: _json_sanitize(v) for k, v in obj.items()}
@@ -418,7 +415,7 @@ def getDataPolygonNew(
                 return obj
             return obj
 
-        # 1) df lavoro
+        # 1) Working dataframe
         cols_base = ["time", "latitude", "longitude", layer_name]
         df_work = df_bulk[cols_base].copy()
         has_param_agg = (parametro_agg != "None") and (parametro_agg in df_bulk.columns)
@@ -462,7 +459,7 @@ def getDataPolygonNew(
                 "trend_yr": trend_value,
             })
 
-        # 4) dataTable (limita solo tabella per JSON pesanti)
+        # 4) dataTable (limit table only for heavy JSON payloads)
         df_table = df_work[["time", "latitude", "longitude", layer_name]].copy()
         df_table[layer_name] = df_table[layer_name].where(pd.notnull(df_table[layer_name]), "Value not defined")
         if has_param_agg:
@@ -477,7 +474,7 @@ def getDataPolygonNew(
 
         allData["dataTable"] = df_table.to_dict(orient="records")
 
-        # 5) dataPol + cache (con normalizzazione datetime prima dell'operazione)
+        # 5) dataPol + cache (with datetime normalization before the operation)
         df_for_op = df_polygon.copy()
         df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
 
@@ -493,7 +490,7 @@ def getDataPolygonNew(
     except Exception as e_bulk:
         logger.warning("BULK fallito: %s — procedo con fallback per-punto", e_bulk)
 
-    # ===== FALLBACK per-punto (codice originale) =====
+    # ===== Per-point fallback (original code) =====
 
     xmin, ymin, xmax, ymax = shapely_polygon.bounds
     circ = shapely_polygon.length
@@ -529,7 +526,7 @@ def getDataPolygonNew(
         try:
             logger.info("Inizio download per punto: %s", latlng)
 
-            start_time = time.time()  # tempo iniziale
+            start_time = time.time()  # Start time
 
             url = url_is_indicator(
                 is_indicator,
@@ -547,7 +544,7 @@ def getDataPolygonNew(
             )
             df = read_erddap_data(url)
 
-            end_time = time.time()  # tempo finale
+            end_time = time.time()  # End time
             elapsed_time = end_time - start_time
             total_elapsed_time += elapsed_time
 
@@ -663,7 +660,7 @@ def getDataPolygonNew(
         df_for_op["date_value"] = pd.to_datetime(df_for_op["date_value"], utc=True, errors="coerce").dt.tz_localize(None)
         allData["dataPol"] = operation_before_after_cache(df_for_op, statistic, time_op)
 
-        # Log finale sul DataFrame
+       # Final DataFrame log
         try:
             logger.warning("[DEBUG FINAL] df_bulk finale → shape: %s", df_bulk.shape)
             logger.warning("[DEBUG FINAL] df_bulk finale → valori:\n%s", df_bulk[[ "time", layer_name, "latitude", "longitude" ]].to_string(index=False))
@@ -675,7 +672,7 @@ def getDataPolygonNew(
         if not allData.get("dataPol") or not isinstance(allData["dataPol"], list) or len(allData["dataPol"]) == 0:
             logger.warning("[FIX] The data is not compliant → empty or invalid structure detected")
 
-            # Tentativo fallback automatico: ricomputa in modalità 'default'
+            # Automatic fallback attempt: recompute in 'default' mode
             try:
                 if time_op != "default":
                     logger.warning("[FIX] Retrying operation_before_after_cache with time_op='default'")
@@ -688,7 +685,7 @@ def getDataPolygonNew(
             except Exception as e:
                 logger.error("[FIX] Fallback default fallito: %s", e)
 
-            # Se anche il fallback fallisce
+            # If the fallback also fails
             return {"error": "data_not_compliant"}
         # --- END FIX ---
         return allData
@@ -866,7 +863,6 @@ def getDataGraphicGeneric(
 
 
 def check_dates_format_trend(dates):
-    #gestire tutti i possibili formati delle date per i trend!!!!!!!!!
     if type(dates[0]) is str:
         if dates[0].startswith("0000"):
                 #annual month by month point
@@ -875,7 +871,7 @@ def check_dates_format_trend(dates):
             except Exception as e: 
                 return 'Invalid date format: '+ str(e)
                 # dates = [dt.datetime.strptime(d.replace('0000',"2000"), "%Y-%m-%d") for d in dates]
-        elif len(dates[0].split("-")) == 2: #01-01 1 gennaio 2000-01-01
+        elif len(dates[0].split("-")) == 2: 
                  #annual day by day point
             for fmt in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%SZ', '%d/%m/%Y'):
                 try:
@@ -925,10 +921,10 @@ def subtract_mean_trend(dates,values,timeperiod):
         df_mean_trend["season"] = df_mean_trend["date"].apply(get_season)
         groupby_col = df_mean_trend["season"]
     
-    #raggrupparle a seconda della scala temporale del dataset e calcolarne la media
+    # Group them by the dataset time scale and compute the average
     df_mean_trend["mean_timeperiod"] = df_mean_trend.groupby(groupby_col)["value"].transform("mean")
 
-    #sottrarre ad ogni data di un mese o di una stagione o di un giorno il valore della media calcolato
+    # Subtract the computed mean from each date (month, season, or day)
     df_mean_trend["value"] = df_mean_trend["value"] - df_mean_trend["mean_timeperiod"]
 
     return df_mean_trend["value"].values

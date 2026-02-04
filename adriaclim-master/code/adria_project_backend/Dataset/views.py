@@ -45,15 +45,6 @@ def getDataTable(request,dataset_id,layer_name,time_start,time_finish,latitude,l
     out=[[row[h] for h in headers] for row in data]
     return HttpResponse(render(request,"getData.html",{"data":out,"headers":headers}))
 
-# @api_view(['GET','POST'])
-# def getAllNodes(request):
-#     try:
-#         nodes = Node.objects.all()
-#         nodes_list = [model_to_dict(node) for node in nodes]
-#         return JsonResponse({"nodes": nodes_list})
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)})
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 YAML_PATH = os.path.join(BASE_DIR, "indicator_definitions.yml")
 
@@ -106,12 +97,12 @@ def extract_keys_from_token(token: str):
     if t_norm:
         keys.append(t_norm)
 
-    # Spezza su underscore per catturare base + modifier (trend/anomaly/pvalue/...)
+    # Split on underscore to capture base + modifier (trend/anomaly/pvalue/...)
     parts = [p for p in t_norm.split("_") if p]
     for p in parts:
         keys.append(p)
 
-    # Dedup preservando ordine
+    # Deduplicate while preserving order
     out = []
     seen = set()
     for k in keys:
@@ -159,7 +150,7 @@ def getAllNodes(request):
 
             candidate_keys = []
             if primary_key:
-                candidate_keys.extend(extract_keys_from_token(primary_key))  # gestisce anomaly/trend/pvalue ecc.
+                candidate_keys.extend(extract_keys_from_token(primary_key))  # Handle anomaly/trend/pvalue, etc.
 
             for k in candidate_keys:
                 desc = get_desc_from_yaml(k)
@@ -179,12 +170,11 @@ def getAllNodes(request):
                         if desc and desc not in seen_desc:
                             seen_desc.add(desc)
                             found_desc.append(desc)
-                            break  # <-- STOP su questa variabile
-
-                    if found_desc:   # <-- STOP totale: una descrizione sola
+                            break  # <-- STOP on this variable
+                    if found_desc:   # <-- FULL STOP: single description only
                         break
 
-            # C) Se ho più match (es TXd + trend) li mostro a punti
+            # C) If multiple matches exist (e.g. TXd + trend), display them as points
             if not found_desc:
                 description = None
             elif len(found_desc) == 1:
@@ -323,11 +313,11 @@ def check_task_status(request):
         if status == 'SUCCESS':
             result = _json_sanitize(task.result)
 
-            # 1) mantieni la chiave "result" come prima
+            # 1) Keep the "result" key as before
             response['result'] = result
 
-            # 2) FLATTEN: copia le chiavi del risultato direttamente in dataVect
-            #    così il frontend può leggere dataVect.dataPol / dataVect.dataTable / ecc.
+            # 2) FLATTEN: copy result keys directly into dataVect
+            #    so the frontend can read dataVect.dataPol / dataVect.dataTable / etc.
             if isinstance(result, dict):
                 response.update(result)
 
@@ -380,7 +370,7 @@ def compareDatasets(request):
         first_dataset_param = str(compare_obj.get('firstValue'))
         first_result = getDataGraphicGeneric(first_dataset_id,first_dataset_timeperiod,first_dataset_layer_name,first_dataset_time_start,first_dataset_time_end,latitude,longitude,0,first_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         first_list = first_result[first_dataset_layer_name]
-        all_values_first =  list(map(float, map(itemgetter('y'), first_list))) #prendo tutti i valori del primo dataset
+        all_values_first =  list(map(float, map(itemgetter('y'), first_list))) # Take all values from the first dataset
         second_dataset = compare_obj.get('secondDataset')["name"]
         second_dataset_id = second_dataset["id"]
         second_dataset_timeperiod = second_dataset["adriaclim_timeperiod"]
@@ -390,7 +380,7 @@ def compareDatasets(request):
         second_dataset_param = str(compare_obj.get('secondValue'))
         second_result = getDataGraphicGeneric(second_dataset_id,second_dataset_timeperiod,second_dataset_layer_name,second_dataset_time_start,second_dataset_time_end,latitude,longitude,0,second_dataset_param,0,"no","no","no","no",operation=operation,context=context)
         second_list = second_result[second_dataset_layer_name]
-        all_values_second =  list(map(float, map(itemgetter('y'), second_list))) #prendo tutti i valori del secondo dataset
+        all_values_second =  list(map(float, map(itemgetter('y'), second_list))) # Take all values from the second dataset
         mean_diff_avg = compareStatistics.mean_difference_avg(all_values_first, all_values_second, False)
         mean_diff_avg_abs = compareStatistics.mean_difference_avg(all_values_first, all_values_second, True)
         root_squared_diff = compareStatistics.root_mean_squared_difference(all_values_first, all_values_second)

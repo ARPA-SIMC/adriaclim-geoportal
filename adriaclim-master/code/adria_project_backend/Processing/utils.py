@@ -28,15 +28,14 @@ def read_erddap_data(url):
                 raise ValueError("NetCDF vuoto")
             return df
         except Exception:
-            pass  # tenta fallback
+            pass  # Attempt fallback
 
-    # Fallback CSV (sia per griddap che tabledap)
+    # CSV fallback (for both griddap and tabledap)
     try:
         with urllib.request.urlopen(url, timeout=60) as response:
             text = response.read().decode("utf-8", errors="ignore")
     except Exception as e:
-        raise e  # errore reale
-
+        raise e  # Actual error
     if "nRows = 0" in text or "no matching results" in text:
         print(f"[ERDDAP] Nessun dato restituito da ERDDAP: {url}")
         return pd.DataFrame()
