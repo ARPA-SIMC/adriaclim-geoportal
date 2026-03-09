@@ -2244,7 +2244,8 @@ export class GeoportalMapComponent implements OnInit, AfterViewInit {
 
     this.spinnerLoader.spinnerShow = true;
 
-
+    console.log("DEBUG_COMPONENTE_ATTIVO: geoportal-map.component.ts");
+    
     this.httpService.post('dataset/getDataVectorialNew/', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       selVar: this.variableGroup.get("variableControl")?.value,

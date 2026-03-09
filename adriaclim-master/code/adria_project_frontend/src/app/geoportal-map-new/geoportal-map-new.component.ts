@@ -2262,6 +2262,8 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
         this.isExtraParam = false;
       }
     }
+    console.log("DEBUG_COMPONENTE_ATTIVO: geoportal-map-new.component.ts");
+    
     this.httpService.post('dataset/getDataVectorialNew/', {
       dataset: this.selData.get("dataSetSel")?.value.name,
       // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,

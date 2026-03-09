@@ -2206,187 +2206,427 @@ export class GeoportalMapNewMenuComponent {
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
-        console.log("[DEBUG FRONTEND] Risposta completa da backend:", res);
 
-        if (typeof res === "string") {
-          console.warn("[DEBUG FRONTEND] Risposta è una stringa, non un oggetto JSON:", res);
+        const dataVect = res?.dataVect;
+
+        // New backend format: explicit object with status
+        if (dataVect && typeof dataVect === "object" && !Array.isArray(dataVect)) {
+
+          if (dataVect.status === "no_data") {
+            this.compliantErrorErddap = dataVect.message || "No data available for the selected date.";
+            this.showAlertGenericError = true;
+            this.spinnerLoader.spinnerShow = false;
+            return;
+          }
+
+          if (dataVect.status === "error") {
+            this.compliantErrorErddap = dataVect.message || "Unexpected backend error.";
+            this.showAlertGenericError = true;
+            this.spinnerLoader.spinnerShow = false;
+            return;
+          }
+
+          if (dataVect.status === "ok") {
+            res.dataVect = [
+              dataVect.values ?? [],
+              dataVect.latitudes ?? [],
+              dataVect.longitudes ?? [],
+              dataVect.value_min,
+              dataVect.value_max
+            ];
+          }
         }
 
+        // Old backend format: string error
         if (typeof res.dataVect === "string" && res.dataVect.includes("HTTP Error 404")) {
-          console.warn("[DEBUG FRONTEND] ERDDAP returned 404 → dataset non trovato per la data selezionata");
-
-          // Messaggio chiaro per l’utente
           this.compliantErrorErddap = "No data available for the selected date.";
           this.showAlertGenericError = true;
-
-          // Ferma eventuali spinner
           this.spinnerLoader.spinnerShow = false;
-
-          // Interrompe subito l’elaborazione
           return;
         }
 
-        else {
+        this.allDataVectorial = res['dataVect'];
+        const storageKey = this.selData.get('dataSetSel')?.value?.name?.title;
 
-          this.allDataVectorial = res['dataVect'];
-          const storageKey = this.selData.get('dataSetSel')?.value?.name?.title;
-          // Se non esiste una palette salvata, forza i default del componente
-          if (storageKey && !localStorage.getItem(storageKey)) {
-            this.restoreDefaultColors();
-          }
-          let allLatCoordinates = this.allDataVectorial[1];
-          let allLongCoordinates = this.allDataVectorial[2];
-          let allValues = this.allDataVectorial[0];
-          let value_min = this.allDataVectorial[3];
-          let value_max = this.allDataVectorial[4];
-          let bounds: any;
-          let rectangle: any;
-          let value_mid: any;
-          if (parseFloat(value_min) !== parseFloat(value_max)) {
-            if (parseFloat(value_min) < 0) {
-              value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-            } else {
-              value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
-            }
-          }
-          else {
-            value_mid = parseFloat(value_min);
-          }
-          this.valueMin = parseFloat(value_min);
-          this.valueMax = parseFloat(value_max);
-          this.valueMid = value_mid;
+        // If no palette is saved, force component defaults
+        if (storageKey && !localStorage.getItem(storageKey)) {
+          this.restoreDefaultColors();
+        }
 
-          this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-          if (this.allRectangles.length > 0) {
-            this.removeAllRectangles();
+        let allLatCoordinates = this.allDataVectorial[1];
+        let allLongCoordinates = this.allDataVectorial[2];
+        let allValues = this.allDataVectorial[0];
+        let value_min = this.allDataVectorial[3];
+        let value_max = this.allDataVectorial[4];
 
-          }
-          let centerLat;
-          let centerLong;
+        // Safety check to avoid invalid rendering states
+        if (!allValues || !allLatCoordinates || !allLongCoordinates || allValues.length === 0) {
+          this.compliantErrorErddap = "No drawable data available.";
+          this.showAlertGenericError = true;
+          this.spinnerLoader.spinnerShow = false;
+          return;
+        }
 
-          if (allLatCoordinates.length === 1) {
-            centerLat = allLatCoordinates[0];
-            centerLong = allLongCoordinates[0];
+        let bounds: any;
+        let rectangle: any;
+        let value_mid: any;
 
+        if (parseFloat(value_min) !== parseFloat(value_max)) {
+          if (parseFloat(value_min) < 0) {
+            value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
           } else {
-            const center = Math.round(allLatCoordinates.length / 2);
-            centerLat = allLatCoordinates[center];
-            centerLong = allLongCoordinates[center];
+            value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
           }
+        } else {
+          value_mid = parseFloat(value_min);
+        }
 
-          const zoomTest = L.latLng(centerLat, centerLong);
-          if (zoomTest) {
-            if (allLatCoordinates.length === 1) {
-              // zoom più elevato essendo un singolo punto!
-              this.map.setView(zoomTest, 14);
-            } else {
-              this.map.setView(zoomTest, 8);
-            }
+        this.valueMin = parseFloat(value_min);
+        this.valueMax = parseFloat(value_max);
+        this.valueMid = value_mid;
 
-          }
+        this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
 
-          for (let i = 0; i < allLatCoordinates.length; i++) {
+        if (this.allRectangles.length > 0) {
+          this.removeAllRectangles();
+        }
 
-            if (this.isIndicator) {
+        let centerLat;
+        let centerLong;
 
-              if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+        if (allLatCoordinates.length === 1) {
+          centerLat = allLatCoordinates[0];
+          centerLong = allLongCoordinates[0];
+        } else {
+          const center = Math.round(allLatCoordinates.length / 2);
+          centerLat = allLatCoordinates[center];
+          centerLong = allLongCoordinates[center];
+        }
 
-                this.circleCoords.push(
-                  {
-                    lat: allLatCoordinates[i],
-                    lng: allLongCoordinates[i],
-                  }
-                )
-                //tabledap case, with circle
-                const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-
-                let varColor: any;
-                if (colorStorage) {
-
-                  const colorStorageJson = JSON.parse(colorStorage);
-                  varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
-                } else {
-                    varColor = this.getColor(
-                      allValues[i],
-                      value_min,
-                      value_max,
-                      this.valueMinColor,
-                      this.valueMidColor,
-                      this.valueMaxColor
-                    );
-                  }
-                this.map.removeLayer(this.rettangoliLayer);
-
-                this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
-                this.circleMarkerArray.push(this.markerToAdd);
-                this.markersLayer.addLayer(this.markerToAdd);
-
-                this.map.addLayer(this.markersLayer);
-              }
-
-            } else {
-
-              //griddap case with rectangle, NON SERVONO I MARKER!
-
-              if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
-
-                bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-
-                let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-                let varColor: any;
-                if (colorStorage) {
-                  let colorStorageJson = JSON.parse(colorStorage);
-                  varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
-
-                }
-                else {
-                  varColor = this.getColor(
-                    allValues[i],
-                    value_min,
-                    value_max,
-                    this.valueMinColor,
-                    this.valueMidColor,
-                    this.valueMaxColor
-                  );
-                }
-                rectangle = L.rectangle(bounds, {
-                  fillOpacity: 0.4,
-                  opacity: 0.4,
-                  fill: true,
-                  stroke: false,
-                  color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b),
-                  weight: 1
-                });
-                this.allRectangles.push(rectangle);
-
-                this.rettangoliLayer.addLayer(rectangle);
-
-                this.map.addLayer(this.rettangoliLayer);
-
-              }
-
-            }
-          }
-          if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-            this.circleMarkerArray.forEach((circle: any) => {
-              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
-            });
-            this.map.off('click');
+        const zoomTest = L.latLng(centerLat, centerLong);
+        if (zoomTest) {
+          if (allLatCoordinates.length === 1) {
+            this.map.setView(zoomTest, 14);
+          } else {
+            this.map.setView(zoomTest, 8);
           }
         }
+
+        for (let i = 0; i < allLatCoordinates.length; i++) {
+
+          if (this.isIndicator) {
+
+            if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+              this.circleCoords.push({
+                lat: allLatCoordinates[i],
+                lng: allLongCoordinates[i],
+              });
+
+              const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+
+              let varColor: any;
+              if (colorStorage) {
+                const colorStorageJson = JSON.parse(colorStorage);
+                varColor = this.getColor(
+                  allValues[i],
+                  value_min,
+                  value_max,
+                  colorStorageJson.minColor,
+                  colorStorageJson.midColor,
+                  colorStorageJson.maxColor
+                );
+              } else {
+                varColor = this.getColor(
+                  allValues[i],
+                  value_min,
+                  value_max,
+                  this.valueMinColor,
+                  this.valueMidColor,
+                  this.valueMaxColor
+                );
+              }
+
+              this.map.removeLayer(this.rettangoliLayer);
+
+              this.markerToAdd = L.circleMarker(
+                [parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],
+                {
+                  radius: 15,
+                  weight: 2,
+                  color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b)
+                }
+              );
+
+              this.circleMarkerArray.push(this.markerToAdd);
+              this.markersLayer.addLayer(this.markerToAdd);
+              this.map.addLayer(this.markersLayer);
+            }
+
+          } else {
+
+            // griddap case with rectangle
+
+            if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+              bounds = [
+                [parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387],
+                [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]
+              ];
+
+              let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+              let varColor: any;
+
+              if (colorStorage) {
+                let colorStorageJson = JSON.parse(colorStorage);
+                varColor = this.getColor(
+                  allValues[i],
+                  value_min,
+                  value_max,
+                  colorStorageJson.minColor,
+                  colorStorageJson.midColor,
+                  colorStorageJson.maxColor
+                );
+              } else {
+                varColor = this.getColor(
+                  allValues[i],
+                  value_min,
+                  value_max,
+                  this.valueMinColor,
+                  this.valueMidColor,
+                  this.valueMaxColor
+                );
+              }
+
+              rectangle = L.rectangle(bounds, {
+                fillOpacity: 0.4,
+                opacity: 0.4,
+                fill: true,
+                stroke: false,
+                color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b),
+                weight: 1
+              });
+
+              this.allRectangles.push(rectangle);
+              this.rettangoliLayer.addLayer(rectangle);
+              this.map.addLayer(this.rettangoliLayer);
+            }
+          }
+        }
+
+        if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+          this.circleMarkerArray.forEach((circle: any) => {
+            circle.addEventListener('click', (e: any) =>
+              this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
+            );
+          });
+          this.map.off('click');
+        }
+
         setTimeout(() => {
           this.spinnerLoader.spinnerShow = false;
-
         }, 500);
-
       },
+
       error: (msg: any) => {
         console.log('METADATA ERROR: ', msg);
         this.spinnerLoader.spinnerShow = false;
       }
-
     });
   }
+  //   console.log("DEBUG_COMPONENTE_ATTIVO: geoportal-map-new-menu.component.ts");
+
+  //   this.httpService.post('dataset/getDataVectorialNew/', {
+  //     dataset: this.selData.get("dataSetSel")?.value.name,
+  //     // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
+  //     selVar: this.variableGroup.get("variableControl")?.value,
+  //     isIndicator: this.isIndicator ? "true" : "false",
+  //     selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
+  //   }).subscribe({
+  //     next: (res: any) => {
+  //       alert("SONO ENTRATO NEL NEXT getDataVectorialNew");
+  //       console.log("DEBUG dataVect =", res.dataVect);
+  //       console.log("[DEBUG FRONTEND] Risposta completa da backend:", res);
+
+  //       if (typeof res === "string") {
+  //         console.warn("[DEBUG FRONTEND] Risposta è una stringa, non un oggetto JSON:", res);
+  //       }
+
+  //       if (typeof res.dataVect === "string" && res.dataVect.includes("HTTP Error 404")) {
+  //         console.warn("[DEBUG FRONTEND] ERDDAP returned 404 → dataset non trovato per la data selezionata");
+
+  //         // Messaggio chiaro per l’utente
+  //         this.compliantErrorErddap = "No data available for the selected date.";
+  //         this.showAlertGenericError = true;
+
+  //         // Ferma eventuali spinner
+  //         this.spinnerLoader.spinnerShow = false;
+
+  //         // Interrompe subito l’elaborazione
+  //         return;
+  //       }
+
+  //       else {
+
+  //         this.allDataVectorial = res['dataVect'];
+  //         const storageKey = this.selData.get('dataSetSel')?.value?.name?.title;
+  //         // Se non esiste una palette salvata, forza i default del componente
+  //         if (storageKey && !localStorage.getItem(storageKey)) {
+  //           this.restoreDefaultColors();
+  //         }
+  //         let allLatCoordinates = this.allDataVectorial[1];
+  //         let allLongCoordinates = this.allDataVectorial[2];
+  //         let allValues = this.allDataVectorial[0];
+  //         let value_min = this.allDataVectorial[3];
+  //         let value_max = this.allDataVectorial[4];
+  //         let bounds: any;
+  //         let rectangle: any;
+  //         let value_mid: any;
+  //         if (parseFloat(value_min) !== parseFloat(value_max)) {
+  //           if (parseFloat(value_min) < 0) {
+  //             value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+  //           } else {
+  //             value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+  //           }
+  //         }
+  //         else {
+  //           value_mid = parseFloat(value_min);
+  //         }
+  //         this.valueMin = parseFloat(value_min);
+  //         this.valueMax = parseFloat(value_max);
+  //         this.valueMid = value_mid;
+
+  //         this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
+  //         if (this.allRectangles.length > 0) {
+  //           this.removeAllRectangles();
+
+  //         }
+  //         let centerLat;
+  //         let centerLong;
+
+  //         if (allLatCoordinates.length === 1) {
+  //           centerLat = allLatCoordinates[0];
+  //           centerLong = allLongCoordinates[0];
+
+  //         } else {
+  //           const center = Math.round(allLatCoordinates.length / 2);
+  //           centerLat = allLatCoordinates[center];
+  //           centerLong = allLongCoordinates[center];
+  //         }
+
+  //         const zoomTest = L.latLng(centerLat, centerLong);
+  //         if (zoomTest) {
+  //           if (allLatCoordinates.length === 1) {
+  //             // zoom più elevato essendo un singolo punto!
+  //             this.map.setView(zoomTest, 14);
+  //           } else {
+  //             this.map.setView(zoomTest, 8);
+  //           }
+
+  //         }
+
+  //         for (let i = 0; i < allLatCoordinates.length; i++) {
+
+  //           if (this.isIndicator) {
+
+  //             if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+  //               this.circleCoords.push(
+  //                 {
+  //                   lat: allLatCoordinates[i],
+  //                   lng: allLongCoordinates[i],
+  //                 }
+  //               )
+  //               //tabledap case, with circle
+  //               const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+
+  //               let varColor: any;
+  //               if (colorStorage) {
+
+  //                 const colorStorageJson = JSON.parse(colorStorage);
+  //                 varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
+  //               } else {
+  //                   varColor = this.getColor(
+  //                     allValues[i],
+  //                     value_min,
+  //                     value_max,
+  //                     this.valueMinColor,
+  //                     this.valueMidColor,
+  //                     this.valueMaxColor
+  //                   );
+  //                 }
+  //               this.map.removeLayer(this.rettangoliLayer);
+
+  //               this.markerToAdd = L.circleMarker([parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])], { radius: 15, weight: 2, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b) });
+  //               this.circleMarkerArray.push(this.markerToAdd);
+  //               this.markersLayer.addLayer(this.markerToAdd);
+
+  //               this.map.addLayer(this.markersLayer);
+  //             }
+
+  //           } else {
+
+  //             //griddap case with rectangle, NON SERVONO I MARKER!
+
+  //             if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+  //               bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
+
+  //               let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+  //               let varColor: any;
+  //               if (colorStorage) {
+  //                 let colorStorageJson = JSON.parse(colorStorage);
+  //                 varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
+
+  //               }
+  //               else {
+  //                 varColor = this.getColor(
+  //                   allValues[i],
+  //                   value_min,
+  //                   value_max,
+  //                   this.valueMinColor,
+  //                   this.valueMidColor,
+  //                   this.valueMaxColor
+  //                 );
+  //               }
+  //               rectangle = L.rectangle(bounds, {
+  //                 fillOpacity: 0.4,
+  //                 opacity: 0.4,
+  //                 fill: true,
+  //                 stroke: false,
+  //                 color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b),
+  //                 weight: 1
+  //               });
+  //               this.allRectangles.push(rectangle);
+
+  //               this.rettangoliLayer.addLayer(rectangle);
+
+  //               this.map.addLayer(this.rettangoliLayer);
+
+  //             }
+
+  //           }
+  //         }
+  //         if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+  //           this.circleMarkerArray.forEach((circle: any) => {
+  //             circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
+  //           });
+  //           this.map.off('click');
+  //         }
+  //       }
+  //       setTimeout(() => {
+  //         this.spinnerLoader.spinnerShow = false;
+
+  //       }, 500);
+
+  //     },
+  //     error: (msg: any) => {
+  //       console.log('METADATA ERROR: ', msg);
+  //       this.spinnerLoader.spinnerShow = false;
+  //     }
+
+  //   });
+  // }
 
   //function to fill the color of the rectangles of vectorial layer
   fillRectangleColor(r: any, g: any, b: any) {

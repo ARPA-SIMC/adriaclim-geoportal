@@ -336,6 +336,71 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
         logger.error(f"Exception in operation_before_after_cache: {e}")
         return str(e)
 
+# def getDataVectorial(
+#     dataset_id,
+#     layer_name,
+#     date_start,
+#     latitude_start,
+#     latitude_end,
+#     longitude_start,
+#     longitude_end,
+#     num_param,
+#     range_value,
+#     is_indicator,
+# ):
+    
+#     try:
+#         url = url_is_indicator(
+#             is_indicator,
+#             False,
+#             True,
+#             dataset_id=dataset_id,
+#             layer_name=layer_name,
+#             date_start=date_start,
+#             latitude_start=latitude_start,
+#             latitude_end=latitude_end,
+#             longitude_start=longitude_start,
+#             longitude_end=longitude_end,
+#             num_param=num_param,
+#             range_value=range_value,
+#         )
+#         df = read_erddap_data(url)
+#         logger.warning(f"[DEBUG] URL getDataVectorial: {url}")
+#         logger.warning(f"[DEBUG] Columns: {df.columns.tolist()}")
+#         logger.warning(f"[DEBUG] First rows:\n{df.head(5)}")
+
+#         allData = []
+#         values = []
+#         lat_coordinates = []
+#         long_coordinates = []
+#         df = df.dropna(how="any", axis=0)
+#         if df.empty:
+#             print("DEBUG_EMPTY_ON_SELECTED_DATE")
+#         i = 0
+#         for index, row in df.iterrows():
+#             try:
+#                 value = float(row[layer_name])
+#             except ValueError:
+#                 value = 0.0
+#             values.insert(i, value)
+#             lat_coordinates.insert(i, row["latitude"])
+#             long_coordinates.insert(i, row["longitude"])
+#             i += 1
+        
+#         if values:
+#             value_min = min(values)
+#             value_max = max(values)
+#         else:
+#             value_min = 0.0 # Default value if no valid values are available
+#             value_max = 0.0 # Default value if no valid values are available
+            
+#         allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
+
+#         print("DEBUG_GETDATAVECTORIAL", url, df.columns.tolist(), df.head(5).to_dict("records"))
+#         return allData
+#     except Exception as e:
+#         return str(e)
+
 def getDataVectorial(
     dataset_id,
     layer_name,
@@ -348,7 +413,6 @@ def getDataVectorial(
     range_value,
     is_indicator,
 ):
-    
     try:
         url = url_is_indicator(
             is_indicator,
@@ -364,33 +428,64 @@ def getDataVectorial(
             num_param=num_param,
             range_value=range_value,
         )
+
         df = read_erddap_data(url)
 
-        allData = []
         values = []
         lat_coordinates = []
         long_coordinates = []
+
         df = df.dropna(how="any", axis=0)
-        i = 0
-        for index, row in df.iterrows():
+
+        if df.empty:
+            return {
+                "status": "no_data",
+                "message": "No data available for the selected date.",
+                "values": [],
+                "latitudes": [],
+                "longitudes": [],
+                "value_min": None,
+                "value_max": None,
+            }
+
+        for _, row in df.iterrows():
             try:
                 value = float(row[layer_name])
-            except ValueError:
-                value = 0.0
-            values.insert(i, value)
-            lat_coordinates.insert(i, row["latitude"])
-            long_coordinates.insert(i, row["longitude"])
-            i += 1
-        
-        if values:
-            value_min = min(values)
-            value_max = max(values)
-        else:
-            value_min = 0.0 # Default value if no valid values are available
-            value_max = 0.0 # Default value if no valid values are available
-            
-        allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
+            except (ValueError, TypeError):
+                continue
 
-        return allData
+            values.append(value)
+            lat_coordinates.append(row["latitude"])
+            long_coordinates.append(row["longitude"])
+
+        if not values:
+            return {
+                "status": "no_data",
+                "message": "No valid values available for the selected date.",
+                "values": [],
+                "latitudes": [],
+                "longitudes": [],
+                "value_min": None,
+                "value_max": None,
+            }
+
+        return {
+            "status": "ok",
+            "message": "",
+            "values": values,
+            "latitudes": lat_coordinates,
+            "longitudes": long_coordinates,
+            "value_min": min(values),
+            "value_max": max(values),
+        }
+
     except Exception as e:
-        return str(e)
+        return {
+            "status": "error",
+            "message": str(e),
+            "values": [],
+            "latitudes": [],
+            "longitudes": [],
+            "value_min": None,
+            "value_max": None,
+        }
