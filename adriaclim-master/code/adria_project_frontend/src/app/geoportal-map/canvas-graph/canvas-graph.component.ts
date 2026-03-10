@@ -260,6 +260,10 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   if (changes['isUpdate']?.currentValue === true) {
     this.suppressProgress = true;
 
+    // Show spinner immediately on update (e.g. depth change)
+    this.spinnerLoadingChild.emit(true);
+    this.spinnerService.spinnerShow = true;
+
     if (this.polygon) {
       this.getDataGraphPolygonInterval();
     } else {

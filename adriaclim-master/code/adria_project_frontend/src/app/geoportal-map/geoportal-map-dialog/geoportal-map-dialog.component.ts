@@ -447,6 +447,11 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   onDepthChange(value: any) {
     this.selectedDepth = Number(value);
     this.range = this.selectedDepth;
+
+    // Show spinner immediately while the new depth is loading
+    this.spinnerLoading = true;
+    this.spinnerService.spinnerShow = true;
+
     this.isUpdate = true;
     setTimeout(() => {
       this.isUpdate = false;
