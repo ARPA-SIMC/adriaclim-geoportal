@@ -210,13 +210,12 @@ def packageGraphData(allData, **kwargs):
         logger.error(f"Exception in packageGraphData: {e}")
         return str(e)
 
-
 def processOperation(operation, values, dates, unit, layerName, lats, longs):
     """
-    Applica operazioni predefinite sui dati (es. media mensile annuale).
-    
-    :param operation: Stringa (es. "default", "annualMonth")
-    :return: Lista con valori trasformati secondo l'operazione
+    Apply predefined operations to graph data.
+
+    :param operation: String (e.g. "default", "annualMonth", "annualSeason")
+    :return: List with transformed values
     """
     import re
 
@@ -228,10 +227,9 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
     if operation == "annualMonth":
         pattern = re.compile(r"\d{4}-(\d{2})-\S*")
         months = [f"{i:02}" for i in range(1, 13)]
+
         for mon in months:
-            # Create a dummy date for the output
             dat = f"0000-{mon}-01T00:00:00Z"
-            # Extract values for the current month
             vals = [
                 v for n, v in enumerate(values)
                 if pattern.match(dates[n]) and pattern.match(dates[n]).group(1) == mon
@@ -243,7 +241,97 @@ def processOperation(operation, values, dates, unit, layerName, lats, longs):
                 layerName2.append(layerName[0])
                 values2.append(aggregateGraphicValues(vals, "avg"))
 
-    return [values2, dates2, unit, layerName2, lats2, longs2]
+        return [values2, dates2, unit, layerName2, lats2, longs2]
+
+    elif operation == "annualSeason":
+        pattern = re.compile(r"\d{4}-(\d{2})-\S*")
+        seasons = {
+            "Winter": ["12", "01", "02"],
+            "Spring": ["03", "04", "05"],
+            "Summer": ["06", "07", "08"],
+            "Autumn": ["09", "10", "11"],
+        }
+
+        season_dates = {
+            "Winter": "0000-01-01T00:00:00Z",
+            "Spring": "0000-03-01T00:00:00Z",
+            "Summer": "0000-06-01T00:00:00Z",
+            "Autumn": "0000-09-01T00:00:00Z",
+        }
+
+        for season_name, season_months in seasons.items():
+            vals = [
+                v for n, v in enumerate(values)
+                if pattern.match(dates[n]) and pattern.match(dates[n]).group(1) in season_months
+            ]
+            if vals:
+                dates2.append(season_dates[season_name])
+                lats2.append(0)
+                longs2.append(0)
+                layerName2.append(layerName[0])
+                values2.append(aggregateGraphicValues(vals, "avg"))
+
+        return [values2, dates2, unit, layerName2, lats2, longs2]
+
+    elif operation == "annualDay":
+        pattern = re.compile(r"\d{4}-(\d{2})-(\d{2})\S*")
+        days_map = {}
+
+        for n, v in enumerate(values):
+            match = pattern.match(dates[n])
+            if match:
+                month_day = f"{match.group(1)}-{match.group(2)}"
+                if month_day not in days_map:
+                    days_map[month_day] = []
+                days_map[month_day].append(v)
+
+        for month_day in sorted(days_map.keys()):
+            dat = f"0000-{month_day}T00:00:00Z"
+            vals = days_map[month_day]
+            if vals:
+                dates2.append(dat)
+                lats2.append(0)
+                longs2.append(0)
+                layerName2.append(layerName[0])
+                values2.append(aggregateGraphicValues(vals, "avg"))
+
+        return [values2, dates2, unit, layerName2, lats2, longs2]
+
+    return [values, dates, unit, layerName, lats, longs]
+
+# def processOperation(operation, values, dates, unit, layerName, lats, longs):
+#     """
+#     Applica operazioni predefinite sui dati (es. media mensile annuale).
+    
+#     :param operation: Stringa (es. "default", "annualMonth")
+#     :return: Lista con valori trasformati secondo l'operazione
+#     """
+#     import re
+
+#     if operation == "default":
+#         return [values, dates, unit, layerName, lats, longs]
+
+#     values2, dates2, layerName2, lats2, longs2 = [], [], [], [], []
+
+#     if operation == "annualMonth":
+#         pattern = re.compile(r"\d{4}-(\d{2})-\S*")
+#         months = [f"{i:02}" for i in range(1, 13)]
+#         for mon in months:
+#             # Create a dummy date for the output
+#             dat = f"0000-{mon}-01T00:00:00Z"
+#             # Extract values for the current month
+#             vals = [
+#                 v for n, v in enumerate(values)
+#                 if pattern.match(dates[n]) and pattern.match(dates[n]).group(1) == mon
+#             ]
+#             if vals:
+#                 dates2.append(dat)
+#                 lats2.append(0)
+#                 longs2.append(0)
+#                 layerName2.append(layerName[0])
+#                 values2.append(aggregateGraphicValues(vals, "avg"))
+
+#     return [values2, dates2, unit, layerName2, lats2, longs2]
 
 
 def operation_before_after_cache(df_polygon, statistic, time_op):
@@ -336,71 +424,6 @@ def operation_before_after_cache(df_polygon, statistic, time_op):
     except Exception as e:
         logger.error(f"Exception in operation_before_after_cache: {e}")
         return str(e)
-
-# def getDataVectorial(
-#     dataset_id,
-#     layer_name,
-#     date_start,
-#     latitude_start,
-#     latitude_end,
-#     longitude_start,
-#     longitude_end,
-#     num_param,
-#     range_value,
-#     is_indicator,
-# ):
-    
-#     try:
-#         url = url_is_indicator(
-#             is_indicator,
-#             False,
-#             True,
-#             dataset_id=dataset_id,
-#             layer_name=layer_name,
-#             date_start=date_start,
-#             latitude_start=latitude_start,
-#             latitude_end=latitude_end,
-#             longitude_start=longitude_start,
-#             longitude_end=longitude_end,
-#             num_param=num_param,
-#             range_value=range_value,
-#         )
-#         df = read_erddap_data(url)
-#         logger.warning(f"[DEBUG] URL getDataVectorial: {url}")
-#         logger.warning(f"[DEBUG] Columns: {df.columns.tolist()}")
-#         logger.warning(f"[DEBUG] First rows:\n{df.head(5)}")
-
-#         allData = []
-#         values = []
-#         lat_coordinates = []
-#         long_coordinates = []
-#         df = df.dropna(how="any", axis=0)
-#         if df.empty:
-#             print("DEBUG_EMPTY_ON_SELECTED_DATE")
-#         i = 0
-#         for index, row in df.iterrows():
-#             try:
-#                 value = float(row[layer_name])
-#             except ValueError:
-#                 value = 0.0
-#             values.insert(i, value)
-#             lat_coordinates.insert(i, row["latitude"])
-#             long_coordinates.insert(i, row["longitude"])
-#             i += 1
-        
-#         if values:
-#             value_min = min(values)
-#             value_max = max(values)
-#         else:
-#             value_min = 0.0 # Default value if no valid values are available
-#             value_max = 0.0 # Default value if no valid values are available
-            
-#         allData = [values, lat_coordinates, long_coordinates, value_min, value_max]
-
-#         print("DEBUG_GETDATAVECTORIAL", url, df.columns.tolist(), df.head(5).to_dict("records"))
-#         return allData
-#     except Exception as e:
-#         return str(e)
 
 def getDataVectorial(
     dataset_id,

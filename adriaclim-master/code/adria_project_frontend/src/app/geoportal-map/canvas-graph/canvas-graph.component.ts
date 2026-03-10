@@ -338,23 +338,66 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   /**
  * Format the display date based on the selected operation
  */
+  // formatDate(d: any) {
+  //   if (this.operation !== "annualDay") {
+  //     d = new Date(d);
+  //   }
+  //   if (this.operation === "annualMonth") {
+  //     return this.months[d.getMonth()];
+  //   }
+  //   else if (this.operation === "annualDay") {
+  //     return d;
+  //   }
+  //   else if (this.operation === "annualSeason") {
+  //     return this.seasons[d.getMonth()];
+  //   }
+  //   else {
+  //     let month = d.getMonth() + 1
+  //     let day = d.getDate()
+  //     let year = d.getFullYear()
+  //     return day + "/" + month + "/" + year;
+  //   }
+  // }
   formatDate(d: any) {
-    if (this.operation !== "annualDay") {
-      d = new Date(d);
-    }
-    if (this.operation === "annualMonth") {
-      return this.months[d.getMonth()];
-    }
-    else if (this.operation === "annualDay") {
+    if (this.operation === "annualDay") {
       return d;
     }
+
+    // If the backend already returned a label/string, avoid forcing Date parsing
+    if (typeof d === "string") {
+      const trimmed = d.trim();
+
+      if (this.operation === "annualMonth") {
+        const validMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        if (validMonths.includes(trimmed)) {
+          return trimmed;
+        }
+      }
+
+      if (this.operation === "annualSeason") {
+        const validSeasons = ["Winter", "Spring", "Summer", "Autumn"];
+        if (validSeasons.includes(trimmed)) {
+          return trimmed;
+        }
+      }
+    }
+
+    const parsedDate = new Date(d);
+
+    if (isNaN(parsedDate.getTime())) {
+      return d;
+    }
+
+    if (this.operation === "annualMonth") {
+      return this.months[parsedDate.getMonth()];
+    }
     else if (this.operation === "annualSeason") {
-      return this.seasons[d.getMonth()];
+      return this.seasons[parsedDate.getMonth()];
     }
     else {
-      let month = d.getMonth() + 1
-      let day = d.getDate()
-      let year = d.getFullYear()
+      let month = parsedDate.getMonth() + 1;
+      let day = parsedDate.getDate();
+      let year = parsedDate.getFullYear();
       return day + "/" + month + "/" + year;
     }
   }
