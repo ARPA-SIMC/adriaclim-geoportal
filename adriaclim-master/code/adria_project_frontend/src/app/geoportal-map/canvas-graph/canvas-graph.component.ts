@@ -1139,12 +1139,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
+
     if (this.dataset.time_start && this.dataset.time_start.includes("T")) {
       const dateStart = new Date(this.dataset.time_start);
       this.dataset.time_start = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1)
         .toString()
         .padStart(2, '0')}-${dateStart.getDate().toString().padStart(2, '0')}`;
     }
+
     if (this.dataset.time_end && this.dataset.time_end.includes("T")) {
       const dateEnd = new Date(this.dataset.time_end);
       this.dataset.time_end = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1)
@@ -1174,7 +1176,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       console.log("Caricamento già in corso, ignoro nuova richiesta");
       return;
     }
+
     this.isLoading = true;
+
     if (!this.isUpdate) {
       this.timeforProgressBar();
     } else {
@@ -1186,7 +1190,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       next: (response: any) => {
         console.log("[GRAPH] RESPONSE getDataGraph =", response);
 
-        // case "outWms"
         if (response.allData === "fuoriWms") {
           if (!this.isUpdate) {
             this.progressBarCanvas.emit(false);
@@ -1202,7 +1205,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           return;
         }
 
-        // Backend textual error case
         if (typeof response === "string") {
           console.warn("[GRAPH] backend ha risposto con errore testuale:", response);
           if (!this.isUpdate) {
@@ -1220,7 +1222,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         this.dataRes = response;
 
-        // statistics
         this.meanMedianStdev.emit(
           this.dataRes.allData.mean +
           "_" + this.dataRes.allData.median +
@@ -1247,16 +1248,22 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         const seriesData = this.dataRes.allData[name];
 
-        // Sort by date
+        const isIrregularStationSeries =
+          this.dataset &&
+          this.dataset.adriaclim_type === "timeseries" &&
+          (this.dataset.dimension_names || "").toLowerCase().includes("depth") &&
+          this.dataset.lat_min === this.dataset.lat_max &&
+          this.dataset.lng_min === this.dataset.lng_max;
+
         seriesData.sort((a: any, b: any) => {
           const da = new Date(a.x).getTime();
           const db = new Date(b.x).getTime();
           return da - db;
         });
 
-        // Detect whether it is annual
         const months = new Set<number>();
         const years = new Set<number>();
+
         seriesData.forEach((el: any) => {
           const d = new Date(el.x);
           if (!isNaN(d.getTime())) {
@@ -1264,29 +1271,31 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             years.add(d.getFullYear());
           }
         });
+
         const isPureAnnual = years.size > 1 && months.size === 1;
 
-        // normalize
         seriesData.forEach((element: any) => {
           element.date = element.x;
           element.y = Number(element.y);
 
-          if (isPureAnnual) {
+          if (isPureAnnual && !isIrregularStationSeries) {
             const d = new Date(element.x);
             element.x = !isNaN(d.getTime())
               ? d.getFullYear().toString()
               : element.x;
-          } else {
+          } else if (!isIrregularStationSeries) {
             element.x = this.formatDate(element.x) ?? element.x;
           }
         });
-        
-        // --- Single data point -> show a wide bar instead of a useless dot/line ---
+
         if (Array.isArray(seriesData) && seriesData.length === 1) {
-          // Do NOT show mean/median/stdev/trend for single-point view
           this.meanMedianStdev.emit(null);
+
           const singleY = Number(seriesData[0].y);
-          const singleX = seriesData[0].x; // already formatted later, but we can keep it simple
+          const singleX = isIrregularStationSeries
+            ? this.formatDate(seriesData[0].date)
+            : seriesData[0].x;
+
           this.chartOption = {
             xAxis: { type: 'category', data: [String(singleX)] },
             yAxis: {
@@ -1308,7 +1317,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
           this.dataTimeExport.emit(seriesData);
 
-          // stop loaders (same behavior as your normal flow)
           if (!this.isUpdate) {
             this.progressBarCanvas.emit(false);
             if (this.timeoutProgressBar) this.timeoutProgressBar.unsubscribe();
@@ -1322,18 +1330,26 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           this.isLoading = false;
           return;
         }
-        // --- End single data point ---
 
         this.chartOption = {
-          xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: seriesData.map((el: any) => el.x)
-          },
+          xAxis: isIrregularStationSeries
+            ? {
+                type: 'time',
+                boundaryGap: false
+              }
+            : {
+                type: 'category',
+                boundaryGap: false,
+                data: seriesData.map((el: any) => el.x)
+              },
           yAxis: {
             type: 'value',
             axisLabel: {
-              formatter: `{value} ${this.dimUnit}`
+              formatter: (val: any) => {
+                return isNaN(Number(this.dimUnit)) && this.dimUnit
+                  ? `${val} ${this.dimUnit}`
+                  : `${val}`;
+              }
             },
             boundaryGap: [0, '100%'],
             min: this.checkMinValue(),
@@ -1349,35 +1365,53 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           tooltip: {
             trigger: 'axis',
             formatter: (paramsFormatter: any) => {
+              const firstName = isIrregularStationSeries
+                ? this.formatDate(paramsFormatter[0]?.value?.[0] || paramsFormatter[0]?.axisValue)
+                : paramsFormatter[0]?.name;
 
-              // --- FIX annual datasets: show only year in tooltip ---
-              if (isPureAnnual && paramsFormatter[0]?.name) {
-                paramsFormatter[0].name = paramsFormatter[0].name.substring(paramsFormatter[0].name.length - 4);
+              if (isPureAnnual && !isIrregularStationSeries && firstName) {
+                const yearOnly = String(firstName).substring(String(firstName).length - 4);
+                paramsFormatter[0].name = yearOnly;
               }
-              // --- END FIX ---
 
               const tooltipHTML = paramsFormatter.map((param: any) => {
-                let value: any = Number(param.value);
-                if (value > 10000 || value < 0.001 && value !== 0) {
+                let value: any = isIrregularStationSeries ? Number(param.value[1]) : Number(param.value);
+
+                if (value > 10000 || (value < 0.001 && value !== 0)) {
                   value = value.toExponential().replace(/e\+?/, ' x 10^');
                 }
+
                 return `${param.marker} ${param.seriesName}: ${value}`;
               }).join('<br>');
 
-              return `${paramsFormatter[0].name}<br>${tooltipHTML}`;
+              return `${firstName}<br>${tooltipHTML}`;
             },
             transitionDuration: 0.2,
-            axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } }
+            axisPointer: {
+              type: 'cross',
+              label: { backgroundColor: '#6a7985' }
+            }
           },
           legend: {
             data: [name]
           },
-          grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
           dataZoom: [
-            { show: true, realtime: true, type: 'inside' },
+            {
+              show: true,
+              realtime: true,
+              type: 'inside',
+            },
           ],
           series: [{
-            data: seriesData.map((el: any) => this.formatNumber(el.y)),
+            data: isIrregularStationSeries
+              ? seriesData.map((el: any) => [el.date, Number(el.y)])
+              : seriesData.map((el: any) => this.formatNumber(el.y)),
             name: name,
             type: 'line',
             stack: 'counts',
@@ -1387,6 +1421,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         };
 
         this.dataTimeExport.emit(seriesData);
+
         if (!this.isUpdate) {
           this.progressBarCanvas.emit(false);
           if (this.timeoutProgressBar) {
@@ -1401,6 +1436,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
         this.isLoading = false;
       },
+
       error: (err: any) => {
         console.error("Errore getDataGraph:", err);
         if (!this.isUpdate) {
