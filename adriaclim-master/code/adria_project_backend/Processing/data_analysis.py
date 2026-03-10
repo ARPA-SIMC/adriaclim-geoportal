@@ -498,9 +498,12 @@ def getVerticalProfileTimeseries(
     time_end,
     latitude,
     longitude,
+    selected_depth=None,
 ):
     try:
+        depth_value = 0 if selected_depth in [None, "", "null"] else selected_depth
 
+        # Query for the selected depth only (used for the graph)
         url = (
             ERDDAP_URL
             + "/griddap/"
@@ -511,7 +514,11 @@ def getVerticalProfileTimeseries(
             + time_start
             + "):1:("
             + time_end
-            + ")%5D%5B(0):1:(0)%5D%5B("
+            + ")%5D%5B("
+            + str(depth_value)
+            + "):1:("
+            + str(depth_value)
+            + ")%5D%5B("
             + str(latitude)
             + "):1:("
             + str(latitude)
@@ -522,12 +529,50 @@ def getVerticalProfileTimeseries(
             + ")%5D"
         )
 
+        # Query for all depths (used only to populate the depth selector)
+        depth_url = (
+            ERDDAP_URL
+            + "/griddap/"
+            + dataset_id
+            + ".csv?"
+            + layer_name
+            + "%5B("
+            + time_start
+            + "):1:("
+            + time_end
+            + ")%5D%5B(0):1:(103)%5D%5B("
+            + str(latitude)
+            + "):1:("
+            + str(latitude)
+            + ")%5D%5B("
+            + str(longitude)
+            + "):1:("
+            + str(longitude)
+            + ")%5D"
+        )
+
+        # Read all depths first
+        depth_df = read_erddap_data(depth_url)
+        available_depths = []
+
+        if depth_df is not None and not depth_df.empty:
+            depth_df = depth_df[pd.to_numeric(depth_df["depth"], errors="coerce").notnull()]
+            depth_df["depth"] = pd.to_numeric(depth_df["depth"], errors="coerce")
+            depth_df[layer_name] = pd.to_numeric(depth_df[layer_name], errors="coerce")
+            depth_df = depth_df.dropna(subset=["depth", layer_name])
+
+            if not depth_df.empty:
+                available_depths = sorted(depth_df["depth"].dropna().unique().tolist())
+
+        # Read selected depth data for the graph
         df = read_erddap_data(url)
 
         if df is None or df.empty:
             return {
                 "status": "no_data",
-                "rows": []
+                "rows": [],
+                "available_depths": available_depths,
+                "selected_depth": float(depth_value),
             }
 
         df = df.dropna(subset=[layer_name])
@@ -536,13 +581,17 @@ def getVerticalProfileTimeseries(
         if df.empty:
             return {
                 "status": "no_data",
-                "rows": []
+                "rows": [],
+                "available_depths": available_depths,
+                "selected_depth": float(depth_value),
             }
 
         df = df[["time", "depth", layer_name]]
+        df["depth"] = pd.to_numeric(df["depth"], errors="coerce")
+        df[layer_name] = pd.to_numeric(df[layer_name], errors="coerce")
+        df = df.dropna(subset=["depth", layer_name])
 
         rows = []
-
         for _, row in df.iterrows():
             rows.append({
                 "time": row["time"],
@@ -552,12 +601,16 @@ def getVerticalProfileTimeseries(
 
         return {
             "status": "ok",
-            "rows": rows
+            "rows": rows,
+            "available_depths": available_depths,
+            "selected_depth": float(depth_value),
         }
 
     except Exception as e:
         return {
             "status": "error",
             "message": str(e),
-            "rows": []
+            "rows": [],
+            "available_depths": [],
+            "selected_depth": float(selected_depth) if selected_depth not in [None, "", "null"] else 0.0,
         }

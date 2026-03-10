@@ -28,6 +28,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   isUpdate = false;
 
   dimUnit: any;
+  availableDepths: number[] = [];
+  selectedDepth: number = 0;
+  isProfileTimeseries: boolean = false;
 
   stats: any = {};
 
@@ -342,6 +345,13 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.variable = data.variable;
     this.arrayVariable = data.arrayVariable;
     this.range = data.range;
+    this.selectedDepth = data.range ? Number(data.range) : 0;
+    this.isProfileTimeseries =
+      !!this.dataset &&
+      this.dataset.adriaclim_type === "timeseries" &&
+      (this.dataset.dimension_names || "").toLowerCase().includes("depth") &&
+      this.dataset.lat_min === this.dataset.lat_max &&
+      this.dataset.lng_min === this.dataset.lng_max;
     this.extraParamExport = data.extraParamExport;
     this.isIndicator = data.isIndicator;
     this.polygon = data.polygon;
@@ -432,6 +442,15 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
         this.getGraphTable();
       }
     }
+  }
+
+  onDepthChange(value: any) {
+    this.selectedDepth = Number(value);
+    this.range = this.selectedDepth;
+    this.isUpdate = true;
+    setTimeout(() => {
+      this.isUpdate = false;
+    }, 0);
   }
 
   close() {

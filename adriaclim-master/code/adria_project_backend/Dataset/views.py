@@ -249,6 +249,8 @@ def getDataGraphicNewCanvas(request):
             and dataset.get("lat_min") == dataset.get("lat_max")
             and dataset.get("lng_min") == dataset.get("lng_max")
         ):
+            
+            selected_depth = request.data.get("range")
             result = getVerticalProfileTimeseries(
                 dataset_id,
                 layer_name,
@@ -256,6 +258,7 @@ def getDataGraphicNewCanvas(request):
                 time_finish,
                 latitude,
                 longitude,
+                selected_depth,
             )
 
             if result.get("status") != "ok":
@@ -299,6 +302,50 @@ def getDataGraphicNewCanvas(request):
                 for row in rows
             ]
 
+            if result.get("status") != "ok":
+                return JsonResponse({
+                    "allData": {
+                        "entries": [layer_name],
+                        layer_name: [],
+                        "mean": 0,
+                        "median": 0,
+                        "stdev": 0,
+                        "trend_yr": 0,
+                        "available_depths": result.get("available_depths", []),
+                        "selected_depth": result.get("selected_depth", 0),
+                        "profile_timeseries": True,
+                    }
+                })
+
+            rows = result.get("rows", [])
+            values = [row["value"] for row in rows]
+
+            sorted_values = sorted(values)
+            n = len(sorted_values)
+
+            mean_value = sum(sorted_values) / n if n > 0 else 0
+
+            if n == 0:
+                median_value = 0
+            elif n % 2 == 1:
+                median_value = sorted_values[n // 2]
+            else:
+                median_value = (sorted_values[(n // 2) - 1] + sorted_values[n // 2]) / 2
+
+            if n > 1:
+                variance = sum((v - mean_value) ** 2 for v in sorted_values) / (n - 1)
+                stdev_value = variance ** 0.5
+            else:
+                stdev_value = 0
+
+            graph_series = [
+                {
+                    "x": row["time"],
+                    "y": row["value"]
+                }
+                for row in rows
+            ]
+
             return JsonResponse({
                 "allData": {
                     "entries": [layer_name],
@@ -306,7 +353,10 @@ def getDataGraphicNewCanvas(request):
                     "mean": mean_value,
                     "median": median_value,
                     "stdev": stdev_value,
-                    "trend_yr": 0
+                    "trend_yr": 0,
+                    "available_depths": result.get("available_depths", []),
+                    "selected_depth": result.get("selected_depth", 0),
+                    "profile_timeseries": True,
                 }
             })
         allData = getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)

@@ -77,6 +77,16 @@
                         [value]="o.value">{{o.label}}</mat-option>
                     </mat-select>
                   </mat-form-field>
+                  <mat-form-field appearance="fill" class="col"
+                    *ngIf="isProfileTimeseries && availableDepths.length > 0">
+                    <mat-label>Depth</mat-label>
+                    <mat-select [value]="selectedDepth"
+                      (selectionChange)="onDepthChange($event.value)">
+                      <mat-option *ngFor="let d of availableDepths" [value]="d">
+                        {{d}} m
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
                   <ng-container *ngIf="polygon">
                     <div
                       class="col-5 d-flex flex-row justify-content-center align-items-center gap-1">
@@ -169,6 +179,8 @@
               <ng-template #noConfronto>
                 <app-canvas-graph
                   (dataTimeExport)="addDataTimeExport($event)"
+                  (availableDepthsChange)="availableDepths = $event"
+                  (selectedDepthChange)="selectedDepth = $event"
                   [progressBarAtStart]="progressBarAtStart"
                   (meanMedianStdev)="meanMedianStdev($event)"
                   (description)="descriptionError($event)"

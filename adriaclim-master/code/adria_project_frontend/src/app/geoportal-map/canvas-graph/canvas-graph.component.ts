@@ -44,6 +44,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   
   @Output() fakeProgressStart = new EventEmitter<void>();
   @Output() fakeProgressStop = new EventEmitter<void>();
+  @Output() availableDepthsChange = new EventEmitter<any[]>();
+  @Output() selectedDepthChange = new EventEmitter<number>();
+
+  availableDepths: number[] = [];
+  selectedDepthFromBackend: number | null = null;
 
   @ViewChild("parent") parentRef!: ElementRef<HTMLElement>;
   myChart: any;
@@ -239,30 +244,57 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   constructor(private httpClient: HttpClient, private httpService: HttpService, private spinnerService: SpinnerLoaderService) {
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log("CAMBIO", changes);
+ ngOnChanges(changes: SimpleChanges): void {
+  console.log("CAMBIO", changes);
 
-    // UPDATE: niente barra/spinner, solo refresh grafico
-    if (changes['isUpdate']?.currentValue === true) {
-      this.suppressProgress = true;   //blocca barra per questo giro
-      if (this.polygon) {
-        this.getDataGraphPolygonInterval();
-      } else {
-        this.getDataGraph();
-      }
-      return; // DO NOT reset isUpdate here in the child
-    }
+  // Ignore UI-only changes that must NOT trigger a backend reload
+  const ignoredOnlyChanges =
+    Object.keys(changes).length === 1 &&
+    (changes['progressBarAtStart'] || changes['dimUnit']);
 
-    // NORMAL LOAD: allow loading bar/spinner
-    this.suppressProgress = false;
+  if (ignoredOnlyChanges) {
+    return;
+  }
+
+  // Explicit update from parent (e.g. depth change / operation change)
+  if (changes['isUpdate']?.currentValue === true) {
+    this.suppressProgress = true;
+
     if (this.polygon) {
-      this.firstSpinner();
       this.getDataGraphPolygonInterval();
     } else {
-      this.firstSpinner();
       this.getDataGraph();
     }
+    return;
   }
+
+  // Trigger normal load only for real data-driving input changes
+  const shouldReload =
+    !!changes['dataset'] ||
+    !!changes['latlng'] ||
+    !!changes['variable'] ||
+    !!changes['range'] ||
+    !!changes['polygon'] ||
+    !!changes['operation'] ||
+    !!changes['statistic'] ||
+    !!changes['enableArea'] ||
+    !!changes['context'] ||
+    !!changes['isIndicator'];
+
+  if (!shouldReload) {
+    return;
+  }
+
+  this.suppressProgress = false;
+
+  if (this.polygon) {
+    this.firstSpinner();
+    this.getDataGraphPolygonInterval();
+  } else {
+    this.firstSpinner();
+    this.getDataGraph();
+  }
+}
 
 
 
@@ -1221,7 +1253,12 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         }
 
         this.dataRes = response;
-
+        this.availableDepths = this.dataRes?.allData?.available_depths || [];
+        this.selectedDepthFromBackend = this.dataRes?.allData?.selected_depth ?? null;
+        this.availableDepthsChange.emit(this.availableDepths);
+        if (this.selectedDepthFromBackend !== null) {
+          this.selectedDepthChange.emit(this.selectedDepthFromBackend);
+        }
         this.meanMedianStdev.emit(
           this.dataRes.allData.mean +
           "_" + this.dataRes.allData.median +
