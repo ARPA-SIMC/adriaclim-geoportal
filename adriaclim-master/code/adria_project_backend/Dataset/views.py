@@ -22,7 +22,7 @@ from .tasks import task_get_data_polygon
 
 from Dataset.models import Node
 
-from Processing.data_analysis import updateStatisticsNew, getDataVectorial
+from Processing.data_analysis import updateStatisticsNew, getDataVectorial, getVerticalProfileTimeseries
 from Processing import compareStatistics
 from Processing.functionTable import getDataFunctionsTable
 import yaml
@@ -237,6 +237,78 @@ def getDataGraphicNewCanvas(request):
         lng_max =str(request.data.get("lng_max"))
         operation = request.data.get("operation") #default or type of operation
         context = request.data.get("context") #one or poylgon
+        dimension_names = (dataset.get("dimension_names") or "").lower()
+        dataset_type = (dataset.get("adriaclim_type") or "").lower()
+
+        # Handle single-point vertical time series with irregular temporal availability
+        if (
+            context == "one"
+            and dataset_type == "timeseries"
+            and "time" in dimension_names
+            and "depth" in dimension_names
+            and dataset.get("lat_min") == dataset.get("lat_max")
+            and dataset.get("lng_min") == dataset.get("lng_max")
+        ):
+            result = getVerticalProfileTimeseries(
+                dataset_id,
+                layer_name,
+                time_start,
+                time_finish,
+                latitude,
+                longitude,
+            )
+
+            if result.get("status") != "ok":
+                return JsonResponse({
+                    "allData": {
+                        "entries": [layer_name],
+                        layer_name: [],
+                        "mean": 0,
+                        "median": 0,
+                        "stdev": 0,
+                        "trend_yr": 0
+                    }
+                })
+
+            rows = result.get("rows", [])
+            values = [row["value"] for row in rows]
+
+            sorted_values = sorted(values)
+            n = len(sorted_values)
+
+            mean_value = sum(sorted_values) / n if n > 0 else 0
+
+            if n == 0:
+                median_value = 0
+            elif n % 2 == 1:
+                median_value = sorted_values[n // 2]
+            else:
+                median_value = (sorted_values[(n // 2) - 1] + sorted_values[n // 2]) / 2
+
+            if n > 1:
+                variance = sum((v - mean_value) ** 2 for v in sorted_values) / (n - 1)
+                stdev_value = variance ** 0.5
+            else:
+                stdev_value = 0
+
+            graph_series = [
+                {
+                    "x": row["time"],
+                    "y": row["value"]
+                }
+                for row in rows
+            ]
+
+            return JsonResponse({
+                "allData": {
+                    "entries": [layer_name],
+                    layer_name: graph_series,
+                    "mean": mean_value,
+                    "median": median_value,
+                    "stdev": stdev_value,
+                    "trend_yr": 0
+                }
+            })
         allData = getDataGraphicGeneric(dataset_id,adriaclim_timeperiod,layer_name,time_start,time_finish,latitude,longitude,0,range_value,0,lat_min,lng_min,lat_max,lng_max,operation=operation,context=context)
         if allData == "fuoriWms":
             return JsonResponse({"allData":allData})
@@ -248,10 +320,6 @@ def getDataGraphicNewCanvas(request):
 
 @api_view(['GET','POST'])
 def getDataVectorialNew(request):
-    logger.warning("[DEBUG BACKEND] getDataVectorialNew chiamato con:")
-    logger.warning(f"Dataset: {request.POST.get('dataset')}")
-    logger.warning(f"selVar: {request.POST.get('selVar')}")
-    logger.warning(f"selDate: {request.POST.get('selDate')}")
 
     try:
 
@@ -259,6 +327,28 @@ def getDataVectorialNew(request):
         dataset_id = dataset.get('id')
         sel_date = str(request.data.get('selDate'))
         layer_name = request.data.get('selVar')
+        dimension_names = (dataset.get("dimension_names") or "").lower()
+        dataset_type = (dataset.get("adriaclim_type") or "").lower()
+        # Detect vertical time-series datasets (single point + depth + time)
+        if (
+            dataset_type == "timeseries"
+            and "depth" in dimension_names
+            and "time" in dimension_names
+            and dataset.get("lat_min") == dataset.get("lat_max")
+            and dataset.get("lng_min") == dataset.get("lng_max")
+        ):
+            result = getVerticalProfileTimeseries(
+                dataset_id,
+                layer_name,
+                dataset.get("time_start"),
+                dataset.get("time_end"),
+                dataset.get("lat_min"),
+                dataset.get("lng_min"),
+            )
+
+            return JsonResponse({
+                "dataVect": result
+            })
         num_param = dataset.get('variables')
         num_dimensions = dataset.get('dimensions')
         lat_min = dataset.get('lat_min')

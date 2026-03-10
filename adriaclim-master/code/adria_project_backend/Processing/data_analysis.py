@@ -9,6 +9,7 @@ from AdriaProject.logger_config import setup_logger
 from .utils import read_erddap_data
 
 from .time_processing import get_season, seasons, check_dates_format_trend
+from AdriaProject.settings import ERDDAP_URL
 
 
 logger = setup_logger(__name__)
@@ -488,4 +489,75 @@ def getDataVectorial(
             "longitudes": [],
             "value_min": None,
             "value_max": None,
+        }
+
+def getVerticalProfileTimeseries(
+    dataset_id,
+    layer_name,
+    time_start,
+    time_end,
+    latitude,
+    longitude,
+):
+    try:
+
+        url = (
+            ERDDAP_URL
+            + "/griddap/"
+            + dataset_id
+            + ".csv?"
+            + layer_name
+            + "%5B("
+            + time_start
+            + "):1:("
+            + time_end
+            + ")%5D%5B(0):1:(0)%5D%5B("
+            + str(latitude)
+            + "):1:("
+            + str(latitude)
+            + ")%5D%5B("
+            + str(longitude)
+            + "):1:("
+            + str(longitude)
+            + ")%5D"
+        )
+
+        df = read_erddap_data(url)
+
+        if df is None or df.empty:
+            return {
+                "status": "no_data",
+                "rows": []
+            }
+
+        df = df.dropna(subset=[layer_name])
+        df = df[pd.to_numeric(df["depth"], errors="coerce").notnull()]
+
+        if df.empty:
+            return {
+                "status": "no_data",
+                "rows": []
+            }
+
+        df = df[["time", "depth", layer_name]]
+
+        rows = []
+
+        for _, row in df.iterrows():
+            rows.append({
+                "time": row["time"],
+                "depth": float(row["depth"]),
+                "value": float(row[layer_name]),
+            })
+
+        return {
+            "status": "ok",
+            "rows": rows
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "rows": []
         }

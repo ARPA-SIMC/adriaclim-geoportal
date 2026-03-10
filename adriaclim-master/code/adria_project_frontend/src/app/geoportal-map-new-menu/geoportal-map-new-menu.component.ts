@@ -2200,232 +2200,266 @@ export class GeoportalMapNewMenuComponent {
 
     this.httpService.post('dataset/getDataVectorialNew/', {
       dataset: this.selData.get("dataSetSel")?.value.name,
-      // selVar: this.selData.get("dataSetSel")?.value.name.griddap_url !== "" ? this.variableGroup.get("variableControl")?.value : splittedVar,
       selVar: this.variableGroup.get("variableControl")?.value,
       isIndicator: this.isIndicator ? "true" : "false",
       selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
     }).subscribe({
       next: (res: any) => {
+        try {
+          const dataVect = res?.dataVect;
 
-        const dataVect = res?.dataVect;
+          // New backend format
+          if (dataVect && typeof dataVect === "object" && !Array.isArray(dataVect)) {
 
-        // New backend format: explicit object with status
-        if (dataVect && typeof dataVect === "object" && !Array.isArray(dataVect)) {
+            if (dataVect.status === "no_data") {
+              this.compliantErrorErddap = dataVect.message || "No data available for the selected date.";
+              this.showAlertGenericError = true;
+              return;
+            }
 
-          if (dataVect.status === "no_data") {
-            this.compliantErrorErddap = dataVect.message || "No data available for the selected date.";
-            this.showAlertGenericError = true;
-            this.spinnerLoader.spinnerShow = false;
-            return;
-          }
+            if (dataVect.status === "error") {
+              this.compliantErrorErddap = dataVect.message || "Unexpected backend error.";
+              this.showAlertGenericError = true;
+              return;
+            }
 
-          if (dataVect.status === "error") {
-            this.compliantErrorErddap = dataVect.message || "Unexpected backend error.";
-            this.showAlertGenericError = true;
-            this.spinnerLoader.spinnerShow = false;
-            return;
-          }
+            if (dataVect.status === "ok") {
 
-          if (dataVect.status === "ok") {
-            res.dataVect = [
-              dataVect.values ?? [],
-              dataVect.latitudes ?? [],
-              dataVect.longitudes ?? [],
-              dataVect.value_min,
-              dataVect.value_max
-            ];
-          }
-        }
+              // CJ009 / vertical irregular timeseries on a single station
+              if (dataVect.rows && dataVect.rows.length > 0) {
+                const lat = parseFloat(this.selData.get("dataSetSel")?.value.name.lat_min);
+                const lon = parseFloat(this.selData.get("dataSetSel")?.value.name.lng_min);
 
-        // Old backend format: string error
-        if (typeof res.dataVect === "string" && res.dataVect.includes("HTTP Error 404")) {
-          this.compliantErrorErddap = "No data available for the selected date.";
-          this.showAlertGenericError = true;
-          this.spinnerLoader.spinnerShow = false;
-          return;
-        }
+                if (!isNaN(lat) && !isNaN(lon)) {
+                  if (this.allRectangles.length > 0) {
+                    this.removeAllRectangles();
+                  }
 
-        this.allDataVectorial = res['dataVect'];
-        const storageKey = this.selData.get('dataSetSel')?.value?.name?.title;
+                  this.circleMarkerArray.forEach((circle: any) => {
+                    this.markersLayer.removeLayer(circle);
+                  });
+                  this.circleMarkerArray = [];
 
-        // If no palette is saved, force component defaults
-        if (storageKey && !localStorage.getItem(storageKey)) {
-          this.restoreDefaultColors();
-        }
+                  this.map.setView(L.latLng(lat, lon), 14);
 
-        let allLatCoordinates = this.allDataVectorial[1];
-        let allLongCoordinates = this.allDataVectorial[2];
-        let allValues = this.allDataVectorial[0];
-        let value_min = this.allDataVectorial[3];
-        let value_max = this.allDataVectorial[4];
+                  this.markerToAdd = L.circleMarker([lat, lon], {
+                    radius: 15,
+                    weight: 2,
+                    color: '#1f78b4'
+                  });
 
-        // Safety check to avoid invalid rendering states
-        if (!allValues || !allLatCoordinates || !allLongCoordinates || allValues.length === 0) {
-          this.compliantErrorErddap = "No drawable data available.";
-          this.showAlertGenericError = true;
-          this.spinnerLoader.spinnerShow = false;
-          return;
-        }
+                  this.circleMarkerArray.push(this.markerToAdd);
+                  this.markersLayer.addLayer(this.markerToAdd);
+                  this.map.addLayer(this.markersLayer);
 
-        let bounds: any;
-        let rectangle: any;
-        let value_mid: any;
+                  this.markerToAdd.addEventListener('click', () => {
+                    this.openGraphDialog(lat, lon);
+                  });
 
-        if (parseFloat(value_min) !== parseFloat(value_max)) {
-          if (parseFloat(value_min) < 0) {
-            value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
-          } else {
-            value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
-          }
-        } else {
-          value_mid = parseFloat(value_min);
-        }
-
-        this.valueMin = parseFloat(value_min);
-        this.valueMax = parseFloat(value_max);
-        this.valueMid = value_mid;
-
-        this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
-
-        if (this.allRectangles.length > 0) {
-          this.removeAllRectangles();
-        }
-
-        let centerLat;
-        let centerLong;
-
-        if (allLatCoordinates.length === 1) {
-          centerLat = allLatCoordinates[0];
-          centerLong = allLongCoordinates[0];
-        } else {
-          const center = Math.round(allLatCoordinates.length / 2);
-          centerLat = allLatCoordinates[center];
-          centerLong = allLongCoordinates[center];
-        }
-
-        const zoomTest = L.latLng(centerLat, centerLong);
-        if (zoomTest) {
-          if (allLatCoordinates.length === 1) {
-            this.map.setView(zoomTest, 14);
-          } else {
-            this.map.setView(zoomTest, 8);
-          }
-        }
-
-        for (let i = 0; i < allLatCoordinates.length; i++) {
-
-          if (this.isIndicator) {
-
-            if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
-
-              this.circleCoords.push({
-                lat: allLatCoordinates[i],
-                lng: allLongCoordinates[i],
-              });
-
-              const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-
-              let varColor: any;
-              if (colorStorage) {
-                const colorStorageJson = JSON.parse(colorStorage);
-                varColor = this.getColor(
-                  allValues[i],
-                  value_min,
-                  value_max,
-                  colorStorageJson.minColor,
-                  colorStorageJson.midColor,
-                  colorStorageJson.maxColor
-                );
-              } else {
-                varColor = this.getColor(
-                  allValues[i],
-                  value_min,
-                  value_max,
-                  this.valueMinColor,
-                  this.valueMidColor,
-                  this.valueMaxColor
-                );
-              }
-
-              this.map.removeLayer(this.rettangoliLayer);
-
-              this.markerToAdd = L.circleMarker(
-                [parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],
-                {
-                  radius: 15,
-                  weight: 2,
-                  color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b)
+                  this.showAlertGenericError = false;
+                  this.compliantErrorErddap = "";
+                } else {
+                  this.compliantErrorErddap = "Invalid station coordinates.";
+                  this.showAlertGenericError = true;
                 }
-              );
 
-              this.circleMarkerArray.push(this.markerToAdd);
-              this.markersLayer.addLayer(this.markerToAdd);
-              this.map.addLayer(this.markersLayer);
-            }
-
-          } else {
-
-            // griddap case with rectangle
-
-            if (!isNaN(parseFloat(allLatCoordinates[i])) || !isNaN(parseFloat(allLongCoordinates[i]))) {
-
-              bounds = [
-                [parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387],
-                [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]
-              ];
-
-              let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
-              let varColor: any;
-
-              if (colorStorage) {
-                let colorStorageJson = JSON.parse(colorStorage);
-                varColor = this.getColor(
-                  allValues[i],
-                  value_min,
-                  value_max,
-                  colorStorageJson.minColor,
-                  colorStorageJson.midColor,
-                  colorStorageJson.maxColor
-                );
-              } else {
-                varColor = this.getColor(
-                  allValues[i],
-                  value_min,
-                  value_max,
-                  this.valueMinColor,
-                  this.valueMidColor,
-                  this.valueMaxColor
-                );
+                return;
               }
 
-              rectangle = L.rectangle(bounds, {
-                fillOpacity: 0.4,
-                opacity: 0.4,
-                fill: true,
-                stroke: false,
-                color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b),
-                weight: 1
-              });
-
-              this.allRectangles.push(rectangle);
-              this.rettangoliLayer.addLayer(rectangle);
-              this.map.addLayer(this.rettangoliLayer);
+              // Standard datasets
+              res.dataVect = [
+                dataVect.values ?? [],
+                dataVect.latitudes ?? [],
+                dataVect.longitudes ?? [],
+                dataVect.value_min,
+                dataVect.value_max
+              ];
             }
           }
-        }
 
-        if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-          this.circleMarkerArray.forEach((circle: any) => {
-            circle.addEventListener('click', (e: any) =>
-              this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
-            );
-          });
-          this.map.off('click');
-        }
+          // Old backend string error
+          if (typeof res.dataVect === "string" && res.dataVect.includes("HTTP Error 404")) {
+            this.compliantErrorErddap = "No data available for the selected date.";
+            this.showAlertGenericError = true;
+            return;
+          }
 
-        setTimeout(() => {
+          this.allDataVectorial = res['dataVect'];
+          const storageKey = this.selData.get('dataSetSel')?.value?.name?.title;
+
+          if (storageKey && !localStorage.getItem(storageKey)) {
+            this.restoreDefaultColors();
+          }
+
+          const allLatCoordinates = this.allDataVectorial[1];
+          const allLongCoordinates = this.allDataVectorial[2];
+          const allValues = this.allDataVectorial[0];
+          const value_min = this.allDataVectorial[3];
+          const value_max = this.allDataVectorial[4];
+
+          if (!allValues || !allLatCoordinates || !allLongCoordinates || allValues.length === 0) {
+            this.compliantErrorErddap = "No drawable data available.";
+            this.showAlertGenericError = true;
+            return;
+          }
+
+          let bounds: any;
+          let rectangle: any;
+          let value_mid: any;
+
+          if (parseFloat(value_min) !== parseFloat(value_max)) {
+            if (parseFloat(value_min) < 0) {
+              value_mid = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+            } else {
+              value_mid = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+            }
+          } else {
+            value_mid = parseFloat(value_min);
+          }
+
+          this.valueMin = parseFloat(value_min);
+          this.valueMax = parseFloat(value_max);
+          this.valueMid = value_mid;
+
+          this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid);
+
+          if (this.allRectangles.length > 0) {
+            this.removeAllRectangles();
+          }
+
+          let centerLat;
+          let centerLong;
+
+          if (allLatCoordinates.length === 1) {
+            centerLat = allLatCoordinates[0];
+            centerLong = allLongCoordinates[0];
+          } else {
+            const center = Math.round(allLatCoordinates.length / 2);
+            centerLat = allLatCoordinates[center];
+            centerLong = allLongCoordinates[center];
+          }
+
+          const zoomTest = L.latLng(centerLat, centerLong);
+          if (zoomTest) {
+            if (allLatCoordinates.length === 1) {
+              this.map.setView(zoomTest, 14);
+            } else {
+              this.map.setView(zoomTest, 8);
+            }
+          }
+
+          for (let i = 0; i < allLatCoordinates.length; i++) {
+
+            if (this.isIndicator) {
+
+              if (!isNaN(parseFloat(allLatCoordinates[i])) && !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+                this.circleCoords.push({
+                  lat: allLatCoordinates[i],
+                  lng: allLongCoordinates[i],
+                });
+
+                const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+
+                let varColor: any;
+                if (colorStorage) {
+                  const colorStorageJson = JSON.parse(colorStorage);
+                  varColor = this.getColor(
+                    allValues[i],
+                    value_min,
+                    value_max,
+                    colorStorageJson.minColor,
+                    colorStorageJson.midColor,
+                    colorStorageJson.maxColor
+                  );
+                } else {
+                  varColor = this.getColor(
+                    allValues[i],
+                    value_min,
+                    value_max,
+                    this.valueMinColor,
+                    this.valueMidColor,
+                    this.valueMaxColor
+                  );
+                }
+
+                this.map.removeLayer(this.rettangoliLayer);
+
+                this.markerToAdd = L.circleMarker(
+                  [parseFloat(allLatCoordinates[i]), parseFloat(allLongCoordinates[i])],
+                  {
+                    radius: 15,
+                    weight: 2,
+                    color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b)
+                  }
+                );
+
+                this.circleMarkerArray.push(this.markerToAdd);
+                this.markersLayer.addLayer(this.markerToAdd);
+                this.map.addLayer(this.markersLayer);
+              }
+
+            } else {
+
+              if (!isNaN(parseFloat(allLatCoordinates[i])) && !isNaN(parseFloat(allLongCoordinates[i]))) {
+
+                bounds = [
+                  [parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387],
+                  [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]
+                ];
+
+                const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+                let varColor: any;
+
+                if (colorStorage) {
+                  const colorStorageJson = JSON.parse(colorStorage);
+                  varColor = this.getColor(
+                    allValues[i],
+                    value_min,
+                    value_max,
+                    colorStorageJson.minColor,
+                    colorStorageJson.midColor,
+                    colorStorageJson.maxColor
+                  );
+                } else {
+                  varColor = this.getColor(
+                    allValues[i],
+                    value_min,
+                    value_max,
+                    this.valueMinColor,
+                    this.valueMidColor,
+                    this.valueMaxColor
+                  );
+                }
+
+                rectangle = L.rectangle(bounds, {
+                  fillOpacity: 0.4,
+                  opacity: 0.4,
+                  fill: true,
+                  stroke: false,
+                  color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b),
+                  weight: 1
+                });
+
+                this.allRectangles.push(rectangle);
+                this.rettangoliLayer.addLayer(rectangle);
+                this.map.addLayer(this.rettangoliLayer);
+              }
+            }
+          }
+
+          if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
+            this.circleMarkerArray.forEach((circle: any) => {
+              circle.addEventListener('click', (e: any) =>
+                this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
+              );
+            });
+            this.map.off('click');
+          }
+
+        } finally {
           this.spinnerLoader.spinnerShow = false;
-        }, 500);
+        }
       },
 
       error: (msg: any) => {
