@@ -81,7 +81,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   endZoom: any;
   data1: any[] = [];
   quantityBoxPlot = new Set();
-
+  statCalc: any;
+  fullStatCalc: any = null;
   timeoutProgressBar: any;
   private taskStatusInterval: any = null;
 
@@ -338,26 +339,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   /**
  * Format the display date based on the selected operation
  */
-  // formatDate(d: any) {
-  //   if (this.operation !== "annualDay") {
-  //     d = new Date(d);
-  //   }
-  //   if (this.operation === "annualMonth") {
-  //     return this.months[d.getMonth()];
-  //   }
-  //   else if (this.operation === "annualDay") {
-  //     return d;
-  //   }
-  //   else if (this.operation === "annualSeason") {
-  //     return this.seasons[d.getMonth()];
-  //   }
-  //   else {
-  //     let month = d.getMonth() + 1
-  //     let day = d.getDate()
-  //     let year = d.getFullYear()
-  //     return day + "/" + month + "/" + year;
-  //   }
-  // }
   formatDate(d: any) {
     if (this.operation === "annualDay") {
       return d;
@@ -947,14 +928,25 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     });
 
     let arrayDataDate = this.allDataPolygon.dataPol.map((el: any) => {
-      return el["x"]
+      return el["x"];
     });
     let arrayDataValue = this.allDataPolygon.dataPol.map((el: any) => {
-      return el["y"]
+      return el["y"];
     });
+
+    this.fullStatCalc = {
+      dates: [...arrayDataDate],
+      values: [...arrayDataValue]
+    };
+
+    this.statCalc = {
+      dates: [...arrayDataDate],
+      values: [...arrayDataValue]
+    };
+
     this.statisticCalc.emit({
-      dates: arrayDataDate,
-      values: arrayDataValue
+      dates: [...arrayDataDate],
+      values: [...arrayDataValue]
     });
     this.meanMedianStdev.emit(this.allDataPolygon.mean + "_" + this.allDataPolygon.median + "_" + this.allDataPolygon.stdev + "_" + this.allDataPolygon.trend_yr);
     this.dataTablePolygon.emit(this.allDataPolygon.dataTable);
@@ -1183,7 +1175,40 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   onChartEvent(event: any, nameEvent: any) {
+    if (nameEvent !== 'chartDataZoom') {
+      return;
+    }
 
+    if (!this.fullStatCalc || !this.fullStatCalc.dates || !this.fullStatCalc.values) {
+      return;
+    }
+
+    const zoom = event?.batch?.[0] ?? event;
+
+    const start = typeof zoom?.start === 'number' ? zoom.start : 0;
+    const end = typeof zoom?.end === 'number' ? zoom.end : 100;
+
+    const total = this.fullStatCalc.dates.length;
+
+    if (!total) {
+      return;
+    }
+
+    const startIndex = Math.max(0, Math.floor((start / 100) * total));
+    const endIndex = Math.min(total, Math.ceil((end / 100) * total));
+
+    const newDates = this.fullStatCalc.dates.slice(startIndex, endIndex);
+    const newValues = this.fullStatCalc.values.slice(startIndex, endIndex);
+
+    this.statCalc = {
+      dates: newDates,
+      values: newValues
+    };
+
+    this.statisticCalc.emit({
+      dates: [...newDates],
+      values: [...newValues]
+    });
   }
 
  /**
