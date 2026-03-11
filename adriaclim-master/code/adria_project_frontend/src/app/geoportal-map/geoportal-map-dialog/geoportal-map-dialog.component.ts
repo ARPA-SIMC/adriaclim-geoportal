@@ -47,6 +47,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
   form!: FormGroup;
   description: string;
+  tableDescription: string = "";
   success: boolean;
   datasetId: string;
   datasetName: string;
@@ -523,65 +524,68 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   * Populate the table with metadata
   */
   getGraphTable() {
-  this.dimUnit = "";
-  if (this.dataset) {
-    this.spinnerLoading = true; 
-    let data = {
-      idMeta: this.datasetId,
-      dimensions: this.dataset.dimensions,
-      lat: this.latlng.lat,
-      lng: this.latlng.lng,
-      dateStart: this.formatDateNew(this.dateStart),
-      dateEnd: this.formatDateNew(this.dateEnd),
-      variable: this.variable,
-      range: this.range ? Math.abs(this.range) : null
-    };
+    this.tableDescription = "";  
+    this.dimUnit = "";
+    if (this.dataset) {
+      this.spinnerLoading = true; 
+      let data = {
+        idMeta: this.datasetId,
+        dimensions: this.dataset.dimensions,
+        lat: this.latlng.lat,
+        lng: this.latlng.lng,
+        dateStart: this.formatDateNew(this.dateStart),
+        dateEnd: this.formatDateNew(this.dateEnd),
+        variable: this.variable,
+        range: this.range ? Math.abs(this.range) : null
+      };
 
-    this.httpService.post('dataset/getDataTableNew/', data).subscribe({
-      next: (response: any) => {
-        if (response.data !== "fuoriWms") {
-          if (typeof response === 'string') {
-            response = JSON.parse(response);
-          }
+      this.httpService.post('dataset/getDataTableNew/', data).subscribe({
+        next: (response: any) => {
+          if (response.data !== "fuoriWms") {
+            if (typeof response === 'string') {
+              response = JSON.parse(response);
+            }
 
-          this.dataTable = response;
-          this.displayedColumns = this.dataTable.data.table.columnNames;
-          this.dimUnit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
+            this.dataTable = response;
+            this.displayedColumns = this.dataTable.data.table.columnNames;
+            this.dimUnit = this.dataTable.data.table.columnUnits[this.dataTable.data.table.columnUnits.length - 1];
 
-          if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
-            this.displayedColumns[this.displayedColumns.length - 1] =
-              this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
-          } else {
-            this.dimUnit = "";
-          }
+            if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
+              this.displayedColumns[this.displayedColumns.length - 1] =
+                this.displayedColumns[this.displayedColumns.length - 1] + " [" + this.dimUnit + "]";
+            } else {
+              this.dimUnit = "";
+            }
 
-          let arr1: any[] = [];
-          this.dataTable.data.table.rows.forEach((arr: any) => {
-            let objArr: any = {};
-            this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
-              objArr[key] = arr[i];
+            let arr1: any[] = [];
+            this.dataTable.data.table.rows.forEach((arr: any) => {
+              let objArr: any = {};
+              this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
+                objArr[key] = arr[i];
+              });
+              arr1.push(objArr);
             });
-            arr1.push(objArr);
-          });
-          this.dataTable.data.table.rows = [...arr1];
+            this.dataTable.data.table.rows = [...arr1];
 
-          if (this.dataTable.data.table.rows.length > 0) {
-            this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
-            this.setDataSourceAttributes();
+            if (this.dataTable.data.table.rows.length > 0) {
+              this.dataSource = new MatTableDataSource(this.dataTable.data.table.rows);
+              this.setDataSourceAttributes();
+            }
+          } else {
+            this.tableDescription = "The selected point is outside the WMS coverage";
+            this.dataSource = new MatTableDataSource<any>([]);
+            this.displayedColumns = [];
           }
-        } else {
-          this.description = "The selected point is outside the WMS coverage";
-        }
 
-        this.spinnerLoading = false; 
-      },
-      error: (err: any) => {
-        console.error("Errore in getGraphTable:", err);
-        this.spinnerLoading = false;
-      }
-    });
+          this.spinnerLoading = false; 
+        },
+        error: (err: any) => {
+          console.error("Errore in getGraphTable:", err);
+          this.spinnerLoading = false;
+        }
+      });
+    }
   }
-}
 
   createErddapUrl() {
     let prova: any[] = [];

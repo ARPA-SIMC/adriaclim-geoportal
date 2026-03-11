@@ -220,7 +220,11 @@
               </ng-template>
             </mat-tab>
             <mat-tab label="Table" *ngIf="!compareObj">
-              <table mat-table [dataSource]="dataSource">
+              <div *ngIf="tableDescription" class="title-dialog-bold mb-3">
+                {{ tableDescription }}
+              </div>
+
+              <table mat-table [dataSource]="dataSource" *ngIf="!tableDescription">
                 <ng-container [matColumnDef]="column"
                   *ngFor="let column of displayedColumns; let i = index">
                   <th mat-header-cell *matHeaderCellDef>
@@ -232,10 +236,11 @@
                 <tr mat-row
                   *matRowDef="let row; columns: displayedColumns;"></tr>
               </table>
-              <mat-paginator [pageSizeOptions]="[10, 20, 30]"
-                showFirstLastButtons
-                aria-label="Select page of periodic elements">
-              </mat-paginator>
+                <mat-paginator *ngIf="!tableDescription"
+                  [pageSizeOptions]="[10, 20, 30]"
+                  showFirstLastButtons
+                  aria-label="Select page of periodic elements">
+                </mat-paginator>
             </mat-tab>
             <mat-tab label="Export"
               class="export-tab col-12 d-flex flex-row justify-content-center align-items-center"
