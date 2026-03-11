@@ -118,6 +118,39 @@ def getDataPolygonNew(
     pol_vertices_str = str(vertices[0][0]).replace(" ", "")
     key_cached = dataset_id + "_" + pol_vertices_str
 
+    def _build_erddap_error_response(exc):
+        """
+        Build a consistent response for ERDDAP temporary/server errors.
+        """
+        message = str(exc)
+
+        if isinstance(exc, TimeoutError):
+            return {
+                "error": "erddap_timeout",
+                "description": "Temporary timeout while reading data from ERDDAP.",
+                "details": message,
+            }
+
+        if isinstance(exc, RuntimeError):
+            if "429" in message:
+                return {
+                    "error": "erddap_rate_limit",
+                    "description": "ERDDAP temporarily refused the request due to rate limiting.",
+                    "details": message,
+                }
+
+            return {
+                "error": "erddap_server_error",
+                "description": "Temporary server error while reading data from ERDDAP.",
+                "details": message,
+            }
+
+        return {
+            "error": "erddap_generic_error",
+            "description": "Unexpected error while reading data from ERDDAP.",
+            "details": message,
+        }
+
     cache_result = cache.get(key=key_cached)
     if cache_result is not None:
         logger.debug("CACHE HIT")
@@ -487,8 +520,12 @@ def getDataPolygonNew(
         return allData_sanit
 
 
+    except (TimeoutError, RuntimeError) as e_bulk:
+        logger.error("BULK ERDDAP error for dataset %s: %s", dataset_id, e_bulk)
+        return _build_erddap_error_response(e_bulk)
+
     except Exception as e_bulk:
-        logger.warning("BULK fallito: %s — procedo con fallback per-punto", e_bulk)
+        logger.warning("BULK fallito per motivo non server: %s — procedo con fallback per-punto", e_bulk)
 
     # ===== Per-point fallback (original code) =====
 
@@ -549,6 +586,10 @@ def getDataPolygonNew(
             total_elapsed_time += elapsed_time
 
             logger.info("Completato per %s in %.2f secondi", latlng, elapsed_time)
+
+        except (TimeoutError, RuntimeError) as e:
+            logger.error("ERDDAP point request failed at %s: %s", latlng, e)
+            return _build_erddap_error_response(e)
 
         except Exception as e:
             logger.error("Error downloading data at point %s: %s", latlng, e)

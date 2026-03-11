@@ -214,11 +214,26 @@ def getAllDatasets():
 
     processed_ids = set()
 
+    DATASET_IDS_DA_ESCLUDERE = {
+        "medcordex_rcp45_projections_vosaline_day",
+        "medcordex_rcp45_projections_sossheig_day",
+        "medcordex_rcp45_projections_votemper_day",
+        "medcordex_rcp85_projections_vosaline_day",
+        "medcordex_rcp85_projections_sossheig_day",
+        "medcordex_rcp85_projections_votemper_day",
+        "medbfm_rcp45_projections_ph_month",
+        "medbfm_rcp85_projections_ph_month",
+    }
+
     for row in df.to_dict(orient="records"):
         node_id = row["DatasetID"]
         if node_id in processed_ids:
             continue
         processed_ids.add(node_id)
+
+        if node_id in DATASET_IDS_DA_ESCLUDERE:
+            logger.info(f"Dataset {node_id} ({row['Title']}) excluded because it is too large for point extraction")
+            continue
 
         info = row["Info"]
         adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = None
