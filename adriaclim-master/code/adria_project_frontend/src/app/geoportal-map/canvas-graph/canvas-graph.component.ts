@@ -85,6 +85,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   fullStatCalc: any = null;
   timeoutProgressBar: any;
   private taskStatusInterval: any = null;
+  private taskStatusAttempts = 0;
+  private readonly maxTaskStatusAttempts = 60; // 60 * 2s = circa 2 minuti
 
 
   allDataPolygon: any;
@@ -383,7 +385,326 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
+  // getDataGraphPolygonInterval() {
+  //   // Close polygon if needed
+  //   if (this.polygon && this.polygon.length >= 3) {
+  //     const first = this.polygon[0];
+  //     const last = this.polygon[this.polygon.length - 1];
+  //     if (first.lat !== last.lat || first.lng !== last.lng) {
+  //       this.polygon.push({ lat: first.lat, lng: first.lng });
+  //     }
+  //   }
+
+  //   let data = {
+  //     dataset: this.dataset,
+  //     selVar: this.variable,
+  //     range: this.range ? Math.abs(this.range) : 0,
+  //     latLngObj: this.polygon,
+  //     isIndicator: this.isIndicator,
+  //     parametro_agg: this.extraParam ? this.extraParam.nameExtraParam : null,
+  //     operation: this.operation,
+  //     statistic: this.statistic,
+  //     circleCoords: this.circleCoords,
+  //   };
+
+  //   console.log("DATA IF POLYGON =", data);
+
+  //   // Check boxPlot
+  //   if (this.statistic !== "boxPlot") {
+  //     if (this.isLoading) {
+  //       console.log("Caricamento già in corso, ignoro nuova richiesta");
+  //       return;
+  //     }
+  //     this.isLoading = true;
+
+  //     // Show spinner and loading bar only if NOT an update
+  //     if (!this.isUpdate) {
+  //       this.firstSpinner();
+  //       if (this.context === "one") {
+  //         console.log("[FIGLIO] emetto fakeProgressStart");
+  //         this.fakeProgressStart.emit();
+  //         this.chartAlreadyLoaded = true;
+  //       }
+  //     } else {
+  //       // Update → spinner only
+  //       this.spinnerLoadingChild.emit(true);
+  //       this.spinnerService.spinnerShow = true;
+  //     }
+
+  //     this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
+  //       next: (response: any) => {
+  //         console.log("PRIMA RESPONSE", response);
+  //         let taskData = { task_id: response.task_id };
+
+  //         this.taskStatusAttempts = 0;
+  //         this.taskStatusInterval = setInterval(() => {
+  //           this.taskStatusAttempts++;
+  //           if (this.taskStatusAttempts > this.maxTaskStatusAttempts) {
+  //             clearInterval(this.taskStatusInterval);
+  //             this.taskStatusInterval = null;
+
+  //             if (!this.isUpdate) {
+  //               this.fakeProgressStop.emit();
+  //             } else {
+  //               this.spinnerLoadingChild.emit(false);
+  //               this.spinnerService.spinnerShow = false;
+  //             }
+
+  //             this.description.emit("The request is taking too long and has been stopped. Please try again later.");
+  //             this.isLoading = false;
+  //             return;
+  //           }
+  //           this.httpService.post('dataset/check_task_status/', taskData).subscribe({
+  //             next: (res: any) => {
+  //               console.log("SECONDA RESPONSE", res);
+  //               let task_status = res.dataVect.status;
+
+  //               if (task_status === 'SUCCESS') {
+  //                 clearInterval(this.taskStatusInterval);
+  //                 this.taskStatusInterval = null;
+
+  //                 if (!this.isUpdate) {
+  //                   console.log("[FIGLIO] emetto fakeProgressStop");
+  //                   this.fakeProgressStop.emit();
+  //                 } else {
+  //                   // stop spinner update
+  //                   this.spinnerLoadingChild.emit(false);
+  //                   this.spinnerService.spinnerShow = false;
+  //                 }
+
+  //                 let task_result = { dataVect: res.dataVect.result };
+  //                 this.getDataGraphPolygon(task_result);
+  //                 this.isLoading = false;
+  //               }
+  //               else if (task_status === 'FAILURE' || task_status === 'ERROR' || task_status === 'REVOKED') {
+  //                 clearInterval(this.taskStatusInterval);
+  //                 this.taskStatusInterval = null;
+
+  //                 if (!this.isUpdate) {
+  //                   console.log("[FIGLIO] emetto fakeProgressStop");
+  //                   this.fakeProgressStop.emit();
+  //                 } else {
+  //                   this.spinnerLoadingChild.emit(false);
+  //                   this.spinnerService.spinnerShow = false;
+  //                 }
+
+  //                 const backendError = res?.dataVect?.error || 'Task failed';
+  //                 this.description.emit(backendError);
+  //                 console.error('Task error:', backendError);
+  //                 this.isLoading = false;
+  //               }
+  //               else if (task_status === "PROGRESS" && !this.isUpdate) {
+  //                 let progressBarValue = res.dataVect.progressBar;
+  //                 this.progressBar.emit(progressBarValue);
+  //               }
+  //             },
+  //             error: (err: any) => {
+  //               clearInterval(this.taskStatusInterval);
+  //               this.taskStatusInterval = null;
+
+  //               if (!this.isUpdate) {
+  //                 console.log("[FIGLIO] emetto fakeProgressStop");
+  //                 this.fakeProgressStop.emit();
+  //               } else {
+  //                 this.spinnerLoadingChild.emit(false);
+  //                 this.spinnerService.spinnerShow = false;
+  //               }
+
+  //               console.log("ERROR =", err);
+  //               this.isLoading = false;
+  //             }
+  //           });
+  //         }, 2000);
+  //       },
+  //       error: (err: any) => {
+  //         console.error("Errore getDataGraphPolygonInterval:", err);
+  //         this.isLoading = false;
+  //       }
+  //     });
+  //   }
+
+  //   // --- Updated BoxPlot branch ---
+  //   else {
+  //     if (this.isLoading) {
+  //       console.log("Caricamento già in corso, ignoro nuova richiesta");
+  //       return;
+  //     }
+  //     this.isLoading = true;
+
+  //     if (!this.isUpdate) {
+  //     // Show spinner only for boxPlot
+  //     if (this.statistic === 'boxPlot') {
+  //       this.firstSpinner();
+  //       console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
+  //       this.fakeProgressStart.emit();
+  //     }
+  //   } else {
+  //     if (this.statistic === 'boxPlot') {
+  //       this.spinnerLoadingChild.emit(true);
+  //       this.spinnerService.spinnerShow = true;
+  //     }
+  //   }
+
+  //     data['statistic'] = "min_10thPerc_median_90thPerc_max";
+
+  //     this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
+  //       next: (response: any) => {
+  //         const taskData = { task_id: response.task_id };
+
+  //         this.taskStatusAttempts = 0;
+  //         this.taskStatusInterval = setInterval(() => {
+  //           this.taskStatusAttempts++;
+  //           if (this.taskStatusAttempts > this.maxTaskStatusAttempts) {
+  //             clearInterval(this.taskStatusInterval);
+  //             this.taskStatusInterval = null;
+
+  //             if (!this.isUpdate) {
+  //               this.fakeProgressStop.emit();
+  //             } else {
+  //               this.spinnerLoadingChild.emit(false);
+  //               this.spinnerService.spinnerShow = false;
+  //             }
+
+  //             this.description.emit("The request is taking too long and has been stopped. Please try again later.");
+  //             this.isLoading = false;
+  //             return;
+  //           }
+  //           this.httpService.post('dataset/check_task_status/', taskData).subscribe({
+  //             next: (res: any) => {
+  //               console.log("SECONDA RESPONSE (boxPlot)", res);
+
+  //               const task_status = res?.dataVect?.status;
+  //               const result = res?.dataVect?.result;
+
+  //               // Stop polling as soon as it finishes
+  //               if (task_status === 'SUCCESS') {
+  //                 clearInterval(this.taskStatusInterval);
+  //                 this.taskStatusInterval = null;
+
+  //                 // Always turn off the spinner
+  //                 if (!this.isUpdate) {
+  //                   this.fakeProgressStop.emit();
+  //                 } else {
+  //                   this.spinnerLoadingChild.emit(false);
+  //                   this.spinnerService.spinnerShow = false;
+  //                 }
+
+  //                 const result = res?.dataVect?.result;
+
+  //                 if (result && typeof result === 'object' && Array.isArray(result.dataPol)) {
+  //                   this.data1 = result.dataPol.map((el: any) => {
+  //                     return [
+  //                       el["Minimum"],
+  //                       el["10th Percentile"],
+  //                       el["Median"],
+  //                       el["90th Percentile"],
+  //                       el["Maximum"],
+  //                     ];
+  //                   });
+
+  //                   const showName = result.dataPol.map((el: any) => [el['x']]);
+  //                   this.quantityBoxPlot = new Set();
+  //                   showName.forEach((element: any) => {
+  //                     this.quantityBoxPlot.add(element[0]);
+  //                   });
+
+  //                   this.optionBoxPlot = {
+  //                     title: [
+  //                       {
+  //                         text: 'Min, 10th Percentile, Median, 90th Percentile, Max',
+  //                         left: 'center',
+  //                         top: '20px'
+  //                       }
+  //                     ],
+  //                     dataset: [
+  //                       { source: this.data1 },
+  //                       { transform: { type: 'boxplot', config: { itemNameFormatter: (params: any) => params.value } } },
+  //                       { fromDatasetIndex: 1, fromTransformResult: 1 },
+  //                     ],
+  //                     tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
+  //                     grid: { left: '10%', right: '10%', bottom: '15%' },
+  //                     xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
+  //                     yAxis: { type: 'value', name: 'Values' },
+  //                     series: [
+  //                       { name: 'Box plot', type: 'boxplot', datasetIndex: 1 },
+  //                       { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
+  //                     ]
+  //                   };
+  //                 } else {
+  //                   console.warn("BoxPlot: risultato non strutturato o vuoto:", result);
+  //                 }
+
+  //                 this.isLoading = false;
+
+  //                 // --- FIX: force spinner shutdown after 1s for safety ---
+  //                 setTimeout(() => {
+  //                   if (!this.isUpdate) {
+  //                     this.fakeProgressStop.emit();
+  //                   } else {
+  //                     this.spinnerLoadingChild.emit(false);
+  //                     this.spinnerService.spinnerShow = false;
+  //                   }
+  //                   console.log("[FIX] Spinner force-stopped after SUCCESS (boxPlot)");
+  //                 }, 1000);
+  //                 // --- END FIX ---
+  //               }
+
+  //               else if (task_status === 'FAILURE' || task_status === 'ERROR' || task_status === 'REVOKED') {
+  //                 clearInterval(this.taskStatusInterval);
+  //                 this.taskStatusInterval = null;
+
+  //                 if (!this.isUpdate) {
+  //                   this.fakeProgressStop.emit();
+  //                 } else {
+  //                   this.spinnerLoadingChild.emit(false);
+  //                   this.spinnerService.spinnerShow = false;
+  //                 }
+
+  //                 const backendError = res?.dataVect?.error || 'Task failed';
+  //                 this.description.emit(backendError);
+  //                 console.error('Task error (boxPlot):', backendError);
+  //                 this.isLoading = false;
+  //               }
+
+  //               // If PROGRESS → continue polling
+  //               },
+  //               error: (err: any) => {
+  //                 clearInterval(this.taskStatusInterval);
+  //                 this.taskStatusInterval = null;
+
+  //                 if (!this.isUpdate) {
+  //                   this.fakeProgressStop.emit();
+  //                 } else {
+  //                   this.spinnerLoadingChild.emit(false);
+  //                   this.spinnerService.spinnerShow = false;
+  //                 }
+
+  //                 console.log("ERROR (boxPlot) =", err);
+  //                 this.isLoading = false;
+  //               }
+  //               });
+  //               }, 2000);
+  //               },
+  //               error: (err: any) => {
+  //                 console.error("Errore boxPlot:", err);
+  //                 // Turn off the spinner anyway if the first POST fails
+  //                 if (!this.isUpdate) {
+  //                   this.fakeProgressStop.emit();
+  //                 } else {
+  //                   this.spinnerLoadingChild.emit(false);
+  //                   this.spinnerService.spinnerShow = false;
+  //                 }
+  //                 this.isLoading = false;
+  //               }
+  //             });
+  //           }
+  //         }
   getDataGraphPolygonInterval() {
+    if (this.taskStatusInterval) {
+      clearInterval(this.taskStatusInterval);
+      this.taskStatusInterval = null;
+    }
+
     // Close polygon if needed
     if (this.polygon && this.polygon.length >= 3) {
       const first = this.polygon[0];
@@ -393,7 +714,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     }
 
-    let data = {
+    let data: any = {
       dataset: this.dataset,
       selVar: this.variable,
       range: this.range ? Math.abs(this.range) : 0,
@@ -407,12 +728,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     console.log("DATA IF POLYGON =", data);
 
-    // Check boxPlot
+    // Normal branch
     if (this.statistic !== "boxPlot") {
       if (this.isLoading) {
         console.log("Caricamento già in corso, ignoro nuova richiesta");
         return;
       }
+
       this.isLoading = true;
 
       // Show spinner and loading bar only if NOT an update
@@ -432,13 +754,32 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
         next: (response: any) => {
           console.log("PRIMA RESPONSE", response);
-          let taskData = { task_id: response.task_id };
+          const taskData = { task_id: response.task_id };
 
+          this.taskStatusAttempts = 0;
           this.taskStatusInterval = setInterval(() => {
+            this.taskStatusAttempts++;
+
+            if (this.taskStatusAttempts > this.maxTaskStatusAttempts) {
+              clearInterval(this.taskStatusInterval);
+              this.taskStatusInterval = null;
+
+              if (!this.isUpdate) {
+                this.fakeProgressStop.emit();
+              } else {
+                this.spinnerLoadingChild.emit(false);
+                this.spinnerService.spinnerShow = false;
+              }
+
+              this.description.emit("The request is taking too long and has been stopped. Please try again later.");
+              this.isLoading = false;
+              return;
+            }
+
             this.httpService.post('dataset/check_task_status/', taskData).subscribe({
               next: (res: any) => {
                 console.log("SECONDA RESPONSE", res);
-                let task_status = res.dataVect.status;
+                const task_status = res?.dataVect?.status;
 
                 if (task_status === 'SUCCESS') {
                   clearInterval(this.taskStatusInterval);
@@ -448,16 +789,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     console.log("[FIGLIO] emetto fakeProgressStop");
                     this.fakeProgressStop.emit();
                   } else {
-                    // stop spinner update
                     this.spinnerLoadingChild.emit(false);
                     this.spinnerService.spinnerShow = false;
                   }
 
-                  let task_result = { dataVect: res.dataVect.result };
+                  const task_result = { dataVect: res.dataVect.result };
                   this.getDataGraphPolygon(task_result);
                   this.isLoading = false;
                 }
-                else if (task_status === 'FAILURE') {
+                else if (task_status === 'FAILURE' || task_status === 'ERROR' || task_status === 'REVOKED') {
                   clearInterval(this.taskStatusInterval);
                   this.taskStatusInterval = null;
 
@@ -469,11 +809,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     this.spinnerService.spinnerShow = false;
                   }
 
-                  console.error('Task error:', response.dataVect.error);
+                  const backendError = res?.dataVect?.error || 'Task failed';
+                  this.description.emit(backendError);
+                  console.error('Task error:', backendError);
                   this.isLoading = false;
                 }
                 else if (task_status === "PROGRESS" && !this.isUpdate) {
-                  let progressBarValue = res.dataVect.progressBar;
+                  const progressBarValue = res?.dataVect?.progressBar;
                   this.progressBar.emit(progressBarValue);
                 }
               },
@@ -497,32 +839,36 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         },
         error: (err: any) => {
           console.error("Errore getDataGraphPolygonInterval:", err);
+
+          if (!this.isUpdate) {
+            this.fakeProgressStop.emit();
+          } else {
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
+          }
+
           this.isLoading = false;
         }
       });
     }
 
-    // --- Updated BoxPlot branch ---
+    // BoxPlot branch
     else {
       if (this.isLoading) {
         console.log("Caricamento già in corso, ignoro nuova richiesta");
         return;
       }
+
       this.isLoading = true;
 
       if (!this.isUpdate) {
-      // Show spinner only for boxPlot
-      if (this.statistic === 'boxPlot') {
         this.firstSpinner();
         console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
         this.fakeProgressStart.emit();
-      }
-    } else {
-      if (this.statistic === 'boxPlot') {
+      } else {
         this.spinnerLoadingChild.emit(true);
         this.spinnerService.spinnerShow = true;
       }
-    }
 
       data['statistic'] = "min_10thPerc_median_90thPerc_max";
 
@@ -530,7 +876,26 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         next: (response: any) => {
           const taskData = { task_id: response.task_id };
 
+          this.taskStatusAttempts = 0;
           this.taskStatusInterval = setInterval(() => {
+            this.taskStatusAttempts++;
+
+            if (this.taskStatusAttempts > this.maxTaskStatusAttempts) {
+              clearInterval(this.taskStatusInterval);
+              this.taskStatusInterval = null;
+
+              if (!this.isUpdate) {
+                this.fakeProgressStop.emit();
+              } else {
+                this.spinnerLoadingChild.emit(false);
+                this.spinnerService.spinnerShow = false;
+              }
+
+              this.description.emit("The request is taking too long and has been stopped. Please try again later.");
+              this.isLoading = false;
+              return;
+            }
+
             this.httpService.post('dataset/check_task_status/', taskData).subscribe({
               next: (res: any) => {
                 console.log("SECONDA RESPONSE (boxPlot)", res);
@@ -538,20 +903,16 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                 const task_status = res?.dataVect?.status;
                 const result = res?.dataVect?.result;
 
-                // Stop polling as soon as it finishes
                 if (task_status === 'SUCCESS') {
                   clearInterval(this.taskStatusInterval);
                   this.taskStatusInterval = null;
 
-                  // Always turn off the spinner
                   if (!this.isUpdate) {
                     this.fakeProgressStop.emit();
                   } else {
                     this.spinnerLoadingChild.emit(false);
                     this.spinnerService.spinnerShow = false;
                   }
-
-                  const result = res?.dataVect?.result;
 
                   if (result && typeof result === 'object' && Array.isArray(result.dataPol)) {
                     this.data1 = result.dataPol.map((el: any) => {
@@ -566,6 +927,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
                     const showName = result.dataPol.map((el: any) => [el['x']]);
                     this.quantityBoxPlot = new Set();
+
                     showName.forEach((element: any) => {
                       this.quantityBoxPlot.add(element[0]);
                     });
@@ -580,13 +942,31 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                       ],
                       dataset: [
                         { source: this.data1 },
-                        { transform: { type: 'boxplot', config: { itemNameFormatter: (params: any) => params.value } } },
+                        {
+                          transform: {
+                            type: 'boxplot',
+                            config: { itemNameFormatter: (params: any) => params.value }
+                          }
+                        },
                         { fromDatasetIndex: 1, fromTransformResult: 1 },
                       ],
-                      tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
-                      grid: { left: '10%', right: '10%', bottom: '15%' },
-                      xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
-                      yAxis: { type: 'value', name: 'Values' },
+                      tooltip: {
+                        trigger: 'item',
+                        axisPointer: { type: 'shadow' }
+                      },
+                      grid: {
+                        left: '10%',
+                        right: '10%',
+                        bottom: '15%'
+                      },
+                      xAxis: {
+                        type: 'category',
+                        data: [...this.quantityBoxPlot]
+                      },
+                      yAxis: {
+                        type: 'value',
+                        name: 'Values'
+                      },
                       series: [
                         { name: 'Box plot', type: 'boxplot', datasetIndex: 1 },
                         { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
@@ -598,7 +978,6 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
                   this.isLoading = false;
 
-                  // --- FIX: force spinner shutdown after 1s for safety ---
                   setTimeout(() => {
                     if (!this.isUpdate) {
                       this.fakeProgressStop.emit();
@@ -608,10 +987,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     }
                     console.log("[FIX] Spinner force-stopped after SUCCESS (boxPlot)");
                   }, 1000);
-                  // --- END FIX ---
                 }
-
-                else if (task_status === 'FAILURE') {
+                else if (task_status === 'FAILURE' || task_status === 'ERROR' || task_status === 'REVOKED') {
                   clearInterval(this.taskStatusInterval);
                   this.taskStatusInterval = null;
 
@@ -622,44 +999,44 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
                     this.spinnerService.spinnerShow = false;
                   }
 
-                  console.error('Task error (boxPlot):', res);
+                  const backendError = res?.dataVect?.error || 'Task failed';
+                  this.description.emit(backendError);
+                  console.error('Task error (boxPlot):', backendError);
                   this.isLoading = false;
                 }
+              },
+              error: (err: any) => {
+                clearInterval(this.taskStatusInterval);
+                this.taskStatusInterval = null;
 
-                // If PROGRESS → continue polling
-                },
-                error: (err: any) => {
-                  clearInterval(this.taskStatusInterval);
-                  this.taskStatusInterval = null;
-
-                  if (!this.isUpdate) {
-                    this.fakeProgressStop.emit();
-                  } else {
-                    this.spinnerLoadingChild.emit(false);
-                    this.spinnerService.spinnerShow = false;
-                  }
-
-                  console.log("ERROR (boxPlot) =", err);
-                  this.isLoading = false;
+                if (!this.isUpdate) {
+                  this.fakeProgressStop.emit();
+                } else {
+                  this.spinnerLoadingChild.emit(false);
+                  this.spinnerService.spinnerShow = false;
                 }
-                });
-                }, 2000);
-                },
-                error: (err: any) => {
-                  console.error("Errore boxPlot:", err);
-                  // Turn off the spinner anyway if the first POST fails
-                  if (!this.isUpdate) {
-                    this.fakeProgressStop.emit();
-                  } else {
-                    this.spinnerLoadingChild.emit(false);
-                    this.spinnerService.spinnerShow = false;
-                  }
-                  this.isLoading = false;
-                }
-              });
-            }
+
+                console.log("ERROR (boxPlot) =", err);
+                this.isLoading = false;
+              }
+            });
+          }, 2000);
+        },
+        error: (err: any) => {
+          console.error("Errore boxPlot:", err);
+
+          if (!this.isUpdate) {
+            this.fakeProgressStop.emit();
+          } else {
+            this.spinnerLoadingChild.emit(false);
+            this.spinnerService.spinnerShow = false;
           }
 
+          this.isLoading = false;
+        }
+      });
+    }
+  }
 
   /**
  * Display the polygon chart
@@ -672,6 +1049,15 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     if (typeof response == 'string') {
       response = JSON.parse(response);
     }
+
+    if (response?.dataVect?.error) {
+      this.description.emit(response.dataVect.description || "Errore durante il caricamento dei dati.");
+      this.spinnerLoadingChild.emit(false);
+      this.spinnerService.spinnerShow = false;
+      this.progressBarCanvas.emit(false);
+      return;
+    }
+    
     if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
