@@ -375,7 +375,15 @@ def getDataVectorialNew(request):
 
         dataset = request.data.get("dataset")
         dataset_id = dataset.get('id')
-        sel_date = str(request.data.get('selDate'))
+        raw_sel_date = request.data.get("selDate")
+        if raw_sel_date in [None, "", "null", "None"]:
+            sel_date = (
+                dataset.get("selDate")
+                or dataset.get("time_end")
+                or dataset.get("time_start")
+            )
+        else:
+            sel_date = str(raw_sel_date)
         layer_name = request.data.get('selVar')
         dimension_names = (dataset.get("dimension_names") or "").lower()
         dataset_type = (dataset.get("adriaclim_type") or "").lower()

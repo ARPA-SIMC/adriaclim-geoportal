@@ -8,7 +8,8 @@ import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import * as L from 'leaflet';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import * as poly from '../../assets/geojson/adriaclim_pilot_label.json';
+import * as pilotPoly from '../../assets/geojson/adriaclim_pilot_label.json';
+import * as adriaticPoly from '../../assets/geojson/adriatic_view.json';
 import { GeoportalMapDialogComponent } from '../geoportal-map/geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
 // import { environmentDev, environmentProd, environmentDevProd } from 'src/assets/environments';
@@ -96,7 +97,8 @@ export class GeoportalMapNewMenuComponent {
 
   markers: L.Marker[] = [];
 
-  polygon = poly;
+  pilotPolygon = pilotPoly;
+  adriaticPolygon = adriaticPoly;
 
   allPolygons: any[] = [];
 
@@ -227,7 +229,7 @@ export class GeoportalMapNewMenuComponent {
 
     let polyg: any = [];
 
-    this.polygon.features.forEach(f => {
+    this.pilotPolygon.features.forEach(f => {
 
       if (f.properties.popupContent !== "") {
         f.geometry.coordinates.forEach(c => {
@@ -286,49 +288,90 @@ export class GeoportalMapNewMenuComponent {
   /**
    * Funzione che rimuove i poligoni dalla mappa e aggiunge l'area adriatica
    */
+  /**
+ * Show the Adriatic area polygon on the map
+ */
   adriaticView() {
     let polyg: any = [];
     this.removeAllPolygons();
-    this.polygon.features.forEach(f => {
-      if (f.properties.popupContent === "") {
-        f.geometry.coordinates.forEach(c => {
-          polyg.push(c);
-        });
-        const pol = L.polygon(polyg[0]).addTo(this.map);
-        this.allPolygons.push({
-          "pol": pol,
-          "polName": f.properties.popupContent
-        });
-        polyg = [];
-      }
-    });
 
+    this.adriaticPolygon.features.forEach((f: any) => {
+      f.geometry.coordinates.forEach((c: any) => {
+        const reversedCoords = c.map((coord: any) => [...coord].reverse());
+        polyg.push(reversedCoords);
+      });
+
+      const pol = L.polygon(polyg[0]).addTo(this.map);
+
+      pol.on('mouseover', () => {
+        pol.setStyle({ color: 'red' });
+        this.highlightedPolygon = {
+          pol: pol,
+          polName: f.properties.popupContent
+        };
+      });
+
+      pol.on('mouseout', () => {
+        pol.setStyle({ color: 'rgb(51, 136, 255)' });
+        this.highlightedPolygon = null;
+      });
+
+      this.allPolygons.push({
+        pol: pol,
+        polName: f.properties.popupContent
+      });
+
+      polyg = [];
+    });
   }
 
   /**
    * Funzione che mostra i poligoni precedentemente configurati sulla mappa
    */
+  /**
+ * Show the configured pilot polygons on the map
+ */
   pilotView() {
     let polyg: any = [];
     this.removeAllPolygons();
-    this.polygon.features.forEach(f => {
-      f.geometry.coordinates.forEach(c => {
+
+    this.pilotPolygon.features.forEach((f: any) => {
+      f.geometry.coordinates.forEach((c: any) => {
         polyg.push(c);
       });
-      const pol = L.polygon(polyg[0]);
-      if (f.properties.popupContent !== "") {
-        pol.addTo(this.map);
-        this.allPolygons.push({
-          "pol": pol,
-          "polName": f.properties.popupContent
-        });
-      } else {
-        this.map.removeLayer(pol);
-      }
+
+      const pol = L.polygon(polyg[0]).addTo(this.map);
+
+      pol.on('mouseover', () => {
+        pol.setStyle({ color: 'red' });
+        this.highlightedPolygon = {
+          pol: pol,
+          polName: f.properties.popupContent
+        };
+      });
+
+      pol.on('mouseout', () => {
+        pol.setStyle({ color: 'rgb(51, 136, 255)' });
+        this.highlightedPolygon = null;
+      });
+
+      this.allPolygons.push({
+        pol: pol,
+        polName: f.properties.popupContent
+      });
+
       polyg = [];
     });
   }
 
+  /**
+   * Show the AdriaClimPlus pilot polygons on the map.
+   * For now it uses the same pilot GeoJSON as AdriaClim Pilot View.
+   */
+  adriaClimPlusPilotView() {
+    this.pilotView();
+  }
+  
   /**
    * Metodo che mostra i dati del poligono caricato e selezionato
    */
@@ -2202,7 +2245,9 @@ export class GeoportalMapNewMenuComponent {
       dataset: this.selData.get("dataSetSel")?.value.name,
       selVar: this.variableGroup.get("variableControl")?.value,
       isIndicator: this.isIndicator ? "true" : "false",
-      selDate: this.formatDate(this.selectedDate.get("dateSel")?.value),
+      selDate: this.selectedDate.get("dateSel")?.value
+        ? this.formatDate(this.selectedDate.get("dateSel")?.value)
+        : null,
     }).subscribe({
       next: (res: any) => {
         try {
