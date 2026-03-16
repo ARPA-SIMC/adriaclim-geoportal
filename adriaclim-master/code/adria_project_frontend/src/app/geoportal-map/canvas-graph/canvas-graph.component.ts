@@ -1057,7 +1057,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.progressBarCanvas.emit(false);
       return;
     }
-    
+
     if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
@@ -1781,6 +1781,24 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           } else if (!isIrregularStationSeries) {
             element.x = this.formatDate(element.x) ?? element.x;
           }
+        });
+
+        const arrayDataDate = seriesData.map((el: any) => el.date ?? el.x);
+        const arrayDataValue = seriesData.map((el: any) => Number(el.y));
+
+        this.fullStatCalc = {
+          dates: [...arrayDataDate],
+          values: [...arrayDataValue]
+        };
+
+        this.statCalc = {
+          dates: [...arrayDataDate],
+          values: [...arrayDataValue]
+        };
+
+        this.statisticCalc.emit({
+          dates: [...arrayDataDate],
+          values: [...arrayDataValue]
         });
 
         if (Array.isArray(seriesData) && seriesData.length === 1) {
