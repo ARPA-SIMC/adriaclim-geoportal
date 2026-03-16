@@ -371,7 +371,7 @@ export class GeoportalMapNewMenuComponent {
   adriaClimPlusPilotView() {
     this.pilotView();
   }
-  
+
   /**
    * Metodo che mostra i dati del poligono caricato e selezionato
    */
@@ -796,6 +796,20 @@ export class GeoportalMapNewMenuComponent {
 
   closeMyMenu(menuTrigger: MatMenuTrigger) {
     menuTrigger.closeMenu();
+  }
+
+  onVariableChange() {
+    let metaId: any;
+
+    if (this.selData.get("dataSetSel")?.value?.name?.dataset_id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.dataset_id;
+    } else if (this.selData.get("dataSetSel")?.value?.name?.id) {
+      metaId = this.selData.get("dataSetSel")?.value.name.id;
+    }
+
+    if (metaId) {
+      this.getMeta(metaId, "ok");
+    }
   }
 
   /**

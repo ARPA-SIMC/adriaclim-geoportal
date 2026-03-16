@@ -78,44 +78,7 @@
               </mat-menu>
 
             </mat-radio-group>
-          </form>
-
-          <!-- <div fxFlex="20" fxLayout="row" class="menu-var" LayoutAlign="center center"> -->
-          <div class="menu-var col-2 row" LayoutAlign="center center">
-            <form [formGroup]="variableGroup">
-              <ng-container *ngIf="variableArray.length > 0; else noVariable">
-                <!-- <ng-container *ngFor="let v of variableArray; let lastItem = last">
-
-                <button mat-menu-item>{{v}}</button>
-                <mat-divider *ngIf="!lastItem"></mat-divider>
-              </ng-container> -->
-
-                <mat-form-field appearance="fill" class="prova-form">
-                  <mat-label>Select variable</mat-label>
-                  <mat-select formControlName="variableControl" class="no-border-focus"
-                    (selectionChange)="getMeta(selData.get('dataSetSel')?.value.name.id, 'ok')">
-                    <mat-option *ngFor="let v of variableArray" [value]="v.name" class="prova-option">
-                      {{v.name}}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </ng-container>
-
-              <ng-template #noVariable>
-                <!-- <span>First select dataset</span> -->
-                <mat-form-field appearance="fill">
-                  <mat-label>First select dataset</mat-label>
-                  <mat-select>
-                    <mat-option>
-                      First select dataset
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </ng-template>
-
-            </form>
-
-          </div>
+          </form>          
         </div>
 
       </div>
@@ -256,15 +219,10 @@
           <!-- <div class="d-flex flex-row justify-content-start align-items-center col-12 edit-icon-size gap-3"> -->
           <div class="row justify-content-start">
 
-            <!-- <div fxFlex fxLayout="row" class="menu-var" fxLayoutAlign="center center"> -->
             <div class="menu-var d-flex flex-row justify-content-center align-items-center col">
-              <!-- <form [formGroup]="selData" fxFlex> -->
               <form [formGroup]="selData" class="col-12">
-
-                <!-- <mat-form-field appearance="fill" fxFlex> -->
                 <mat-form-field appearance="fill" class="col-12">
                   <mat-label>Select Layers</mat-label>
-                  <!-- <mat-select formControlName="activeLayersControl" (selectionChange)="getMeta(activeLayersGroup.get('activeLayersControl')?.value.name.dataset_id, 'ok')"> -->
                   <mat-select formControlName="dataSetSel" (selectionChange)="selActiveLayer($event)">
                     <mat-option *ngFor="let a of activeLayersArray" [value]="a">
                       <span
@@ -277,11 +235,9 @@
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
-
               </form>
-
             </div>
-            <!-- <div fxFlex="25" fxLayout="row" fxLayoutAlign="space-evenly center"> -->
+
             <div class="d-flex flex-row justify-content-center align-items-center col-4 gap-1">
               <div
                 [matTooltip]="activeLayersArray.length < 2 ? 'Please select two datasets for compare' : 'Compare two datasets'">
@@ -290,26 +246,49 @@
                   (click)="compareDialogModal()" [disabled]="activeLayersArray.length < 2">
                   <mat-icon class="col-12">compare_arrows</mat-icon>
                 </button>
-
               </div>
+
               <button style="background-color: #F0F0F0;"
                 class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
                 (click)="openTableDialog()" matTooltip="Info about the layer">
                 <mat-icon [ngStyle]="{'color': 'blue'}" class="col-12">info</mat-icon>
               </button>
+
               <button style="background-color: #F0F0F0;"
                 class="border p-2 btn btn-xs btn-icon d-flex flex-row justify-content-center align-items-center"
                 (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer">
                 <mat-icon [ngStyle]="{'color': 'red'}" class="col-12">delete</mat-icon>
               </button>
-              <!-- <button fxFlex="40" matTooltip="Remove the layer" class="no-border-button-icon"><mat-icon [ngStyle]="{'color': 'red'}" -->
-              <!-- <button (click)="deleteLayer(); deleteElActiveLayers()" matTooltip="Remove the layer" class="border btn btn-xs btn-icon ms-1 col-6 d-flex flex-row justify-content-center align-items-center"><mat-icon [ngStyle]="{'color': 'red'}"
-                  >delete</mat-icon>
-              </button> -->
-
             </div>
           </div>
 
+          <div class="col-12 mt-2">
+            <form [formGroup]="variableGroup" class="col-12">
+              <ng-container *ngIf="variableArray.length > 0; else noVariableActiveLayer">
+                <mat-form-field appearance="fill" class="col-12">
+                  <mat-label>Select variable</mat-label>
+                  <mat-select
+                    formControlName="variableControl"
+                    (selectionChange)="onVariableChange()">
+                    <mat-option *ngFor="let v of variableArray" [value]="v.name">
+                      {{ v.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </ng-container>
+
+              <ng-template #noVariableActiveLayer>
+                <mat-form-field appearance="fill" class="col-12">
+                  <mat-label>First select dataset</mat-label>
+                  <mat-select>
+                    <mat-option>
+                      First select dataset
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </ng-template>
+            </form>
+          </div>
           <!-- <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center"> -->
           <div class="d-flex flex-row justify-content-between align-items-center col-12"
             style="margin: 10px 0px 5px 0px;">
