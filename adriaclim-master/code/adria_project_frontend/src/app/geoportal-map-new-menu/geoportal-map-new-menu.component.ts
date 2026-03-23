@@ -138,6 +138,13 @@ export class GeoportalMapNewMenuComponent {
   rectangleArray: any[] = [];
   circleCoords: circleCoords[] = [];
 
+  private readonly boundMapClickHandler = (e: L.LeafletMouseEvent) => this.onMapClick(e);
+
+  private readonly circleMarkerClickHandler = (e: any) => {
+    const circle = e.target;
+    this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng);
+  };
+
   valueMinColor: any = "#f44336";
   valueMinMidColor: any = "#e91e63";
   valueMidColor: any = "#9c27b0";
@@ -470,18 +477,35 @@ export class GeoportalMapNewMenuComponent {
 
   }
 
-  // addPolygons() {
+  private detachPointInteractions(): void {
+    this.map.off('click', this.boundMapClickHandler);
+
+    if (this.circleMarkerArray.length > 0) {
+      this.circleMarkerArray.forEach((circle: any) => {
+        circle.off('click', this.circleMarkerClickHandler);
+      });
+    }
+  }
+
+  private attachCircleMarkerInteractions(): void {
+    if (this.circleMarkerArray.length > 0) {
+      this.circleMarkerArray.forEach((circle: any) => {
+        circle.off('click', this.circleMarkerClickHandler);
+        circle.on('click', this.circleMarkerClickHandler);
+      });
+    }
+  }
+
+  private attachMapPointInteraction(): void {
+    this.map.off('click', this.boundMapClickHandler);
+    this.map.on('click', this.boundMapClickHandler);
+  }
 
   /**
    * Metodo che apre la modale dove inserire le coordinate
    */
   openModalSelectCoords() {
-    if (this.circleMarkerArray.length > 0) {
-      this.circleMarkerArray.forEach((circle: any) => {
-        circle.removeEventListener('click');
-      });
-    }
-
+    this.detachPointInteractions();
     this.selectCoords = true;
     const dialogConfig = new MatDialogConfig();
 
@@ -510,7 +534,7 @@ export class GeoportalMapNewMenuComponent {
     this.areaTool = false;
     this.pointTool = !this.pointTool;
 
-    this.map.off('click');
+    this.detachPointInteractions();
     this.map.getContainer().style.cursor = "url('../../assets/img/pointer-map-marker-removebg.png') 16 31, auto";
     if (this.datasetCompare === null) {
       this.clickPointOnOff = !this.clickPointOnOff;
@@ -520,20 +544,11 @@ export class GeoportalMapNewMenuComponent {
       this.clickPointOnOff = true;
     }
     if (this.circleMarkerArray.length > 0 && !this.clickPointOnOff) {
-      this.circleMarkerArray.forEach((circle: any) => {
-        circle.removeEventListener('click');
-      });
+      this.detachPointInteractions();
     }
     this.clickPolygonOnOff = false;
     if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-
-      this.circleMarkerArray.forEach((circle: any) => {
-        circle.addEventListener('click', (e: any) => {
-
-          this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
-        });
-      });
-      this.map.off("click");
+      this.attachCircleMarkerInteractions();
     }
     else {
 
@@ -604,15 +619,11 @@ export class GeoportalMapNewMenuComponent {
       }
       else {
         if (this.clickPointOnOff === true) {
-          this.map.off('click');
-
-          this.map.on('click', this.onMapClick.bind(this));
-
+          this.attachMapPointInteraction();
         }
         else {
-          this.map.off('click');
+          this.detachPointInteractions();
           this.map.getContainer().style.cursor = "default";
-
         }
 
       }
@@ -627,11 +638,7 @@ export class GeoportalMapNewMenuComponent {
     this.pointTool = false;
     this.areaTool = !this.areaTool;
 
-    if (this.circleMarkerArray.length > 0) {
-      this.circleMarkerArray.forEach((circle: any) => {
-        circle.removeEventListener('click');
-      });
-    }
+    this.detachPointInteractions();
 
     if (this.markerPoint) {
       this.map.removeLayer(this.markerPoint);
@@ -641,14 +648,13 @@ export class GeoportalMapNewMenuComponent {
     this.clickPolygonOnOff = !this.clickPolygonOnOff;
     this.clickPointOnOff = false;
     if (this.clickPolygonOnOff === true) {
+      this.map.off('click', this.boundMapClickHandler);
       this.map.off('click');
       this.map.on('click', this.onPolygonClick.bind(this));
-
     }
     else {
       this.map.off('click');
       this.map.getContainer().style.cursor = "default";
-
     }
 
   }
@@ -916,15 +922,10 @@ export class GeoportalMapNewMenuComponent {
       idMeta: idMeta
     }).subscribe({
       next: (res: any) => {
-        if (this.circleMarkerArray.length > 0) {
-          this.circleMarkerArray.forEach((circle: any) => {
-            circle.removeEventListener('click');
-          });
-        } else {
-          if (this.clickPointOnOff) {
-            this.map.off('click');
-            this.map.on('click', this.onMapClick.bind(this));
-          }
+        this.detachPointInteractions();
+
+        if (this.clickPointOnOff && this.circleMarkerArray.length === 0) {
+          this.attachMapPointInteraction();
         }
         this.metadata = res;
 
@@ -2607,12 +2608,7 @@ export class GeoportalMapNewMenuComponent {
           }
 
           if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-            this.circleMarkerArray.forEach((circle: any) => {
-              circle.addEventListener('click', (e: any) =>
-                this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng)
-              );
-            });
-            this.map.off('click');
+            this.attachCircleMarkerInteractions();
           }
 
         } finally {
@@ -2986,10 +2982,7 @@ export class GeoportalMapNewMenuComponent {
           }
 
           if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-            this.circleMarkerArray.forEach((circle: any) => {
-              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
-            });
-            this.map.off('click');
+            this.attachCircleMarkerInteractions();
           }
 
         } else {
@@ -3045,10 +3038,7 @@ export class GeoportalMapNewMenuComponent {
             this.markersLayer.addLayer(this.markerToAdd);
           }
           if (this.circleMarkerArray.length > 0 && this.clickPointOnOff) {
-            this.circleMarkerArray.forEach((circle: any) => {
-              circle.addEventListener('click', (e: any) => this.openGraphDialog(circle.getLatLng().lat, circle.getLatLng().lng));
-            });
-            this.map.off('click');
+            this.attachCircleMarkerInteractions();
           }
 
         } else {
