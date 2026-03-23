@@ -37,6 +37,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
+  metadataRows: any[] = [];
 
   spinnerLoading: any = false;
 
@@ -463,6 +464,48 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.dialogRef.close("");
   }
 
+  formatMetadataLabel(label: string): string {
+    if (!label) {
+      return '';
+    }
+
+    return label
+      .replace(/_/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  buildMetadataRows(columnNames: string[], rows: any[][]): void {
+    this.metadataRows = [];
+
+    if (!columnNames || !rows || rows.length === 0) {
+      return;
+    }
+
+    const findColumnIndex = (possibleNames: string[]): number => {
+      return columnNames.findIndex((columnName: string) =>
+        possibleNames.some((name) => columnName.trim().toLowerCase() === name.trim().toLowerCase())
+      );
+    };
+
+    const rowTypeIndex = findColumnIndex(['Row Type', 'rowType', 'row_type']);
+    const variableNameIndex = findColumnIndex(['Variable Name', 'variableName', 'variable_name']);
+    const attributeNameIndex = findColumnIndex(['Attribute Name', 'attributeName', 'attribute_name']);
+    const dataTypeIndex = findColumnIndex(['Data Type', 'dataType', 'data_type']);
+    const valueIndex = findColumnIndex(['Value', 'value']);
+
+    this.metadataRows = rows.map((row: any[]) => {
+      return {
+        rowType: rowTypeIndex >= 0 ? row[rowTypeIndex] : '',
+        variableName: variableNameIndex >= 0 ? row[variableNameIndex] : '',
+        attributeName: attributeNameIndex >= 0 ? this.formatMetadataLabel(row[attributeNameIndex]) : '',
+        dataType: dataTypeIndex >= 0 ? row[dataTypeIndex] : '',
+        value: valueIndex >= 0 ? row[valueIndex] : '',
+      };
+    });
+  }
+
   /**
   * Retrieve metadata to populate the table
   */
@@ -475,33 +518,17 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       if (typeof response === 'string') {
         response = JSON.parse(response);
       }
+
       this.dataTable = response;
 
-      this.displayedColumns = this.dataTable.metadata.table.columnNames;
-      let dim_unit: any;
+      const columnNames = this.dataTable.metadata.table.columnNames || [];
+      const rows = this.dataTable.metadata.table.rows || [];
 
-      if (this.dataTable.metadata.table.columnUnits) {
-        dim_unit = this.dataTable.metadata.table.columnUnits[this.dataTable.metadata.table.columnUnits.length - 1];
-        this.displayedColumns[this.displayedColumns.length - 1] = this.displayedColumns[this.displayedColumns.length - 1] + " " + dim_unit;
-      }
-      let objArr: any = {};
-      let arr1: any = [];
-      this.dataTable.metadata.table.rows.forEach((arr: any) => {
-        objArr = {};
-        this.dataTable.metadata.table.columnNames.forEach((key: any, i: number) => {
-          objArr[key] = arr[i];
-        })
-        arr1.push(objArr);
-      });
-      this.dataTable.metadata.table.rows = [...arr1];
-      if (this.dataTable.metadata.table.rows.length > 0) {
-        this.dataSource = new MatTableDataSource(this.dataTable.metadata.table.rows);
-        this.setDataSourceAttributes();
-      }
-      console.log("METADATA?");
+      this.buildMetadataRows(columnNames, rows);
+      this.dataSource = new MatTableDataSource<any>([]);
+
       this.spinnerService.spinnerShow = false;
     });
-
   }
 
   formatDateNew(date: any) {
