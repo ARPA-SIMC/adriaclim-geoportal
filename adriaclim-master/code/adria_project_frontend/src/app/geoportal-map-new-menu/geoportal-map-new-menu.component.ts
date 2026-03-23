@@ -2361,6 +2361,105 @@ export class GeoportalMapNewMenuComponent {
             this.showAlertGenericError = true;
             return;
           }
+          
+          const validCoords: { lat: number; lng: number; value: any }[] = [];
+
+          for (let i = 0; i < allLatCoordinates.length; i++) {
+            const lat = parseFloat(allLatCoordinates[i]);
+            const lng = parseFloat(allLongCoordinates[i]);
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+              validCoords.push({
+                lat,
+                lng,
+                value: allValues[i]
+              });
+            }
+          }
+
+          const uniqueCoordKeys = [...new Set(validCoords.map(coord => `${coord.lat}_${coord.lng}`))];
+          const isSinglePointDataset = uniqueCoordKeys.length === 1;
+
+          if (isSinglePointDataset && validCoords.length > 0) {
+            const singlePoint = validCoords[0];
+
+            this.removeAllRectangles();
+            this.rettangoliLayer.clearLayers();
+
+            this.markersLayer.clearLayers();
+            this.circleMarkerArray = [];
+            this.circleCoords = [];
+
+            let value_mid_single: any;
+            if (parseFloat(value_min) !== parseFloat(value_max)) {
+              if (parseFloat(value_min) < 0) {
+                value_mid_single = Math.ceil((parseFloat(value_max) - parseFloat(value_min)) / 2);
+              } else {
+                value_mid_single = Math.ceil((parseFloat(value_max) + parseFloat(value_min)) / 2);
+              }
+            } else {
+              value_mid_single = parseFloat(value_min);
+            }
+
+            this.valueMin = parseFloat(value_min);
+            this.valueMax = parseFloat(value_max);
+            this.valueMid = value_mid_single;
+
+            this.createLegend(parseFloat(value_min), parseFloat(value_max), value_mid_single);
+
+            const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+
+            let varColor: any;
+            if (colorStorage) {
+              const colorStorageJson = JSON.parse(colorStorage);
+              varColor = this.getColor(
+                singlePoint.value,
+                value_min,
+                value_max,
+                colorStorageJson.minColor,
+                colorStorageJson.midColor,
+                colorStorageJson.maxColor
+              );
+            } else {
+              varColor = this.getColor(
+                singlePoint.value,
+                value_min,
+                value_max,
+                this.valueMinColor,
+                this.valueMidColor,
+                this.valueMaxColor
+              );
+            }
+
+            this.circleCoords.push({
+              lat: singlePoint.lat,
+              lng: singlePoint.lng,
+            });
+
+            this.markerToAdd = L.circleMarker(
+              [singlePoint.lat, singlePoint.lng],
+              {
+                radius: 15,
+                weight: 2,
+                color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b)
+              }
+            );
+
+            this.circleMarkerArray.push(this.markerToAdd);
+            this.markersLayer.addLayer(this.markerToAdd);
+            this.map.addLayer(this.markersLayer);
+
+            this.map.setView(L.latLng(singlePoint.lat, singlePoint.lng), 14);
+
+            this.markerToAdd.addEventListener('click', () => {
+              this.openGraphDialog(singlePoint.lat, singlePoint.lng);
+            });
+
+            this.showAlertGenericError = false;
+            this.compliantErrorErddap = "";
+
+            return;
+          }
 
           let bounds: any;
           let rectangle: any;
