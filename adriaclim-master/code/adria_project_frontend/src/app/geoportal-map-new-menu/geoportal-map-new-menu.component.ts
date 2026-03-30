@@ -21,6 +21,7 @@ import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition
 import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, SelPolygon, circleCoords } from '../interfaces/geoportal-map-new-menu-int';
 import { GeoportalMapMenuDialogComponent } from './geoportal-map-menu-dialog/geoportal-map-menu-dialog.component';
 import { SpinnerLoaderService } from '../services/spinner-loader.service';
+import { driver, Driver } from 'driver.js';
 
 @Component({
   selector: 'app-geoportal-map-new-menu',
@@ -33,7 +34,7 @@ import { SpinnerLoaderService } from '../services/spinner-loader.service';
     }
   ]
 })
-export class GeoportalMapNewMenuComponent {
+export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
   pointTool = false;
   areaTool = false;
@@ -81,6 +82,12 @@ export class GeoportalMapNewMenuComponent {
   panelOpenState = false;
 
   @ViewChild('map') mapContainer!: ElementRef;
+  @ViewChild('fullListMenuTrigger') fullListMenuTrigger?: MatMenuTrigger;
+  @ViewChild('toolsMenuTrigger') toolsMenuTrigger?: MatMenuTrigger;
+
+  tutorialDriver!: Driver;
+  private readonly tutorialStorageKey = 'geoportal_home_tutorial_seen';
+  private tutorialInitialized = false;
   map!: L.Map;
   // centroid: L.LatLngExpression = [41.9027835, 12.4963655]; // Roma
   center: L.LatLngExpression = [42.744388161339, 12.0809380292276]; // Centro Italia
@@ -278,7 +285,14 @@ export class GeoportalMapNewMenuComponent {
         });
       }
     });
+    
+    this.initializeTutorial();
 
+    if (this.shouldStartTutorialOnFirstAccess()) {
+      setTimeout(() => {
+        this.startTutorial();
+      }, 800);
+    }
   }
 
   /**
@@ -3177,6 +3191,152 @@ export class GeoportalMapNewMenuComponent {
     this.addToActiveLayers(obj);
     this.getSelectedNode(obj);
 
+  }
+
+  private initializeTutorial(): void {
+    if (this.tutorialInitialized) {
+      return;
+    }
+
+    this.tutorialDriver = driver({
+      showProgress: true,
+      animate: true,
+      smoothScroll: true,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      doneBtnText: 'Done',
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      steps: [
+        {
+          element: '#tour-tools-button',
+          popover: {
+            title: 'Tools',
+            description: 'Use this menu to work with point selection tools.',
+            side: 'right',
+            align: 'start'
+          },
+          onHighlighted: () => this.closeTutorialMenus()
+        },
+        {
+          element: '#tour-areas-button',
+          popover: {
+            title: 'Areas',
+            description: 'Use this menu to work with predefined areas or upload your own GeoJSON.',
+            side: 'right',
+            align: 'start'
+          },
+          onHighlighted: () => this.closeTutorialMenus()
+        },
+        {
+          element: '#tour-full-list-button',
+          popover: {
+            title: 'Full list',
+            description: 'Open the complete dataset list from here.',
+            side: 'left',
+            align: 'start',
+            onNextClick: () => this.openFullListAndGoToSearchStep()
+          },
+          onHighlighted: () => this.closeTutorialMenus()
+        },
+        {
+          element: '#tour-full-list-search-input',
+          popover: {
+            title: 'Dataset search',
+            description: 'Use this field to search datasets by title or institution within the full list.',
+            side: 'left',
+            align: 'start'
+          }
+        },
+        {
+          element: '#tour-dataset-button',
+          popover: {
+            title: 'Dataset',
+            description: 'Open the dataset selection panel from here.',
+            side: 'left',
+            align: 'start'
+          },
+          onHighlighted: () => {
+            this.closeTutorialMenus();
+          }
+        }
+      ],
+      onDestroyed: () => {
+        this.closeTutorialMenus();
+      }
+    });
+
+    this.tutorialInitialized = true;
+  }
+
+  private openFullListAndGoToSearchStep(): void {
+    this.closeTutorialMenus();
+
+    this.fullListMenuTrigger?.openMenu();
+
+    this.waitForElement('#tour-full-list-search-input', 20, 100)
+      .then(() => {
+        this.tutorialDriver.moveNext();
+      })
+      .catch(() => {
+        console.error('Tutorial: search input not found.');
+      });
+  }
+
+  private waitForElement(selector: string, maxAttempts = 20, delayMs = 100): Promise<HTMLElement> {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+
+      const checkElement = () => {
+        const element = document.querySelector(selector) as HTMLElement | null;
+
+        if (element) {
+          resolve(element);
+          return;
+        }
+
+        attempts += 1;
+
+        if (attempts >= maxAttempts) {
+          reject(new Error(`Element not found: ${selector}`));
+          return;
+        }
+
+        setTimeout(checkElement, delayMs);
+      };
+
+      checkElement();
+    });
+  }
+
+  private closeTutorialMenus(): void {
+    this.fullListMenuTrigger?.closeMenu();
+    this.toolsMenuTrigger?.closeMenu();
+  }
+
+  private shouldStartTutorialOnFirstAccess(): boolean {
+    return !localStorage.getItem(this.tutorialStorageKey);
+  }
+
+  private markTutorialAsSeen(): void {
+    localStorage.setItem(this.tutorialStorageKey, 'true');
+  }
+
+  private startTutorial(): void {
+    this.initializeTutorial();
+
+    setTimeout(() => {
+      this.tutorialDriver.drive();
+      this.markTutorialAsSeen();
+    }, 400);
+  }
+
+  startTutorialManually(): void {
+    this.initializeTutorial();
+
+    setTimeout(() => {
+      this.tutorialDriver.drive();
+    }, 100);
   }
 
   /**

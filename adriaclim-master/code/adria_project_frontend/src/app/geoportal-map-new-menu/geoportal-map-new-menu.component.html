@@ -8,56 +8,81 @@
   <div class="col-12">
     <mat-toolbar color="primary" class="col-12">
 
-      <!-- <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons h-75"> -->
-      <div class="row justify-content-center align-items-center col-12 toolbar-buttons h-75">
+      <div class="row justify-content-center align-items-center col-12 toolbar-buttons h-75 toolbar-wrapper">
 
-        <button class="col-1 col-md-2 col-lg-1" mat-raised-button routerLink="/"
-          style="color: #fff; background-color: #0ba7d7;">
-          <mat-icon>arrow_back</mat-icon> <span class="text-menu"> Welcome </span>
+        <!-- BACK -->
+        <button class="col-1 col-md-2 col-lg-1"
+                mat-raised-button
+                routerLink="/"
+                style="color: #fff; background-color: #0ba7d7;">
+          <mat-icon>arrow_back</mat-icon>
+          <span class="text-menu"> Welcome </span>
         </button>
 
-        <div class="d-flex justify-content-center align-items-center gap-5 col col-md toolbar-buttons h-100">
+        <!-- CENTRO -->
+        <div class="d-flex justify-content-center align-items-center gap-5 col col-md h-100">
 
-          <button class="col-2 col-md-3 col-lg-2" mat-raised-button style="color: #fff; background-color: #0ba7d7;"
-            #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenu2"> <mat-icon> list_alt</mat-icon> <span
-              class="text-menu"> Full list </span>
+          <!-- FULL LIST -->
+          <button
+            id="tour-full-list-button"
+            class="col-2 col-md-3 col-lg-2"
+            mat-raised-button
+            style="color: #fff; background-color: #0ba7d7;"
+            #fullListMenuTrigger="matMenuTrigger"
+            [matMenuTriggerFor]="myMenu2"
+          >
+            <mat-icon>list_alt</mat-icon>
+            <span class="text-menu"> Full list </span>
           </button>
 
-          <button type="button" class="col-2 col-md-3 col-lg-2" mat-raised-button
-            style="color: #fff; background-color: #0ba7d7;" (click)="openDatasetMenu()">
-            <mat-icon>public</mat-icon> <span class="text-menu"> Dataset </span>
+          <!-- DATASET -->
+          <button
+            id="tour-dataset-button"
+            type="button"
+            class="col-2 col-md-3 col-lg-2"
+            mat-raised-button
+            style="color: #fff; background-color: #0ba7d7;"
+            (click)="openDatasetMenu()"
+          >
+            <mat-icon>public</mat-icon>
+            <span class="text-menu"> Dataset </span>
           </button>
 
+          <!-- MENU (LASCIATO QUI, NON TOCCARE) -->
           <form [formGroup]="selData">
             <mat-radio-group formControlName="dataSetSel">
 
               <mat-menu #myMenu2="matMenu" class="menu-full-list">
                 <ng-template matMenuContent>
-                  <!-- <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season"> -->
-                  <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
+
                   <div class="col-12 d-flex flex-column h-100 justify-content-center align-items-start">
-                    <!-- <div fxFlex style="width: 100%;" fxLayout="row" fxLayoutAlign="center center" -->
+
+                    <!-- SEARCH -->
                     <div class="d-flex flex-row col-12 justify-content-center align-items-center"
-                      (click)="$event.stopPropagation();">
+                         (click)="$event.stopPropagation();">
+
                       <mat-form-field class="example-full-width" color="primary" appearance="outline">
-                        <!-- <mat-label fxFlex="80">Filter title or institution</mat-label> -->
                         <mat-label>Filter title or institution</mat-label>
-                        <!-- <mat-icon fxFlex="20" fxLayoutAlign="end center">search</mat-icon> -->
-                        <input type="text" matInput formControlName="searchText">
-                        <button matSuffix mat-icon-button aria-label="Clear">
+
+                        <input
+                          id="tour-full-list-search-input"
+                          type="text"
+                          matInput
+                          formControlName="searchText"
+                        >
+
+                        <button matSuffix mat-icon-button>
                           <mat-icon>search</mat-icon>
                         </button>
                       </mat-form-field>
-                      <!-- {{selData.get("searchText")?.value | json}} -->
+
                     </div>
+
+                    <!-- LIST -->
                     <ng-container *ngFor="let n of dataAllNodes | appFilter: selData.get('searchText')?.value">
-                      <!-- <ng-container *ngFor="let n of dataAllNodes | highlight: selData.get('searchText')?.value"> -->
-                      <!-- <div fxFlex fxLayout="row" fxLayoutAlign="center center"> -->
+
                       <div class="d-flex flex-row justify-content-center align-items-center col-12">
-                        <!-- <mat-radio-button fxFlex class="example-radio-button"  appHighlight [searchedWord]="selData.get('searchText')?.value" [content]="n" [classToApply]="'font-weight: bold'" [setTitle]="true" [value]="n" (change)="getMeta(n.name.id); getSelectedNode(n)">
-                        {{n.name.title}}
-                      </mat-radio-button> -->
-                        <!-- <mat-radio-button fxFlex class="example-radio-button" [value]="n" -->
+
                         <mat-radio-button
                           class="example-radio-button col-12"
                           [value]="n"
@@ -67,24 +92,40 @@
                         >
                           {{ n.name.title }}
                         </mat-radio-button>
+
                       </div>
+
                       <mat-divider style="width: 100%; margin: 10px 0px;"></mat-divider>
 
                     </ng-container>
 
                   </div>
-                </ng-template>
 
+                </ng-template>
               </mat-menu>
 
             </mat-radio-group>
-          </form>          
+          </form>
+
         </div>
+
+        <!-- HELP -->
+        <button
+          mat-mini-fab
+          class="help-toolbar-button"
+          (click)="startTutorialManually()"
+          matTooltip="Start tutorial"
+          aria-label="Start tutorial"
+        >
+          <mat-icon>help_outline</mat-icon>
+        </button>
 
       </div>
 
     </mat-toolbar>
   </div>
+
+</div>
 
   <!-- Alert tramite bootstrap con valore booleano controllato nel typescript per errore generico dei dati presi da ERDDAP -->
   <div *ngIf="showAlertGenericError" class="alert alert-warning alert-dismissible w-25 m-auto mt-2" role="alert"
@@ -108,21 +149,17 @@
   </div>
 
   <!-- MAT MENU PER TOOLS -->
-  <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-tools"> -->
   <div class="overlay-tools">
-
-    <!-- BOTTONE ORIGINALE TOOLS SENZA SEGNALATORE TOOL ATTIVO -->
-    <!-- <button class="col-10" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
-      #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuTools">
-      <mat-icon> list_alt</mat-icon>
-      <span class="text-menu"> Tools </span>
-    </button> -->
-
     <!-- BOTTONE CON SEGNALATORE TOOL ATTIVO -->
     <div class="col-12 d-flex flex-row justify-content-center align-items-center">
-      <button class="col-12" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
-        #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuTools">
-        <!-- <mat-icon> list_alt</mat-icon> -->
+      <button
+        id="tour-tools-button"
+        class="col-12"
+        mat-raised-button
+        style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+        #toolsMenuTrigger="matMenuTrigger"
+        [matMenuTriggerFor]="myMenuTools"
+      >
         <span class="text-menu d-flex flex-row justify-content-between align-items-center">
 
           <span> Tools </span>
@@ -132,17 +169,10 @@
 
         </span>
       </button>
-
-      <!-- <div class="col-1 col-md-2 col-lg-1">
-        <button *ngIf="pointTool" mat-icon-button><mat-icon> place</mat-icon></button>
-        <button *ngIf="areaTool" mat-icon-button><mat-icon>touch_app</mat-icon></button>
-      </div> -->
-
     </div>
 
     <mat-menu #myMenuTools="matMenu" class="menu-tools">
       <ng-template matMenuContent>
-        <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
         <div class="d-flex flex-column justify-content-center align-items-start">
           <div>
             <button mat-icon-button matTooltip="Select a single point on the map" matTooltipPosition="right"
@@ -163,11 +193,15 @@
     </mat-menu>
   </div>
   <!-- MAT MENU PER SCELTA POLIGONI -->
-  <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-polygon"> -->
   <div class="overlay-polygon">
-    <!-- <button fxFlex="20" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);" -->
-    <button class="col-12" mat-raised-button style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
-      #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="myMenuPolygon">
+    <button
+      id="tour-areas-button"
+      class="col-12"
+      mat-raised-button
+      style="color: #fff; background-color: rgba(0, 221, 221, 0.795);"
+      #menuTrigger="matMenuTrigger"
+      [matMenuTriggerFor]="myMenuPolygon"
+    >
       <mat-icon> list_alt</mat-icon>
       <span class="text-menu"> Areas </span>
     </button>
@@ -175,7 +209,6 @@
     <!--Modifichiamo dopo!-->
     <mat-menu #myMenuPolygon="matMenu" class="polygon-tools">
       <ng-template matMenuContent>
-        <!-- <div fxFlex fxLayout="column" fxLayoutAlign="center start"> -->
         <div class="d-flex flex-column justify-content-center align-items-start">
           <div>
             <button mat-button matTooltip="Select the Adriatic view" matTooltipPosition="right" (click)="adriaticView()"
@@ -205,18 +238,12 @@
   </div>
 
   <ng-container *ngIf="selData.get('dataSetSel')?.value">
-    <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-buttons-top-map"> -->
     <div class="overlay-buttons-top-map">
-      <!-- <mat-card class="dataset-panel mat-card-active" fxFlex fxLayout="column" fxLayoutAlign="start center"> -->
       <mat-card class="dataset-panel mat-card-active d-flex flex-column justify-content-start align-items-center">
         <mat-card-header>
           <mat-card-title class="bolder-title">Active layer</mat-card-title>
         </mat-card-header>
-        <!-- <mat-card-content style="height: 100%;" fxFlex="100" fxLayout="row wrap" fxLayoutAlign="center center" class="mat-card-active"> -->
         <mat-card-content style="height: 100%;" class="mat-card-active row p-0 col-12">
-          <!-- <div fxFlex="80" style="height: 100%; overflow: auto;"> -->
-          <!-- <div fxFlex="90" fxLayout="row" fxLayoutAlign="space-evenly center" class="edit-icon-size" fxLayoutGap="10px"> -->
-          <!-- <div class="d-flex flex-row justify-content-start align-items-center col-12 edit-icon-size gap-3"> -->
           <div class="row justify-content-start">
 
             <div class="menu-var d-flex flex-row justify-content-center align-items-center col">
@@ -289,23 +316,15 @@
               </ng-template>
             </form>
           </div>
-          <!-- <div fxFlex="90" style="margin: 10px 0px 5px 0px;" fxLayout="row" fxLayoutAlign="center center"> -->
           <div class="d-flex flex-row justify-content-between align-items-center col-12"
             style="margin: 10px 0px 5px 0px;">
-            <!-- <form [formGroup]="selectedDate" fxFlex="50"> -->
             <form [formGroup]="selectedDate" class="col-6">
-              <!-- <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="form-datepicker"> -->
               <div class="form-datepicker d-flex flex-row justify-content-center align-items-center col-12">
-                <!-- <mat-form-field appearance="fill" fxFlex fxLayout="row" fxLayoutAlign="center center"> -->
                 <mat-form-field appearance="fill"
                   class="d-flex flex-row justify-content-center align-items-center col-12">
                   <mat-label>DD/MM/YYYY</mat-label>
-                  <!-- <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart"
-                    [max]="dateEnd" formControlName="dateSel" fxFlex> -->
                   <input matInput [matDatepicker]="datepicker" [matDatepickerFilter]="dateFilter" [min]="dateStart"
                     [max]="dateEnd" formControlName="dateSel" class="col-12">
-                  <!-- <mat-hint>DD/MM/YYYY</mat-hint> -->
-                  <!-- <mat-datepicker-toggle fxFlex matIconSuffix [for]="datepicker"></mat-datepicker-toggle> -->
                   <mat-datepicker-toggle class="col-12" matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
                   <mat-datepicker #datepicker>
                     <mat-datepicker-actions>
@@ -318,62 +337,40 @@
 
               </div>
             </form>
-            <!-- <div fxFlex="50" fxLayout="row" fxLayoutAlign="center center"> -->
             <div class="d-flex flex-row justify-content-center align-items-center col-6">
-              <!-- DA FARE!! -->
-              <!-- <button mat-icon-button fxFlex (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button> -->
               <button mat-icon-button class="col-12"
                 (click)="changeDate('leftAll')"><mat-icon>first_page</mat-icon></button>
-              <!-- dateStart: {{dateStart}} dateEnd: {{dateEnd}} -->
-              <!-- <button mat-icon-button fxFlex (click)="changeDate('left')" -->
               <button mat-icon-button class="col-12" (click)="changeDate('left')"
                 [disabled]="navigateDateLeftYear || navigateDateLeftMonth || navigateDateLeftSeason || dateStart?.toString() === dateEnd?.toString()"><mat-icon>navigate_before</mat-icon></button>
-              <!-- <button mat-icon-button fxFlex (click)="changeDate('right')" -->
               <button mat-icon-button class="col-12" (click)="changeDate('right')"
                 [disabled]="navigateDateRightYear || navigateDateRightMonth || navigateDateRightSeason || dateStart === dateEnd"><mat-icon>navigate_next</mat-icon></button>
-              <!-- <button mat-icon-button fxFlex (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button> -->
               <button mat-icon-button class="col-12"
                 (click)="changeDate('rightAll')"><mat-icon>last_page</mat-icon></button>
 
             </div>
           </div>
-
-          <!-- <div fxFlex="90" style="margin: 10px 0px 5px 0px; height: fit-content;" fxLayout="column" fxLayoutAlign="center center" *ngIf="isExtraParam"> -->
           <div class="col-12 d-flex flex-column justify-content-center align-items-center"
             style="margin: 10px 0px 5px 0px; height: fit-content;" *ngIf="isExtraParam">
-            <!-- <form [formGroup]="sliderGroup" fxFlex fxLayout="column" style="width: 100%;" fxLayoutAlign="center center"> -->
             <form [formGroup]="sliderGroup" class="col-12 d-flex flex-column justify-content-center align-items-center">
-              <!-- <div class="example-label-container" style="width: 80%;" fxLayout="row" fxLayoutAlign="center center"> -->
               <div class="example-label-container col-9 d-flex flex-row justify-content-center align-items-center">
-                <!-- <label fxFlex fxLayoutAlign="center center" id="example-name-label" class="example-name-label">{{extraParam.name}}</label> -->
                 <label id="example-name-label"
                   class="example-name-label col-12 d-flex justify-content-center align-items-center">{{extraParam.name}}</label>
               </div>
-              <!-- [disabled]="disabled" -->
               <ngx-slider [(value)]="value" [options]="options" (userChangeEnd)="sliderControl($event)"></ngx-slider>
 
             </form>
           </div>
-          <!-- </div> -->
         </mat-card-content>
       </mat-card>
     </div>
   </ng-container>
-
-  <!-- <div fxFlex="fit-content" fxLayout="row" fxLayoutAlign="center center" class="overlay-image"> -->
   <div class="overlay-image col-auto d-flex flex-row justify-content-center align-items-center"
     style="max-height: fit-content;">
     <ng-container *ngIf="this.selData.get('dataSetSel')?.value">
-      <!-- <ng-container *ngIf="legendLayer_src; else legendTabledap"> -->
       <ng-container *ngIf="legendLayer_src">
         <img [src]="legendLayer_src" style="height: 100px;">
 
       </ng-container>
-      <!-- <ng-template #legendTabledap>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Google_URL_Shortener_Logo.png">
-
-      </ng-template> -->
-
     </ng-container>
 
   </div>
@@ -385,6 +382,5 @@
     </div>
   </div>
   <!-- END MAP -->
-</div>
 
-<!-- <p>Selection: {{formMenuDatasets.value | json}}</p> -->
+

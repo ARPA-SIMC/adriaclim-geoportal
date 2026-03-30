@@ -57,7 +57,7 @@
 }
 
 .text-menu {
-  font-size: 1.0em;
+  font-size: 1em;
   font-weight: bold;
   color: #fff;
 }
@@ -82,11 +82,13 @@
   margin: 0px 10px 10px 10px;
   height: 90%;
 }
+
 .map-frame {
   border: 2px solid black;
   border-top: none;
   height: 100%;
 }
+
 #map {
   width: 100%;
   height: 100%;
@@ -107,7 +109,6 @@
 /**
 * END CSS FOR MAT TREE
 */
-
 
 /**
 * REMOVE ICONS FROM LIST
@@ -138,7 +139,6 @@
 ::ng-deep .mat-mdc-card-content:last-child {
   padding-bottom: 5px !important;
 }
-
 
 ::ng-deep .form-datepicker .mat-mdc-form-field-subscript-wrapper {
   width: 0 !important;
@@ -181,10 +181,10 @@
 
 .material-symbols-outlined {
   font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 48
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 48;
 }
 
 ::ng-deep .mat-card-active {
@@ -200,11 +200,9 @@
 /**
 * DISPLAY FLEX + CUSTOM
 */
-
 ::ng-deep .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
   top: 28px;
 }
-
 
 /**
 * CURSOR FOR MAP
@@ -228,6 +226,104 @@
   height: 1em;
 }
 
-// .modal-background {
-//   opacity: 0.8;
-// }
+/**
+* HELP BUTTON IN TOOLBAR
+* Works only if the HTML wrapper has class "toolbar-wrapper"
+*/
+.toolbar-wrapper {
+  position: relative;
+}
+
+.help-toolbar-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 20;
+
+  background-color: #0ba7d7 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* === DRIVER POPOVER BASE === */
+::ng-deep .driver-popover {
+  border-radius: 10px !important;
+  padding: 14px !important;
+  font-family: Roboto, sans-serif !important;
+}
+
+/* === TITLE === */
+::ng-deep .driver-popover-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #0ba7d7 !important;
+}
+
+/* === DESCRIPTION === */
+::ng-deep .driver-popover-description {
+  font-size: 14px !important;
+  color: #333 !important;
+  margin-top: 4px !important;
+}
+
+/* === FOOTER === */
+::ng-deep .driver-popover-footer {
+  margin-top: 12px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+/* === BOTTONI BASE === */
+::ng-deep .driver-popover-footer button {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* === NEXT === */
+::ng-deep .driver-next-btn {
+  background-color: #0ba7d7 !important;
+  color: white !important;
+  border: none !important;
+}
+
+::ng-deep .driver-next-btn:hover {
+  background-color: #098bb5 !important;
+}
+
+/* === BACK === */
+::ng-deep .driver-prev-btn {
+  background-color: transparent !important;
+  color: #0ba7d7 !important;
+  border: 1px solid #0ba7d7 !important;
+}
+
+::ng-deep .driver-prev-btn:hover {
+  background-color: rgba(11, 167, 215, 0.1) !important;
+}
+
+/* === DONE === */
+::ng-deep .driver-done-btn {
+  background-color: #0ba7d7 !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* === CLOSE (X) === */
+::ng-deep .driver-popover-close-btn {
+  color: #999 !important;
+}
+
+::ng-deep .driver-popover-close-btn:hover {
+  color: #333 !important;
+}
+
+/* === PROGRESS (1 of 5) === */
+::ng-deep .driver-popover-progress-text {
+  font-size: 12px !important;
+  color: #888 !important;
+}
+
