@@ -78,40 +78,40 @@ services:
 
   # Per sviluppo 
  
-  angular:
-    build:
-      context: ./code/adria_project_frontend
-      dockerfile: Dockerfile.dev
-    container_name: adriapp_angular
-    ports:
-      - "4200:80"
-    depends_on:
-      - django
-  
-  # Per produzione
-
   # angular:
   #   build:
   #     context: ./code/adria_project_frontend
-  #     dockerfile: Dockerfile.prod
+  #     dockerfile: Dockerfile.dev
+  #   container_name: adriapp_angular
   #   ports:
-  #     - "80:80"
+  #     - "4200:80"
   #   depends_on:
   #     - django
+  
+  # Per produzione
+
+  angular:
+    build:
+      context: ./code/adria_project_frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+    depends_on:
+      - django
 
   nginx:
     build: ./nginx
     container_name: adriapp_nginx
     volumes:
       - /static:/static
-      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf   # per sviluppo
-      # - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf  # per produzione
-      # - ./code/adria_project_frontend/dist/adria-project-front:/usr/share/nginx/html   # per produzione check se è da togliere
+      # - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf   # per sviluppo
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf  # per produzione
+      - ./code/adria_project_frontend/dist/adria-project-front:/usr/share/nginx/html   # per produzione 
     ports:
       - "8000:8000"
     depends_on:
       - django
-      - angular   # in dev serve Angular separato, in prod questa riga va tolta
+      # - angular   # in dev serve Angular separato, in prod questa riga va tolta
 
   redis:
     image: redis:alpine
