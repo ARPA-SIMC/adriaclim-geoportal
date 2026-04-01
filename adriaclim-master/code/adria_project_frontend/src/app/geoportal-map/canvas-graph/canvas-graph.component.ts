@@ -323,6 +323,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   ngAfterViewInit() {
     this.myChart = echarts.init(this.parentRef.nativeElement);
 
+    this.myChart.on('dataZoom', (event: any) => {
+      this.handleZoom(event);
+    });
   }
 
   /**
@@ -1560,28 +1563,34 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     throw new Error('Method not implemented.');
   }
 
-  onChartEvent(event: any, nameEvent: any) {
-    if (nameEvent !== 'chartDataZoom') {
-      return;
-    }
-
+  handleZoom(event: any) {
     if (!this.fullStatCalc || !this.fullStatCalc.dates || !this.fullStatCalc.values) {
       return;
     }
 
     const zoom = event?.batch?.[0] ?? event;
-
-    const start = typeof zoom?.start === 'number' ? zoom.start : 0;
-    const end = typeof zoom?.end === 'number' ? zoom.end : 100;
-
     const total = this.fullStatCalc.dates.length;
 
     if (!total) {
       return;
     }
 
-    const startIndex = Math.max(0, Math.floor((start / 100) * total));
-    const endIndex = Math.min(total, Math.ceil((end / 100) * total));
+    let startIndex: number;
+    let endIndex: number;
+
+    // Zoom con rotella (percentuale)
+    if (typeof zoom?.start === 'number' && typeof zoom?.end === 'number') {
+      startIndex = Math.max(0, Math.floor((zoom.start / 100) * total));
+      endIndex = Math.min(total, Math.ceil((zoom.end / 100) * total));
+    }
+    // Zoom con toolbox (valori reali)
+    else if (zoom?.startValue !== undefined && zoom?.endValue !== undefined) {
+      startIndex = Math.max(0, Number(zoom.startValue));
+      endIndex = Math.min(total, Number(zoom.endValue) + 1);
+    }
+    else {
+      return;
+    }
 
     const newDates = this.fullStatCalc.dates.slice(startIndex, endIndex);
     const newValues = this.fullStatCalc.values.slice(startIndex, endIndex);
@@ -1597,6 +1606,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     });
   }
 
+  onChartEvent(event: any, nameEvent: any) {
+    if (nameEvent === 'chartDataZoom') {
+      this.handleZoom(event);
+    }
+  }
  /**
  * Filter chart data based on the current zoom level
  */
