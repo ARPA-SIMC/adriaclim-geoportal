@@ -30,7 +30,7 @@
     "leaflet": "^1.9.3",
     "leaflet-polylinedecorator": "^1.6.0",
     "leaflet-rotatedmarker": "^0.2.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "moment": "^2.29.4",
     "ngx-echarts": "^15.0.1",
     "popper.js": "^1.16.1",
