@@ -92,6 +92,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   // centroid: L.LatLngExpression = [41.9027835, 12.4963655]; // Roma
   center: L.LatLngExpression = [42.744388161339, 12.0809380292276]; // Centro Italia
   zoom = 6;
+  showTutorialGraph = false;
 
   markersLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
   rettangoliLayer: any = L.layerGroup(); // crea un nuovo layerGroup vuoto
@@ -256,26 +257,24 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
         let pol = L.polygon(polyg[0]).addTo(this.map);
 
-        // Aggiungo un evento per il mouseover al poligono per cambiare il colore del bordo
         pol.on('mouseover', () => {
-          pol.setStyle({ color: 'red' }); // Ripristino il colore del bordo
+          pol.setStyle({ color: 'red' });
           this.highlightedPolygon = {
-            "pol": pol,
-            "polName": f.properties.popupContent
+            pol: pol,
+            polName: f.properties.popupContent
           };
-
         });
 
-        // Aggiungo un evento per il mouseout al poligono per ripristinare il colore del bordo iniziale
         pol.on('mouseout', () => {
-          pol.setStyle({ color: 'rgb(51, 136, 255)' }); // Cambio il colore del bordo al passaggio del mouse
+          pol.setStyle({ color: 'rgb(51, 136, 255)' });
           this.highlightedPolygon = null;
         });
 
         this.allPolygons.push({
-          "pol": pol,
-          "polName": f.properties.popupContent
+          pol: pol,
+          polName: f.properties.popupContent
         });
+
         polyg = [];
       } else {
         f.geometry.coordinates.forEach(c => {
@@ -285,7 +284,8 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
         });
       }
     });
-    
+
+    // UNICO punto di start tutorial
     this.initializeTutorial();
 
     if (this.shouldStartTutorialOnFirstAccess()) {
@@ -534,8 +534,8 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
     const dialogRef = this.dialog.open(SelectCoordsDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(async result => {
       if (result != "") {
-        this.pointSelect(result.lat, result.lng);
-
+        this.selDatasetFromDialog(result.menu);
+        this.resultMenuDialog = result;
       }
     })
   }
@@ -2190,7 +2190,6 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
     }
 
     const dialogRef = this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
-
   }
 
   /**
@@ -3194,9 +3193,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   }
 
   private initializeTutorial(): void {
-    if (this.tutorialInitialized) {
-      return;
-    }
+    if (this.tutorialInitialized) return;
 
     this.tutorialDriver = driver({
       showProgress: true,
@@ -3207,12 +3204,13 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
       doneBtnText: 'Done',
       nextBtnText: 'Next',
       prevBtnText: 'Back',
+
       steps: [
         {
           element: '#tour-tools-button',
           popover: {
             title: 'Tools',
-            description: 'Use this menu to work with point selection tools.',
+            description: 'Use these tools to interact with the map and extract data.',
             side: 'right',
             align: 'start'
           },
@@ -3222,91 +3220,90 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
           element: '#tour-areas-button',
           popover: {
             title: 'Areas',
-            description: 'Use this menu to work with predefined areas or upload your own GeoJSON.',
+            description: 'Predefined areas can be used to analyze data quickly.',
             side: 'right',
             align: 'start'
           },
           onHighlighted: () => this.closeTutorialMenus()
         },
         {
-          element: '#tour-full-list-button',
+          element: '#tour-dataset-button',
           popover: {
-            title: 'Full list',
-            description: 'Open the complete dataset list from here.',
-            side: 'left',
-            align: 'start',
-            onNextClick: () => this.openFullListAndGoToSearchStep()
+            title: 'Dataset selection',
+            description: 'Select a dataset to visualize and analyze data.',
+            side: 'bottom',
+            align: 'center'
           },
           onHighlighted: () => this.closeTutorialMenus()
         },
         {
-          element: '#tour-full-list-search-input',
+          element: '#tour-full-list-button',
           popover: {
-            title: 'Dataset search',
-            description: 'Use this field to search datasets by title or institution within the full list.',
+            title: 'Dataset catalogue',
+            description: 'Browse all available datasets.',
+            side: 'bottom',
+            align: 'center',
+            onNextClick: () => {
+              this.closeTutorialMenus();
+              this.showTutorialGraph = true;
+
+              setTimeout(() => {
+                this.tutorialDriver.moveNext();
+              }, 300);
+            }
+          }
+        },
+
+        // GRAFICO FAKE (SOLO IMMAGINE)
+
+        {
+          element: '#fake-graph-container',
+          popover: {
+            title: 'Graph overview',
+            description: 'This chart shows how the selected data changes over time.',
+            side: 'top',
+            align: 'center'
+          }
+        },
+        {
+          element: '#fake-graph-container',
+          popover: {
+            title: 'Time scale and statistics',
+            description: 'In the graph, you can change how data is aggregated over time and how values are calculated using different statistical methods.',
             side: 'left',
             align: 'start'
           }
         },
         {
-          element: '#tour-dataset-button',
+          element: '#fake-graph-container',
           popover: {
-            title: 'Dataset',
-            description: 'Open the dataset selection panel from here.',
-            side: 'left',
-            align: 'start'
-          },
-          onHighlighted: () => {
-            this.closeTutorialMenus();
+            title: 'Zoom',
+            description: 'You can zoom using the mouse wheel or by clicking the zoom icon (top right of the chart) and selecting a time range directly on the graph.',
+            side: 'right',
+            align: 'center'
+          }
+        },
+        {
+          element: '#fake-graph-container',
+          popover: {
+            title: 'Recalculate',
+            description: 'After selecting a range, you can use the Calc button to update the statistics for that specific time period.',
+            side: 'right',
+            align: 'center',
+            onNextClick: () => {
+              this.tutorialDriver.destroy();
+            }
           }
         }
       ],
+
       onDestroyed: () => {
         this.closeTutorialMenus();
+        this.showTutorialGraph = false;
       }
     });
 
     this.tutorialInitialized = true;
-  }
-
-  private openFullListAndGoToSearchStep(): void {
-    this.closeTutorialMenus();
-
-    this.fullListMenuTrigger?.openMenu();
-
-    this.waitForElement('#tour-full-list-search-input', 20, 100)
-      .then(() => {
-        this.tutorialDriver.moveNext();
-      })
-      .catch(() => {
-        console.error('Tutorial: search input not found.');
-      });
-  }
-
-  private waitForElement(selector: string, maxAttempts = 20, delayMs = 100): Promise<HTMLElement> {
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-
-      const checkElement = () => {
-        const element = document.querySelector(selector) as HTMLElement | null;
-
-        if (element) {
-          resolve(element);
-          return;
-        }
-
-        attempts += 1;
-
-        if (attempts >= maxAttempts) {
-          reject(new Error(`Element not found: ${selector}`));
-          return;
-        }
-
-        setTimeout(checkElement, delayMs);
-      };
-
-      checkElement();
-    });
   }
 
   private closeTutorialMenus(): void {
@@ -3369,5 +3366,4 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
     })
 
   }
-
 }

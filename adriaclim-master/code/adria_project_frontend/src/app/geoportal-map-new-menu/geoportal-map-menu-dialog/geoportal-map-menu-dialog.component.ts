@@ -40,6 +40,7 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
   searchFilter: any;
 
   resultMenuDialog: any;
+  readonly tutorialDatasetTitle = 'ARPAV PRCPTOT hist VenetoGrid monthly 1993 2022';
 
   constructor(
     private changeDetector: ChangeDetectorRef,
