@@ -182,6 +182,18 @@ def getAllNodes(request):
             else:
                 description = "\n".join(f"- {x}" for x in found_desc)
 
+            # Keep the original ERDDAP title for debugging / info dialog usage
+            d["erddap_title"] = node.title
+
+            # Use the human-readable legend as display title when available
+            legend = getattr(node, "adriaclim_legend", None)
+
+            print("TITLE:", node.title)
+            print("LEGEND:", node.adriaclim_legend)
+            
+            if legend and str(legend).strip():
+                d["title"] = str(legend).strip()
+
             d["description"] = description
             nodes_list.append(d)
 

@@ -173,13 +173,13 @@ def safe_insert_node(node_id, defaults):
                     adriaclim_type, title, metadata_url, institution, lat_min, lat_max,
                     lng_min, lng_max, time_start, time_end, param_min, param_max, param_step,
                     tabledap_url, dimensions, dimension_names, variables, variable_names,
-                    variable_types, griddap_url, wms_url
+                    variable_types, griddap_url, wms_url, adriaclim_legend
                 ) VALUES (
                     %(id)s, %(adriaclim_dataset)s, %(adriaclim_model)s, %(adriaclim_timeperiod)s, %(adriaclim_scale)s,
                     %(adriaclim_type)s, %(title)s, %(metadata_url)s, %(institution)s, %(lat_min)s, %(lat_max)s,
                     %(lng_min)s, %(lng_max)s, %(time_start)s, %(time_end)s, %(param_min)s, %(param_max)s, %(param_step)s,
                     %(tabledap_url)s, %(dimensions)s, %(dimension_names)s, %(variables)s, %(variable_names)s,
-                    %(variable_types)s, %(griddap_url)s, %(wms_url)s
+                    %(variable_types)s, %(griddap_url)s, %(wms_url)s, %(adriaclim_legend)s
                 )
                 ON CONFLICT (id) DO NOTHING
             """, {"id": node_id, **defaults})
@@ -236,7 +236,7 @@ def getAllDatasets():
             continue
 
         info = row["Info"]
-        adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = None
+        adriaclim_scale = adriaclim_dataset = adriaclim_timeperiod = adriaclim_model = adriaclim_type = adriaclim_legend = None
         institution = "UNKNOWN"
         time_start = time_end = ""
         lat_min = lat_max = lng_min = lng_max = None
@@ -264,6 +264,8 @@ def getAllDatasets():
         get_info = get_info.to_dict(orient="records")
 
         for row1 in get_info:
+            if "legend" in str(row1).lower():
+                print("DEBUG LEGEND ROW:", row1)
             if row1["RowType"] == "dimension":
                 if dimensions > 0:
                     dimension_names += " "
@@ -288,6 +290,8 @@ def getAllDatasets():
                 adriaclim_timeperiod = row1["Value"]
             elif row1["AttributeName"] == "adriaclim_type":
                 adriaclim_type = row1["Value"]
+            elif row1["AttributeName"] == "adriaclim_legend":
+                adriaclim_legend = row1["Value"]
             elif row1["AttributeName"] == "institution":
                 institution = row1["Value"]
             elif row1["AttributeName"] == "time_coverage_start":
@@ -387,6 +391,7 @@ def getAllDatasets():
                 "adriaclim_timeperiod": adriaclim_timeperiod,
                 "adriaclim_scale": adriaclim_scale,
                 "adriaclim_type": adriaclim_type,
+                "adriaclim_legend": adriaclim_legend,
                 "title": row["Title"],
                 "metadata_url": metadata_url,
                 "institution": institution,
