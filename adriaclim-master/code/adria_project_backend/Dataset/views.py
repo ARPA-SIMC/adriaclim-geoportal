@@ -188,9 +188,6 @@ def getAllNodes(request):
             # Use the human-readable legend as display title when available
             legend = getattr(node, "adriaclim_legend", None)
 
-            print("TITLE:", node.title)
-            print("LEGEND:", node.adriaclim_legend)
-            
             if legend and str(legend).strip():
                 d["title"] = str(legend).strip()
 

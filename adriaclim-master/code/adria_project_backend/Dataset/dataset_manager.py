@@ -264,8 +264,6 @@ def getAllDatasets():
         get_info = get_info.to_dict(orient="records")
 
         for row1 in get_info:
-            if "legend" in str(row1).lower():
-                print("DEBUG LEGEND ROW:", row1)
             if row1["RowType"] == "dimension":
                 if dimensions > 0:
                     dimension_names += " "
