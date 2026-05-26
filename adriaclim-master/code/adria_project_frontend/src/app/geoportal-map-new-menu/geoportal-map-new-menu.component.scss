@@ -261,7 +261,7 @@
   width: 90%;
   height: 92%;
   background: white;
-  padding: 12px 20px;
+  padding: 12px;
   border-radius: 10px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 
@@ -283,7 +283,6 @@
   .tutorial-title,
   .tutorial-dataset {
     margin-bottom: 10px;
-    font-size: 18px;
   }
 
   span {
@@ -302,7 +301,6 @@
 
 .tutorial-left-controls {
   display: flex;
-  align-items: center;
   gap: 16px;
 
   mat-form-field {
@@ -312,7 +310,6 @@
 
 .tutorial-right-controls {
   display: flex;
-  align-items: center;
   gap: 20px;
   flex-wrap: wrap;
 }
