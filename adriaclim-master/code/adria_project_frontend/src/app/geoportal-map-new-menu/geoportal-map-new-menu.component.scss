@@ -259,7 +259,8 @@
 
 .fake-graph-box {
   width: 90%;
-  height: 92%;
+  max-height: 92%;
+  overflow:auto;
   background: white;
   padding: 12px 20px;
   border-radius: 10px;
@@ -319,9 +320,8 @@
 
 .tutorial-chart-wrapper {
   flex: 1;
-  min-height: 650px;
+  min-height: 0;
   display: flex;
-  flex-direction: column;
 }
 
 .tutorial-chart-wrapper app-canvas-graph {
