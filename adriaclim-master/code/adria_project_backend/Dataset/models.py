@@ -34,6 +34,7 @@ class Node(models.Model):
     griddap_url = models.CharField(max_length=250,default="",null=True)
     wms_url = models.CharField(max_length=500,default="",null=True)
     description = models.TextField(null=True, blank=True)
+    adriaclim_legend = models.TextField(null=True, blank=True)
 
     
 class Indicator(models.Model):

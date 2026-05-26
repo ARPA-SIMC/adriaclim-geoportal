@@ -7,6 +7,7 @@ import { HttpService } from 'src/app/services/http.service';
 import * as _ from 'lodash';
 import { interval } from 'rxjs';
 import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
+import { TUTORIAL_GRAPH_DATA } from 'src/app/tutorial/tutorial-graph-data';
 
 @Component({
   selector: 'app-canvas-graph',
@@ -33,6 +34,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() circleCoords: any;
   @Input() dimUnit: string = "";
   @Input() progressBarAtStart: any;
+  @Input() tutorialMode: boolean = false;
   @Output() meanMedianStdev = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
@@ -306,8 +308,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
 
   ngOnInit() {
-    console.log("INZIO CANVAS GRAPH")
+    console.log("INZIO CANVAS GRAPH");
     this.isLoading = true;
+
+    if (this.tutorialMode) {
+      this.loadTutorialGraph();
+      return;
+    }
+
     for (let i = 0, sum = 0; i < this.dataBoxPlot.length; ++i) {
       if (this.dataBoxPlot[i] >= 0) {
         this.positive.push(this.dataBoxPlot[i]);
@@ -316,15 +324,94 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         this.positive.push('-');
         this.negative.push(-this.dataBoxPlot[i]);
       }
-
     }
   }
 
   ngAfterViewInit() {
     this.myChart = echarts.init(this.parentRef.nativeElement);
-
   }
+  
+  loadTutorialGraph() {
+    this.chartOption = {
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: [
+          '1993', '1994', '1995', '1996', '1997',
+          '1998', '1999', '2000', '2001', '2002',
+          '2003', '2004', '2005', '2006', '2007',
+          '2008', '2009', '2010', '2011', '2012',
+          '2013', '2014', '2015', '2016', '2017',
+          '2018', '2019', '2020', '2021', '2022'
+        ]
+      },
+      yAxis: {
+        type: 'value'
+      },
+      toolbox: {
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none'
+          },
+          restore: {},
+          saveAsImage: {}
+        }
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      legend: {
+        data: ['PRCPTOT']
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      dataZoom: [
+        {
+          show: true,
+          realtime: true,
+          type: 'inside'
+        }
+      ],
+      series: [
+        {
+          data: [
+            -20, -85, -60, 25, -40,
+            -55, -30, 70, 100, -120,
+            85, 15, -5, 35, 50,
+            -100, -20, -85, -15, 45,
+            145, 30, -25, -60, -90,
+            -20, 135, 80, -15, 10,
+            -45, 75, 150, -50, -25,
+            -80, -20, -35, -85, -30,
+            50, 40, 20, 110, 75,
+            -70, -10, 130, 25, 90,
+            85, 20, -40, -70, -110,
+            -130, -25, 125, 65, 250,
+            -55, 20, 200, 15, 120,
+            0, 0, -5, -10, 55,
+            60, 0, 25, -65, -75,
+            -80, 35, -20, 15, 40,
+            -5, -90, 150, -35, 65,
+            -45, -90, 95, 15, -100,
+            55, -80, -100, -75, -95,
+            -70, -50
+          ],
+          name: 'PRCPTOT',
+          type: 'line',
+          smooth: false,
+          areaStyle: undefined
+        }
+      ]
+    };
 
+  this.isLoading = false;
+  this.spinnerLoadingChild.emit(false);
+  this.spinnerService.spinnerShow = false;
+}
   /**
  * Format numbers for display with a maximum of 2 decimal places
  */
@@ -385,320 +472,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  // getDataGraphPolygonInterval() {
-  //   // Close polygon if needed
-  //   if (this.polygon && this.polygon.length >= 3) {
-  //     const first = this.polygon[0];
-  //     const last = this.polygon[this.polygon.length - 1];
-  //     if (first.lat !== last.lat || first.lng !== last.lng) {
-  //       this.polygon.push({ lat: first.lat, lng: first.lng });
-  //     }
-  //   }
-
-  //   let data = {
-  //     dataset: this.dataset,
-  //     selVar: this.variable,
-  //     range: this.range ? Math.abs(this.range) : 0,
-  //     latLngObj: this.polygon,
-  //     isIndicator: this.isIndicator,
-  //     parametro_agg: this.extraParam ? this.extraParam.nameExtraParam : null,
-  //     operation: this.operation,
-  //     statistic: this.statistic,
-  //     circleCoords: this.circleCoords,
-  //   };
-
-  //   console.log("DATA IF POLYGON =", data);
-
-  //   // Check boxPlot
-  //   if (this.statistic !== "boxPlot") {
-  //     if (this.isLoading) {
-  //       console.log("Caricamento già in corso, ignoro nuova richiesta");
-  //       return;
-  //     }
-  //     this.isLoading = true;
-
-  //     // Show spinner and loading bar only if NOT an update
-  //     if (!this.isUpdate) {
-  //       this.firstSpinner();
-  //       if (this.context === "one") {
-  //         console.log("[FIGLIO] emetto fakeProgressStart");
-  //         this.fakeProgressStart.emit();
-  //         this.chartAlreadyLoaded = true;
-  //       }
-  //     } else {
-  //       // Update → spinner only
-  //       this.spinnerLoadingChild.emit(true);
-  //       this.spinnerService.spinnerShow = true;
-  //     }
-
-  //     this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
-  //       next: (response: any) => {
-  //         console.log("PRIMA RESPONSE", response);
-  //         let taskData = { task_id: response.task_id };
-
-  //         this.taskStatusAttempts = 0;
-  //         this.taskStatusInterval = setInterval(() => {
-  //           this.taskStatusAttempts++;
-  //           if (this.taskStatusAttempts > this.maxTaskStatusAttempts) {
-  //             clearInterval(this.taskStatusInterval);
-  //             this.taskStatusInterval = null;
-
-  //             if (!this.isUpdate) {
-  //               this.fakeProgressStop.emit();
-  //             } else {
-  //               this.spinnerLoadingChild.emit(false);
-  //               this.spinnerService.spinnerShow = false;
-  //             }
-
-  //             this.description.emit("The request is taking too long and has been stopped. Please try again later.");
-  //             this.isLoading = false;
-  //             return;
-  //           }
-  //           this.httpService.post('dataset/check_task_status/', taskData).subscribe({
-  //             next: (res: any) => {
-  //               console.log("SECONDA RESPONSE", res);
-  //               let task_status = res.dataVect.status;
-
-  //               if (task_status === 'SUCCESS') {
-  //                 clearInterval(this.taskStatusInterval);
-  //                 this.taskStatusInterval = null;
-
-  //                 if (!this.isUpdate) {
-  //                   console.log("[FIGLIO] emetto fakeProgressStop");
-  //                   this.fakeProgressStop.emit();
-  //                 } else {
-  //                   // stop spinner update
-  //                   this.spinnerLoadingChild.emit(false);
-  //                   this.spinnerService.spinnerShow = false;
-  //                 }
-
-  //                 let task_result = { dataVect: res.dataVect.result };
-  //                 this.getDataGraphPolygon(task_result);
-  //                 this.isLoading = false;
-  //               }
-  //               else if (task_status === 'FAILURE' || task_status === 'ERROR' || task_status === 'REVOKED') {
-  //                 clearInterval(this.taskStatusInterval);
-  //                 this.taskStatusInterval = null;
-
-  //                 if (!this.isUpdate) {
-  //                   console.log("[FIGLIO] emetto fakeProgressStop");
-  //                   this.fakeProgressStop.emit();
-  //                 } else {
-  //                   this.spinnerLoadingChild.emit(false);
-  //                   this.spinnerService.spinnerShow = false;
-  //                 }
-
-  //                 const backendError = res?.dataVect?.error || 'Task failed';
-  //                 this.description.emit(backendError);
-  //                 console.error('Task error:', backendError);
-  //                 this.isLoading = false;
-  //               }
-  //               else if (task_status === "PROGRESS" && !this.isUpdate) {
-  //                 let progressBarValue = res.dataVect.progressBar;
-  //                 this.progressBar.emit(progressBarValue);
-  //               }
-  //             },
-  //             error: (err: any) => {
-  //               clearInterval(this.taskStatusInterval);
-  //               this.taskStatusInterval = null;
-
-  //               if (!this.isUpdate) {
-  //                 console.log("[FIGLIO] emetto fakeProgressStop");
-  //                 this.fakeProgressStop.emit();
-  //               } else {
-  //                 this.spinnerLoadingChild.emit(false);
-  //                 this.spinnerService.spinnerShow = false;
-  //               }
-
-  //               console.log("ERROR =", err);
-  //               this.isLoading = false;
-  //             }
-  //           });
-  //         }, 2000);
-  //       },
-  //       error: (err: any) => {
-  //         console.error("Errore getDataGraphPolygonInterval:", err);
-  //         this.isLoading = false;
-  //       }
-  //     });
-  //   }
-
-  //   // --- Updated BoxPlot branch ---
-  //   else {
-  //     if (this.isLoading) {
-  //       console.log("Caricamento già in corso, ignoro nuova richiesta");
-  //       return;
-  //     }
-  //     this.isLoading = true;
-
-  //     if (!this.isUpdate) {
-  //     // Show spinner only for boxPlot
-  //     if (this.statistic === 'boxPlot') {
-  //       this.firstSpinner();
-  //       console.log("[FIGLIO] emetto fakeProgressStart (boxPlot)");
-  //       this.fakeProgressStart.emit();
-  //     }
-  //   } else {
-  //     if (this.statistic === 'boxPlot') {
-  //       this.spinnerLoadingChild.emit(true);
-  //       this.spinnerService.spinnerShow = true;
-  //     }
-  //   }
-
-  //     data['statistic'] = "min_10thPerc_median_90thPerc_max";
-
-  //     this.httpService.post('dataset/getDataPolygonNew/', data).subscribe({
-  //       next: (response: any) => {
-  //         const taskData = { task_id: response.task_id };
-
-  //         this.taskStatusAttempts = 0;
-  //         this.taskStatusInterval = setInterval(() => {
-  //           this.taskStatusAttempts++;
-  //           if (this.taskStatusAttempts > this.maxTaskStatusAttempts) {
-  //             clearInterval(this.taskStatusInterval);
-  //             this.taskStatusInterval = null;
-
-  //             if (!this.isUpdate) {
-  //               this.fakeProgressStop.emit();
-  //             } else {
-  //               this.spinnerLoadingChild.emit(false);
-  //               this.spinnerService.spinnerShow = false;
-  //             }
-
-  //             this.description.emit("The request is taking too long and has been stopped. Please try again later.");
-  //             this.isLoading = false;
-  //             return;
-  //           }
-  //           this.httpService.post('dataset/check_task_status/', taskData).subscribe({
-  //             next: (res: any) => {
-  //               console.log("SECONDA RESPONSE (boxPlot)", res);
-
-  //               const task_status = res?.dataVect?.status;
-  //               const result = res?.dataVect?.result;
-
-  //               // Stop polling as soon as it finishes
-  //               if (task_status === 'SUCCESS') {
-  //                 clearInterval(this.taskStatusInterval);
-  //                 this.taskStatusInterval = null;
-
-  //                 // Always turn off the spinner
-  //                 if (!this.isUpdate) {
-  //                   this.fakeProgressStop.emit();
-  //                 } else {
-  //                   this.spinnerLoadingChild.emit(false);
-  //                   this.spinnerService.spinnerShow = false;
-  //                 }
-
-  //                 const result = res?.dataVect?.result;
-
-  //                 if (result && typeof result === 'object' && Array.isArray(result.dataPol)) {
-  //                   this.data1 = result.dataPol.map((el: any) => {
-  //                     return [
-  //                       el["Minimum"],
-  //                       el["10th Percentile"],
-  //                       el["Median"],
-  //                       el["90th Percentile"],
-  //                       el["Maximum"],
-  //                     ];
-  //                   });
-
-  //                   const showName = result.dataPol.map((el: any) => [el['x']]);
-  //                   this.quantityBoxPlot = new Set();
-  //                   showName.forEach((element: any) => {
-  //                     this.quantityBoxPlot.add(element[0]);
-  //                   });
-
-  //                   this.optionBoxPlot = {
-  //                     title: [
-  //                       {
-  //                         text: 'Min, 10th Percentile, Median, 90th Percentile, Max',
-  //                         left: 'center',
-  //                         top: '20px'
-  //                       }
-  //                     ],
-  //                     dataset: [
-  //                       { source: this.data1 },
-  //                       { transform: { type: 'boxplot', config: { itemNameFormatter: (params: any) => params.value } } },
-  //                       { fromDatasetIndex: 1, fromTransformResult: 1 },
-  //                     ],
-  //                     tooltip: { trigger: 'item', axisPointer: { type: 'shadow' } },
-  //                     grid: { left: '10%', right: '10%', bottom: '15%' },
-  //                     xAxis: { type: 'category', data: [...this.quantityBoxPlot] },
-  //                     yAxis: { type: 'value', name: 'Values' },
-  //                     series: [
-  //                       { name: 'Box plot', type: 'boxplot', datasetIndex: 1 },
-  //                       { name: 'Outlier', type: 'scatter', datasetIndex: 2 },
-  //                     ]
-  //                   };
-  //                 } else {
-  //                   console.warn("BoxPlot: risultato non strutturato o vuoto:", result);
-  //                 }
-
-  //                 this.isLoading = false;
-
-  //                 // --- FIX: force spinner shutdown after 1s for safety ---
-  //                 setTimeout(() => {
-  //                   if (!this.isUpdate) {
-  //                     this.fakeProgressStop.emit();
-  //                   } else {
-  //                     this.spinnerLoadingChild.emit(false);
-  //                     this.spinnerService.spinnerShow = false;
-  //                   }
-  //                   console.log("[FIX] Spinner force-stopped after SUCCESS (boxPlot)");
-  //                 }, 1000);
-  //                 // --- END FIX ---
-  //               }
-
-  //               else if (task_status === 'FAILURE' || task_status === 'ERROR' || task_status === 'REVOKED') {
-  //                 clearInterval(this.taskStatusInterval);
-  //                 this.taskStatusInterval = null;
-
-  //                 if (!this.isUpdate) {
-  //                   this.fakeProgressStop.emit();
-  //                 } else {
-  //                   this.spinnerLoadingChild.emit(false);
-  //                   this.spinnerService.spinnerShow = false;
-  //                 }
-
-  //                 const backendError = res?.dataVect?.error || 'Task failed';
-  //                 this.description.emit(backendError);
-  //                 console.error('Task error (boxPlot):', backendError);
-  //                 this.isLoading = false;
-  //               }
-
-  //               // If PROGRESS → continue polling
-  //               },
-  //               error: (err: any) => {
-  //                 clearInterval(this.taskStatusInterval);
-  //                 this.taskStatusInterval = null;
-
-  //                 if (!this.isUpdate) {
-  //                   this.fakeProgressStop.emit();
-  //                 } else {
-  //                   this.spinnerLoadingChild.emit(false);
-  //                   this.spinnerService.spinnerShow = false;
-  //                 }
-
-  //                 console.log("ERROR (boxPlot) =", err);
-  //                 this.isLoading = false;
-  //               }
-  //               });
-  //               }, 2000);
-  //               },
-  //               error: (err: any) => {
-  //                 console.error("Errore boxPlot:", err);
-  //                 // Turn off the spinner anyway if the first POST fails
-  //                 if (!this.isUpdate) {
-  //                   this.fakeProgressStop.emit();
-  //                 } else {
-  //                   this.spinnerLoadingChild.emit(false);
-  //                   this.spinnerService.spinnerShow = false;
-  //                 }
-  //                 this.isLoading = false;
-  //               }
-  //             });
-  //           }
-  //         }
+ 
   getDataGraphPolygonInterval() {
     if (this.taskStatusInterval) {
       clearInterval(this.taskStatusInterval);
@@ -1044,6 +818,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   getDataGraphPolygon(response: any) {
 
     console.log("VERA RES PER POLIGONO", response);
+    console.log('TUTORIAL POLYGON RESPONSE', response);
 
 
     if (typeof response == 'string') {
@@ -1560,28 +1335,34 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     throw new Error('Method not implemented.');
   }
 
-  onChartEvent(event: any, nameEvent: any) {
-    if (nameEvent !== 'chartDataZoom') {
-      return;
-    }
-
+  handleZoom(event: any) {
     if (!this.fullStatCalc || !this.fullStatCalc.dates || !this.fullStatCalc.values) {
       return;
     }
 
     const zoom = event?.batch?.[0] ?? event;
-
-    const start = typeof zoom?.start === 'number' ? zoom.start : 0;
-    const end = typeof zoom?.end === 'number' ? zoom.end : 100;
-
     const total = this.fullStatCalc.dates.length;
 
     if (!total) {
       return;
     }
 
-    const startIndex = Math.max(0, Math.floor((start / 100) * total));
-    const endIndex = Math.min(total, Math.ceil((end / 100) * total));
+    let startIndex: number;
+    let endIndex: number;
+
+    // Zoom con rotella (percentuale)
+    if (typeof zoom?.start === 'number' && typeof zoom?.end === 'number') {
+      startIndex = Math.max(0, Math.floor((zoom.start / 100) * total));
+      endIndex = Math.min(total, Math.ceil((zoom.end / 100) * total));
+    }
+    // Zoom con toolbox (valori reali)
+    else if (zoom?.startValue !== undefined && zoom?.endValue !== undefined) {
+      startIndex = Math.max(0, Number(zoom.startValue));
+      endIndex = Math.min(total, Number(zoom.endValue) + 1);
+    }
+    else {
+      return;
+    }
 
     const newDates = this.fullStatCalc.dates.slice(startIndex, endIndex);
     const newValues = this.fullStatCalc.values.slice(startIndex, endIndex);
@@ -1597,6 +1378,11 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     });
   }
 
+  onChartEvent(event: any, nameEvent: any) {
+    if (nameEvent === 'chartDataZoom') {
+      this.handleZoom(event);
+    }
+  }
  /**
  * Filter chart data based on the current zoom level
  */
@@ -1626,6 +1412,96 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
  * Handle the received data to display the corresponding chart
  */
   getDataGraph() {
+
+    if (this.tutorialMode) {
+
+      this.progressBarCanvas.emit(false);
+      this.spinnerLoadingChild.emit(false);
+      this.spinnerService.spinnerShow = false;
+
+      this.dataRes = TUTORIAL_GRAPH_DATA;
+
+      const name = this.dataRes.allData.entries[0];
+
+      this.chartOption = {
+
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: this.dataRes.allData[name].map((el: any) => el.x)
+        },
+
+        yAxis: {
+          type: 'value'
+        },
+
+        tooltip: {
+          trigger: 'axis',
+          transitionDuration: 0.2,
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985'
+            }
+          }
+        },
+
+        toolbox: {
+          feature: {
+            dataZoom: {
+              yAxisIndex: 'none'
+            },
+            restore: {},
+            saveAsImage: {}
+          }
+        },
+
+        legend: {
+          data: [name]
+        },
+
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+
+        dataZoom: [
+          {
+            show: true,
+            realtime: true,
+            type: 'inside'
+          }
+        ],
+
+        series: [
+          {
+            data: this.dataRes.allData[name].map((el: any) => this.formatNumber(el.y)),
+            name: name,
+            type: 'line',
+            stack: 'counts',
+            areaStyle: this.enableArea ? {} : undefined,
+            smooth: false
+          }
+        ]
+      };
+
+      this.meanMedianStdev.emit(
+        this.dataRes.allData.mean +
+        "_" +
+        this.dataRes.allData.median +
+        "_" +
+        this.dataRes.allData.stdev +
+        "_" +
+        this.dataRes.allData.trend_yr
+      );
+
+      this.isLoading = false;
+
+      return;
+    }
+
     if (this.dimUnit === "No") {
       this.dimUnit = "";
     }
@@ -1676,6 +1552,59 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.spinnerService.spinnerShow = true;
     }
 
+    if (this.tutorialMode) {
+
+      this.dataRes = TUTORIAL_GRAPH_DATA;
+
+      const name = this.dataRes.allData.entries[0];
+
+      this.chartOption = {
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: this.dataRes.allData[name].map((el: any) => el.x)
+        },
+
+        yAxis: {
+          type: 'value'
+        },
+
+        tooltip: {
+          trigger: 'axis'
+        },
+
+        toolbox: {
+          feature: {
+            dataZoom: {
+              yAxisIndex: 'none'
+            },
+            restore: {},
+            saveAsImage: {}
+          }
+        },
+
+        dataZoom: [
+          {
+            show: true,
+            realtime: true,
+            type: 'inside'
+          }
+        ],
+
+        series: [{
+          data: this.dataRes.allData[name].map((el: any) => el.y),
+          name: name,
+          type: 'line',
+          smooth: false
+        }]
+      };
+
+      this.spinnerLoadingChild.emit(false);
+      this.spinnerService.spinnerShow = false;
+
+      return;
+    }
+
     this.httpService.post('dataset/getDataGraphicNewCanvas/', data).subscribe({
       next: (response: any) => {
         console.log("[GRAPH] RESPONSE getDataGraph =", response);
@@ -1711,6 +1640,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         }
 
         this.dataRes = response;
+
+        console.log('TUTORIAL GRAPH RESPONSE', this.dataRes);
+
         this.availableDepths = this.dataRes?.allData?.available_depths || [];
         this.selectedDepthFromBackend = this.dataRes?.allData?.selected_depth ?? null;
         this.availableDepthsChange.emit(this.availableDepths);
@@ -2003,5 +1935,4 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.spinnerService.spinnerShow = true;
     }
   }
-
 }

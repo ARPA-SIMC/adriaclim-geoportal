@@ -246,3 +246,85 @@
   box-shadow: none !important;
 }
 
+.fake-graph-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fake-graph-box {
+  width: 90%;
+  height: 92%;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.fake-graph-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tutorial-graph-header {
+  text-align: center;
+  margin-bottom: 20px;
+
+  .tutorial-title,
+  .tutorial-dataset {
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  span {
+    color: #00bcd4;
+    font-weight: 600;
+  }
+}
+
+.tutorial-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  margin-bottom: 8px;
+}
+
+.tutorial-left-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  mat-form-field {
+    width: 240px;
+  }
+}
+
+.tutorial-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.tutorial-chart-wrapper {
+  flex: 1;
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tutorial-chart-wrapper app-canvas-graph {
+  flex: 1;
+}
+

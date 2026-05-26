@@ -1,6 +1,6 @@
 <form [formGroup]="form" style="width: 500px;">
 
-  <div mat-dialog-content class="col-12">
+  <div id="tour-dialog-container" mat-dialog-content class="col-12">
     <div class="d-flex flex-row justify-content-between align-items-center pb-1">
       <h1 mat-dialog-title class="d-flex flex-row justify-content-center align-items-center pb-0"><span class="info-title-dialog bolder">Filters</span></h1>
       <!-- <button type="button" class="btn btn-xs btn-primary">Reset</button> -->
@@ -60,6 +60,7 @@
         <mat-label>Dataset</mat-label>
         <!-- <mat-select #quartoMatSelect formControlName="menu" (openedChange)="changeHeight(); setFilter()" class="d-flex"> -->
          <mat-select
+            id="tour-dataset-select"
             #quartoMatSelect
             formControlName="menu"
             (openedChange)="setFilter()"
@@ -96,7 +97,11 @@
             </mat-option>
 
             <!-- Options: tooltip sul testo (non sul mat-option) -->
-            <mat-option *ngFor="let m of searchFilter" [value]="m">
+            <mat-option
+              *ngFor="let m of searchFilter"
+              [value]="m"
+              [attr.id]="m.title === tutorialDatasetTitle ? 'tour-dataset-option' : null"
+            >
               <span
                 [matTooltip]="m.description || 'Description not available'"
                 matTooltipPosition="right"

@@ -26,9 +26,13 @@
           class="title-dialog-bold">{{parseInFloatLng()}}</span></h1>
     </ng-container>
 
-    <button *ngIf="prodDev === 'dev' && openGraph" mat-raised-button
-      color="primary" (click)="showInfo()">Info</button>
-
+    <button
+            *ngIf="prodDev === 'dev' && openGraph"
+            mat-raised-button
+            color="primary"
+            (click)="showInfo()">
+            Info
+    </button>
   </div>
   <h1 *ngIf="description" mat-dialog-title
     class="title-dialog-bold">{{description}}</h1>
@@ -91,8 +95,10 @@
                 style="height: 55px;">
                 <div *ngIf="!compareObj"
                   [ngClass]="[polygon ? 'col-5' : 'col-3', 'd-flex', 'flex-row', 'justify-content-start', 'align-items-center', 'gap-2']">
-                  <mat-form-field appearance="fill" class="col"
-                    *ngIf="!compareObj">
+                  <mat-form-field
+                      appearance="fill"
+                      class="col"
+                      *ngIf="!compareObj">
                     <mat-label>Time scale</mat-label>
                     <mat-select formControlName="operationSel"
                       (selectionChange)="showStatPointSelected(polygon)">
@@ -116,7 +122,9 @@
                   <ng-container *ngIf="polygon">
                     <div
                       class="col-5 d-flex flex-row justify-content-center align-items-center gap-1">
-                      <mat-form-field appearance="fill" class="col-12">
+                      <mat-form-field
+                          appearance="fill"
+                          class="col-12">
                         <mat-label>Statistics</mat-label>
                         <mat-select formControlName="statisticSel">
                           <mat-option *ngFor="let s of optionStatistics"
@@ -127,8 +135,13 @@
                         </mat-select>
                       </mat-form-field>
                     </div>
-                    <button class="col-2" mat-raised-button color="primary"
-                      (click)="sendSelGraphPoly(); showStat()">Update</button>
+                    <button
+                                          class="col-2"
+                                          mat-raised-button
+                                          color="primary"
+                                          (click)="sendSelGraphPoly(); showStat()">
+                                          Update
+                    </button>
                   </ng-container>
                 </div>
                 <ng-container *ngIf="compareObj; else normalStat">
@@ -234,7 +247,8 @@
                   [enableArea]="form.get('enableArea')?.value"
                   [circleCoords]="circleCoords"
                   [dimUnit]="dimUnit"
-                  [context]="'one'">
+                  [context]="'one'"
+                  [tutorialMode]="tutorialMode">
                 </app-canvas-graph>
               </ng-template>
             </mat-tab>
