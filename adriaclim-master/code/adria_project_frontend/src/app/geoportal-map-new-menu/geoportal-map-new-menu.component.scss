@@ -247,38 +247,83 @@
 }
 
 .fake-graph-overlay {
-  position: absolute;
-  top: 15%;
-  left: 20%;
-  width: 60%;
-  z-index: 1000;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .fake-graph-box {
+  width: 90%;
+  height: 92%;
   background: white;
-  padding: 12px;
+  padding: 12px 20px;
   border-radius: 10px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  flex-direction: column;
 }
 
-.fake-graph-actions {
+.fake-graph-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.tutorial-graph-header {
+  text-align: center;
+  margin-bottom: 20px;
+
+  .tutorial-title,
+  .tutorial-dataset {
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  span {
+    color: #00bcd4;
+    font-weight: 600;
+  }
+}
+
+.tutorial-controls {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  align-items: flex-start;
+  gap: 30px;
+  margin-bottom: 8px;
 }
 
-.fake-graph-actions button {
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
+.tutorial-left-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  mat-form-field {
+    width: 240px;
+  }
 }
 
-.fake-graph-container img {
-  width: 100%;
-  display: block;
-  border-radius: 8px;
+.tutorial-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
+.tutorial-chart-wrapper {
+  flex: 1;
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tutorial-chart-wrapper app-canvas-graph {
+  flex: 1;
+}

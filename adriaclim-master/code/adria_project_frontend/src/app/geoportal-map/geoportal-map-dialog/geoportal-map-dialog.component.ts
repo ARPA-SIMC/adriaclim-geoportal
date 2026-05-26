@@ -11,6 +11,7 @@ import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import * as _ from 'lodash';
 import { OptionsValue, TypeOfExport } from 'src/app/interfaces/geoportal-map-dialog-int';
 import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
+import { driver } from 'driver.js';
 
 @Component({
   selector: 'app-geoportal-map-dialog',
@@ -25,27 +26,20 @@ import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
 })
 export class GeoportalMapDialogComponent implements AfterContentChecked {
 
+  showTutorialGraph: boolean = false;
   isUpdate = false;
-
   dimUnit: any;
   availableDepths: number[] = [];
   selectedDepth: number = 0;
   isProfileTimeseries: boolean = false;
-
   stats: any = {};
-
-  // displayedColumns: string[] = ['time', 'latitude', 'longitude', 'wind10m'];
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
   metadataRows: any[] = [];
-
   spinnerLoading: any = false;
-
   progressBarAtStart: boolean = true;
-
   private paginator!: MatPaginator;
   dataTable: any;
-
   form!: FormGroup;
   description: string;
   tableDescription: string = "";
@@ -53,7 +47,6 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   datasetId: string;
   datasetName: string;
   openGraph: any;
-
   dataset: any;
   latlng: any;
   dateStart: any;
@@ -77,6 +70,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   stdevValue: any;
   trendValue: any;
   statCalc: any;
+  tutorialMode: boolean = false;
   prodDev = this.httpService.apiUrl === "http://localhost:8000/" ? "dev" : "prod";
   info: any = false;
   circleCoords: any;
@@ -102,7 +96,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   end: any;
 
   showStatistic: boolean = true;
-
+  graphTutorialDriver: any;
   compareObj: any;
 
   progress = 0
@@ -220,6 +214,76 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
   ];
 
+  // startGraphTutorial(): void {
+
+  //   this.graphTutorialDriver = driver({
+
+  //     showProgress: true,
+  //     animate: true,
+  //     smoothScroll: true,
+  //     allowClose: true,
+
+  //     steps: [
+
+  //       {
+  //         element: '#tutorial-info-button',
+  //         popover: {
+  //           title: 'Dataset information',
+  //           description: 'Open detailed information about the selected dataset, including metadata and technical details.',
+  //           side: 'left',
+  //           align: 'center'
+  //         }
+  //       },
+
+  //       {
+  //         element: '#tutorial-time-scale',
+  //         popover: {
+  //           title: 'Time scale',
+  //           description: 'Change the temporal aggregation of the data, for example yearly, monthly or seasonal values.',
+  //           side: 'right',
+  //           align: 'center'
+  //         }
+  //       },
+
+  //       {
+  //         element: '#tutorial-statistics',
+  //         popover: {
+  //           title: 'Statistics',
+  //           description: 'Select the statistical operation applied to the data, such as mean, median or trend calculation.',
+  //           side: 'right',
+  //           align: 'center'
+  //         }
+  //       },
+
+  //       {
+  //         element: '#tutorial-update-button',
+  //         popover: {
+  //           title: 'Update graph',
+  //           description: 'After changing time scale or statistics, click Update to refresh the graph with the selected options.',
+  //           side: 'bottom',
+  //           align: 'center'
+  //         }
+  //       },
+
+  //       {
+  //         element: '#tutorial-chart',
+  //         popover: {
+  //           title: 'Zoom and chart tools',
+  //           description: 'Use these tools to zoom into a specific time range, reset the zoom, restore the original chart view or save the graph as an image.',
+  //           side: 'top',
+  //           align: 'center'
+  //         }
+  //       }
+
+  //     ]
+
+  //   });
+
+  //   // setTimeout(() => {
+  //   //   this.graphTutorialDriver.drive();
+  //   // }, 1000);
+
+  // }
   showStat() {
     if (this.operation === "default") {
 
@@ -333,6 +397,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     private dialogRef: MatDialogRef<GeoportalMapDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: any,
     public spinnerService: SpinnerLoaderService) {
+    this.tutorialMode = data.tutorialMode || false;
     this.description = data.description;
     this.success = data.success;
     this.datasetId = data.datasetId;
@@ -364,6 +429,18 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     if (this.dataset) {
 
       this.stepDate = this.dataset.adriaclim_timeperiod;
+      if (this.tutorialMode) {
+        this.stepDate = 'yearly';
+        this.operation = 'default';
+        this.statistic = 'avg';
+        this.form.patchValue({
+          operationSel: 'default',
+          statisticSel: 'avg'
+        });
+        setTimeout(() => {
+          // this.startGraphTutorial();
+        }, 800);
+      }
     }
 
     this.form = this.fb.group({

@@ -386,15 +386,105 @@
   <!-- END MAP -->
 
 <div *ngIf="showTutorialGraph" id="fake-graph-overlay" class="fake-graph-overlay">
+
   <div class="fake-graph-box">
 
-    <!-- SOLO GRAFICO -->
     <div id="fake-graph-container" class="fake-graph-container">
-      <img src="assets/img/fake-graph.png" alt="Graph preview">
+
+      <div class="tutorial-graph-header">
+
+        <div class="tutorial-title">
+          Polygon's name:
+          <span>Veneto</span>
+        </div>
+
+        <div class="tutorial-dataset">
+          Dataset's name:
+          <span>ARPAV PRCPTOT hist anomaly VenetoGrid seasonal 1993 2011</span>
+        </div>
+
+      </div>
+
+      <div class="tutorial-controls">
+
+        <div class="tutorial-left-controls">
+
+          <mat-form-field
+            id="tutorial-time-scale"
+            appearance="fill">
+
+            <mat-label>Time scale</mat-label>
+
+            <mat-select>
+              <mat-option value="default">
+                Default Graph
+              </mat-option>
+            </mat-select>
+
+          </mat-form-field>
+
+          <mat-form-field
+            id="tutorial-statistics"
+            appearance="fill">
+
+            <mat-label>Statistics</mat-label>
+
+            <mat-select>
+              <mat-option value="avg">
+                Mean Value (Moment By Moment)
+              </mat-option>
+            </mat-select>
+
+          </mat-form-field>
+
+          <button
+            id="tutorial-update-button"
+            mat-raised-button
+            color="primary">
+
+            Update
+
+          </button>
+
+        </div>
+
+        <div class="tutorial-right-controls">
+
+          <div>Mean: -1.571 x 10^1</div>
+          <div>Median: -1.009 x 10^1</div>
+          <div>Stddev: 8.225 x 10^1</div>
+          <div>Trend/Yr: 1.348 x 10^-1</div>
+
+          <button
+            id="tutorial-calc-button"
+            mat-raised-button
+            color="primary">
+
+            Calc
+
+          </button>
+
+          <mat-checkbox>
+            Enable area
+          </mat-checkbox>
+
+        </div>
+
+      </div>
+
+      <div class="tutorial-chart-wrapper">
+
+        <app-canvas-graph
+          class="canvas-graph"
+          [tutorialMode]="true">
+        </app-canvas-graph>
+
+      </div>
+
     </div>
 
   </div>
-</div>
 
+</div>
 
 

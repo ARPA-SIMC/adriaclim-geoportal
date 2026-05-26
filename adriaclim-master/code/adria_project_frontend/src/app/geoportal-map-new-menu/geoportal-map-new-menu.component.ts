@@ -2116,11 +2116,52 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   /**
    * Funzione che permette di aprire la modale contenente il grafico del dataset selezionato
    */
-  openGraphDialog(lat?: any, lng?: any, polygon?: any) {
+  openGraphDialog(lat?: any, lng?: any, polygon?: any, tutorialMode: boolean = false) {
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
+      if (tutorialMode) {
+        dialogConfig.data = {
+          success: true,
+          openGraph: true,
+          tutorialMode: true,
+
+          datasetId: 'tutorial_prcptot',
+          datasetName: 'ARPAV PRCPTOT hist VenetoGrid yearly 1993 2022',
+
+          dataset: {
+            id: 'tutorial_prcptot',
+            dataset_id: 'tutorial_prcptot',
+            title: 'ARPAV PRCPTOT hist VenetoGrid yearly 1993 2022',
+            variable_names: 'time latitude longitude PRCPTOT',
+            variable_types: 'String float float float',
+            adriaclim_timeperiod: 'yearly',
+            dimensions: 3,
+            time_start: '1993-01-01',
+            time_end: '2022-01-01',
+            griddap_url: 'tutorial',
+            wms_url: 'tutorial'
+          },
+
+          variable: 'PRCPTOT',
+          arrayVariable: ['PRCPTOT'],
+          range: 0,
+          latlng: { lat: 45.37452, lng: 11.97514 },
+          dateStart: new Date('1993-01-01'),
+          dateEnd: new Date('2022-01-01'),
+          confronto: false,
+          isIndicator: 'false',
+          polygon: null,
+          polyExport: null,
+          polName: 'Tutorial area',
+          circleCoords: [],
+          extraParamExport: null
+        };
+
+        this.dialog.open(GeoportalMapDialogComponent, dialogConfig);
+        return;
+      }
 
     let dataId: any;
     if (this.selData.get("dataSetSel")?.value) {
@@ -3246,60 +3287,75 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
             onNextClick: () => {
               this.closeTutorialMenus();
               this.showTutorialGraph = true;
-
               setTimeout(() => {
                 this.tutorialDriver.moveNext();
-              }, 300);
+              }, 100);
             }
           }
         },
-
-        // GRAFICO FAKE (SOLO IMMAGINE)
-
         {
           element: '#fake-graph-container',
           popover: {
             title: 'Graph overview',
             description: 'This chart shows how the selected data changes over time.',
             side: 'top',
+            align: 'center',
+          }
+        },
+        {
+          element: '#tutorial-time-scale',
+          popover: {
+            title: 'Time scale',
+            description: 'Change the temporal aggregation of the data, for example yearly, monthly or seasonal values.',
+            side: 'bottom',
             align: 'center'
           }
         },
         {
-          element: '#fake-graph-container',
+          element: '#tutorial-statistics',
           popover: {
-            title: 'Time scale and statistics',
-            description: 'In the graph, you can change how data is aggregated over time and how values are calculated using different statistical methods.',
-            side: 'left',
-            align: 'start'
-          }
-        },
-        {
-          element: '#fake-graph-container',
-          popover: {
-            title: 'Zoom',
-            description: 'You can zoom using the mouse wheel or by clicking the zoom icon (top right of the chart) and selecting a time range directly on the graph.',
-            side: 'right',
+            title: 'Statistics',
+            description: 'Select the statistical operation applied to the data, such as mean, median or trend calculation.',
+            side: 'bottom',
             align: 'center'
           }
         },
         {
-          element: '#fake-graph-container',
+          element: '#tutorial-update-button',
           popover: {
-            title: 'Recalculate',
-            description: 'After selecting a range, you can use the Calc button to update the statistics for that specific time period.',
-            side: 'right',
+            title: 'Update graph',
+            description: 'After changing time scale or statistics, click Update to refresh the graph.',
+            side: 'bottom',
+            align: 'center'
+          }
+        },
+        {
+          element: '#tutorial-chart',
+          popover: {
+            title: 'Zoom and chart tools',
+            description: 'Use the chart toolbar to zoom, restore the original view or save the graph as an image.',
+            side: 'top',
+            align: 'end'
+          }
+        },
+        {
+          element: '#tutorial-calc-button',
+          popover: {
+            title: 'Area calculation',
+            description: 'Enable additional calculations and area-based analysis tools.',
+            side: 'bottom',
             align: 'center',
             onNextClick: () => {
+              this.showTutorialGraph = false;
               this.tutorialDriver.destroy();
             }
           }
-        }
+        },      
       ],
 
       onDestroyed: () => {
         this.closeTutorialMenus();
-        this.showTutorialGraph = false;
+        // this.showTutorialGraph = false;
       }
     });
 
