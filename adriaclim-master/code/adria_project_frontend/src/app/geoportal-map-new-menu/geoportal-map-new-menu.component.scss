@@ -281,7 +281,9 @@
   margin-bottom: 20px;
 
   .tutorial-title,
-  .tutorial-dataset
+  .tutorial-dataset {
+    margin-bottom: 10px;
+  }
 
   span {
     color: #00bcd4;
@@ -293,7 +295,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
+  gap: 30px;
   margin-bottom: 8px;
 }
 
@@ -309,6 +311,7 @@
 .tutorial-right-controls {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .tutorial-chart-wrapper {
