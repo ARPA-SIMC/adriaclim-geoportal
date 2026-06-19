@@ -973,7 +973,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
         if (
           variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
-          (variableTypes[index] !== "float" || variableTypes[index] !== "double")
+          (variableTypes[index] === "float" || variableTypes[index] === "double")
         ) {
 
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
@@ -987,13 +987,14 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
       variableNames.forEach((variableName: any, index: number) => {
         if (
           variableName !== "time" && variableName !== "latitude" && variableName !== "longitude" &&
-          (variableTypes[index] !== "float" || variableTypes[index] !== "double")
+          (variableTypes[index] === "float" || variableTypes[index] === "double")
         ) {
           this.variableArray.push({ name: variableName, type: variableTypes[index] });
         }
       });
     }
 
+    console.log("VARIABLE ARRAY =", this.variableArray);
     if (this.variableArray.length > 0) {
       this.variableGroup.get("variableControl")?.setValue(this.variableArray[this.variableArray.length - 1]["name"]);
 

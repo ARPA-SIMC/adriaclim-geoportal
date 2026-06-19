@@ -385,7 +385,13 @@ def getDataVectorialNew(request):
         dataset = request.data.get("dataset")
         dataset_id = dataset.get('id')
         raw_sel_date = request.data.get("selDate")
-        if raw_sel_date in [None, "", "null", "None"]:
+
+        if (
+            dataset.get("adriaclim_type") == "timeseries"
+            and dataset.get("time_end")
+        ):
+            sel_date = dataset.get("time_end")
+        elif raw_sel_date in [None, "", "null", "None"]:
             sel_date = (
                 dataset.get("selDate")
                 or dataset.get("time_end")
@@ -425,6 +431,12 @@ def getDataVectorialNew(request):
         is_indicator = request.data.get('isIndicator')
         if is_indicator == "false":
             num_param = int(num_dimensions)
+        logger.error("[DEBUG VECTORIAL] dataset_id=%s sel_date=%s layer_name=%s", dataset_id, sel_date, layer_name)
+        logger.error(
+            "[DEBUG VECTORIAL] dataset_time_end=%s dataset_time_start=%s",
+            dataset.get("time_end"),
+            dataset.get("time_start")
+        )
         dataVect=getDataVectorial(dataset_id,layer_name,sel_date,lat_min,lat_max,lng_min,lng_max,num_param,0,is_indicator)
         logger.warning("[DEBUG BACKEND] Risposta ERDDAP inviata al frontend")
 
