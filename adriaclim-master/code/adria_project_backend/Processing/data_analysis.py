@@ -454,6 +454,8 @@ def getDataVectorial(
         )
 
         df = read_erddap_data(url)
+        logger.error("[DEBUG VECTORIAL] columns=%s", list(df.columns))
+        logger.error("[DEBUG VECTORIAL] head=\n%s", df.head())
 
         values = []
         lat_coordinates = []
