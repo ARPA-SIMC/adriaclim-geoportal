@@ -1610,6 +1610,13 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         console.log("[GRAPH] RESPONSE getDataGraph =", response);
 
         if (response.allData === "fuoriWms") {
+
+          // Ignore late invalid responses if a valid graph is already loaded
+          if (this.dataRes?.allData) {
+            this.isLoading = false;
+            return;
+          }
+
           if (!this.isUpdate) {
             this.progressBarCanvas.emit(false);
             if (this.timeoutProgressBar) {
@@ -1619,6 +1626,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
             this.spinnerLoadingChild.emit(false);
             this.spinnerService.spinnerShow = false;
           }
+
           this.description.emit("Please select point inside the layer");
           this.isLoading = false;
           return;
