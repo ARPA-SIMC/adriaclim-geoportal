@@ -1,6 +1,6 @@
-import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core';
-import { EChartsOption, graphic } from 'echarts';
+import { EChartsOption } from 'echarts';
 import * as echarts from 'echarts';
 import { ElementRef } from '@angular/core';
 import { HttpService } from 'src/app/services/http.service';
@@ -18,7 +18,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   private isLoading = false;
   private suppressProgress = false; // Disable spinner for current update
 
-  @Input() isUpdate: boolean = false;
+  @Input() isUpdate = false;
   @Input() idMeta: any;
   @Input() dataset: any;
   @Input() latlng: any;
@@ -32,9 +32,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() extraParam: any;
   @Input() enableArea: any;
   @Input() circleCoords: any;
-  @Input() dimUnit: string = "";
+  @Input() dimUnit = "";
   @Input() progressBarAtStart: any;
-  @Input() tutorialMode: boolean = false;
+  @Input() tutorialMode = false;
   @Output() meanMedianStdev = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
@@ -465,9 +465,9 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       return this.seasons[parsedDate.getMonth()];
     }
     else {
-      let month = parsedDate.getMonth() + 1;
-      let day = parsedDate.getDate();
-      let year = parsedDate.getFullYear();
+      const month = parsedDate.getMonth() + 1;
+      const day = parsedDate.getDate();
+      const year = parsedDate.getFullYear();
       return day + "/" + month + "/" + year;
     }
   }
@@ -488,7 +488,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     }
 
-    let data: any = {
+    const data: any = {
       dataset: this.dataset,
       selVar: this.variable,
       range: this.range ? Math.abs(this.range) : 0,
@@ -1071,7 +1071,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       }
     }
 
-    let dataInGraph = _.cloneDeep([...this.allDataPolygon["dataPol"]]);
+    const dataInGraph = _.cloneDeep([...this.allDataPolygon["dataPol"]]);
     let allDates = _.cloneDeep([...dataInGraph]);
 
     allDates = dataInGraph.map((el: any) => {
@@ -1080,18 +1080,18 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
 
     allDates = [...new Set(allDates)]; 
     this.myChart.on('dataZoom', () => {
-      let option = this.myChart.getOption();
+      const option = this.myChart.getOption();
       this.startZoom = option.dataZoom[0].startValue;
       this.endZoom = option.dataZoom[0].endValue;
-      let arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom], allDates[this.endZoom]));
+      const arrayDate = allDates.filter(this.filterElement(allDates[this.startZoom], allDates[this.endZoom]));
       this.zoomFunctionGraph(arrayDate, dataInGraph);
 
     });
 
-    let arrayDataDate = this.allDataPolygon.dataPol.map((el: any) => {
+    const arrayDataDate = this.allDataPolygon.dataPol.map((el: any) => {
       return el["x"];
     });
-    let arrayDataValue = this.allDataPolygon.dataPol.map((el: any) => {
+    const arrayDataValue = this.allDataPolygon.dataPol.map((el: any) => {
       return el["y"];
     });
 
@@ -1112,8 +1112,8 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
     this.meanMedianStdev.emit(this.allDataPolygon.mean + "_" + this.allDataPolygon.median + "_" + this.allDataPolygon.stdev + "_" + this.allDataPolygon.trend_yr);
     this.dataTablePolygon.emit(this.allDataPolygon.dataTable);
 
-    let value = this.allDataPolygon.dataPol.map((element: any) => element.y);
-    let minMaxValue = {
+    const value = this.allDataPolygon.dataPol.map((element: any) => element.y);
+    const minMaxValue = {
       min: Math.min(...value).toFixed(0),
       max: Math.max(...value).toFixed(0)
     }
@@ -1129,14 +1129,14 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
         });
 
       });
-      let prova = this.allDataPolygon.dataPol.map((element: any) => element.x);
+      const prova = this.allDataPolygon.dataPol.map((element: any) => element.x);
       this.chartOption = {
 
         xAxis: {
           type: 'category',
           boundaryGap: false,
           data: this.allDataPolygon.dataPol.map((element: any) => {
-            let elDate = new Date(element.x).toLocaleDateString();
+            const elDate = new Date(element.x).toLocaleDateString();
             if (elDate !== "Invalid Date") {
               return elDate;
             }
@@ -1229,7 +1229,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
       this.allDataPolygon.dataPol.forEach((element: any) => {
         element.y = Number(element.y);
       });
-      let name = this.variable;
+      const name = this.variable;
 
       this.chartOption = {
 
@@ -1237,7 +1237,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
           type: 'category',
           boundaryGap: false,
           data: this.allDataPolygon.dataPol.map((element: any) => {
-            let elDate = new Date(element.x).toLocaleDateString();
+            const elDate = new Date(element.x).toLocaleDateString();
             if (elDate !== "Invalid Date") {
               return elDate;
             }
@@ -1388,7 +1388,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
  */
   filterElement(min: any, max: any) {
     return function (a: any) {
-      let p = a >= min && a <= max;
+      const p = a >= min && a <= max;
       return p;
     };
   }
@@ -1397,7 +1397,7 @@ export class CanvasGraphComponent implements OnInit, OnChanges, AfterViewInit {
  * Start a timeout for the loading progress bar during a backend call
  */
   timeforProgressBar() {
-    let addTime: number = 0;
+    let addTime = 0;
     const intervalValue = 5000;
     this.timeoutProgressBar = interval(intervalValue).subscribe(() => {
       addTime += 5; 

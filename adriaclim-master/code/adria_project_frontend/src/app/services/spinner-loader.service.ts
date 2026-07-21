@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SpinnerLoaderService {
 
-  spinnerShow: boolean = false;
+  spinnerShow = false;
   // spinnerShow: Subject<boolean> = new Subject<boolean>();
 
   constructor() {

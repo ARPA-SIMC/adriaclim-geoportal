@@ -1,4 +1,6 @@
 {
+    "typescript.tsdk": "adriaclim-master/code/adria_project_frontend/node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
     "vscode.tsc.compiler.alertTSConfigChanges": "never",
     "cmake.configureOnOpen": false,
     "python.formatting.provider": "black",

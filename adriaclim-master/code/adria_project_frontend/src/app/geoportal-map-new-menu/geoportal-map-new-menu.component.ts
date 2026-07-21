@@ -1,7 +1,7 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, HostListener, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
@@ -18,7 +18,7 @@ import { GeoportalColorDialogComponent } from '../geoportal-map/geoportal-color-
 import { GeoportalCompareDialogComponent } from '../geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
-import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, SelPolygon, circleCoords } from '../interfaces/geoportal-map-new-menu-int';
+import { ExtendedWMSOptions, ExtraParams, SelPolygon, circleCoords } from '../interfaces/geoportal-map-new-menu-int';
 import { GeoportalMapMenuDialogComponent } from './geoportal-map-menu-dialog/geoportal-map-menu-dialog.component';
 import { SpinnerLoaderService } from '../services/spinner-loader.service';
 import { driver, Driver } from 'driver.js';
@@ -255,7 +255,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
           polyg.push(c);
         });
 
-        let pol = L.polygon(polyg[0]).addTo(this.map);
+        const pol = L.polygon(polyg[0]).addTo(this.map);
 
         pol.on('mouseover', () => {
           pol.setStyle({ color: 'red' });
@@ -432,7 +432,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
                   polyg.push(c);
                 });
 
-                let pol = L.polygon(polyg[0]).addTo(this.map);
+                const pol = L.polygon(polyg[0]).addTo(this.map);
                 // Aggiungo un evento per il mouseover al poligono per cambiare il colore del bordo
                 pol.on('mouseover', () => {
                   pol.setStyle({ color: 'red' }); // Ripristino il colore del bordo
@@ -574,7 +574,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
           lat: lat,
           lng: lng
         }
-        let latlng: L.LatLngExpression = [lat, lng];
+        const latlng: L.LatLngExpression = [lat, lng];
         this.openGraphDialog();
         const marker = L.marker(latlng, {
           icon: L.icon({
@@ -842,9 +842,9 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
     this.observations = [];
     this.reanallysis = [];
 
-    let tmpCategoryDatasets: any[] = [];
-    let tmpScale: any[] = [];
-    let tmpTimeperiods: any[] = [];
+    const tmpCategoryDatasets: any[] = [];
+    const tmpScale: any[] = [];
+    const tmpTimeperiods: any[] = [];
 
     this.httpService.post('dataset/getAllNodes/', {
     }).subscribe({
@@ -966,8 +966,8 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
     this.variableArray = [];
 
     if (node.name) {
-      let variableNames = node.name.variable_names.split(" ");
-      let variableTypes = node.name.variable_types.split(" ");
+      const variableNames = node.name.variable_names.split(" ");
+      const variableTypes = node.name.variable_types.split(" ");
       variableNames.forEach((variableName: any, index: number) => {
         // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
 
@@ -981,8 +981,8 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
       });
     }
     else if (node.variable_names) {
-      let variableNames = node.variable_names.split(" ");
-      let variableTypes = node.variable_types.split(" ")
+      const variableNames = node.variable_names.split(" ");
+      const variableTypes = node.variable_types.split(" ")
 
       variableNames.forEach((variableName: any, index: number) => {
         if (
@@ -1050,7 +1050,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   isAString(val: any): boolean { return typeof val === 'string'; }
 
   disableArrowDate() {
-    let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
+    const selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
 
     if (selD.getFullYear() === this.dateStart.getFullYear() && selD.getMonth() === this.dateStart.getMonth() && selD.getDate() === this.dateStart.getDate()) {
 
@@ -1429,7 +1429,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
       if (arrow === "left") {
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
-        let d2 = _.cloneDeep(selD);
+        const d2 = _.cloneDeep(selD);
 
         // Tolgo un giorno a d2
         d2.setDate(d2.getDate() - 1);
@@ -1491,7 +1491,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
         let selD = _.cloneDeep(this.selectedDate.get("dateSel")?.value);
         const d1 = _.cloneDeep(selD);
-        let d2 = _.cloneDeep(selD);
+        const d2 = _.cloneDeep(selD);
 
         // Aggiungo un giorno a d2
         d2.setDate(d2.getDate() + 1);
@@ -2061,7 +2061,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
   getValuesByKey(arr: any[], key: string) {
     return arr
-      .filter((dict) => dict.hasOwnProperty(key))
+      .filter((dict) => Object.prototype.hasOwnProperty.call(dict, key))
       .map((dict) => dict[key]);
   }
 
@@ -2117,7 +2117,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   /**
    * Funzione che permette di aprire la modale contenente il grafico del dataset selezionato
    */
-  openGraphDialog(lat?: any, lng?: any, polygon?: any, tutorialMode: boolean = false) {
+  openGraphDialog(lat?: any, lng?: any, polygon?: any, tutorialMode = false) {
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -2701,9 +2701,9 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
     function getC(f: any, l: any, r: any) {
 
-      let rValue = Math.floor((1 - f) * l.r + f * r.r);
-      let gValue = Math.floor((1 - f) * l.g + f * r.g);
-      let bValue = Math.floor((1 - f) * l.b + f * r.b);
+      const rValue = Math.floor((1 - f) * l.r + f * r.r);
+      const gValue = Math.floor((1 - f) * l.g + f * r.g);
+      const bValue = Math.floor((1 - f) * l.b + f * r.b);
 
       return {
         r: rValue,
@@ -3180,8 +3180,8 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
    */
   changeSel(sel?: any, type?: string) {
 
-    let tmpScale: any[] = [];
-    let tmpTimeperiods: any[] = [];
+    const tmpScale: any[] = [];
+    const tmpTimeperiods: any[] = [];
 
     if (type === "c") {
 
@@ -3224,7 +3224,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
    * Funzione che carica il layer corrispondente sulla mappa alla selezione di un dataset
    */
   selDatasetFromDialog(node: any) {
-    let obj = {
+    const obj = {
       name: node
     }
 

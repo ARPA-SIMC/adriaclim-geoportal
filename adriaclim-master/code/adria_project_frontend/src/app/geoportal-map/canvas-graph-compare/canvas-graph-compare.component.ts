@@ -29,7 +29,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   @Input() enableArea: any;
   @Input() circleCoords: any;
   @Input() progressBarAtStart: any;
-  @Input() isUpdate: boolean = false;
+  @Input() isUpdate = false;
   @Output() compareStats = new EventEmitter<any>();
   @Output() dataTimeExport = new EventEmitter<any>();
   @Output() dataTablePolygon = new EventEmitter<any>();
@@ -162,17 +162,17 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
           element.x = this.formatDate(element.x);
           element.y = Number(element.y);
         });
-        let arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
-        let arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
-        let arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
+        const arrayAllDateValue = _.cloneDeep(this.dataRes.allData[name]);
+        const arrayAllDate = this.dataRes.allData[name].map((element: any) => element.date);
+        const arrayAllValue = this.dataRes.allData[name].map((element: any) => element.y);
 
 
         this.myChart.on('dataZoom', () => {
-          let option = this.myChart.getOption();
+          const option = this.myChart.getOption();
           this.startZoom = option.dataZoom[0].startValue;
           this.endZoom = option.dataZoom[0].endValue;
 
-          let arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
+          const arrayDate = arrayAllDate.filter(this.filterElement(this.dataRes.allData[name][this.startZoom]["date"], this.dataRes.allData[name][this.endZoom]["date"]));
 
           let arrayValueTest = arrayAllDateValue.map((element: any, index: any) => {
             if(element.date && arrayDate.includes(element.date)){
@@ -268,22 +268,22 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
   }
 
   getGraphCompare() {
-    let data = this.compareObj;
+    const data = this.compareObj;
     this.httpService.post('dataset/compareDatasets/', data).subscribe({
       next: (res: any) => {
-        let firstDataset = res.compareResult.firstResult;
-        let secondDataset = res.compareResult.secondResult;
-        let firstKey = this.compareObj.firstVarSel;
-        let secondKey = this.compareObj.secondVarSel;
+        const firstDataset = res.compareResult.firstResult;
+        const secondDataset = res.compareResult.secondResult;
+        const firstKey = this.compareObj.firstVarSel;
+        const secondKey = this.compareObj.secondVarSel;
 
-        let stats = {
+        const stats = {
           meanDiffAvg: res.compareResult.meanDiffAvg,
           meanDiffAvgAbs: res.compareResult.meanDiffAvgAbs,
           rootSquaredDiff: res.compareResult.rootSquaredDiff
         }
         this.compareStats.emit(stats);
 
-        let namesArray = [firstKey, secondKey];
+        const namesArray = [firstKey, secondKey];
 
         this.chartOption = {
           color: this.colors,
@@ -297,7 +297,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
                 }
               },
               data: firstDataset[firstKey].map((element: any) => {
-                let elDate = new Date(element.x).toLocaleDateString();
+                const elDate = new Date(element.x).toLocaleDateString();
                 if (elDate !== "Invalid Date") {
                   return elDate;
                 }
@@ -316,7 +316,7 @@ export class CanvasGraphCompareComponent implements OnInit, OnChanges, AfterView
                 }
               },
               data: secondDataset[secondKey].map((element: any) => {
-                let elDate = new Date(element.x).toLocaleDateString();
+                const elDate = new Date(element.x).toLocaleDateString();
                 if (elDate !== "Invalid Date") {
                   return elDate;
                 }
