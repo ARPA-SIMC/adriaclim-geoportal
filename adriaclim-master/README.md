@@ -1,3 +1,0 @@
-# AdriaClim
-
-Geoportale AdriaClim - ARPAE
