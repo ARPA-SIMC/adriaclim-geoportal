@@ -2,8 +2,8 @@ import { Options } from '@angular-slider/ngx-slider';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, HostListener, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MAT_SELECT_CONFIG } from '@angular/material/select';
@@ -20,10 +20,8 @@ import { environment } from 'src/environments/environment';
 import { GeoportalColorDialogComponent } from '../geoportal-map/geoportal-color-dialog/geoportal-color-dialog.component';
 import { GeoportalCompareDialogComponent } from '../geoportal-map/geoportal-compare-dialog/geoportal-compare-dialog.component';
 import { SelectCoordsDialogComponent } from '../select-coords-dialog/select-coords-dialog.component';
-import * as bootstrap from 'bootstrap';
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
 import { ExampleFlatNode, ExtendedWMSOptions, ExtraParams, FoodNode, circleCoords } from '../interfaces/geoportal-map-int';
-import { titleCaseWord } from '../common-functions/functions';
 
 /**
  * Food data with nested structure.
@@ -306,7 +304,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           // poligon = L.polygon(c);
         });
 
-        let pol = L.polygon(polyg[0]).addTo(this.map);
+        const pol = L.polygon(polyg[0]).addTo(this.map);
 
         this.allPolygons.push({
           "pol": pol,
@@ -537,7 +535,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
           lat: lat,
           lng: lng
         }
-        let latlng: L.LatLngExpression = [lat, lng];
+        const latlng: L.LatLngExpression = [lat, lng];
         this.openGraphDialog();
         const marker = L.marker(latlng, {
           icon: L.icon({
@@ -896,9 +894,9 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
     this.observations = [];
     this.reanallysis = [];
 
-    let tmpCategoryDatasets: any[] = [];
-    let tmpScale: any[] = [];
-    let tmpTimeperiods: any[] = [];
+    const tmpCategoryDatasets: any[] = [];
+    const tmpScale: any[] = [];
+    const tmpTimeperiods: any[] = [];
 
     this.httpService.post('dataset/getAllNodes/', {
     }).subscribe({
@@ -1090,8 +1088,8 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
     this.variableArray = [];
 
     if (node.name) {
-      let variableNames = node.name.variable_names.split(" ");
-      let variableTypes = node.name.variable_types.split(" ");
+      const variableNames = node.name.variable_names.split(" ");
+      const variableTypes = node.name.variable_types.split(" ");
       // console.log("VariableName===========", variableNames, "variable types==========", variableTypes);
       variableNames.forEach((variableName: any, index: number) => {
         // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
@@ -1108,8 +1106,8 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
       // this.variableArray = node.name.variable_names.split(" ");
     }
     else if (node.variable_names) {
-      let variableNames = node.variable_names.split(" ");
-      let variableTypes = node.variable_types.split(" ")
+      const variableNames = node.variable_names.split(" ");
+      const variableTypes = node.variable_types.split(" ")
 
       variableNames.forEach((variableName: any, index: number) => {
         if (
@@ -2048,7 +2046,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
 
   getValuesByKey(arr: any[], key: string) {
     return arr
-      .filter((dict) => dict.hasOwnProperty(key))
+      .filter((dict) => Object.prototype.hasOwnProperty.call(dict, key))
       .map((dict) => dict[key]);
   }
 
@@ -2287,11 +2285,11 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
         else {
 
           this.allDataVectorial = res['dataVect'];
-          let allLatCoordinates = this.allDataVectorial[1];
-          let allLongCoordinates = this.allDataVectorial[2];
-          let allValues = this.allDataVectorial[0];
-          let value_min = this.allDataVectorial[3];
-          let value_max = this.allDataVectorial[4];
+          const allLatCoordinates = this.allDataVectorial[1];
+          const allLongCoordinates = this.allDataVectorial[2];
+          const allValues = this.allDataVectorial[0];
+          const value_min = this.allDataVectorial[3];
+          const value_max = this.allDataVectorial[4];
           let bounds: any;
           let rectangle: any;
           let value_mid: any;
@@ -2359,10 +2357,10 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
               //griddap case with rectangle, NON SERVONO I MARKER!
 
               bounds = [[parseFloat(allLatCoordinates[i]) - 0.005001, parseFloat(allLongCoordinates[i]) - 0.0065387], [parseFloat(allLatCoordinates[i]) + 0.005001, parseFloat(allLongCoordinates[i]) + 0.0065387]];
-              let colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
+              const colorStorage = localStorage.getItem(this.selData.get("dataSetSel")?.value.name.title);
               let varColor: any;
               if (colorStorage) {
-                let colorStorageJson = JSON.parse(colorStorage);
+                const colorStorageJson = JSON.parse(colorStorage);
                 varColor = this.getColor(allValues[i], value_min, value_max, colorStorageJson.minColor, colorStorageJson.midColor, colorStorageJson.maxColor);
 
               }
@@ -2372,7 +2370,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
               }
 
               // let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 }).bindTooltip(allValues[i]);
-              let rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
+              const rectangle = L.rectangle(bounds, { fillOpacity: 0.8, opacity: 0.8, fill: true, stroke: false, color: this.fillRectangleColor(varColor.r, varColor.g, varColor.b), weight: 1 });
               this.rettangoliLayer.addLayer(rectangle);
 
               this.map.addLayer(this.rettangoliLayer);
@@ -2809,8 +2807,8 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
   changeSel(sel?: any, type?: string) {
     console.log("PROVA FUNZIONE SEL =", sel);
 
-    let tmpScale: any[] = [];
-    let tmpTimeperiods: any[] = [];
+    const tmpScale: any[] = [];
+    const tmpTimeperiods: any[] = [];
 
     if(type === "c") {
 
@@ -2853,7 +2851,7 @@ export class GeoportalMapNewComponent implements OnInit, AfterViewInit {
    * Funzione che carica il layer corrispondente sulla mappa alla selezione di un dataset
    */
   selDatasetProva(node: any) {
-    let obj = {
+    const obj = {
       name: node
     }
 

@@ -1,9 +1,9 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, ChangeDetectorRef, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Options, LabelType } from '@angular-slider/ngx-slider';
+import { Options } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
 import { ExtraParams } from 'src/app/interfaces/geoportal-compare-dialog-int';
 
@@ -98,7 +98,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
   checkDimensions() {
     if(this.firstDataset.name.dimensions > 3) {
 
-      let name = this.firstDataset.name.dimension_names.split(" ")[1];
+      const name = this.firstDataset.name.dimension_names.split(" ")[1];
       if (name === "depth") {
         this.extraParamFirst = {
           name: "Elevation",
@@ -124,7 +124,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
     }
 
     if(this.secondDataset.name.dimensions > 3) {
-      let name = this.secondDataset.name.dimension_names.split(" ")[1];
+      const name = this.secondDataset.name.dimension_names.split(" ")[1];
 
       if (name === "depth") {
 
@@ -192,7 +192,7 @@ export class GeoportalCompareDialogComponent implements OnInit {
   }
 
   compareDatasets(){
-    let data = {
+    const data = {
       firstDataset: this.form.get('firstDataset')?.value,
       secondDataset: this.form.get('secondDataset')?.value,
       firstValue: this.checkForDepth1(),
@@ -241,8 +241,8 @@ export class GeoportalCompareDialogComponent implements OnInit {
 
     this.firstDataset = this.form.get('firstDataset')?.value;
     if (this.firstDataset.name) {
-      let variableNames = this.firstDataset.name.variable_names.split(" ");
-      let variableTypes = this.firstDataset.name.variable_types.split(" ");
+      const variableNames = this.firstDataset.name.variable_names.split(" ");
+      const variableTypes = this.firstDataset.name.variable_types.split(" ");
       variableNames.forEach((vName:any, index: number) =>{
       if (
         vName !== "time" && vName !== "latitude" && vName !== "longitude" &&
@@ -253,8 +253,8 @@ export class GeoportalCompareDialogComponent implements OnInit {
       });
     }
     else if (this.firstDataset.variable_names) {
-      let variableNames = this.firstDataset.variable_names.split(" ");
-      let variableTypes = this.firstDataset.variable_types.split(" ");
+      const variableNames = this.firstDataset.variable_names.split(" ");
+      const variableTypes = this.firstDataset.variable_types.split(" ");
       variableNames.forEach((variableName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (
@@ -277,8 +277,8 @@ export class GeoportalCompareDialogComponent implements OnInit {
     this.secondDataset = this.form.get('secondDataset')?.value;
 
     if (this.secondDataset.name) {
-      let variableNames = this.secondDataset.name.variable_names.split(" ");
-      let variableTypes = this.secondDataset.name.variable_types.split(" ");
+      const variableNames = this.secondDataset.name.variable_names.split(" ");
+      const variableTypes = this.secondDataset.name.variable_types.split(" ");
       variableNames.forEach((variableName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (
@@ -290,8 +290,8 @@ export class GeoportalCompareDialogComponent implements OnInit {
       });
     }
     else if (this.secondDataset.variable_names) {
-      let variableNames = this.secondDataset.variable_names.split(" ");
-      let variableTypes = this.secondDataset.variable_types.split(" ");
+      const variableNames = this.secondDataset.variable_names.split(" ");
+      const variableTypes = this.secondDataset.variable_types.split(" ");
       variableNames.forEach((variableName:any, index: number) =>{
      // Include variables that are not "time", "latitude", or "longitude" and have a type of "float"
       if (

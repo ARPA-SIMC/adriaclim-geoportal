@@ -1,15 +1,9 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AfterViewInit, Component, Inject, ChangeDetectorRef, AfterContentChecked } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
-// import * as saveAs from 'file-saver';
-import { saveAs } from 'file-saver';
-import { Options, LabelType } from '@angular-slider/ngx-slider';
 import { HttpService } from 'src/app/services/http.service';
-import { MAT_SELECT_CONFIG } from '@angular/material/select';
-import { last } from 'lodash';
 import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
 
 @Component({
@@ -56,9 +50,9 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
         minMidColor: new FormControl(this.valueMinMidColor),
         midMaxColor: new FormControl(this.valueMidMaxColor),
       })
-      let colorStorage = localStorage.getItem(this.datasetName);
+      const colorStorage = localStorage.getItem(this.datasetName);
       if(colorStorage) {
-        let colorStorageJson = JSON.parse(colorStorage);
+        const colorStorageJson = JSON.parse(colorStorage);
         this.form.get('minColor')?.setValue(colorStorageJson.minColor);
         this.form.get('midColor')?.setValue(colorStorageJson.midColor);
         this.form.get('maxColor')?.setValue(colorStorageJson.maxColor);
@@ -97,7 +91,7 @@ export class GeoportalColorDialogComponent implements AfterViewInit, AfterConten
       localStorage.setItem(this.datasetName,JSON.stringify(this.form.value));
     }catch(error:any){
       if(error instanceof DOMException && error.name === 'QuotaExceededError'){
-        let firstKey = localStorage.key(0);
+        const firstKey = localStorage.key(0);
         if(firstKey) {
           localStorage.removeItem(firstKey);
           localStorage.setItem(this.datasetName,JSON.stringify(this.form.value));

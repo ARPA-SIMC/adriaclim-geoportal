@@ -11,7 +11,6 @@ import { MAT_SELECT_CONFIG } from '@angular/material/select';
 import * as _ from 'lodash';
 import { OptionsValue, TypeOfExport } from 'src/app/interfaces/geoportal-map-dialog-int';
 import { SpinnerLoaderService } from 'src/app/services/spinner-loader.service';
-import { driver } from 'driver.js';
 
 @Component({
   selector: 'app-geoportal-map-dialog',
@@ -26,23 +25,23 @@ import { driver } from 'driver.js';
 })
 export class GeoportalMapDialogComponent implements AfterContentChecked {
 
-  showTutorialGraph: boolean = false;
+  showTutorialGraph = false;
   isUpdate = false;
   dimUnit: any;
   availableDepths: number[] = [];
-  selectedDepth: number = 0;
-  isProfileTimeseries: boolean = false;
+  selectedDepth = 0;
+  isProfileTimeseries = false;
   stats: any = {};
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
   metadataRows: any[] = [];
   spinnerLoading: any = false;
-  progressBarAtStart: boolean = true;
+  progressBarAtStart = true;
   private paginator!: MatPaginator;
   dataTable: any;
   form!: FormGroup;
   description: string;
-  tableDescription: string = "";
+  tableDescription = "";
   success: boolean;
   datasetId: string;
   datasetName: string;
@@ -70,7 +69,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   stdevValue: any;
   trendValue: any;
   statCalc: any;
-  tutorialMode: boolean = false;
+  tutorialMode = false;
   prodDev = this.httpService.apiUrl === "http://localhost:8000/" ? "dev" : "prod";
   info: any = false;
   circleCoords: any;
@@ -95,7 +94,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   start: any;
   end: any;
 
-  showStatistic: boolean = true;
+  showStatistic = true;
   graphTutorialDriver: any;
   compareObj: any;
 
@@ -353,25 +352,25 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   }
 
   formatDate(d: any) {
-    let month = d.getMonth() + 1
-    let day = d.getDate()
-    let year = d.getFullYear()
+    const month = d.getMonth() + 1
+    const day = d.getDate()
+    const year = d.getFullYear()
     return day + "/" + month + "/" + year;
   }
 
   formatDateExport(date: any) {
-    var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
 
     if (month.length < 2)
       month = '0' + month;
     if (day.length < 2)
       day = '0' + day;
 
-    var first_part = [year, month, day].join('-');
-    var second_part = "T00:00:00Z";
+    const first_part = [year, month, day].join('-');
+    const second_part = "T00:00:00Z";
     return first_part + second_part;
   }
 
@@ -486,8 +485,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   * Change the chart modal content to display the section with chart-related information
   */
   showInfo() {
-    let noInfo = document.getElementById("noInfo");
-    let yesInfo = document.getElementById("yesInfo");
+    const noInfo = document.getElementById("noInfo");
+    const yesInfo = document.getElementById("yesInfo");
     if (noInfo && yesInfo) {
       if (noInfo.style.display == "none") {
         noInfo.style.display = "block";
@@ -587,7 +586,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   * Retrieve metadata to populate the table
   */
   getMetadataTable() {
-    let data = {
+    const data = {
       idMeta: this.datasetId
     }
     this.spinnerService.spinnerShow = true;
@@ -632,7 +631,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     this.dimUnit = "";
     if (this.dataset) {
       this.spinnerLoading = true; 
-      let data = {
+      const data = {
         idMeta: this.datasetId,
         dimensions: this.dataset.dimensions,
         lat: this.latlng.lat,
@@ -661,9 +660,9 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
               this.dimUnit = "";
             }
 
-            let arr1: any[] = [];
+            const arr1: any[] = [];
             this.dataTable.data.table.rows.forEach((arr: any) => {
-              let objArr: any = {};
+              const objArr: any = {};
               this.dataTable.data.table.columnNames.forEach((key: any, i: number) => {
                 objArr[key] = arr[i];
               });
@@ -746,8 +745,8 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
             this.minRange = 0
             this.maxRange = 0
           }
-          let rangeMin = this.minRange;
-          let rangeMax = this.maxRange;
+          const rangeMin = this.minRange;
+          const rangeMax = this.maxRange;
           if (this.polygon) {
             erddapUrl += variable + "%5B(" + this.formatDateExport(this.minValue) + "):1:(" + this.formatDateExport(this.maxValue) + ")%5D%5B(" + rangeMin + "):1:(" + rangeMax + ")%5D%5B(" + latMin + "):1:(" + latMax + ")%5D%5B(" + lngMin + "):1:(" + lngMax + ")%5D"
           }
@@ -760,7 +759,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
       });
     } else {
       erddapUrl = "https://erddap-adriaclim.cmcc-opa.eu/erddap/tabledap/" + this.datasetId + typeSel + "?";
-      let variable_names = this.dataset.variable_names.split(" ");
+      const variable_names = this.dataset.variable_names.split(" ");
       variable_names.forEach((variable: any, index: any) => {
         if (index === variable_names.length - 1) {
           erddapUrl += variable;
@@ -820,7 +819,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
   dataTablePolygon(event: any) {
     this.dataTable = event;
     this.displayedColumns = Object.keys(this.dataTable[0]);
-    let lastCol = this.displayedColumns[this.displayedColumns.length - 1];
+    const lastCol = this.displayedColumns[this.displayedColumns.length - 1];
     this.dimUnit = this.dataTable[0][this.displayedColumns[this.displayedColumns.length - 1]];
 
     if (this.dimUnit && this.dimUnit !== "No" && this.dimUnit !== "Value not defined" && typeof this.dimUnit === "string") {
@@ -828,7 +827,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     }
 
     let objArr: any = {};
-    let arr1: any = [];
+    const arr1: any = [];
     this.dataTable.forEach((arr: any, index: number) => {
       if (index !== 0) {
         objArr = {};
@@ -1054,14 +1053,14 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
 
 
   statisticCalc(event: any) {
-    this.statCalc = event;;
+    this.statCalc = event;
   }
 
   /**
   * Update statistics for the dataset displayed in the chart
   */
   calcStatistics() {
-    let data = {
+    const data = {
       dates: this.statCalc.dates,
       values: this.statCalc.values,
       dataset: this.dataset,
@@ -1071,7 +1070,7 @@ export class GeoportalMapDialogComponent implements AfterContentChecked {
     if (this.statCalc.values.length > 0) {
       this.httpService.post('dataset/updateStatistics/', data).subscribe({
         next: (res: any) => {
-          let mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
+          const mean_median_stdev = [res.newValues.mean, res.newValues.median, res.newValues.stdev, res.newValues.trend];
           this.expoFormat(mean_median_stdev);
         },
 
