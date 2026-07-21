@@ -26,7 +26,7 @@ export class FilterPipe implements PipeTransform {
       //items is an array
       searchText = searchText.toLocaleLowerCase();
       return items.filter(it => {
-        let name = it.name.title.toLocaleLowerCase();
+        const name = it.name.title.toLocaleLowerCase();
         const searchWords: string[] = searchText.split(' ');
         return  searchWords.every(searchWord => name.includes(searchWord)) || it.name.institution.toLocaleLowerCase().includes(searchText);
       });

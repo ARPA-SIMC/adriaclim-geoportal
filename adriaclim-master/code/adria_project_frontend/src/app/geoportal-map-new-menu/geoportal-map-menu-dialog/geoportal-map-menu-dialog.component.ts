@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, AfterContentChecked, OnInit, ViewEncapsulation, Renderer2, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild, ChangeDetectorRef, OnInit, ViewEncapsulation, Renderer2, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSelect } from '@angular/material/select';
@@ -97,7 +97,7 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
   ok(){
 
     if(this.form.get("menu")?.value) {
-      let data = {
+      const data = {
         menu: this.form.get("menu")?.value,
         category: this.form.get("category")?.value,
         scale: this.form.get("scale")?.value,
@@ -115,9 +115,9 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
   getAllNodes() {
     this.categoryDatasets = [];
 
-    let tmpCategoryDatasets: any[] = [];
-    let tmpScale: any[] = [];
-    let tmpTimeperiods: any[] = [];
+    const tmpCategoryDatasets: any[] = [];
+    const tmpScale: any[] = [];
+    const tmpTimeperiods: any[] = [];
 
     this.httpService.post('dataset/getAllNodes/', {
     }).subscribe({
@@ -195,8 +195,8 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
     // this.menuDatasets = [];
     // this.searchFilter = [];
     this.searchInput!.nativeElement.value = '';
-    let tmpScale: any[] = [];
-    let tmpTimeperiods: any[] = [];
+    const tmpScale: any[] = [];
+    const tmpTimeperiods: any[] = [];
 
     if(type === "c") {
 
@@ -312,11 +312,11 @@ export class GeoportalMapMenuDialogComponent implements OnInit, AfterViewInit {
    */
   search(value: any) {
     if(value) {
-      let filters = value.toLowerCase().split(" ");
-      let menuDatasetClone = _.cloneDeep(this.menuDatasets);
-      let menuFiltered = menuDatasetClone.filter((option: any) => {
-        let optionTitle = option.title.toLowerCase();
-        let optionInstitution = option.institution.toLowerCase();
+      const filters = value.toLowerCase().split(" ");
+      const menuDatasetClone = _.cloneDeep(this.menuDatasets);
+      const menuFiltered = menuDatasetClone.filter((option: any) => {
+        const optionTitle = option.title.toLowerCase();
+        const optionInstitution = option.institution.toLowerCase();
         return filters.every((filter: any) => {
 
           if(optionTitle.includes(filter)) {
