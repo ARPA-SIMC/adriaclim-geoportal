@@ -1,12 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import * as welcomeJson from '../../../../assets/configuration/welcomePage.json'
 
-interface WelcomeJson {
-  title: string;
-  text: string;
-  webProject: string;
-  toolkit: string;
+interface OfficialResource {
+  titleLine1: string;
+  titleLine2: string;
+  url: string;
+  icon: string;
 }
 
 @Component({
@@ -14,48 +13,45 @@ interface WelcomeJson {
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss']
 })
-export class WelcomeComponent implements OnInit {
+export class WelcomeComponent {
 
-  // title = welcomeJson["title"];
-  // textContent = welcomeJson["text"];
-  welJson: WelcomeJson = welcomeJson;
-  constructor(private router: Router) {
+  /**
+   * Elenco delle risorse ufficiali mostrate nella sezione "Official Resources".
+   * Per aggiungerne una nuova basta aggiungere un elemento a questo array.
+   */
+  resources: OfficialResource[] = [
+    {
+      titleLine1: 'AdriaClimPlus',
+      titleLine2: 'Project page',
+      url: 'https://www.italy-croatia.eu/web/adriaclimplus',
+      icon: 'public'
+    },
+    {
+      titleLine1: 'Climate Literacy',
+      titleLine2: 'Toolkit',
+      url: 'https://www.climateliteracy.eu/en/',
+      icon: 'menu_book'
+    },
+    {
+      titleLine1: 'AdriaClim',
+      titleLine2: 'Project page',
+      url: 'https://programming14-20.italy-croatia.eu/web/adriaclim',
+      icon: 'groups'
+    }
+  ];
 
-  }
-  ngOnInit(): void {
-    console.log("WELCOME JSON = ", welcomeJson);
+  /** Usato solo per disegnare le 12 stelle dell'emblema UE nel footer */
+  euStars = Array(12).fill(0);
 
-    this.welJson = welcomeJson;
-  }
+  constructor(private router: Router) { }
 
   /**
    * Funzione che reindirizza alla mappa e ricarica la pagina per mostrare i poligoni
    */
   goToMap() {
-    // Scommentare per usare vecchio menu
-    // this.router.navigate(['/map']).then(() => {
-    //   window.location.reload();
-    // });
-
-    // Scommentare per usare nuovo menu
     this.router.navigate(['/mapNewMenu']).then(() => {
       window.location.reload();
     });
-  }
-
-  /**
-   * Funzione che reindirizza al link esterno del web project
-   */
-  goToWebProject() {
-    window.location.href = this.welJson.webProject;
-
-  }
-
-  /**
-   * Funzione che reinderizza al link esterno del toolkit
-   */
-  goToToolkit() {
-    window.location.href = this.welJson.toolkit;
   }
 
 }
