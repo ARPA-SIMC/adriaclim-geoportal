@@ -1,53 +1,96 @@
-<div class="main-content col-12">
+<div class="welcome-page">
 
-  <div class="col-12">
-    <mat-toolbar color="primary">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
 
-      <div class="d-flex justify-content-center align-items-center gap-5 col-12 toolbar-buttons h-75">
+    <div class="hero-content">
 
-        <button class="col-2" mat-raised-button (click)="goToMap()" style="color: #fff; background-color: rgba(0, 221, 221, 0.795);">
-          <mat-icon>public</mat-icon> <span class="text-menu"> Geoportal map</span>
-        </button>
-
+      <div class="brand-logo">
+        <svg class="brand-logo__mark" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="brandWaveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#5fd4e0"/>
+              <stop offset="100%" stop-color="#0b3d63"/>
+            </linearGradient>
+          </defs>
+          <path d="M4 40 C 22 18, 38 18, 50 32 C 62 46, 78 46, 90 28" fill="none" stroke="url(#brandWaveGradient)" stroke-width="7" stroke-linecap="round"/>
+          <path d="M20 46 C 38 24, 54 24, 66 38 C 78 52, 94 52, 106 34" fill="none" stroke="url(#brandWaveGradient)" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-logo__wordmark">
+          <span class="brand-logo__name">AdriaClim</span><span class="brand-logo__suffix">Plus</span>
+        </div>
       </div>
 
-    </mat-toolbar>
-  </div>
-  <div class="container">
-    <div class="row justify-content-between pt-3">
+      <h1 class="hero-title">AdriaClimPlus Geoportal</h1>
 
-      <div class="col-2 d-flex justify-content-center align-items-center">
-        <button class="col btn btn-primary" (click)="goToWebProject()">Web project</button>
+      <div class="hero-divider"></div>
+
+      <button class="btn-enter" type="button" (click)="goToMap()">
+        <mat-icon>map</mat-icon>
+        <span>GEOPORTAL MAP</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+
+    </div>
+
+    <div class="hero-wave" aria-hidden="true">
+      <svg class="hero-wave__back" viewBox="0 0 1440 100" preserveAspectRatio="none">
+        <path d="M0,55 C180,15 360,15 540,45 C720,75 900,75 1080,45 C1260,15 1350,15 1440,35 L1440,100 L0,100 Z" fill="#0f5c78" fill-opacity="0.55"/>
+      </svg>
+      <svg class="hero-wave__front" viewBox="0 0 1440 100" preserveAspectRatio="none">
+        <path d="M0,45 C220,85 420,5 660,35 C860,60 1040,85 1220,50 C1320,32 1380,25 1440,35 L1440,100 L0,100 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- OFFICIAL RESOURCES -->
+  <section class="resources">
+
+    <div class="resources-main">
+      <h2 class="resources-title">Official Resources</h2>
+      <div class="resources-title-divider"></div>
+
+      <div class="resources-grid">
+        <a *ngFor="let resource of resources"
+           class="resource-btn"
+           [href]="resource.url"
+           target="_blank"
+           rel="noopener noreferrer">
+          <mat-icon class="resource-icon">{{ resource.icon }}</mat-icon>
+          <span class="resource-text">
+            <strong>{{ resource.titleLine1 }}</strong>
+            <span>{{ resource.titleLine2 }}</span>
+          </span>
+          <mat-icon class="resource-arrow">arrow_forward</mat-icon>
+        </a>
       </div>
+    </div>
 
-      <!-- <div class="col arrow"></div> -->
+    <div class="resources-footer">
+      <div class="footer-divider"></div>
 
-      <div class="col-2 d-flex justify-content-center align-items-center">
-        <button class="col btn btn-primary" (click)="goToToolkit()">Toolkit</button>
+      <div class="footer-logos">
+        <div class="footer-logo footer-logo--interreg">
+          <span class="interreg-name">Interreg</span>
+          <span class="interreg-sub">Italy - Croatia</span>
+        </div>
+
+        <div class="footer-logo footer-logo--eu">
+          <div class="eu-flag">
+            <span class="eu-star" *ngFor="let star of euStars"></span>
+          </div>
+          <span class="eu-text">Co-funded by<br>the European Union</span>
+        </div>
+
+        <div class="footer-divider-vertical"></div>
+
+        <div class="footer-logo footer-logo--brand">
+          <span class="brand-logo__name">AdriaClim</span><span class="brand-logo__suffix">Plus</span>
+        </div>
       </div>
-
-    </div>
-    <div class="row">
-      <!-- <h2 class="text-center">Geoportal Adriaclim</h2> -->
-      <h2 class="text-center col">{{welJson.title}}</h2>
-    </div>
-    <div class="row">
-      <!-- <p class="col">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam quis odio ante. Nulla congue elementum laoreet. Pellentesque id ipsum leo. Etiam non arcu neque. Praesent sapien libero, venenatis at enim dictum, fringilla iaculis nibh. Vestibulum laoreet augue posuere arcu ultrices vehicula. Cras vel metus et ligula faucibus consectetur quis in dui. Fusce venenatis lorem id quam sagittis, et facilisis velit egestas. Etiam ac laoreet sem. Nullam luctus, ante a sodales euismod, ante ligula scelerisque libero, sed aliquet nunc massa eget eros. Morbi purus est, semper in eleifend eget, consequat sollicitudin erat. Donec aliquet, ex sit amet tincidunt mattis, quam tortor maximus nunc, at efficitur dolor neque id nunc.
-
-        Sed velit sapien, dapibus quis lacinia ut, volutpat nec ante. Aenean aliquet pulvinar elit, sed lacinia odio finibus ut. Phasellus venenatis, felis vel commodo tincidunt, tellus est cursus ipsum, et finibus ex nunc vitae libero. Donec nec tincidunt lectus. Proin id elit semper, finibus lectus vel, tempus elit. Morbi enim odio, pretium ornare pellentesque ac, placerat non mauris. Duis ac cursus libero. Ut semper feugiat congue. Sed gravida vestibulum dolor, nec accumsan metus dictum in. Nunc ullamcorper diam vel ipsum blandit tincidunt. Praesent accumsan enim in congue gravida. Vestibulum gravida at metus ut gravida. Sed tortor turpis, lobortis ac lectus in, sagittis euismod lacus.
-
-        Sed et feugiat eros. Fusce id nisl porttitor, pretium lectus vel, pulvinar velit. Cras eleifend ullamcorper enim. Ut aliquet sem volutpat maximus maximus. Donec imperdiet hendrerit tortor, sit amet dignissim nulla pretium venenatis. Ut sit amet rhoncus turpis. In sodales arcu urna, consectetur sollicitudin erat dapibus quis. Mauris eget leo iaculis, rhoncus elit ac, fringilla nunc.
-
-        Nullam ut lectus efficitur, aliquam elit et, ultrices magna. Integer a mi lacus. Aliquam dui erat, rhoncus vitae odio nec, aliquet tempus turpis. Curabitur vel fermentum nisl. Morbi aliquam arcu et cursus.
-
-        Generated 4 paragraphs, 300 words, 2000 bytes of Lorem Ipsum
-      </p> -->
-      <p class="col">
-        <!-- {{welJson.text}} -->
-      </p>
     </div>
 
-  </div>
+  </section>
 
 </div>
