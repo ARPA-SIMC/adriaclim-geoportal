@@ -9,6 +9,7 @@ import * as L from 'leaflet';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as pilotPoly from '../../assets/geojson/adriaclim_pilot_label.json';
+import * as adriaclimPlusPilotPoly from '../../assets/geojson/adriaclimplus_pilot_label.json';
 import * as adriaticPoly from '../../assets/geojson/adriatic_view.json';
 import { GeoportalMapDialogComponent } from '../geoportal-map/geoportal-map-dialog/geoportal-map-dialog.component';
 import { HttpService } from '../services/http.service';
@@ -106,6 +107,7 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   markers: L.Marker[] = [];
 
   pilotPolygon = pilotPoly;
+  adriaclimPlusPilotPolygon = adriaclimPlusPilotPoly;
   adriaticPolygon = adriaticPoly;
 
   allPolygons: any[] = [];
@@ -352,11 +354,11 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   /**
  * Show the configured pilot polygons on the map
  */
-  pilotView() {
+  pilotView(polygon = this.pilotPolygon) {
     let polyg: any = [];
     this.removeAllPolygons();
 
-    this.pilotPolygon.features.forEach((f: any) => {
+    polygon.features.forEach((f: any) => {
       f.geometry.coordinates.forEach((c: any) => {
         polyg.push(c);
       });
@@ -387,10 +389,16 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
 
   /**
    * Show the AdriaClimPlus pilot polygons on the map.
-   * For now it uses the same pilot GeoJSON as AdriaClim Pilot View.
+   * Uses the dedicated AdriaClimPlus pilot GeoJSON.
    */
   adriaClimPlusPilotView() {
-    this.pilotView();
+    const polygon = _.cloneDeep(this.adriaclimPlusPilotPolygon);
+    polygon.features.forEach((f: any) => {
+      f.geometry.coordinates.forEach((c: any) => {
+        c.forEach((coord: any) => coord.reverse());
+      });
+    });
+    this.pilotView(polygon);
   }
 
   /**
