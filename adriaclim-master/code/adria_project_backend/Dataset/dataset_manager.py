@@ -89,15 +89,15 @@ def process_dataset_row(row: Dict[str, Any]) -> None:
             variable_types += f"{meta_row['DataType']} "
 
         # Extract AdriaClim custom metadata and global metadata
-        if attr_name == "adriaclim_dataset":
+        if attr_name == "adriaclim_dataset" or attr_name == "adriaclimplus_dataset":
             adriaclim_dataset = attr_value
-        elif attr_name == "adriaclim_model":
+        elif attr_name == "adriaclim_model" or attr_name == "adriaclimplus_model":
             adriaclim_model = attr_value
-        elif attr_name == "adriaclim_scale":
+        elif attr_name == "adriaclim_scale" or attr_name == "adriaclimplus_scale":
             adriaclim_scale = attr_value
-        elif attr_name == "adriaclim_timeperiod":
+        elif attr_name == "adriaclim_timeperiod" or attr_name == "adriaclimplus_timeperiod":
             adriaclim_timeperiod = attr_value
-        elif attr_name == "adriaclim_type":
+        elif attr_name == "adriaclim_type" or attr_name == "adriaclimplus_type":
             adriaclim_type = attr_value
         elif attr_name == "institution":
             institution = attr_value
