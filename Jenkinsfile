@@ -30,10 +30,10 @@ pipeline {
                         env.SSH_CREDENTIAL_ID = 'arpae-ssh-key'
                         env.DEPLOY_HOST = hosts[0]
 
-                        // Definizione condizionale di sudo e docker-compose
+                        // Definizione condizionale di sudo e docker compose
                         env.SUDO = (env.DEPLOY_BRANCH == 'prod') ? 'sudo' : ''
                         env.DOCKER = (env.DEPLOY_BRANCH == 'prod') ? 'sudo docker' : 'docker'
-                        env.DOCKER_COMPOSE = (env.DEPLOY_BRANCH == 'prod') ? 'sudo docker-compose' : 'docker-compose'
+                        env.DOCKER_COMPOSE = (env.DEPLOY_BRANCH == 'prod') ? 'sudo docker compose' : 'docker compose'
 
                         echo "→ Deploy su ${env.DEPLOY_HOST} (${env.DEPLOY_BRANCH}) come utente ${env.SSH_USER}"
                     }
@@ -63,7 +63,7 @@ pipeline {
                             echo "[🧹 Stop e rimozione container precedenti...]" &&
                             sudo docker ps -aq | xargs -r sudo docker stop || true &&
                             sudo docker ps -aq | xargs -r sudo docker rm -f || true &&
-                            sudo docker-compose down -v --remove-orphans || true &&
+                            sudo docker compose down -v --remove-orphans || true &&
                             sudo docker system prune -af || true &&
 
                             echo "[2] Aggiorno codice da Git..." &&
@@ -113,7 +113,7 @@ pipeline {
                         git checkout ${DEPLOY_BRANCH}
                         git reset --hard origin/${DEPLOY_BRANCH}
 
-                        echo "[secrets] Posiziono .env accanto a docker-compose.yml..."
+                        echo "[secrets] Posiziono .env accanto a docker compose.yml..."
                         if [ -f "${REMOTE_PROJECT_PATH}/.env" ]; then
                         cp -f ${REMOTE_PROJECT_PATH}/.env ${REMOTE_PROJECT_PATH}/adriaclim-master/.env
                         fi
