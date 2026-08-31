@@ -209,7 +209,7 @@
             "properties": {
                 "popupContent": "Emilia Romagna Coastal Area"
             },
-            "id": 3
+            "id": 2
         },
         {
             "type": "Feature",
@@ -251,7 +251,7 @@
             "properties": {
                 "popupContent": "Marche Coastal Area"
             },
-            "id": 4
+            "id": 3
         },
         {
             "type": "Feature",
@@ -313,7 +313,7 @@
             "properties": {
                 "popupContent": "Apulia Coastal Area"
             },
-            "id": 6
+            "id": 4
         },
         {
             "type": "Feature",
@@ -375,13 +375,14 @@
             "properties": {
                 "popupContent": "Zadar County"
             },
-            "id": 9
+            "id": 5
         },
         {
             "type": "Feature",
             "properties": {
                 "popupContent": "Lika - Senj County"
             },
+            "id": 6,
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
