@@ -243,49 +243,8 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   }
 
   async ngAfterViewInit(): Promise<void> {
-
-    let polyg: any = [];
-
-    this.pilotPolygon.features.forEach(f => {
-
-      if (f.properties.popupContent !== "") {
-        f.geometry.coordinates.forEach(c => {
-          c.forEach(coord => {
-            coord.reverse();
-          });
-
-          polyg.push(c);
-        });
-
-        const pol = L.polygon(polyg[0]).addTo(this.map);
-
-        pol.on('mouseover', () => {
-          pol.setStyle({ color: 'red' });
-          this.highlightedPolygon = {
-            pol: pol,
-            polName: f.properties.popupContent
-          };
-        });
-
-        pol.on('mouseout', () => {
-          pol.setStyle({ color: 'rgb(51, 136, 255)' });
-          this.highlightedPolygon = null;
-        });
-
-        this.allPolygons.push({
-          pol: pol,
-          polName: f.properties.popupContent
-        });
-
-        polyg = [];
-      } else {
-        f.geometry.coordinates.forEach(c => {
-          c.forEach(coord => {
-            coord.reverse();
-          });
-        });
-      }
-    });
+    // default polygons
+    this.polyView(this.pilotPolygon);
 
     // UNICO punto di start tutorial
     this.initializeTutorial();
@@ -308,55 +267,25 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
     this.allPolygons = [];
   }
 
-  /**
-   * Funzione che rimuove i poligoni dalla mappa e aggiunge l'area adriatica
-   */
-  /**
- * Show the Adriatic area polygon on the map
- */
-  adriaticView() {
+  polyView(polygon = this.pilotPolygon) {
     let polyg: any = [];
     this.removeAllPolygons();
 
-    this.adriaticPolygon.features.forEach((f: any) => {
+/*        f.geometry.coordinates.forEach(c => {
+          c.forEach(coord => {
+            coord.reverse();
+          });
+
+          polyg.push(c);
+        });
+*/
+
+/*    polygon.features.forEach((f: any) => {
       f.geometry.coordinates.forEach((c: any) => {
-        const reversedCoords = c.map((coord: any) => [...coord].reverse());
-        polyg.push(reversedCoords);
+        c.forEach((coord: any) => coord.reverse());
       });
-
-      const pol = L.polygon(polyg[0]).addTo(this.map);
-
-      pol.on('mouseover', () => {
-        pol.setStyle({ color: 'red' });
-        this.highlightedPolygon = {
-          pol: pol,
-          polName: f.properties.popupContent
-        };
-      });
-
-      pol.on('mouseout', () => {
-        pol.setStyle({ color: 'rgb(51, 136, 255)' });
-        this.highlightedPolygon = null;
-      });
-
-      this.allPolygons.push({
-        pol: pol,
-        polName: f.properties.popupContent
-      });
-
-      polyg = [];
     });
-  }
-
-  /**
-   * Funzione che mostra i poligoni precedentemente configurati sulla mappa
-   */
-  /**
- * Show the configured pilot polygons on the map
- */
-  pilotView(polygon = this.pilotPolygon) {
-    let polyg: any = [];
-    this.removeAllPolygons();
+*/
 
     polygon.features.forEach((f: any) => {
       f.geometry.coordinates.forEach((c: any) => {
@@ -388,17 +317,31 @@ export class GeoportalMapNewMenuComponent implements OnInit, AfterViewInit{
   }
 
   /**
+   * Funzione che rimuove i poligoni dalla mappa e aggiunge l'area adriatica
+   */
+  /**
+ * Show the Adriatic area polygon on the map
+ */
+  adriaticView() {
+    this.polyView(this.adriaticPolygon);
+  }
+
+  /**
+   * Funzione che mostra i poligoni precedentemente configurati sulla mappa
+   */
+  /**
+ * Show the configured pilot polygons on the map
+ */
+  pilotView() {
+    this.polyView(this.pilotPolygon);
+  }
+
+  /**
    * Show the AdriaClimPlus pilot polygons on the map.
    * Uses the dedicated AdriaClimPlus pilot GeoJSON.
    */
   adriaClimPlusPilotView() {
-    const polygon = _.cloneDeep(this.adriaclimPlusPilotPolygon);
-    polygon.features.forEach((f: any) => {
-      f.geometry.coordinates.forEach((c: any) => {
-        c.forEach((coord: any) => coord.reverse());
-      });
-    });
-    this.pilotView(polygon);
+    this.polyView(this.adriaclimPlusPilotPolygon);
   }
 
   /**
